@@ -207,7 +207,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
-        return new SqueezerItemListAdapter<T>(itemView, mImageFetcher);
+        return new SqueezerItemListAdapter<T>(this, itemView, mImageFetcher);
 	}
 
 	/**

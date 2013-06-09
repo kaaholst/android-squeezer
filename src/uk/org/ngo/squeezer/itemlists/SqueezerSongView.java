@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
@@ -40,7 +40,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 	private boolean browseByArtist;
 	public void setBrowseByArtist(boolean browseByArtist) { this.browseByArtist = browseByArtist; }
 
-    public SqueezerSongView(SqueezerItemListActivity activity) {
+    public SqueezerSongView(SqueezerBaseActivity activity) {
         super(activity);
     }
 

@@ -59,7 +59,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     private class HighlightingListAdapter extends SqueezerItemListAdapter<SqueezerSong> {
         public HighlightingListAdapter(SqueezerItemView<SqueezerSong> itemView,
                 ImageFetcher imageFetcher) {
-            super(itemView, imageFetcher);
+            super(SqueezerCurrentPlaylistActivity.this, itemView, imageFetcher);
         }
 
         @Override

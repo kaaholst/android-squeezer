@@ -50,7 +50,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	/**
 	 * @return The activity associated with this view logic
 	 */
-	SqueezerItemListActivity getActivity();
+	SqueezerBaseActivity getActivity();
 
 	/**
 	 * @return {@link Resources#getQuantityString(int, int)}

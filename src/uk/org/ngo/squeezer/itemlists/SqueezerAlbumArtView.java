@@ -19,9 +19,9 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
@@ -43,7 +43,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         SqueezerBaseItemView<T> {
     LayoutInflater mLayoutInflater;
 
-    public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
+    public SqueezerAlbumArtView(SqueezerBaseActivity activity) {
 		super(activity);
         mLayoutInflater = activity.getLayoutInflater();
 	}

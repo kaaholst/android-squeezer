@@ -45,19 +45,19 @@ import android.widget.Toast;
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
-    private final SqueezerItemListActivity mActivity;
+    private final SqueezerBaseActivity mActivity;
     private final LayoutInflater mLayoutInflater;
 
     private SqueezerItemAdapter<T> mAdapter;
 	private Class<T> mItemClass;
     private Creator<T> mCreator;
 
-    public SqueezerBaseItemView(SqueezerItemListActivity activity) {
+    public SqueezerBaseItemView(SqueezerBaseActivity activity) {
         this.mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
     }
 
-    public SqueezerItemListActivity getActivity() {
+    public SqueezerBaseActivity getActivity() {
         return mActivity;
     }
 

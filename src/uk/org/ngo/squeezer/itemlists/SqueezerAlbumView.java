@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
@@ -29,7 +29,7 @@ import android.view.View;
  * Shows a single album with its artwork, and a context menu.
  */
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
-    public SqueezerAlbumView(SqueezerItemListActivity activity) {
+    public SqueezerAlbumView(SqueezerBaseActivity activity) {
         super(activity);
     }
 

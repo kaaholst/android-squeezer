@@ -40,7 +40,7 @@ import android.widget.AbsListView.OnScrollListener;
  * 
  * @author Kurt Aaholst
  */
-public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
+public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OrderPages {
     private static final String TAG = SqueezerItemListActivity.class.getName();
 
     /** The list is being actively scrolled by the user */

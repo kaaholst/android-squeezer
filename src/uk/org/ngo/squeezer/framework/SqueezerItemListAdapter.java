@@ -34,8 +34,8 @@ public class SqueezerItemListAdapter<T extends SqueezerItem> extends SqueezerIte
      * Calls
      * {@link SqueezerItemAdapter#SqueezerBaseAdapter(SqueezerItemView, ImageFetcher)}
      */
-    public SqueezerItemListAdapter(SqueezerItemView<T> itemView, ImageFetcher imageFetcher) {
-        super(itemView, imageFetcher);
+    public SqueezerItemListAdapter(OrderPages orderPages, SqueezerItemView<T> itemView, ImageFetcher imageFetcher) {
+        super(orderPages, itemView, imageFetcher);
     }
 
 	@Override

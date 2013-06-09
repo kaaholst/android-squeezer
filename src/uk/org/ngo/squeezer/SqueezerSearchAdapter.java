@@ -60,10 +60,10 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
         this.activity = activity;
 
         SqueezerItemAdapter<?>[] adapters = {
-                new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity)),
-                new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity)),
-                new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
-                new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
+                new SqueezerItemAdapter<SqueezerSong>(activity, new SqueezerSongView(activity)),
+                new SqueezerItemAdapter<SqueezerAlbum>(activity, new SqueezerAlbumView(activity)),
+                new SqueezerItemAdapter<SqueezerArtist>(activity, new SqueezerArtistView(activity)),
+                new SqueezerItemAdapter<SqueezerGenre>(activity, new SqueezerGenreView(activity)),
         };
         childAdapters = adapters;
         for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter : childAdapters)

@@ -95,7 +95,7 @@ public class GenreSpinner {
                             };
 
 						};
-                        adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true, null);
+                        adapter = new SqueezerItemAdapter<SqueezerGenre>(activity, itemView, true, null);
 						spinner.setAdapter(adapter);
 					}
 					adapter.update(count, start, list);

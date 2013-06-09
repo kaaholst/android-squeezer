@@ -63,7 +63,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     @Override
     protected SqueezerItemAdapter<SqueezerMusicFolderItem> createItemListAdapter(
             SqueezerItemView<SqueezerMusicFolderItem> itemView) {
-        return new SqueezerItemAdapter<SqueezerMusicFolderItem>(itemView);
+        return new SqueezerItemAdapter<SqueezerMusicFolderItem>(this, itemView);
     };
 
     /**

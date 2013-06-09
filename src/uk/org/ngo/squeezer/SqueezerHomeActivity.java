@@ -22,6 +22,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerAlbumList;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
@@ -69,6 +70,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
+
+    private View mainPane;
+    private View level1Pane;
+    private View level2Pane;
     private ListView listView;
 
     private GoogleAnalyticsTracker tracker;
@@ -76,8 +81,11 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.item_list);
-        listView = (ListView) findViewById(R.id.item_list);
+        setContentView(R.layout.tablet_layout);
+        mainPane = findViewById(R.id.main);
+        level1Pane = findViewById(R.id.level1);
+        level2Pane = findViewById(R.id.level2);
+        listView = (ListView) mainPane.findViewById(R.id.item_list);
         MenuFragment.add(this, SqueezerMenuFragment.class);
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
@@ -127,8 +135,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
          * handshake completes, and the menu is adjusted depending on whether or
          * not those abilities exist.
          */
+        @Override
         public void onHandshakeCompleted() throws RemoteException {
             runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     createListItems();
                 }
@@ -189,14 +199,15 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 	}
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		@Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
             switch ((int) id) {
                 case ARTISTS:
                     SqueezerArtistListActivity.show(SqueezerHomeActivity.this);
                     break;
                 case ALBUMS:
-                    SqueezerAlbumListActivity.show(SqueezerHomeActivity.this);
+                    new SqueezerAlbumList(SqueezerHomeActivity.this, level1Pane, level2Pane);
                     break;
                 case SONGS:
                     SqueezerSongListActivity.show(SqueezerHomeActivity.this);
