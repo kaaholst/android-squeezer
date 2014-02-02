@@ -7,6 +7,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.itemlist.dialog.BaseViewDialog;
 
 /**
  * A fragment that implements a "View" menu.
@@ -54,16 +57,32 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
     /**
      * Interface that activities that host this fragment must implement.
      */
-    public interface ListActivityWithViewMenu {
+    public interface ListActivityWithViewMenu<T extends Item,
+            ListLayout extends Enum<ListLayout> & BaseViewDialog.EnumWithTextAndIcon,
+    SortOrder extends Enum<SortOrder> & BaseViewDialog.EnumWithText> {
 
         /**
          * Show a dialog allowing the user to choose the sort order.
          */
-        public void showViewDialog();
+        void showViewDialog();
 
         /**
          * Ensure that the activity that hosts this fragment derives from FragmentActivity.
          */
         FragmentManager getSupportFragmentManager();
+
+        SortOrder getSortOrder();
+
+        void setSortOrder(SortOrder sortOrder);
+
+        ListLayout getListLayout();
+
+        void setListLayout(ListLayout listLayout);
+
+        /**
+         * Ensure that the activity that hosts this fragment derives from BaseListActivity.
+         */
+        public ItemAdapter<T> getItemAdapter();
+
     }
 }

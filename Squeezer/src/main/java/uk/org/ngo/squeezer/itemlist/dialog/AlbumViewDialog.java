@@ -15,117 +15,23 @@
  */
 package uk.org.ngo.squeezer.itemlist.dialog;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.CheckedTextView;
-import android.widget.TextView;
+import android.content.Context;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
+import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.service.ServerString;
 
-public class AlbumViewDialog extends DialogFragment {
-
-    private static final int POSITION_SORT_LABEL = AlbumListLayout.values().length;
-
-    private static final int POSITION_SORT_START = POSITION_SORT_LABEL + 1;
+public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.AlbumListLayout, AlbumViewDialog.AlbumsSortOrder> {
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final AlbumListActivity activity = (AlbumListActivity) getActivity();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(activity.getServerString(ServerString.ALBUM_DISPLAY_OPTIONS));
-        builder.setAdapter(new BaseAdapter() {
-                               @Override
-                               public boolean areAllItemsEnabled() {
-                                   return false;
-                               }
-
-                               @Override
-                               public boolean isEnabled(int position) {
-                                   return (position != POSITION_SORT_LABEL);
-                               }
-
-                               @Override
-                               public int getCount() {
-                                   return AlbumListLayout.values().length + 1 + AlbumsSortOrder
-                                           .values().length;
-                               }
-
-                               @Override
-                               public Object getItem(int i) {
-                                   return null;
-                               }
-
-                               @Override
-                               public long getItemId(int i) {
-                                   return i;
-                               }
-
-
-                               @Override
-                               public View getView(int position, View convertView,
-                                       ViewGroup parent) {
-                                   if (position < POSITION_SORT_LABEL) {
-                                       CheckedTextView textView = (CheckedTextView) activity
-                                               .getLayoutInflater()
-                                               .inflate(android.R.layout.select_dialog_singlechoice,
-                                                       parent, false);
-                                       AlbumListLayout listLayout = AlbumListLayout
-                                               .values()[position];
-                                       textView.setCompoundDrawablesWithIntrinsicBounds(
-                                               listLayout.icon, 0, 0, 0);
-                                       textView.setText(
-                                               activity.getServerString(listLayout.serverString));
-                                       textView.setChecked(listLayout == activity.getListLayout());
-                                       return textView;
-                                   } else if (position > POSITION_SORT_LABEL) {
-                                       CheckedTextView textView = (CheckedTextView) activity
-                                               .getLayoutInflater()
-                                               .inflate(android.R.layout.select_dialog_singlechoice,
-                                                       parent, false);
-                                       position -= POSITION_SORT_START;
-                                       AlbumsSortOrder sortOrder = AlbumsSortOrder
-                                               .values()[position];
-                                       textView.setText(
-                                               activity.getServerString(sortOrder.serverString));
-                                       textView.setChecked(sortOrder == activity.getSortOrder());
-                                       return textView;
-                                   }
-
-                                   TextView textView = new TextView(activity, null,
-                                           android.R.attr.listSeparatorTextViewStyle);
-                                   textView.setText(getString(R.string.choose_sort_order,
-                                           activity.getItemAdapter().getQuantityString(2)));
-                                   return textView;
-                               }
-                           }, new DialogInterface.OnClickListener() {
-                               public void onClick(DialogInterface dialog, int position) {
-                                   if (position < POSITION_SORT_LABEL) {
-                                       activity.setListLayout(AlbumListLayout.values()[position]);
-                                       dialog.dismiss();
-                                   } else if (position > POSITION_SORT_LABEL) {
-                                       position -= POSITION_SORT_START;
-                                       activity.setSortOrder(AlbumsSortOrder.values()[position]);
-                                       dialog.dismiss();
-                                   }
-                               }
-                           }
-        );
-        return builder.create();
+    protected String getTitle() {
+        return ServerString.ALBUM_DISPLAY_OPTIONS.getLocalizedString();
     }
 
     /**
      * Supported album list layouts.
      */
-    public enum AlbumListLayout {
+    public enum AlbumListLayout implements BaseViewDialog.EnumWithTextAndIcon {
         grid(R.drawable.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
         list(R.drawable.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
 
@@ -134,10 +40,20 @@ public class AlbumViewDialog extends DialogFragment {
          */
         private int icon;
 
+        @Override
+        public int getIcon() {
+            return icon;
+        }
+
         /**
          * The text to use for this layout
          */
         private ServerString serverString;
+
+        @Override
+        public String getText(Context context) {
+            return serverString.getLocalizedString();
+        }
 
         private AlbumListLayout(int icon, ServerString serverString) {
             this.serverString = serverString;
@@ -151,7 +67,7 @@ public class AlbumViewDialog extends DialogFragment {
      * Values must correspond with the string expected by the server. Any '__' in the strings will
      * be removed.
      */
-    public enum AlbumsSortOrder {
+    public enum AlbumsSortOrder implements BaseViewDialog.EnumWithText {
         __new(ServerString.BROWSE_NEW_MUSIC),
         album(ServerString.ALBUM),
         artflow(ServerString.SORT_ARTISTYEARALBUM),
@@ -160,6 +76,11 @@ public class AlbumViewDialog extends DialogFragment {
         yearartistalbum(ServerString.SORT_YEARARTISTALBUM);
 
         private ServerString serverString;
+
+        @Override
+        public String getText(Context context) {
+            return serverString.getLocalizedString();
+        }
 
         private AlbumsSortOrder(ServerString serverString) {
             this.serverString = serverString;

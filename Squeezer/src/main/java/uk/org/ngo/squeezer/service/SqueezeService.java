@@ -59,7 +59,7 @@ import uk.org.ngo.squeezer.itemlist.IServicePluginListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceSongListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
-import uk.org.ngo.squeezer.itemlist.dialog.SongOrderDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -1770,7 +1770,7 @@ public class SqueezeService extends Service {
             albums(start, albumSortOrder.name().replace("__", ""), searchString, null, null, null,
                     null);
             genres(start, searchString);
-            songs(start, SongOrderDialog.SongsSortOrder.title.name(), searchString, null,
+            songs(start, SongViewDialog.SongsSortOrder.title.name(), searchString, null,
                     null, null, null);
 
             return true;

@@ -154,7 +154,8 @@
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Die Wiedergabeliste %s existiert bereits</string>
 
-    <!-- Song sort orders -->
+    <!-- Song display options -->
+    <string name="song_display_options">Liederansicht - Optionen</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
 

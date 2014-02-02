@@ -174,7 +174,8 @@
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
 
-    <!-- Song sort orders -->
+    <!-- Song display options -->
+    <string name="song_display_options">Indstillinger for visning af sange</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Spor</string>
 

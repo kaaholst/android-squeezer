@@ -63,6 +63,9 @@ public final class Preferences {
     // Preferred album list layout.
     public static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
 
+    // Preferred song list layout.
+    public static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
+
     private Preferences() {
     }
 }

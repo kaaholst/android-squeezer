@@ -347,7 +347,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s already exists</string>
 
-    <!-- Song sort orders -->
+    <!-- Song display options -->
+    <string name="song_display_options">Songview options</string>
     <string name="songs_sort_order_title">Title</string>
     <string name="songs_sort_order_tracknum">Track</string>
 

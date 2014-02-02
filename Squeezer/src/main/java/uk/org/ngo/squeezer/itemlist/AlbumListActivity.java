@@ -40,8 +40,6 @@ import uk.org.ngo.squeezer.itemlist.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlist.YearSpinner.YearSpinnerCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumFilterDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumListLayout;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.FilterMenuFragment;
 import uk.org.ngo.squeezer.menu.FilterMenuFragment.FilterableListActivity;
@@ -58,11 +56,12 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  */
 public class AlbumListActivity extends BaseListActivity<Album>
         implements GenreSpinnerCallback, YearSpinnerCallback,
-        FilterableListActivity, ViewMenuItemFragment.ListActivityWithViewMenu {
+        FilterableListActivity,
+        ViewMenuItemFragment.ListActivityWithViewMenu<Album, AlbumViewDialog.AlbumListLayout, AlbumViewDialog.AlbumsSortOrder> {
 
-    private AlbumsSortOrder sortOrder = null;
+    private AlbumViewDialog.AlbumsSortOrder sortOrder = null;
 
-    private AlbumListLayout listLayout = null;
+    private AlbumViewDialog.AlbumListLayout listLayout = null;
 
     private String searchString = null;
 
@@ -132,7 +131,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
 
     @Override
     public ItemView<Album> createItemView() {
-        return (listLayout == AlbumListLayout.grid) ? new AlbumGridView(this) : new AlbumView(this);
+        return (listLayout == AlbumViewDialog.AlbumListLayout.grid) ? new AlbumGridView(this) : new AlbumView(this);
     }
 
     @Override
@@ -140,16 +139,14 @@ public class AlbumListActivity extends BaseListActivity<Album>
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
         int height, width;
-        if (listLayout == AlbumListLayout.grid) {
+        if (listLayout == AlbumViewDialog.AlbumListLayout.grid) {
             height = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
             width = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
         } else {
             height = resources.getDimensionPixelSize(R.dimen.album_art_icon_height);
             width = resources.getDimensionPixelSize(R.dimen.album_art_icon_width);
         }
-        ImageFetcher imageFetcher = new ImageFetcher(this, Math.max(height, width));
-        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
-        return imageFetcher;
+        return super.createImageFetcher(height, width);
     }
 
     @Override
@@ -171,8 +168,8 @@ public class AlbumListActivity extends BaseListActivity<Album>
                     genre = extras.getParcelable(key);
                 } else if (Song.class.getName().equals(key)) {
                     song = extras.getParcelable(key);
-                } else if (AlbumsSortOrder.class.getName().equals(key)) {
-                    sortOrder = AlbumsSortOrder.valueOf(extras.getString(key));
+                } else if (AlbumViewDialog.AlbumsSortOrder.class.getName().equals(key)) {
+                    sortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(extras.getString(key));
                 } else {
                     Log.e(getTag(), "Unexpected extra value: " + key + "("
                             + extras.get(key).getClass().getName() + ")");
@@ -202,7 +199,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
 
     @Override
     protected int getContentView() {
-        return (listLayout == AlbumListLayout.grid) ? R.layout.item_grid
+        return (listLayout == AlbumViewDialog.AlbumListLayout.grid) ? R.layout.item_grid
                 : R.layout.item_list_albums;
     }
 
@@ -232,10 +229,10 @@ public class AlbumListActivity extends BaseListActivity<Album>
     protected void orderPage(int start) throws RemoteException {
         if (sortOrder == null) {
             try {
-                sortOrder = AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
+                sortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
             } catch (IllegalArgumentException e) {
                 Log.w(getTag(), "Unknown preferred album sort: " + e);
-                sortOrder = AlbumsSortOrder.album;
+                sortOrder = AlbumViewDialog.AlbumsSortOrder.album;
             }
         }
 
@@ -243,17 +240,17 @@ public class AlbumListActivity extends BaseListActivity<Album>
                 getYear(), getGenre(), song);
     }
 
-    public AlbumsSortOrder getSortOrder() {
+    public AlbumViewDialog.AlbumsSortOrder getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(AlbumsSortOrder sortOrder) {
+    public void setSortOrder(AlbumViewDialog.AlbumsSortOrder sortOrder) {
         this.sortOrder = sortOrder;
-        getIntent().putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
+        getIntent().putExtra(AlbumViewDialog.AlbumsSortOrder.class.getName(), sortOrder.name());
         clearAndReOrderItems();
     }
 
-    public AlbumListLayout getListLayout() {
+    public AlbumViewDialog.AlbumListLayout getListLayout() {
         return listLayout;
     }
 
@@ -270,13 +267,13 @@ public class AlbumListActivity extends BaseListActivity<Album>
             int screenSize = getResources().getConfiguration().screenLayout
                     & Configuration.SCREENLAYOUT_SIZE_MASK;
             listLayout = (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE)
-                    ? AlbumListLayout.grid : AlbumListLayout.list;
+                    ? AlbumViewDialog.AlbumListLayout.grid : AlbumViewDialog.AlbumListLayout.list;
         } else {
-            listLayout = AlbumListLayout.valueOf(listLayoutString);
+            listLayout = AlbumViewDialog.AlbumListLayout.valueOf(listLayoutString);
         }
     }
 
-    public void setListLayout(AlbumListLayout listLayout) {
+    public void setListLayout(AlbumViewDialog.AlbumListLayout listLayout) {
         SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, listLayout.name());
@@ -306,10 +303,10 @@ public class AlbumListActivity extends BaseListActivity<Album>
         show(context, null, items);
     }
 
-    public static void show(Context context, AlbumsSortOrder sortOrder, Item... items) {
+    public static void show(Context context, AlbumViewDialog.AlbumsSortOrder sortOrder, Item... items) {
         final Intent intent = new Intent(context, AlbumListActivity.class);
         if (sortOrder != null) {
-            intent.putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
+            intent.putExtra(AlbumViewDialog.AlbumsSortOrder.class.getName(), sortOrder.name());
         }
         for (Item item : items) {
             intent.putExtra(item.getClass().getName(), item);

@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
@@ -34,6 +36,7 @@ import android.widget.TextView;
 
 import java.util.EnumSet;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
@@ -42,25 +45,25 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlist.YearSpinner.YearSpinnerCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.SongFilterDialog;
-import uk.org.ngo.squeezer.itemlist.dialog.SongOrderDialog;
-import uk.org.ngo.squeezer.itemlist.dialog.SongOrderDialog.SongsSortOrder;
+import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.FilterMenuFragment;
-import uk.org.ngo.squeezer.menu.OrderMenuItemFragment;
+import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class SongListActivity extends AbstractSongListActivity
         implements GenreSpinnerCallback, YearSpinnerCallback,
         FilterMenuFragment.FilterableListActivity,
-        OrderMenuItemFragment.OrderableListActivity {
+        ViewMenuItemFragment.ListActivityWithViewMenu<Song, SongViewDialog.SongListLayout, SongViewDialog.SongsSortOrder> {
 
-    private static final String TAG = SongListActivity.class.getSimpleName();
+    private SongViewDialog.SongsSortOrder sortOrder = SongViewDialog.SongsSortOrder.title;
 
-    private SongsSortOrder sortOrder = SongsSortOrder.title;
+    private SongViewDialog.SongListLayout listLayout = SongViewDialog.SongListLayout.list;
 
     private String searchString;
 
@@ -136,6 +139,7 @@ public class SongListActivity extends AbstractSongListActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setListLayout();
         super.onCreate(savedInstanceState);
 
         // Set the album header.
@@ -172,7 +176,7 @@ public class SongListActivity extends AbstractSongListActivity
         songViewLogic = (SongView) getItemAdapter().getItemView();
 
         BaseMenuFragment.add(this, FilterMenuFragment.class);
-        BaseMenuFragment.add(this, OrderMenuItemFragment.class);
+        BaseMenuFragment.add(this, ViewMenuItemFragment.class);
 
         songViewLogic.setBrowseByAlbum(album != null);
         songViewLogic.setBrowseByArtist(artist != null);
@@ -185,7 +189,7 @@ public class SongListActivity extends AbstractSongListActivity
             for (String key : extras.keySet()) {
                 if (Album.class.getName().equals(key)) {
                     album = extras.getParcelable(key);
-                    sortOrder = SongsSortOrder.tracknum;
+                    sortOrder = SongViewDialog.SongsSortOrder.tracknum;
                 } else if (Artist.class.getName().equals(key)) {
                     artist = extras.getParcelable(key);
                 } else if (Year.class.getName().equals(key)) {
@@ -203,7 +207,8 @@ public class SongListActivity extends AbstractSongListActivity
             return R.layout.item_list_album;
         }
 
-        return super.getContentView();
+        return (listLayout == SongViewDialog.SongListLayout.grid) ? R.layout.item_grid
+                : super.getContentView();
     }
 
     @Override
@@ -243,14 +248,14 @@ public class SongListActivity extends AbstractSongListActivity
                     SongView.Details.DURATION,
                     SongView.Details.ARTIST_IF_COMPILATION));
         } else if (artist != null) {
-            songViewLogic = new SongViewWithArt(this);
+            songViewLogic = songViewLogicFromListLayout();
             songViewLogic.setDetails(EnumSet.of(
                     SongView.Details.DURATION,
                     SongView.Details.ALBUM,
                     SongView.Details.YEAR
             ));
         } else {
-            songViewLogic = new SongViewWithArt(this);
+            songViewLogic = songViewLogicFromListLayout();
             songViewLogic.setDetails(EnumSet.of(
                     SongView.Details.ARTIST,
                     SongView.Details.ALBUM,
@@ -258,6 +263,25 @@ public class SongListActivity extends AbstractSongListActivity
         }
 
         return songViewLogic;
+    }
+
+    private SongViewWithArt songViewLogicFromListLayout() {
+        return (listLayout == SongViewDialog.SongListLayout.grid) ? new SongGridView(this) : new SongViewWithArt(this);
+    }
+
+    @Override
+    protected ImageFetcher createImageFetcher() {
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        Resources resources = getResources();
+        int height, width;
+        if (listLayout == SongViewDialog.SongListLayout.grid) {
+            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
+            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
+        } else {
+            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_height);
+            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_width);
+        }
+        return super.createImageFetcher(height, width);
     }
 
     @Override
@@ -296,13 +320,42 @@ public class SongListActivity extends AbstractSongListActivity
         }
     }
 
-    public SongsSortOrder getSortOrder() {
+    @Override
+    public SongViewDialog.SongsSortOrder getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(SongsSortOrder sortOrder) {
+    @Override
+    public void setSortOrder(SongViewDialog.SongsSortOrder sortOrder) {
         this.sortOrder = sortOrder;
         clearAndReOrderItems();
+    }
+
+    @Override
+    public SongViewDialog.SongListLayout getListLayout() {
+        return listLayout;
+    }
+
+    /**
+     * Set the preferred album list layout.
+     */
+    private void setListLayout() {
+        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        String listLayoutString = preferences.getString(Preferences.KEY_SONG_LIST_LAYOUT, null);
+        if (listLayoutString != null) {
+            listLayout = SongViewDialog.SongListLayout.valueOf(listLayoutString);
+        }
+    }
+
+    @Override
+    public void setListLayout(SongViewDialog.SongListLayout listLayout) {
+        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, listLayout.name());
+        editor.commit();
+
+        startActivity(getIntent());
+        finish();
     }
 
     @Override
@@ -311,8 +364,8 @@ public class SongListActivity extends AbstractSongListActivity
     }
 
     @Override
-    public void showOrderDialog() {
-        new SongOrderDialog().show(this.getSupportFragmentManager(), "OrderDialog");
+    public void showViewDialog() {
+        new SongViewDialog().show(this.getSupportFragmentManager(), "OrderDialog");
     }
 
     @Override

@@ -129,6 +129,7 @@
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s bestaat al</string>
 
+    <string name="song_display_options">Opties voor nummerweergave</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Liedje</string>
 

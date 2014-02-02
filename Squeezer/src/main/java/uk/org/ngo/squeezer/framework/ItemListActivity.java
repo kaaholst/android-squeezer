@@ -188,15 +188,20 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     protected abstract void unregisterCallback() throws RemoteException;
 
-    protected ImageFetcher createImageFetcher() {
-        // Get an ImageFetcher to scale artwork to the size of the icon view.
-        Resources resources = getResources();
-        int iconSize = (Math.max(
-                resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
-                resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
+    protected ImageFetcher createImageFetcher(int height, int width) {
+        // Get an ImageFetcher to scale artwork to the supplied size.
+        int iconSize = (Math.max(height, width));
         ImageFetcher imageFetcher = new ImageFetcher(this, iconSize);
         imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
         return imageFetcher;
+    }
+
+    protected ImageFetcher createImageFetcher() {
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        Resources resources = getResources();
+        return createImageFetcher(
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_width));
     }
 
     protected void createImageCacheParams() {
