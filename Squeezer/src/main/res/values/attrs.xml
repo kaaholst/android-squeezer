@@ -25,4 +25,7 @@
 
     <!-- Current playlist -->
     <attr name="currentTrackBackground" format="reference"/>
+
+    <!-- Fast scroller -->
+    <attr name="thumb_drawable" format="reference"/>
 </resources>

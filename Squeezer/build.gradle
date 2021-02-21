@@ -50,6 +50,9 @@ dependencies {
     // Radial SeekBar
     implementation 'com.sdsmdg.harjot:croller:1.0.7'
 
+    // Fastscroller
+    implementation 'com.quiph.ui:recyclerviewfastscroller:1.0.0'
+
     // Comet client
     implementation 'org.cometd.java:cometd-java-client:3.1.11'
     implementation 'org.slf4j:slf4j-android:1.7.30'
@@ -73,8 +76,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 91
-        versionName "2.2.2"
+        versionCode 93
+        versionName "2.2.3"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

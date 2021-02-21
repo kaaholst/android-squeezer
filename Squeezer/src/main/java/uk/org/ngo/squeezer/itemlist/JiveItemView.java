@@ -104,7 +104,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         text2.setText(item.text2);
 
         // If the item has an image, then fetch and display it
-        if (item.hasArtwork()) {
+        if (item.hasIconUri()) {
             ImageFetcher.getInstance(getActivity()).loadImage(
                     item.getIcon(),
                     icon,

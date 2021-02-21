@@ -2,6 +2,12 @@
 
 <changelog>
     <release
+        version="2.2.3"
+        versioncode="93">
+        <change>Restore the scroll bar</change>
+    </release>
+
+    <release
         version="2.2.2"
         versioncode="90">
         <change>Interactive Now Playing screen</change>
@@ -34,7 +40,7 @@
 
         <change>Download confirmation and option to disable downloads</change>
 
-        <change>Fix an issue with where Android 10 would falsely adds .mp3 to filenames</change>
+        <change>Fix an issue where Android 10 would falsely add .mp3 to filenames</change>
 
         <change>Work around an issue with recent Spotty versions, where only one search result is
             displayed</change>

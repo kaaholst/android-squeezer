@@ -117,4 +117,13 @@
 
     <color name="volume_panel_back_circle_color">#222222</color>
     <color name="volume_panel_back_circle_color_light">#EDEDED</color>
+
+    <color name="colorPrimaryDark">@color/lightBlueDark</color>
+    <color name="colorPrimaryVariantDark">@color/lightBlueDarkVariant</color>
+    <color name="colorSecondaryDark">@color/amberDark</color>
+    <color name="colorSecondaryVariantDark">@color/amberDarkVariant</color>
+    <color name="colorPrimaryLight">@color/lightBlueLight</color>
+    <color name="colorPrimaryVariantLight">@color/lightBlueLightVariant</color>
+    <color name="colorSecondaryLight">@color/amberLight</color>
+    <color name="colorSecondaryVariantLight">@color/amberLightVariant</color>
 </resources>

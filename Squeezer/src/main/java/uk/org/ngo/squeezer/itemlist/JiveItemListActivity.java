@@ -98,6 +98,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     private MenuItem menuItemAllInfo;
 
     private ViewParamItemView<JiveItem> parentViewHolder;
+    private DividerItemDecoration dividerItemDecoration;
 
     @Override
     protected ItemAdapter<JiveItemView, JiveItem> createItemListAdapter() {
@@ -118,6 +119,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        dividerItemDecoration = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
         super.onCreate(savedInstanceState);
 
         Bundle extras = checkNotNull(getIntent().getExtras(), "intent did not contain extras");
@@ -212,7 +214,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-        getListView().addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        getListView().addItemDecoration(dividerItemDecoration);
         getListView().setRecyclerListener(viewHolder -> {
             // Release strong reference when a view is recycled
             final ImageView imageView = ((JiveItemView)viewHolder).icon;
@@ -229,11 +231,11 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
         RecyclerView.LayoutManager layoutManager = getListView().getLayoutManager();
         if (listLayout == ArtworkListLayout.grid && !(layoutManager instanceof GridLayoutManager)) {
             getListView().setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
-            getListView().removeItemDecorationAt(0);
+            getListView().removeItemDecoration(dividerItemDecoration);
         }
         if (listLayout == ArtworkListLayout.list && (layoutManager instanceof GridLayoutManager)) {
             getListView().setLayoutManager(new LinearLayoutManager(this));
-            getListView().addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+            getListView().addItemDecoration(dividerItemDecoration);
         }
     }
 
@@ -249,13 +251,20 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     void updateHeader(JiveItem parent) {
         updateHeader(parent.getName());
 
-        if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+        if (!TextUtils.isEmpty(parent.text2)) {
             parentViewHolder.text2.setVisibility(View.VISIBLE);
             parentViewHolder.text2.setText(parent.text2);
-
-            parentViewHolder.icon.setVisibility(View.VISIBLE);
-            ImageFetcher.getInstance(this).loadImage(parent.getIcon(), parentViewHolder.icon);
         }
+
+        if (parent.hasIcon() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+            parentViewHolder.icon.setVisibility(View.VISIBLE);
+            if (parent.hasIconUri()) {
+                ImageFetcher.getInstance(this).loadImage(parent.getIcon(), parentViewHolder.icon);
+            } else {
+                parentViewHolder.icon.setImageDrawable(parent.getIconDrawable(this));
+            }
+        }
+
         if (parent.hasContextMenu()) {
             parentViewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
         }

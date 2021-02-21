@@ -156,10 +156,17 @@ public class JiveItem extends Item {
     }
 
     /**
-     * @return Whether the song has artwork associated with it.
+     * @return Whether the song has downloadable artwork associated with it.
      */
-    public boolean hasArtwork() {
-        return ! (getIcon().equals(Uri.EMPTY));
+    public boolean hasIconUri() {
+        return !getIcon().equals(Uri.EMPTY);
+    }
+
+    /**
+     * @return Whether the song has an icon associated with it.
+     */
+    public boolean hasIcon() {
+        return !(!hasIconUri() && getItemIcon() == null && getSlimIcon() == null);
     }
 
     /**
@@ -173,19 +180,19 @@ public class JiveItem extends Item {
      * @return Icon resource for this item if it is embedded in the Squeezer app, or the supplied default icon.
      */
     public Drawable getIconDrawable(Context context, @DrawableRes int defaultIcon) {
-        @DrawableRes int foreground = getItemIcon();
-        if (foreground != 0) {
+        @DrawableRes Integer foreground = getItemIcon();
+        if (foreground != null) {
             Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
             Drawable icon = AppCompatResources.getDrawable(context, foreground);
             return new LayerDrawable(new Drawable[]{background, icon});
         }
 
-        return AppCompatResources.getDrawable(context, getSlimIcon(defaultIcon));
+        Integer slimIcon = getSlimIcon();
+        return AppCompatResources.getDrawable(context, slimIcon != null ? slimIcon : defaultIcon);
     }
 
-    @DrawableRes private int getSlimIcon(@DrawableRes int defaultIcon) {
-        @DrawableRes Integer iconResource = slimIcons.get(id);
-        return iconResource == null ? defaultIcon : iconResource;
+    @DrawableRes private Integer getSlimIcon() {
+        return slimIcons.get(id);
     }
 
     private static final Map<String, Integer> slimIcons = initializeSlimIcons();
@@ -208,9 +215,8 @@ public class JiveItem extends Item {
         return result;
     }
 
-    @DrawableRes private int getItemIcon() {
-        @DrawableRes Integer iconResource = itemIcons.get(id);
-        return iconResource == null ? 0 : iconResource;
+    @DrawableRes private Integer getItemIcon() {
+        return itemIcons.get(id);
     }
 
     private static final Map<String, Integer> itemIcons = initializeItemIcons();

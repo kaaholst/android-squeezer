@@ -680,7 +680,7 @@ public class NowPlayingFragment extends Fragment {
             }
         }
 
-        if (!song.hasArtwork()) {
+        if (!song.hasIconUri()) {
             albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album_noart_fullscreen));
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);

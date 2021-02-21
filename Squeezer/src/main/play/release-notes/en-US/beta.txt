@@ -1,17 +1,1 @@
-&bull; Interactive Now Playing screen
-
-&bull; Confirmation dialog for clear current playlist
-
-&bull; Wake up server (Wake-on-LAN)
-
-&bull; Select how much info to display per item
-
-&bull; Shortcut for current playlist on top bar if room
-
-&bull; Volume button on bottom bar if room
-
-&bull; Synchronize Volume and Power for player group
-
-&bull; Pause music on call
-
-&bull; Bug and stability fixes
+&bull; Restore the scroll bar

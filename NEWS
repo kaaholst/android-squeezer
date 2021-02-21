@@ -1,3 +1,9 @@
+2.2.3
+=====
+
+*   Restore the scroll bar
+
+
 2.2.2
 =====
 
@@ -28,7 +34,7 @@
 
 *   Download confirmation and option to disable downloads
 
-*   Fix an issue with where Android 10 would falsely adds .mp3 to filenames
+*   Fix an issue where Android 10 would falsely add .mp3 to filenames
 
 *   Work around an issue with recent Spotty versions, where only one search
     result is displayed

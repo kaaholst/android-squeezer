@@ -32,10 +32,8 @@
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:cropToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="32dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:scaleType="fitCenter"
         tools:src="@drawable/icon_album_noart_fullscreen"/>
 
@@ -79,8 +77,6 @@
         android:layout_alignTop="@id/seekbar"
         android:layout_alignBottom="@+id/seekbar"
         android:layout_toEndOf="@id/album"
-        android:paddingTop="8dp"
-        android:layout_gravity="center_horizontal"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
 
     <com.google.android.material.slider.Slider
@@ -100,8 +96,6 @@
         android:layout_alignTop="@id/seekbar"
         android:layout_alignBottom="@+id/seekbar"
         android:layout_alignParentEnd="true"
-        android:paddingTop="8dp"
-        android:layout_gravity="center_horizontal"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
 
     <LinearLayout
@@ -109,7 +103,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/seekbar"
-        android:layout_above="@id/volume"
+        android:layout_above="@id/bottom_bar"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@id/album"
         android:gravity="center"
@@ -137,6 +131,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/album"

@@ -21,29 +21,31 @@
     <style name="AppTheme" parent="Theme.MaterialComponents">
         <item name="alarm_dow_selected">@android:color/white</item>
 
-        <item name="colorPrimary">@color/lightBlueDark</item>
-        <item name="colorPrimaryVariant">@color/lightBlueDarkVariant</item>
-        <item name="colorSecondary">@color/amberDark</item>
-        <item name="colorSecondaryVariant">@color/amberDarkVariant</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariantDark</item>
+        <item name="colorSecondary">@color/colorSecondaryDark</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariantDark</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
 
         <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color</item>
         <item name="currentTrackBackground">@drawable/current_track_background_dark</item>
+        <item name="thumb_drawable">@drawable/thumb_drawable_dark</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="alarm_dow_selected">@android:color/black</item>
 
-        <item name="colorPrimary">@color/lightBlueLight</item>
-        <item name="colorPrimaryVariant">@color/lightBlueLightVariant</item>
-        <item name="colorSecondary">@color/amberLight</item>
-        <item name="colorSecondaryVariant">@color/amberLightVariant</item>
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariantLight</item>
+        <item name="colorSecondary">@color/colorSecondaryLight</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
 
         <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color_light</item>
         <item name="currentTrackBackground">@drawable/current_track_background_light</item>
+        <item name="thumb_drawable">@drawable/thumb_drawable_light</item>
     </style>
 
     <style name="OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
