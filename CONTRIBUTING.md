@@ -46,12 +46,8 @@ for technical details.
 
 ## Co-ordination
 
-There's a mailing list, android-squeezer@googlegroups.com.
-
-To subscribe, go to the
-[web interface](https://groups.google.com/forum/#!forum/android-squeezer).
-
-Say "Hi", and let us know what you'd like to work on.
+The old mailing list at android-squeezer@googlegroups.com is not longer monitored.
+All issues are migrated to Github and should be discussed there.
 
 ## How to contribute code
 
@@ -121,18 +117,5 @@ git rebase develop    # Rebase current branch from develop
     If you already have a project open then choose File > Import Project...
 
 *   In the "Select File or Directory to Import" dialog that appears, navigate
-    to the directory that you fetched the Squeezer source code in to and
-    select the build.gradle file that ships with Squeezer.
+    to the directory that you fetched the Squeezer source code in ("android-squeezer").
 
-*   In the "Import Project from Gradle" dialog tick "Use auto-import" and
-    make sure that "Use gradle wrapper (recommended)" is selected.
-
-*   Copy `ide/intellij/codestyles/AndroidStyle.xml` to Android Studio's config
-    directory.
-
-    -   Linux: `~/.AndroidStudioPreview/config/codestyles`
-    -   OS X: `~/Library/Preferences/AndroidStudioPreview/codestyles`
-    -   Windows: `~/.AndroidStudioPreview/config/codestyles`
-
-*   Go to Settings (or Preferences in Mac OS X) > Code Style > Java, select
-    "AndroidStyle", as well as Code Style > XML and select "AndroidStyle".
