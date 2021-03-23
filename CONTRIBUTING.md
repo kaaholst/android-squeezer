@@ -6,7 +6,7 @@ depends on what you want to do.
 ## Reporting bugs and feature requests
 
 Please use the
-[issues page](https://github.com/nikclayton/android-squeezer/issues) to
+[issues page](https://github.com/kaaholst/android-squeezer/issues) to
 report bugs or suggest new features.
 
 It's appreciated if you take the time to see if someone else has already
@@ -26,7 +26,7 @@ If you've discovered a bug and want to fix it, or you'd like to have a go
 at fixing a bug that's already been reported, please go right ahead.
 
 You can also review the
-[list of open bugs](https://github.com/nikclayton/android-squeezer/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
+[list of open bugs](https://github.com/kaaholst/android-squeezer/issues?q=is%3Aopen+is%3Aissue)
 if you want inspiration for something to work on.
 
 Please see the [Co-ordination](#Co-ordination) section if you think the
