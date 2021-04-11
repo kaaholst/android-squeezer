@@ -71,12 +71,17 @@ Specifically:
     happens here.
 
 *   The `develop` branch is for small bug fixes or other cleanups that need
-    no more than a single commit to complete.
+    no more than a single commit to complete. Work is merged onto `develop` by
+    the central maintainer. So, if you contribute please generate a pull request
+    from your own `new-branch-name` (see below) to the maintainer's `develop`.
 
 *   All other work happens on separate branches, branched from `develop`.
+    Collaborative contributions to separate branches are made analogous:
+    You generate a pull request from your personal branch to the according
+    sub-branch of the maintainer.
 
 *   When those branches are complete and ready for release they are merged on
-    `develop`.
+    `develop` (by the central maintainer).
 
 *   New releases are prepared by creating a release branch from `develop` and
     working there, before merging changes from the release back to `develop`
