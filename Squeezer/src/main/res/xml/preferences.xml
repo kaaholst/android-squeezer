@@ -84,14 +84,4 @@
             android:title="@string/settings_download_filename_structure"/>
 
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/pref_cat_error_reports">
-
-        <SwitchPreferenceCompat android:key="squeezer.analytics.enabled"
-            android:title="@string/pref_analytics_enable"
-            android:summaryOn="@string/pref_analytics_enable_enabled"
-            android:summaryOff="@string/pref_analytics_enable_disabled"
-            android:defaultValue="true"/>
-    </PreferenceCategory>
 </PreferenceScreen>

@@ -3,6 +3,7 @@ package uk.org.ngo.squeezer.service;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
@@ -15,6 +16,8 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 
 class SqueezerBayeuxExtension extends ClientSession.Extension.Adapter {
+    private static final String TAG = SqueezerBayeuxExtension.class.getSimpleName();
+
     private Map<String, String> ext = initExt();
 
     private Map<String, String> initExt() {
@@ -57,6 +60,10 @@ class SqueezerBayeuxExtension extends ClientSession.Extension.Adapter {
         // mysqueezebox.com requires an ext field in the handshake message
         if (Channel.META_HANDSHAKE.equals(message.getChannel())) {
             message.put(Message.EXT_FIELD, ext);
+            if (message.getClientId() != null) {
+                Log.v(TAG, "Reset client id");
+                message.setClientId(null);
+            }
         }
 
         return true;

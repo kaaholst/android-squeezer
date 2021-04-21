@@ -1,8 +1,9 @@
 package uk.org.ngo.squeezer.service;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
@@ -35,8 +36,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
@@ -44,6 +44,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +70,13 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
     private ScheduledExecutorService _scheduler;
     private boolean _shutdownScheduler;
+
+    // The CometD library reschedules connect (channel META_CONNECT) messages to keep the connection
+    // alive, but SN and LMS sees this as a connection request, and instead relies on an active
+    // subscribe query (serverstatus or playerstatus) to provide keep-alive messages from the server
+    // to the client.
+    // This boolean ensures that we only send the connect message one time
+    private boolean hasSendConnect;
 
     private final Delegate _delegate;
     private TransportListener _listener;
@@ -167,30 +175,48 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
     @Override
     public void send(final TransportListener listener, final List<Message.Mutable> messages) {
-        if (!_delegate.connected) connect(getURL(), listener, messages);
-        if (!_delegate.connected) return;
+        List<Message.Mutable> delegateMessages = new ArrayList<>();
+        List<Message.Mutable> transportMessages = new ArrayList<>();
+        for (Message.Mutable message : messages) {
+            String channel = message.getChannel();
 
-        if (Channel.META_CONNECT.equals(messages.get(0).getChannel()) ||
-                Channel.META_SUBSCRIBE.equals(messages.get(0).getChannel()) ||
-                Channel.META_HANDSHAKE.equals(messages.get(0).getChannel())) {
-            delegateSend(listener, messages);
-        } else {
-            transportSend(listener, messages);
+            if (Channel.META_HANDSHAKE.equals(channel)) {
+                if (_delegate.isConnected()) {
+                    _delegate.disconnect("Disconnect to prepare for a new handshake");
+                }
+                hasSendConnect = false;
+                delegateMessages.add(message);
+            } else if (Channel.META_CONNECT.equals(channel)) {
+                if (hasSendConnect) {
+                    Log.v(TAG, "Attempt to resend connect message, but we refuse that");
+                    continue;
+                }
+                hasSendConnect = true;
+                delegateMessages.add(message);
+            } else if (Channel.META_SUBSCRIBE.equals(channel)) {
+                delegateMessages.add(message);
+            } else {
+                transportMessages.add(message);
+            }
         }
-    }
 
-    protected void connect(String urlString, TransportListener listener, List<Message.Mutable> messages) {
-        try {
-            URL url = new URL(urlString);
-            String host = url.getHost();
-            int port = url.getPort();
-            _delegate.connect(host, port);
-        } catch (IOException e) {
-            listener.onFailure(e, messages);
-        }
+        if (!delegateMessages.isEmpty()) delegateSend(listener, delegateMessages);
+        if (!transportMessages.isEmpty()) transportSend(listener, transportMessages);
     }
 
     private void delegateSend(final TransportListener listener, final List<Message.Mutable> messages) {
+        if (!_delegate.isConnected()) {
+            try {
+                URL url = new URL(getURL());
+                String host = url.getHost();
+                int port = url.getPort();
+                _delegate.connect(host, port);
+            } catch (IOException e) {
+                listener.onFailure(e, messages);
+                return;
+            }
+        }
+
         _delegate.registerMessages(listener, messages);
         try {
             String content = generateJSON(messages);
@@ -207,11 +233,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private void transportSend(final TransportListener listener, final List<Message.Mutable> messages) {
+    private void transportSend(final TransportListener listener, final List<Message.Mutable> requestMessages) {
         String url = getURL();
         final URI uri = URI.create(url);
-        if (_appendMessageType && messages.size() == 1) {
-            Message.Mutable message = messages.get(0);
+        if (_appendMessageType && requestMessages.size() == 1) {
+            Message.Mutable message = requestMessages.get(0);
             if (message.isMeta()) {
                 String type = message.getChannel().substring(Channel.META.length());
                 if (url.endsWith("/"))
@@ -230,7 +256,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             request.header(HttpHeader.COOKIE.asString(), builder.toString());
         }
 
-        String content = generateJSON(messages);
+        String content = generateJSON(requestMessages);
         //Log.v(TAG,"Sending messages " + content);
         request.content(new StringContentProvider(content));
 
@@ -245,7 +271,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         request.listener(new Request.Listener.Adapter() {
             @Override
             public void onHeaders(Request request) {
-                listener.onSending(messages);
+                listener.onSending(requestMessages);
             }
         });
 
@@ -259,7 +285,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             @Override
             public boolean onHeader(Response response, HttpField field) {
                 HttpHeader header = field.getHeader();
-                if (header != null && (header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2)) {
+                if ((header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2)) {
                     // We do not allow cookies to be handled by HttpClient, since one
                     // HttpClient instance is shared by multiple BayeuxClient instances.
                     // Instead, we store the cookies in the BayeuxClient instance.
@@ -286,7 +312,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 }
 
                 if (result.isFailed()) {
-                    listener.onFailure(result.getFailure(), messages);
+                    listener.onFailure(result.getFailure(), requestMessages);
                     return;
                 }
 
@@ -296,44 +322,56 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     String content = getContentAsString();
                     if (content != null && content.length() > 0) {
                         try {
-                            List<Message.Mutable> messages = parseMessages(content);
+                            List<Message.Mutable> responseMessages = parseMessages(content);
                             //Log.v(TAG, "Received messages " + messages);
-                            for (Message.Mutable message : messages) {
+                            for (Message.Mutable message : responseMessages) {
                                 // LMS echoes the data field in the publish response for messages to the
                                 // slim/unsubscribe channel.
                                 // This causes the comet libraries to decide the message is not a publish response.
-                                // We remove the data field for susch messages, to have them correctly recognized
+                                // We remove the data field for such messages, to have them correctly recognized
                                 // as publish responses.
                                 if (message.getChannel() != null && message.getChannel().startsWith("/slim/")) {
                                     message.remove(Message.DATA_FIELD);
                                 }
 
-                                if (message.isSuccessful() && Channel.META_DISCONNECT.equals(message.getChannel())) {
-                                    _delegate.disconnect("Disconnect");
+                                if (message.isSuccessful()) {
+                                    if (Channel.META_DISCONNECT.equals(message.getChannel())) {
+                                        _delegate.disconnect("Disconnect");
+                                    }
+                                } else {
+                                    // LMS does not put ID on all replies. In this case we look for a request with the same
+                                    // channel as this response, and use the id from that request.
+                                    if (message.isPublishReply() && message.getId() == null) {
+                                        for (Message.Mutable requestMessage : requestMessages) {
+                                            if (requestMessage.getChannel().equals(message.getChannel())) {
+                                                message.setId(requestMessage.getId());
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            listener.onMessages(messages);
+                            listener.onMessages(responseMessages);
                         } catch (ParseException x) {
-                            listener.onFailure(x, messages);
+                            listener.onFailure(x, requestMessages);
                         }
                     } else {
                         Map<String, Object> failure = new HashMap<>(2);
                         // Convert the 200 into 204 (no content)
                         failure.put("httpCode", 204);
                         TransportException x = new TransportException(failure);
-                        listener.onFailure(x, messages);
+                        listener.onFailure(x, requestMessages);
                     }
                 } else {
                     Map<String, Object> failure = new HashMap<>(2);
                     failure.put("httpCode", status);
                     TransportException x = new TransportException(failure);
-                    listener.onFailure(x, messages);
+                    listener.onFailure(x, requestMessages);
                 }
             }
         });
     }
 
-    private static void sendText(PrintWriter writer, String json, HttpFields customHeaders) {
+    private static void sendText(OutputStream stream, String json, HttpFields customHeaders) throws IOException {
         StringBuilder msg = new StringBuilder("POST /cometd HTTP/1.1\r\n" +
                 HttpHeader.CONTENT_TYPE.asString() + ": text/json;charset=UTF-8\r\n" +
                 HttpHeader.CONTENT_LENGTH.asString() + ": " + json.length() + "\r\n");
@@ -345,22 +383,18 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
         msg.append("\r\n").append(json);
         //Log.v(TAG,"sendtext: " + msg);
-        writer.print(msg.toString());
-        writer.flush();
+        stream.write(msg.toString().getBytes(StandardCharsets.UTF_8));
+        stream.flush();
     }
 
     private class Delegate {
-        private final Socket socket;
+        private Socket socket;
         private final HttpFields headers;
-        private PrintWriter writer;
-        private boolean connected;
 
         private final Map<String, Exchange> _exchanges = new ConcurrentHashMap<>();
         private Map<String, Object> _advice;
-        private long interval;
 
         public Delegate() {
-            socket = new Socket();
             Request request = _httpClient.newRequest(getURL());
             customize(request);
             headers = request.getHeaders();
@@ -378,11 +412,47 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             return destination.getHostField();
         }
 
+        private boolean isConnected() {
+            return socket != null && socket.isConnected();
+        }
+
         public void connect(String host, int port) throws IOException {
+            socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), 4000); // TODO use proper timeout
-            connected = true;
-            writer = new PrintWriter(socket.getOutputStream());
             new ListeningThread(this, socket.getInputStream()).start();
+        }
+
+        private void disconnect(String reason) {
+            if (isConnected()) {
+                Log.v(TAG, "Closing socket, reason: " + reason);
+                try {
+                    socket.close();
+                } catch (IOException x) {
+                    Log.w(TAG, "Could not close socket", x);
+                }
+                socket = null;
+            }
+        }
+
+        private void fail(Throwable failure, String reason) {
+            disconnect(reason);
+            if (_exchanges.size() > 0) {
+                failMessages(failure);
+            } else {
+                _listener.onFailure(failure, Collections.emptyList());
+            }
+        }
+
+        private void failMessages(Throwable cause) {
+            List<Message.Mutable> messages = new ArrayList<>(1);
+            for (Exchange exchange : new ArrayList<>(_exchanges.values())) {
+                Message.Mutable message = exchange.message;
+                if (deregisterMessage(message) == exchange) {
+                    messages.add(message);
+                    exchange.listener.onFailure(cause, messages);
+                    messages.clear();
+                }
+            }
         }
 
         private void registerMessages(TransportListener listener, List<Message.Mutable> messages) {
@@ -409,18 +479,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
 
             // Schedule a task to expire if the maxNetworkDelay elapses
-            final long expiration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + maxNetworkDelay;
-            ScheduledFuture<?> task = _scheduler.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    long now = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-                    long delay = now - expiration;
-                    if (delay > 5000) // TODO: make the max delay a parameter ?
-                        Log.d(TAG, "Message " + message + " expired " + delay + " ms too late");
-                    //Log.d(TAG,"Expiring message " + message);
-                    fail(new TimeoutException(), "Expired");
-                }
-            }, maxNetworkDelay, TimeUnit.MILLISECONDS);
+            ScheduledFuture<?> task = _scheduler.schedule(() -> fail(new TimeoutException(), "Expired"), maxNetworkDelay, TimeUnit.MILLISECONDS);
 
             // Register the exchange
             // Message responses must have the same messageId as the requests
@@ -447,17 +506,16 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
          * LMS does not put ID on all replies. For such a message, this method tries to find the
          * message in _exchanges which this message is a reply to.
          * <ol>
-         *     <li>For messages with channel META_CONNECT, META_HANDSHAKE or META_SUBSCRIBE we
-         *     look for a message with that channel (assuming that there is only one such message.
-         *     </li>
-         *     <li>For messages without channel we check if it has advice action, in which case we look for
-         *     META_CONNECT and META_HANDSHAKE</li>
+         *     <li>For messages with a meta channel we look for a message with that channel
+         *     (assuming that there is only one such message)</li>
+         *     <li>For messages without channel we check if it has advice action, in which case we
+         *     look for META_CONNECT and META_HANDSHAKE</li>
          * </ol>
          */
         private void fixMessage(Message.Mutable message) {
             String channel = message.getChannel();
 
-            if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel) || Channel.META_SUBSCRIBE.equals(channel)) {
+            if (message.isMeta()) {
                 for (Exchange exchange : _exchanges.values()) {
                     if (channel.equals(exchange.message.getChannel())) {
                         message.setId(exchange.message.getId());
@@ -477,19 +535,17 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        public void send(String content) {
-            PrintWriter session;
+        public void send(String content) throws IOException {
+            Socket session;
             synchronized (this) {
-                session = writer;
+                session = socket;
             }
-            try {
-                if (session == null)
-                    throw new IOException("Unconnected");
 
-                sendText(session, content, headers);
-            } catch (Throwable x) {
-                fail(x, "Exception");
+            if (session == null) {
+                throw new IOException("Unconnected");
             }
+
+            sendText(session.getOutputStream(), content, headers);
         }
 
         private void onData(String data) {
@@ -498,7 +554,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 //Log.v(TAG,"Received messages " + data);
                 onMessages(messages);
             } catch (ParseException x) {
-                fail(x, "Exception");
+                fail(x, "ParseException");
             }
         }
 
@@ -509,35 +565,22 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                         fixMessage(message);
                     }
 
-                    // If the server sends an interval with the handshake response, set it to zero
-                    // so we can send the connect message immediately.
-                    // But store the interval so we can use it for subsequent connect messages, if
-                    // the server does not supply an interval in the connect response.
-                    if (Channel.META_HANDSHAKE.equals(message.getChannel()) && message.isSuccessful()) {
-                        Map<String, Object> advice = message.getAdvice();
-                        if (advice != null && advice.containsKey(Message.INTERVAL_FIELD)) {
-                            interval = ((Number)advice.get(Message.INTERVAL_FIELD)).longValue();
-                            if (interval > 0) {
-                                advice.put(Message.INTERVAL_FIELD, 0);
-                            }
-                        }
-                    }
-
-                    // Remembering the advice must be done before we notify listeners
-                    // otherwise we risk that listeners send a connect message that does
-                    // not take into account the timeout to calculate the maxNetworkDelay
-                    if (Channel.META_CONNECT.equals(message.getChannel()) && message.isSuccessful()) {
+                    if (message.isMeta() && message.isSuccessful()) {
                         Map<String, Object> advice = message.getAdvice();
                         if (advice != null) {
-                            // Remember the advice so that we can properly calculate the max network delay
-                            if (advice.get(Message.TIMEOUT_FIELD) != null)
-                                _advice = advice;
-                        } else {
-                            // If the server doesn't send an interval with the connect response, but
-                            // we have one from the handshake response, then use that to avoid sending
-                            // connect messages continuously.
-                            if (interval > 0) {
-                                message.put(Message.ADVICE_FIELD, Collections.singletonMap(Message.INTERVAL_FIELD, interval));
+                            Log.i(TAG, message.getChannel() + " advice: " + advice);
+
+                            // Make sure interval is zero so we can send connect and rehandshake message
+                            // immediately.
+                            advice.put(Message.INTERVAL_FIELD, 0);
+
+                            // Remembering the advice must be done before we notify listeners
+                            // otherwise we risk that listeners send a connect message that does
+                            // not take into account the timeout to calculate the maxNetworkDelay
+                            if (Channel.META_CONNECT.equals(message.getChannel())) {
+                                // Remember the advice so that we can properly calculate the max network delay
+                                if (advice.get(Message.TIMEOUT_FIELD) != null)
+                                    _advice = advice;
                             }
                         }
                     }
@@ -546,7 +589,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     if (exchange != null) {
                         exchange.listener.onMessages(Collections.singletonList(message));
                     } else if (message.containsKey("error")) {
-                        failMessages(null);
+                        fail(null, "Received error: " +  message);
 
                         // We send messages with no channel to the handshake listener
                         if (message.getChannel() == null) {
@@ -563,39 +606,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 }
             }
         }
-
-        private void fail(Throwable failure, String reason) {
-            disconnect(reason);
-            failMessages(failure);
-        }
-
-        private void failMessages(Throwable cause) {
-            List<Message.Mutable> messages = new ArrayList<>(1);
-            for (Exchange exchange : new ArrayList<>(_exchanges.values())) {
-                Message.Mutable message = exchange.message;
-                if (deregisterMessage(message) == exchange) {
-                    messages.add(message);
-                    exchange.listener.onFailure(cause, messages);
-                    messages.clear();
-                }
-            }
-        }
-
-        private void disconnect(String reason) {
-            if (connected)
-                shutdown(reason);
-        }
-
-        private void shutdown(String reason) {
-            connected = false;
-            writer = null;
-            Log.v(TAG, "Closing socket, reason: " + reason);
-            try {
-                socket.close();
-            } catch (IOException x) {
-                Log.w(TAG, "Could not close socket", x);
-            }
-        }
     }
 
     private static class Exchange {
@@ -609,6 +619,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             this.task = task;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return getClass().getSimpleName() + " " + message;
@@ -616,17 +627,17 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
     private static class ListeningThread extends Thread {
-        private Delegate delegate;
+        private final Delegate delegate;
         private final BufferedReader reader;
 
-        public ListeningThread(Delegate delegate, InputStream inputStream) throws UnsupportedEncodingException {
+        public ListeningThread(Delegate delegate, InputStream inputStream) {
             this.delegate = delegate;
-            reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         }
 
         @Override
         public void run() {
-            while (delegate.connected) {
+            while (delegate.isConnected()) {
                 try {
                     int status = parseHttpStatus(readLine());
 
@@ -683,10 +694,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                         delegate.fail(x, "Unexpected HTTP status code");
                     }
                 } catch (IOException e) {
-                    if (delegate.connected) {
-                        delegate.fail(e, "Server disconnected");
+                    if (delegate.isConnected()) {
+                        delegate.fail(e, "IOException reading socket");
                     }
-                    return;
                 }
             }
         }
@@ -737,8 +747,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
 
-    private static String getAdviceAction(Map<String, Object> advice)
-    {
+    private static String getAdviceAction(Map<String, Object> advice) {
         String action = null;
         if (advice != null && advice.containsKey(Message.RECONNECT_FIELD))
             action = (String)advice.get(Message.RECONNECT_FIELD);
@@ -750,8 +759,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
 
-    protected void customize(Request request)
-    {
+    protected void customize(Request request) {
     }
 
 }

@@ -1,36 +1,16 @@
 package uk.org.ngo.squeezer.itemlist.dialog;
 
-import android.app.Dialog;
-import android.os.Bundle;
 import android.text.format.DateFormat;
 
-import androidx.annotation.NonNull;
-
-import com.android.datetimepicker.time.RadialPickerLayout;
-import com.android.datetimepicker.time.TimePickerDialog;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.util.Calendar;
 
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.JiveItem;
 
-public class InputTimeDialog extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
-    private BaseListActivity activity;
-    private JiveItem item;
-    private int alreadyPopped;
-
-    @Override
-    @NonNull
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        activity = (BaseListActivity) getActivity();
-        item = getArguments().getParcelable(JiveItem.class.getName());
-        alreadyPopped = getArguments().getInt("alreadyPopped", 0);
-        setOnTimeSetListener(this);
-        return super.onCreateDialog(savedInstanceState);
-    }
-
+public class InputTimeDialog {
     public static void show(BaseActivity activity, JiveItem item, int alreadyPopped) {
         int hour;
         int minute;
@@ -45,21 +25,16 @@ public class InputTimeDialog extends TimePickerDialog implements TimePickerDialo
             minute = c.get(Calendar.MINUTE);
         }
 
-        InputTimeDialog dialog = new InputTimeDialog();
-
-        Bundle args = new Bundle();
-        args.putParcelable(JiveItem.class.getName(), item);
-        args.putInt("alreadyPopped", alreadyPopped);
-        dialog.setArguments(args);
-
-        dialog.initialize(dialog, hour, minute, DateFormat.is24HourFormat(activity));
-        dialog.setThemeDark(activity.getThemeId() == R.style.AppTheme);
-        dialog.show(activity.getSupportFragmentManager(), InputTimeDialog.class.getSimpleName());
-    }
-
-    @Override
-    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-        item.inputValue = String.valueOf((hourOfDay * 60 + minute) * 60);
-        activity.action(item, item.goAction, alreadyPopped);
+        MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                .setHour(hour)
+                .setMinute(minute)
+                .setTimeFormat(DateFormat.is24HourFormat(activity) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+                .setTitleText(item.getName())
+                .build();
+        picker.addOnPositiveButtonClickListener(view -> {
+            item.inputValue = String.valueOf(picker.getHour() * 60 + picker.getMinute() * 60);
+            activity.action(item, item.goAction, alreadyPopped);
+        });
+        picker.show(activity.getSupportFragmentManager(), InputTimeDialog.class.getSimpleName());
     }
 }

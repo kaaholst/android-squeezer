@@ -50,11 +50,8 @@ public abstract class PlayerBaseView extends ViewParamItemView<Player> {
 
         PlayerState playerState = player.getPlayerState();
 
-        if (playerState.isPoweredOn()) {
-            text1.setAlpha(1.0f);
-        } else {
-            text1.setAlpha(0.25f);
-        }
+        text1.setEnabled(playerState.isPoweredOn());
+        text2.setEnabled(playerState.isPoweredOn());
     }
 
 }

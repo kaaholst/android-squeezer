@@ -6,7 +6,7 @@ depends on what you want to do.
 ## Reporting bugs and feature requests
 
 Please use the
-[issues page](https://github.com/nikclayton/android-squeezer/issues) to
+[issues page](https://github.com/kaaholst/android-squeezer/issues) to
 report bugs or suggest new features.
 
 It's appreciated if you take the time to see if someone else has already
@@ -26,7 +26,7 @@ If you've discovered a bug and want to fix it, or you'd like to have a go
 at fixing a bug that's already been reported, please go right ahead.
 
 You can also review the
-[list of open bugs](https://github.com/nikclayton/android-squeezer/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
+[list of open bugs](https://github.com/kaaholst/android-squeezer/issues?q=is%3Aopen+is%3Aissue)
 if you want inspiration for something to work on.
 
 Please see the [Co-ordination](#Co-ordination) section if you think the
@@ -46,12 +46,8 @@ for technical details.
 
 ## Co-ordination
 
-There's a mailing list, android-squeezer@googlegroups.com.
-
-To subscribe, go to the
-[web interface](https://groups.google.com/forum/#!forum/android-squeezer).
-
-Say "Hi", and let us know what you'd like to work on.
+The old mailing list at android-squeezer@googlegroups.com is not longer monitored.
+All issues are migrated to Github and should be discussed there.
 
 ## How to contribute code
 
@@ -121,18 +117,5 @@ git rebase develop    # Rebase current branch from develop
     If you already have a project open then choose File > Import Project...
 
 *   In the "Select File or Directory to Import" dialog that appears, navigate
-    to the directory that you fetched the Squeezer source code in to and
-    select the build.gradle file that ships with Squeezer.
+    to the directory that you fetched the Squeezer source code in ("android-squeezer").
 
-*   In the "Import Project from Gradle" dialog tick "Use auto-import" and
-    make sure that "Use gradle wrapper (recommended)" is selected.
-
-*   Copy `ide/intellij/codestyles/AndroidStyle.xml` to Android Studio's config
-    directory.
-
-    -   Linux: `~/.AndroidStudioPreview/config/codestyles`
-    -   OS X: `~/Library/Preferences/AndroidStudioPreview/codestyles`
-    -   Windows: `~/.AndroidStudioPreview/config/codestyles`
-
-*   Go to Settings (or Preferences in Mac OS X) > Code Style > Java, select
-    "AndroidStyle", as well as Code Style > XML and select "AndroidStyle".

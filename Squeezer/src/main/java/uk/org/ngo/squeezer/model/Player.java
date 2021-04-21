@@ -147,10 +147,6 @@ public class Player extends Item implements Comparable<Player> {
         return mPlayerState;
     }
 
-    public void setPlayerState(@NonNull PlayerState playerState) {
-        mPlayerState = playerState;
-    }
-
     public static final Creator<Player> CREATOR = new Creator<Player>() {
         @Override
         public Player[] newArray(int size) {

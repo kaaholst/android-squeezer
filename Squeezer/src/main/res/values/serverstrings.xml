@@ -38,6 +38,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>We</string>
   <string name='ALARM_SHORT_DAY_0'>Su</string>
   <string name='ALARM_SHORT_DAY_1'>Mo</string>
+  <string name='ALARM_SET_TIME'>Set Time</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Play only selected song</string>
   <string name='MORE'>More</string>
   <string name='SLEEP_AT_END_OF_SONG'>Sleep at end of song</string>

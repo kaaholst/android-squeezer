@@ -91,13 +91,7 @@
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
     <string name="DOWNLOAD">Download</string>
     <!--Song display options-->
-    <!--Analytics preference strings-->
-    <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
-    <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>
-    <string name="pref_analytics_enable_enabled">Anonieme gebruiks-statistieken zijn verzameld met
-        behulp van Google Analytics.
-    </string>
-    <string name="pref_analytics_enable_disabled">Geen gebruiks-statistieken zijn verzameld.</string>
+
     <plurals name="seconds">
         <item quantity="one">seconde</item>
         <item quantity="other">seconden</item>

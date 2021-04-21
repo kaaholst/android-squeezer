@@ -38,6 +38,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>wo</string>
   <string name='ALARM_SHORT_DAY_0'>zo</string>
   <string name='ALARM_SHORT_DAY_1'>ma</string>
+  <string name='ALARM_SET_TIME'>Tijd instellen</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Alleen geselecteerde nummer afspelen</string>
   <string name='MORE'>Meer</string>
   <string name='SLEEP_AT_END_OF_SONG'>Sluimermodus aan einde van nummer</string>

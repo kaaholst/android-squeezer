@@ -1,1 +1,1 @@
-include ':Squeezer', ':libs:datetimepicker'
+include ':Squeezer'

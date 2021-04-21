@@ -52,7 +52,7 @@ public class ConnectionState {
     public final static String MEDIA_DIRS = "mediadirs";
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, RECONNECT})
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     /** Ordinarily disconnected from the server. */
@@ -63,8 +63,6 @@ public class ConnectionState {
     public static final int CONNECTION_FAILED = 2;
     /** The connection to the server completed, the handshake can start. */
     public static final int CONNECTION_COMPLETED = 3;
-    /** Create a new connection to the server. */
-    public static final int RECONNECT = 5;
 
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
@@ -76,7 +74,7 @@ public class ConnectionState {
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
     /** Home menu tree as received from slimserver */
-    private List<JiveItem> homeMenu = new Vector<>();
+    private final List<JiveItem> homeMenu = new Vector<>();
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
@@ -136,7 +134,7 @@ public class ConnectionState {
 
     void setServerVersion(String version) {
         if (Util.atomicReferenceUpdated(serverVersion, version)) {
-            if (version != null) {
+            if (version != null && mConnectionState == CONNECTION_COMPLETED) {
                 HandshakeComplete event = new HandshakeComplete(getServerVersion());
                 Log.i(TAG, "Handshake complete: " + event);
                 mEventBus.postSticky(event);
@@ -148,16 +146,10 @@ public class ConnectionState {
         this.mediaDirs.set(mediaDirs);
     }
 
-    void clearHomeMenu() {
+    void setHomeMenu(List<JiveItem> items) {
         homeMenu.clear();
-    }
-
-    void addToHomeMenu(int count, List<JiveItem> items) {
         homeMenu.addAll(items);
-        if (homeMenu.size() == count) {
-            jiveMainNodes();
-            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
-        }
+        mEventBus.postSticky(new HomeMenuEvent(homeMenu));
     }
 
     void menuStatusEvent(MenuStatusMessage event) {
@@ -179,17 +171,6 @@ public class ConnectionState {
             }
             mEventBus.postSticky(new HomeMenuEvent(homeMenu));
         }
-    }
-
-    private void jiveMainNodes() {
-        addNode(JiveItem.EXTRAS);
-        addNode(JiveItem.SETTINGS);
-        addNode(JiveItem.ADVANCED_SETTINGS);
-    }
-
-    private void addNode(JiveItem jiveItem) {
-        if (!homeMenu.contains(jiveItem))
-            homeMenu.add(jiveItem);
     }
 
     String getServerVersion() {

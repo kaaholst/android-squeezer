@@ -31,10 +31,7 @@ import com.google.common.collect.ImmutableMap;
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
-import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
-import org.cometd.client.transport.HttpClientTransport;
-import org.cometd.client.transport.TransportListener;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
@@ -48,10 +45,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -82,9 +77,6 @@ import uk.org.ngo.squeezer.util.SendWakeOnLan;
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
 
-    /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
-    private static final int LONG_POLLING_TIMEOUT = 120_000;
-
     /** {@link java.util.regex.Pattern} that splits strings on forward slash. */
     private static final Pattern mSlashSplitPattern = Pattern.compile("/");
 
@@ -112,8 +104,12 @@ class CometClient extends BaseClient {
     /** The format string for the channel to listen to for menu status events. */
     private static final String CHANNEL_MENU_STATUS_FORMAT = "/%s/slim/menustatus/%s";
 
-    // Maximum time for wait replies for server capabilities
-    private static final long HANDSHAKE_TIMEOUT = 4000;
+    // Maximum time to wait for replies for server capabilities
+    private static final long HANDSHAKE_TIMEOUT = 4_000;
+
+    // The time interval in seconds between server status messages in case nothing happened to the server info in the interval.
+    public static long SERVER_STATUS_INTERVAL = 60;
+    public static final long SERVER_STATUS_TIMEOUT = SERVER_STATUS_INTERVAL * 1_000 + 10_000;
 
 
     /** Handler for off-main-thread work. */
@@ -128,16 +124,12 @@ class CometClient extends BaseClient {
 
     /** Client to the comet server. */
     @Nullable
-    private BayeuxClient mBayeuxClient;
+    private SqueezerBayeuxClient mBayeuxClient;
 
     private final Map<String, Request> mPendingRequests
             = new ConcurrentHashMap<>();
 
-    private final Map<String, BrowseRequest<?>> mPendingBrowseRequests
-            = new ConcurrentHashMap<>();
-
-    private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
-    private boolean mCurrentCommand;
+    private final Map<String, BrowseRequest<?>> mPendingBrowseRequests = new ConcurrentHashMap<>();
 
     private final PublishListener mPublishListener = new PublishListener();
 
@@ -159,11 +151,10 @@ class CometClient extends BaseClient {
                 new MusicFolderListener(),
                 new JiveItemListener()
         );
-        ImmutableMap.Builder<Class<?>, ItemListener<?>> builder = ImmutableMap.builder();
+        mItemRequestMap = new HashMap<>();
         for (ItemListener<?> itemListener : itemListeners) {
-            builder.put(itemListener.getDataType(), itemListener);
+            mItemRequestMap.put(itemListener.getDataType(), itemListener);
         }
-        mItemRequestMap = builder.build();
 
         mRequestMap = ImmutableMap.<String, ResponseHandler>builder()
                 .put("sync", (player, request, message) -> {
@@ -209,172 +200,95 @@ class CometClient extends BaseClient {
     public void startConnect(final SqueezeService service) {
         Log.i(TAG, "startConnect()");
         // Start the background connect
-        mBackgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                final Preferences preferences = new Preferences(service);
-                preferences.setManualDisconnect(false);
-                final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-                final String username = serverAddress.userName;
-                final String password = serverAddress.password;
-                if (serverAddress.wakeOnLan) {
-                    Log.i(TAG, "Send Wake-on-LAN to: " + Util.formatMac(serverAddress.mac));
-                    SendWakeOnLan.sendWakeOnLan(serverAddress.mac);
+        mBackgroundHandler.post(() -> {
+            final Preferences preferences = new Preferences(service);
+            final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+            final String username = serverAddress.userName;
+            final String password = serverAddress.password;
+            if (serverAddress.wakeOnLan) {
+                Log.i(TAG, "Send Wake-on-LAN to: " + Util.formatMac(serverAddress.mac));
+                SendWakeOnLan.sendWakeOnLan(serverAddress.mac);
+            }
+            Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
+
+            if (!mEventBus.isRegistered(CometClient.this)) {
+                mEventBus.register(CometClient.this);
+            }
+            mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
+            final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
+
+            final HttpClient httpClient = new HttpClient();
+            httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer-squeezer/" + SqueezerBayeuxExtension.getRevision()));
+            try {
+                httpClient.start();
+            } catch (Exception e) {
+                mConnectionState.setConnectionError(ConnectionError.START_CLIENT_ERROR);
+                return;
+            }
+
+            CometClient.this.username.set(username);
+            CometClient.this.password.set(password);
+
+            mUrlPrefix = "http://" + serverAddress.address();
+            final String url = mUrlPrefix + "/cometd";
+            try {
+                // Neither URLUtil.isValidUrl nor Patterns.WEB_URL works as expected
+                // Not even create of URL and URI throws reliably so we add some extra checks
+                URI uri = new URL(url).toURI();
+                if (!(
+                        TextUtils.equals(uri.getHost(), serverAddress.host())
+                                && uri.getPort() == serverAddress.port()
+                                && TextUtils.equals(uri.getPath(), "/cometd")
+                )) {
+                    throw new IllegalArgumentException("Invalid url: " + url);
                 }
-                Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
+            } catch (Exception e) {
+                mConnectionState.setConnectionError(ConnectionError.INVALID_URL);
+                return;
+            }
 
-                if (!mEventBus.isRegistered(CometClient.this)) {
-                    mEventBus.register(CometClient.this);
+            // Set the VM-wide authentication handler (needed by image fetcher and other using
+            // the standard java http API)
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password.toCharArray());
                 }
-                mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
-                final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
+            });
 
-                final HttpClient httpClient = new HttpClient();
-                httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer-squeezer/" + SqueezerBayeuxExtension.getRevision()));
-                try {
-                    httpClient.start();
-                } catch (Exception e) {
-                    mConnectionState.setConnectionError(ConnectionError.START_CLIENT_ERROR);
-                    return;
-                }
-
-                CometClient.this.username.set(username);
-                CometClient.this.password.set(password);
-
-                mUrlPrefix = "http://" + serverAddress.address();
-                final String url = mUrlPrefix + "/cometd";
-                try {
-                    // Neither URLUtil.isValidUrl nor Patterns.WEB_URL works as expected
-                    // Not even create of URL and URI throws reliably so we add some extra checks
-                    URI uri = new URL(url).toURI();
-                    if (!(
-                            TextUtils.equals(uri.getHost(), serverAddress.host())
-                                    && uri.getPort() == serverAddress.port()
-                                    && TextUtils.equals(uri.getPath(), "/cometd")
-                    )) {
-                        throw new IllegalArgumentException("Invalid url: " + url);
+            ClientTransport clientTransport = new HttpStreamingTransport(url, null, httpClient) {
+                @Override
+                protected void customize(org.eclipse.jetty.client.api.Request request) {
+                    if (!isSqueezeNetwork && username != null && password != null) {
+                        String authorization = B64Code.encode(username + ":" + password);
+                        request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
                     }
-                } catch (Exception e) {
-                    mConnectionState.setConnectionError(ConnectionError.INVALID_URL);
-                    return;
                 }
-
-                // Set the VM-wide authentication handler (needed by image fetcher and other using
-                // the standard java http API)
-                Authenticator.setDefault(new Authenticator() {
-                    @Override
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password.toCharArray());
-                    }
-                });
-
-                Map<String, Object> options = new HashMap<>();
-                options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
-                ClientTransport clientTransport;
-                if (!isSqueezeNetwork) {
-                    clientTransport = new HttpStreamingTransport(url, options, httpClient) {
-                        @Override
-                        protected void customize(org.eclipse.jetty.client.api.Request request) {
-                            if (username != null && password != null) {
-                                String authorization = B64Code.encode(username + ":" + password);
-                                request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
-                            }
-                        }
-                    };
+            };
+            mBayeuxClient = new SqueezerBayeuxClient(url, clientTransport);
+            mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
+            mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
+                if (message.isSuccessful()) {
+                    onConnected(isSqueezeNetwork);
                 } else {
-                    clientTransport = new HttpStreamingTransport(url, options, httpClient) {
-                        // SN only replies the first connect message
-                        private boolean hasSendConnect;
-
-                        @Override
-                        public void send(TransportListener listener, List<Message.Mutable> messages) {
-                            boolean isConnect = Channel.META_CONNECT.equals(messages.get(0).getChannel());
-                            if (!(isConnect && hasSendConnect)) {
-                                super.send(listener, messages);
-                                if (isConnect) {
-                                    hasSendConnect = true;
-                                }
-                            }
-                        }
-                    };
-                }
-                mBayeuxClient = new SqueezerBayeuxClient(url, clientTransport);
-                mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
-                mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
-                    if (message.isSuccessful()) {
-                        onConnected(isSqueezeNetwork);
-                    } else {
-                        Log.w(TAG, channel + ": " + message.getJSON());
-
-                        // The bayeux protocol handle failures internally.
-                        // This current client libraries are however incompatible with LMS as new messages to the
-                        // meta channels are ignored.
-                        // So we disconnect here so we can create a new connection.
-                        Map<String, Object> failure = Util.getRecord(message, "failure");
-                        Message failedMessage = (failure != null) ? (Message) failure.get("message") : null;
-                        if ("forced reconnect".equals(failedMessage.get("error"))) {
-                            disconnect(ConnectionState.RECONNECT);
-                        } else {
-                            Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
-                            int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
-
-                            disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
-                        }
-                    }
-                });
-                mBayeuxClient.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
-                    if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
+                    Map<String, Object> failure = Util.getRecord(message, "failure");
+                    Message failedMessage = (failure != null) ? (Message) failure.get("message") : message;
+                    if (getAdviceAction(failedMessage.getAdvice()) == null) {
                         // Advices are handled internally by the bayeux protocol, so skip these here
-                        Log.w(TAG, channel + ": " + message.getJSON());
-                        disconnect();
-                    }
-                });
-
-                mBayeuxClient.handshake();
-            }
-
-            private void onConnected(boolean isSqueezeNetwork) {
-                Log.i(TAG, "Connected, start learning server capabilities");
-                mCurrentCommand = false;
-                mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
-
-                String clientId = mBayeuxClient.getId();
-
-                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).subscribe((channel, message) -> {
-                    Request request = mPendingRequests.get(message.getChannel());
-                    if (request != null) {
-                        request.callback.onResponse(request.player, request, message);
-                        mPendingRequests.remove(message.getChannel());
-                    }
-                });
-
-                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(CometClient.this::parseServerStatus);
-
-                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parsePlayerStatus);
-
-                mBayeuxClient.getChannel(String.format(CHANNEL_DISPLAY_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parseDisplayStatus);
-
-                mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parseMenuStatus);
-
-                // Request server status
-                publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
-
-                // Subscribe to server changes
-                {
-                    Request request = serverStatusRequest().param("subscribe", "60");
-                    publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
-                }
-
-                // Set a timeout for the handshake
-                mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
-                mBackgroundHandler.sendEmptyMessageDelayed(MSG_HANDSHAKE_TIMEOUT, HANDSHAKE_TIMEOUT);
-
-                if (isSqueezeNetwork) {
-                    if (needRegister()) {
-                        mEventBus.post(new RegisterSqueezeNetwork());
+                        Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
+                        int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
+                        disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
                     }
                 }
-            }
+            });
+            mBayeuxClient.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
+                if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
+                    // Advices are handled internally by the bayeux protocol, so skip these here
+                    disconnect();
+                }
+            });
+
+            mBayeuxClient.handshake();
         });
     }
 
@@ -382,6 +296,54 @@ class CometClient extends BaseClient {
         return mBayeuxClient.getId().startsWith("1X");
     }
 
+    private void onConnected(boolean isSqueezeNetwork) {
+        Log.i(TAG, "Connected, start learning server capabilities");
+        mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
+        // If this is a rehandshake we may already have players.
+        boolean rehandshake = !mConnectionState.getPlayers().isEmpty();
+
+        // Set a timeout for the handshake
+        if (mConnectionState.getServerVersion() == null) {
+            mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
+            mBackgroundHandler.sendEmptyMessageDelayed(MSG_HANDSHAKE_TIMEOUT, HANDSHAKE_TIMEOUT);
+        }
+
+        String clientId = mBayeuxClient.getId();
+        mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).subscribe(this::parseRequestResponse);
+        mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(this::parseServerStatus);
+        mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(this::parsePlayerStatus);
+        mBayeuxClient.getChannel(String.format(CHANNEL_DISPLAY_STATUS_FORMAT, clientId, "*")).subscribe(this::parseDisplayStatus);
+        mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(this::parseMenuStatus);
+
+        // Request server status
+        publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+
+        // Subscribe to server changes
+        {
+            Request request = serverStatusRequest().param("subscribe", String.valueOf(SERVER_STATUS_INTERVAL));
+            publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+        }
+
+        if (isSqueezeNetwork) {
+            if (needRegister()) {
+                mEventBus.post(new RegisterSqueezeNetwork());
+            }
+        }
+
+        if (rehandshake) {
+            // Make sure we reorder subscriptions on rehandshake
+            mConnectionState.getPlayers().values().stream().forEach(player -> player.getPlayerState().setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE));
+            mConnectionState.setServerVersion(null);
+        }
+    }
+
+    private void parseRequestResponse(ClientSessionChannel channel, Message message) {
+        Request request = mPendingRequests.get(message.getChannel());
+        if (request != null) {
+            request.callback.onResponse(request.player, request, message);
+            mPendingRequests.remove(message.getChannel());
+        }
+    }
 
     private void parseServerStatus(ClientSessionChannel channel, Message message) {
         Map<String, Object> data = message.getDataAsMap();
@@ -418,6 +380,10 @@ class CometClient extends BaseClient {
                 }
             }
         }
+
+        // Set a timeout for the next server status message
+        mBackgroundHandler.removeMessages(MSG_SERVER_STATUS_TIMEOUT);
+        mBackgroundHandler.sendEmptyMessageDelayed(MSG_SERVER_STATUS_TIMEOUT, SERVER_STATUS_TIMEOUT);
     }
 
     private void parsePlayerStatus(ClientSessionChannel channel, Message message) {
@@ -519,10 +485,15 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             if (!message.isSuccessful()) {
-                // TODO remote logging and possible other handling
-                Log.e(TAG, channel + ": " + message.getJSON());
+                if (Message.RECONNECT_HANDSHAKE_VALUE.equals(getAdviceAction(message.getAdvice()))) {
+                    Log.i(TAG, "rehandshake");
+                    mBayeuxClient.rehandshake();
+                } else {
+                    Map<String, Object> failure = (Map<String, Object>) message.get("failure");
+                    Exception exception = (failure != null) ? (Exception) failure.get("exception") : null;
+                    Log.w(TAG, channel + ": " + message.getJSON(), exception);
+                }
             }
-            mBackgroundHandler.sendEmptyMessage(MSG_PUBLISH_RESPONSE_RECIEVED);
         }
     }
 
@@ -677,18 +648,14 @@ class CometClient extends BaseClient {
 
     /** This may only be called from the handler thread */
     private void _publishMessage(Request request, String channel, String responseChannel, PublishListener publishListener) {
-        if (!mCurrentCommand) {
-            mCurrentCommand = true;
-            Map<String, Object> data = new HashMap<>();
-            if (request != null) {
-                data.put("request", request.slimRequest());
-                data.put("response", responseChannel);
-            } else {
-                data.put("unsubscribe", responseChannel);
-            }
-            mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
-        } else
-            mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
+        Map<String, Object> data = new HashMap<>();
+        if (request != null) {
+            data.put("request", request.slimRequest());
+            data.put("response", responseChannel);
+        } else {
+            data.put("unsubscribe", responseChannel);
+        }
+        mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
     }
 
     @Override
@@ -768,7 +735,7 @@ class CometClient extends BaseClient {
     private static final int MSG_PUBLISH = 1;
     private static final int MSG_DISCONNECT = 2;
     private static final int MSG_HANDSHAKE_TIMEOUT = 3;
-    private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 4;
+    private static final int MSG_SERVER_STATUS_TIMEOUT = 4;
     private static final int MSG_TIME_UPDATE = 5;
     private static final int MSG_STATE_UPDATE = 6;
     private class CliHandler extends Handler {
@@ -788,16 +755,13 @@ class CometClient extends BaseClient {
                     mBayeuxClient.disconnect();
                     break;
                 case MSG_HANDSHAKE_TIMEOUT:
-                    Log.w(TAG, "LMS handshake timeout: " + mConnectionState);
+                    Log.w(TAG, "Handshake timeout: " + mConnectionState);
                     disconnect();
                     break;
-                case MSG_PUBLISH_RESPONSE_RECIEVED: {
-                    mCurrentCommand = false;
-                    PublishMessage message = mCommandQueue.poll();
-                    if (message != null)
-                        _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                case MSG_SERVER_STATUS_TIMEOUT:
+                    Log.w(TAG, "Server status timeout: initiate a new handshake");
+                    mBayeuxClient.rehandshake();
                     break;
-                }
                 case MSG_TIME_UPDATE: {
                     Player activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {

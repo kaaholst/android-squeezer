@@ -23,12 +23,15 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import java.util.Random;
 import java.util.UUID;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
 public final class Preferences {
@@ -61,7 +64,7 @@ public final class Preferences {
     private static final String KEY_MAC = "squeezer.mac";
 
     // The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
-    public static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
+    private static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
 
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
@@ -348,6 +351,24 @@ public final class Preferences {
         editor.apply();
     }
 
+    public String getLastPlayer() {
+        return getStringPreference(KEY_LAST_PLAYER);
+    }
+
+    public void setLastPlayer(@Nullable Player player) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if (player == null) {
+            Log.v(TAG, "Clearing " + KEY_LAST_PLAYER);
+            editor.remove(KEY_LAST_PLAYER);
+        } else {
+            Log.v(TAG, "Saving " + KEY_LAST_PLAYER + "=" + player.getId());
+            editor.putString(KEY_LAST_PLAYER, player.getId());
+        }
+
+        editor.apply();
+    }
+
     public String getTheme() {
         return getStringPreference(KEY_ON_THEME_SELECT_ACTION);
     }
@@ -368,16 +389,6 @@ public final class Preferences {
 
     public boolean isAutoConnect() {
         return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
-    }
-
-    public boolean isManualDisconnect() {
-        return sharedPreferences.getBoolean(KEY_MANUAL_DISCONNECT, false);
-    }
-
-    public void setManualDisconnect(boolean manualDisconnect) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(Preferences.KEY_MANUAL_DISCONNECT, manualDisconnect);
-        editor.apply();
     }
 
     public boolean isPauseOnIncomingCall() {

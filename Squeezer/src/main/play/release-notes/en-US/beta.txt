@@ -1,1 +1,9 @@
-&bull; Restore the scroll bar
+&bull; Fixed the icons for the Settings/Audio menu
+
+&bull; Material design time pickers
+
+&bull; Remove Google Analytics from settings screen
+
+&bull; Rehandshake with the server when connection is lost, or the server requests it
+
+&bull; Fix some reported crashes.

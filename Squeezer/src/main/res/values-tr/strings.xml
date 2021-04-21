@@ -48,9 +48,6 @@
   <string name="ADD_TO_END">Çalma listesine ekle</string>
   <string name="DOWNLOAD">İndir</string>
     <!--Song display options-->
-    <!--Analytics preference strings-->
-  <string name="pref_cat_error_reports">Hata raporları ve istatistikler</string>
-  <string name="pref_analytics_enable">Kullanım istatistiklerini gönder</string>
     <plurals name="seconds">
     <item quantity="one">saniye</item>
     <item quantity="other">saniye</item>

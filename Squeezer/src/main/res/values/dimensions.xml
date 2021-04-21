@@ -31,4 +31,10 @@
 
     <!-- Playlist drag -->
     <dimen name="playlist_scroll_distance">48dp</dimen>
+
+    <!-- Padding before the AM/PM label -->
+    <dimen name="ampm_left_padding">6dip</dimen>
+
+    <!-- Inset for current playlist nom playing emblem -->
+    <dimen name="now_playing_emblem_inset">12dip</dimen>
 </resources>

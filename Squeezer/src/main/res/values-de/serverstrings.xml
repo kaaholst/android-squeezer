@@ -38,6 +38,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>Mi</string>
   <string name='ALARM_SHORT_DAY_0'>So</string>
   <string name='ALARM_SHORT_DAY_1'>Mo</string>
+  <string name='ALARM_SET_TIME'>Zeit einrichten</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Nur den ausgewählten Titel wiedergeben</string>
   <string name='MORE'>Mehr</string>
   <string name='SLEEP_AT_END_OF_SONG'>Schlafmodus bei Titelende</string>

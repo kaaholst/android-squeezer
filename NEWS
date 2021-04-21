@@ -1,3 +1,20 @@
+2.2.4
+=====
+
+*   Updated German translation
+
+*   Fixed the icons for the Settings/Audio menu
+
+*   Material design time pickers
+
+*   Remove Google Analytics from settings screen
+
+*   Rehandshake with the server when connection is lost, or the server
+    requests it
+
+*   Fix some reported crashes.
+
+
 2.2.3
 =====
 

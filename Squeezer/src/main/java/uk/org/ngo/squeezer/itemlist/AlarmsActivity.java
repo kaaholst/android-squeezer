@@ -17,24 +17,21 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.android.datetimepicker.time.RadialPickerLayout;
-import com.android.datetimepicker.time.TimePickerDialog;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +44,6 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -74,7 +70,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         mAllAlarmsHintView = findViewById(R.id.all_alarms_hint);
 
         mAlarmsEnabledButton = new CompoundButtonWrapper(findViewById(R.id.alarms_enabled));
-        findViewById(R.id.add_alarm).setOnClickListener(v -> TimePickerFragment.show(getSupportFragmentManager(), DateFormat.is24HourFormat(AlarmsActivity.this), getThemeId() == R.style.AppTheme));
+        findViewById(R.id.add_alarm).setOnClickListener(v -> showTimePicker(this, DateFormat.is24HourFormat(AlarmsActivity.this)));
 
         mSettingsButton = findViewById(R.id.settings);
         mSettingsButton.setOnClickListener(view -> new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog"));
@@ -236,37 +232,23 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         }
     }
 
-    public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
-        BaseListActivity activity;
-
-        @Override
-        @NonNull
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            activity = (BaseListActivity) getActivity();
-            setOnTimeSetListener(this);
-            return super.onCreateDialog(savedInstanceState);
-        }
-
-        public static void show(FragmentManager manager, boolean is24HourMode, boolean dark) {
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            TimePickerFragment fragment = new TimePickerFragment();
-            fragment.initialize(fragment, hour, minute, is24HourMode);
-            fragment.setThemeDark(dark);
-            fragment.show(manager, TimePickerFragment.class.getSimpleName());
-        }
-
-        @Override
-        public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+    public static void showTimePicker(BaseListActivity activity, boolean is24HourMode) {
+        // Use the current time as the default values for the picker
+        final Calendar c = Calendar.getInstance();
+        MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                .setHour(c.get(Calendar.HOUR_OF_DAY))
+                .setMinute(c.get(Calendar.MINUTE))
+                .setTimeFormat(is24HourMode ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+                .setTitleText(R.string.ALARM_SET_TIME)
+                .build();
+        picker.addOnPositiveButtonClickListener(view -> {
             if (activity.getService() != null) {
-                activity.getService().alarmAdd((hourOfDay * 60 + minute) * 60);
+                activity.getService().alarmAdd((picker.getHour() * 60 + picker.getMinute()) * 60);
                 // TODO add to list and animate the new alarm in
                 activity.clearAndReOrderItems();
             }
-        }
+        });
+        picker.show(activity.getSupportFragmentManager(), AlarmsActivity.class.getSimpleName());
     }
 
 }

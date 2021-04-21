@@ -2,6 +2,22 @@
 
 <changelog>
     <release
+        version="2.2.4"
+        versioncode="97">
+        <change>Updated German translation</change>
+
+        <change>Fixed the icons for the Settings/Audio menu</change>
+
+        <change>Material design time pickers</change>
+
+        <change>Remove Google Analytics from settings screen</change>
+
+        <change>Rehandshake with the server when connection is lost, or the server requests it</change>
+
+        <change>Fix some reported crashes.</change>
+    </release>
+
+    <release
         version="2.2.3"
         versioncode="93">
         <change>Restore the scroll bar</change>

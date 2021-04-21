@@ -421,7 +421,7 @@ public class PlayerState implements Parcelable {
 
     public enum PlayerSubscriptionType {
         NOTIFY_NONE("-"),
-        NOTIFY_ON_CHANGE("600");
+        NOTIFY_ON_CHANGE("0");
 
         private final String status;
 

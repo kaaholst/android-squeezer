@@ -243,6 +243,9 @@ public class JiveItem extends Item {
         result.put("settingsShuffle", R.drawable.shuffle);
         result.put("settingsRepeat", R.drawable.settings_repeat);
         result.put("settingsAudio", R.drawable.settings_audio);
+        result.put("settingsFixedVolume", R.drawable.settings_audio);
+        result.put("settingsXfade", R.drawable.settings_audio);
+        result.put("settingsReplayGain", R.drawable.settings_audio);
         result.put("settingsSleep", R.drawable.settings_sleep);
         result.put("settingsSync", R.drawable.settings_sync);
 

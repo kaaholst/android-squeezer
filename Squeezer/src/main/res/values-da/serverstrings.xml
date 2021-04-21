@@ -32,6 +32,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>Ons</string>
   <string name='ALARM_SHORT_DAY_0'>Søn</string>
   <string name='ALARM_SHORT_DAY_1'>Man</string>
+  <string name='ALARM_SET_TIME'>Indstil uret</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Afspil kun det valgte nummer</string>
   <string name='MORE'>Mere…</string>
   <string name='SLEEP_AT_END_OF_SONG'>Slumrefunktion når nummeret er slut</string>

@@ -92,6 +92,11 @@ public class ImageFetcher extends ImageWorker {
      */
     @Nullable
     protected byte[] processBitmap(BitmapWorkerTaskParams params) {
+        if (params == null || params.data == null) {
+            Log.w(TAG, "processBitmap was called without any data " + params + " abandon");
+            return null;
+        }
+
         String data = params.data.toString();
         Log.d(TAG, "processBitmap: " + data);
 

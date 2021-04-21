@@ -502,6 +502,16 @@ public abstract class ImageWorker {
             this.data = data;
             this.memCacheKey = memCacheKey;
         }
+
+        @Override
+        public String toString() {
+            return "BitmapWorkerTaskParams{" +
+                    "width=" + width +
+                    ", height=" + height +
+                    ", data=" + data +
+                    ", memCacheKey='" + memCacheKey + '\'' +
+                    '}';
+        }
     }
 
     protected class RemoteViewBitmapWorkerTaskParams extends BitmapWorkerTaskParams {

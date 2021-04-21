@@ -343,14 +343,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
     <!-- Song display options -->
 
-    <!--  Analytics preference strings -->
-    <string name="pref_cat_error_reports">Error reports and statistics</string>
-    <string name="pref_analytics_enable">Send usage statistics</string>
-    <string name="pref_analytics_enable_enabled">Anonymous usage statistics are collected using
-        Google Analytics.
-    </string>
-    <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
-
     <plurals name="seconds">
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>

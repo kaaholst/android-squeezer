@@ -16,16 +16,13 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.app.Dialog;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 
 import android.text.SpannableString;
 import android.text.format.DateFormat;
@@ -42,8 +39,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.android.datetimepicker.time.RadialPickerLayout;
-import com.android.datetimepicker.time.TimePickerDialog;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.text.DateFormatSymbols;
 import java.util.List;
@@ -170,7 +167,8 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         alarm = item;
         time.setText(String.format(timeFormat, displayHour, minute));
-        time.setOnClickListener(view -> TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, is24HourFormat, getActivity().getThemeId() == R.style.AppTheme));
+        BaseListActivity activity = (BaseListActivity) getActivity();
+        time.setOnClickListener(view -> showTimePicker(activity, item, is24HourFormat));
         amPm.setText(hour < 12 ? am : pm);
         enabled.setChecked(item.isEnabled());
         repeat.setChecked(item.isRepeat());
@@ -225,37 +223,17 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         }
     }
 
-    public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
-        BaseListActivity activity;
-        Alarm alarm;
-
-        @Override
-        @NonNull
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            activity = (BaseListActivity) getActivity();
-            alarm = getArguments().getParcelable("alarm");
-            setOnTimeSetListener(this);
-            return super.onCreateDialog(savedInstanceState);
-        }
-
-        public static void show(FragmentManager manager, Alarm alarm, boolean is24HourFormat, boolean dark) {
-            long tod = alarm.getTod();
-            int hour = (int) (tod / 3600);
-            int minute = (int) ((tod / 60) % 60);
-
-            TimePickerFragment fragment = new TimePickerFragment();
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("alarm", alarm);
-            fragment.setArguments(bundle);
-            fragment.initialize(fragment, hour, minute, is24HourFormat);
-            fragment.setThemeDark(dark);
-            fragment.show(manager, TimePickerFragment.class.getSimpleName());
-        }
-
-        @Override
-        public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+    public static void showTimePicker(BaseListActivity activity, Alarm alarm, boolean is24HourFormat) {
+        long tod = alarm.getTod();
+        MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                .setHour((int) (tod / 3600))
+                .setMinute((int) ((tod / 60) % 60))
+                .setTimeFormat(is24HourFormat ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
+                .setTitleText(R.string.ALARM_SET_TIME)
+                .build();
+        picker.addOnPositiveButtonClickListener(view -> {
             if (activity.getService() != null) {
-                int time = (hourOfDay * 60 + minute) * 60;
+                int time = (picker.getHour() * 60 + picker.getMinute()) * 60;
                 alarm.setTod(time);
                 activity.getService().alarmSetTime(alarm.getId(), time);
                 if (!alarm.isEnabled()) {
@@ -264,7 +242,9 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 }
                 activity.getItemAdapter().notifyDataSetChanged();
             }
-        }
+        });
+        picker.show(activity.getSupportFragmentManager(), AlarmView.class.getSimpleName());
+
     }
 
     private class AlarmPlaylistSpinnerAdapter extends ArrayAdapter<AlarmPlaylist> {

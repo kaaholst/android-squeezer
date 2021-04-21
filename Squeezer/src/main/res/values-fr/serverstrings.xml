@@ -38,6 +38,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>Me</string>
   <string name='ALARM_SHORT_DAY_0'>Di</string>
   <string name='ALARM_SHORT_DAY_1'>Lu</string>
+  <string name='ALARM_SET_TIME'>Régler l\'heure</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Lire uniquement les morceaux choisis</string>
   <string name='MORE'>Plus</string>
   <string name='SLEEP_AT_END_OF_SONG'>Veille à la fin du morceau</string>

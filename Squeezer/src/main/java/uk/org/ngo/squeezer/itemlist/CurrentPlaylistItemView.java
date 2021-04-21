@@ -26,6 +26,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.palette.graphics.Palette;
 
@@ -109,15 +110,21 @@ class CurrentPlaylistItemView extends JiveItemView {
     }
 
     @Override
+    protected boolean isSelectable(JiveItem item) {
+        return true;
+    }
+
+    @Override
     public void onIcon() {
-        if (getAdapterPosition() == activity.getSelectedIndex() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (getAdapterPosition() == activity.getSelectedIndex()) {
             Drawable drawable = icon.getDrawable();
-            Drawable marker = AppCompatResources.getDrawable(activity, R.drawable.ic_action_nowplaying);
+            Drawable marker = DrawableCompat.wrap(AppCompatResources.getDrawable(activity, R.drawable.ic_action_nowplaying));
             Palette colorPalette = Palette.from(Util.drawableToBitmap(drawable)).generate();
-            marker.setTint(colorPalette.getDominantSwatch().getBodyTextColor());
+            DrawableCompat.setTint(marker, colorPalette.getDominantSwatch().getBodyTextColor());
 
             LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{drawable, marker});
-            layerDrawable.setLayerGravity(1, Gravity.CENTER);
+            int inset = activity.getResources().getDimensionPixelSize(R.dimen.now_playing_emblem_inset);
+            layerDrawable.setLayerInset(1, inset, inset, inset, inset);
 
             icon.setImageDrawable(layerDrawable);
         }

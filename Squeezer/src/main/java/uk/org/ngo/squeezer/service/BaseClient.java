@@ -112,12 +112,12 @@ abstract class BaseClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Util.getStringOrEmpty(tokenMap, "sync_slaves")));
+        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getString(tokenMap, "mode"));
 
-        player.setPlayerState(playerState);
-
-        // Kept as its own method because other methods call it, unlike the explicit
-        // calls to the callbacks below.
-        updatePlayStatus(player, Util.getString(tokenMap, "mode"));
+        // Playing status
+        if (changedPlayStatus) {
+            mEventBus.post(new PlayStatusChanged(playerState.getPlayStatus(), player));
+        }
 
         // Current playlist
         if (changedPlaylist) {
@@ -156,7 +156,7 @@ abstract class BaseClient implements SlimClient {
         }
 
         // Position in song
-        if (changedSongDuration || changedSongTime) {
+        if (changedSongDuration || changedSongTime || changedPlayStatus) {
             postSongTimeChanged(player);
         }
     }
@@ -169,19 +169,15 @@ abstract class BaseClient implements SlimClient {
         mEventBus.post(new PlayerStateChanged(player));
     }
 
-    private void updatePlayStatus(Player player, String playStatus) {
+    private boolean updatePlayStatus(PlayerState playerState, String playStatus) {
         // Handle unknown states.
         if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
                 !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&
                 !playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
-            return;
+            return false;
         }
 
-        PlayerState playerState = player.getPlayerState();
-
-        if (playerState.setPlayStatus(playStatus)) {
-            mEventBus.post(new PlayStatusChanged(playStatus, player));
-        }
+        return playerState.setPlayStatus(playStatus);
     }
 
     protected static class BrowseRequest<T> extends SlimCommand {

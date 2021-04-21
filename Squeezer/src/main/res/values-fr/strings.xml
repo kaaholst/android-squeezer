@@ -135,11 +135,6 @@
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Téléchargement annulé car nous n’avons pas l’autorisation de sauvegarder les fichiers téléchargés</string>
 
 
-    <string name="pref_cat_error_reports">Rapports d\'erreur et statistiques</string>
-    <string name="pref_analytics_enable">Envoyer des statistiques d\'utilisation</string>
-    <string name="pref_analytics_enable_enabled">Les statistiques d\'utilisation anonymes sont collectées à l\'aide de Google Analytics.</string>
-    <string name="pref_analytics_enable_disabled">Aucune statistique d\'utilisation n\'est collectée.</string>
-
     <plurals name="seconds">
         <item quantity="one">seconde</item>
         <item quantity="other">secondes</item>
