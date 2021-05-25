@@ -34,11 +34,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +76,25 @@ public class Util {
         }
         return false;
     }
+
+    public static String joinSkipEmpty(String separator, String ... parts) {
+        return joinSkipEmpty(separator, Arrays.asList(parts));
+    }
+
+    public static String joinSkipEmpty(String separator, Iterable<String> parts) {
+        if (parts == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            if (part == null) continue;
+
+            if (sb.length() > 0) sb.append(separator);
+            sb.append(part);
+        }
+
+        return sb.toString();
+    }
+
 
     public static double parseDouble(String value, double defaultValue) {
         if (value == null) {
@@ -335,6 +356,12 @@ public class Util {
         return (pos > 0) ? name.substring(0, pos) : name;
     }
 
+    public static String getFileExtension(String fileName) {
+        String name = new File(fileName).getName();
+        int pos = name.lastIndexOf(".");
+        return  (pos > 0) ? fileName.substring(pos+1) : "";
+    }
+
     public static void moveFile(ContentResolver resolver, Uri source, Uri destination) throws IOException {
         try (InputStream inputStream = resolver.openInputStream(source);
              OutputStream outputStream = resolver.openOutputStream(destination)) {
@@ -344,17 +371,29 @@ public class Util {
             if (outputStream == null) {
                 throw new IOException("moveFile: could not open '" + destination + "'");
             }
-            byte[] b = new byte[16384];
-            int bytes;
-            while ((bytes = inputStream.read(b)) > 0) {
-                outputStream.write(b, 0, bytes);
-            }
+            copyStream(inputStream, outputStream);
         }
         int deleted = resolver.delete(source, null, null);
         if (deleted != 1) {
             throw new IOException("moveFile: try to delete '" + source + "' after copy, expected 1 deleted file but was " + deleted);
         }
 
+    }
+
+    public static byte[] toByteArray(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        copyStream(inputStream, outputStream);
+
+        return outputStream.toByteArray();
+    }
+
+    private static void copyStream(InputStream inputStream, OutputStream outputStream) throws IOException {
+        byte[] b = new byte[16384];
+        int bytes;
+        while ((bytes = inputStream.read(b)) > 0) {
+            outputStream.write(b, 0, bytes);
+        }
     }
 
     public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {

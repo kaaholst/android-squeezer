@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -43,8 +44,6 @@ import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This class defines the common minimum, which any activity browsing the SqueezeServer's database
@@ -120,13 +119,13 @@ public abstract class ItemListActivity extends BaseActivity {
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
 
-        loadingProgress = checkNotNull(findViewById(R.id.loading_label),
+        loadingProgress = Objects.requireNonNull((View) findViewById(R.id.loading_label),
                 "activity layout did not return a view containing R.id.loading_label");
 
-        emptyView = checkNotNull(findViewById(R.id.empty_view),
+        emptyView = Objects.requireNonNull((View) findViewById(R.id.empty_view),
                 "activity layout did not return a view containing R.id.empty_view");
 
-        listView = checkNotNull(subActivityContent.findViewById(R.id.item_list),
+        listView = Objects.requireNonNull(subActivityContent.findViewById(R.id.item_list),
                 "getContentView() did not return a view containing R.id.item_list");
         listView.setLayoutManager(new LinearLayoutManager(this));
     }

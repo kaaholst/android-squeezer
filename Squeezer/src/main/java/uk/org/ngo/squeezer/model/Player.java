@@ -20,11 +20,6 @@ import android.os.Parcel;
 import android.os.SystemClock;
 import androidx.annotation.NonNull;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-
 import java.util.Comparator;
 import java.util.Map;
 
@@ -42,13 +37,7 @@ public class Player extends Item implements Comparable<Player> {
 
     private final boolean mCanPowerOff;
 
-    /** Hash function to generate at least 64 bits of hashcode from a player's ID. */
-    private static final HashFunction mHashFunction = Hashing.goodFastHash(64);
-
-    /**  A hash of the player's ID. */
-    private final HashCode mHashCode;
-
-    private PlayerState mPlayerState = new PlayerState();
+    private final PlayerState mPlayerState = new PlayerState();
 
     /** Is the player connected? */
     private boolean mConnected;
@@ -88,17 +77,12 @@ public class Player extends Item implements Comparable<Player> {
         mModel = getString(record, "model");
         mCanPowerOff = getInt(record, "canpoweroff") == 1;
         mConnected = getInt(record, "connected") == 1;
-        mHashCode = calcHashCode();
 
         for (Player.Pref pref : Player.Pref.values()) {
             if (record.containsKey(pref.prefName)) {
                 mPlayerState.prefs.put(pref, Util.getString(record, pref.prefName));
             }
         }
-    }
-
-    private HashCode calcHashCode() {
-        return mHashFunction.hashString(getId(), Charsets.UTF_8);
     }
 
     private Player(Parcel source) {
@@ -108,7 +92,6 @@ public class Player extends Item implements Comparable<Player> {
         mModel = source.readString();
         mCanPowerOff = (source.readByte() == 1);
         mConnected = (source.readByte() == 1);
-        mHashCode = HashCode.fromString(source.readString());
     }
 
     @NonNull
@@ -167,7 +150,6 @@ public class Player extends Item implements Comparable<Player> {
         dest.writeString(mModel);
         dest.writeByte(mCanPowerOff ? (byte) 1 : (byte) 0);
         dest.writeByte(mConnected ? (byte) 1 : (byte) 0);
-        dest.writeString(mHashCode.toString());
     }
 
     /**
@@ -195,7 +177,6 @@ public class Player extends Item implements Comparable<Player> {
                 ", mIp='" + mIp + '\'' +
                 ", mModel='" + mModel + '\'' +
                 ", mCanPowerOff=" + mCanPowerOff +
-                ", mHashCode=" + mHashCode +
                 ", mPlayerState=" + mPlayerState +
                 ", mConnected=" + mConnected +
                 '}';

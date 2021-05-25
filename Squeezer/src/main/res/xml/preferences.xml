@@ -28,10 +28,10 @@
         android:title="@string/settings_autoconnect_title"
         android:summary="@string/settings_autoconnect_summary"/>
 
-    <SwitchPreferenceCompat
-        android:key="squeezer.pause_on_incoming_call"
-        android:title="@string/settings_pause_on_incoming_call_title"
-        android:summary="@string/settings_pause_on_incoming_call_summary"/>
+    <ListPreference
+        android:key="squeezer.action_on_incoming_call"
+        android:title="@string/settings_action_on_incoming_call_title"
+        android:summary="%s"/>
 
     <PreferenceCategory
         android:title="@string/pref_cat_third_party">
@@ -53,7 +53,8 @@
 
         <ListPreference
             android:key="squeezer.theme"
-            android:title="@string/settings_theme_title"/>
+            android:title="@string/settings_theme_title"
+            android:summary="%s"/>
 
         <SwitchPreferenceCompat
             android:key="squeezer.clear.current_playlist.confirmation"
@@ -77,11 +78,13 @@
 
         <ListPreference
             android:key="squeezer.download.path_structure"
-            android:title="@string/settings_download_path_structure"/>
+            android:title="@string/settings_download_path_structure"
+            android:summary="%s"/>
 
         <ListPreference
             android:key="squeezer.download.filename_structure"
-            android:title="@string/settings_download_filename_structure"/>
+            android:title="@string/settings_download_filename_structure"
+            android:summary="%s"/>
 
     </PreferenceCategory>
 </PreferenceScreen>

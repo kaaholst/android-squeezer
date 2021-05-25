@@ -36,8 +36,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.dialog.DownloadDialog;
-import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistClearDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
@@ -51,7 +49,7 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 /**
  * Activity that shows the songs in the current playlist.
  */
-public class CurrentPlaylistActivity extends JiveItemListActivity {
+public class CurrentPlaylistActivity extends JiveItemListActivity implements PlaylistClearDialog.PlaylistClearDialogListener {
     private int skipPlaylistChanged = 0;
     private int draggedIndex = -1;
 
@@ -151,19 +149,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_playlist_clear:
                 if (new Preferences(this).isClearPlaylistConfirmation()) {
-                    PlaylistClearDialog.show(getSupportFragmentManager(), new PlaylistClearDialog.ConfirmDialogListener() {
-                        @Override
-                        public void ok(boolean persist) {
-                            if (persist) {
-                                new Preferences(CurrentPlaylistActivity.this).setClearPlaylistConfirmation(false);
-                            }
-                            clearPlaylist();
-                        }
-
-                        @Override
-                        public void cancel(boolean persist) {
-                        }
-                    });
+                    PlaylistClearDialog.show(this);
                 } else {
                     clearPlaylist();
                 }
@@ -179,7 +165,8 @@ public class CurrentPlaylistActivity extends JiveItemListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void clearPlaylist() {
+    @Override
+    public void clearPlaylist() {
         UndoBarController.show(this, R.string.CLEARING_PLAYLIST, new UndoBarController.UndoListener() {
             @Override
             public void onUndo() {

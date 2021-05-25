@@ -16,16 +16,28 @@
 
 package uk.org.ngo.squeezer.itemlist.dialog;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseConfirmDialog;
 
 public class PlaylistClearDialog extends BaseConfirmDialog {
     private static final String TAG = PlaylistClearDialog.class.getSimpleName();
+    private PlaylistClearDialogListener host;
 
-    public PlaylistClearDialog(ConfirmDialogListener callback) {
-        super(callback);
+    public interface PlaylistClearDialogListener {
+        FragmentManager getSupportFragmentManager();
+        void clearPlaylist();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        host = (PlaylistClearDialogListener) context;
     }
 
     @Override
@@ -33,10 +45,18 @@ public class PlaylistClearDialog extends BaseConfirmDialog {
         return getString(R.string.CLEAR_PLAYLIST);
     }
 
-    public static PlaylistClearDialog show(FragmentManager fragmentManager, ConfirmDialogListener callback) {
-        PlaylistClearDialog dialog = new PlaylistClearDialog(callback);
+    @Override
+    protected void ok(boolean persist) {
+        if (persist) {
+            new Preferences(getContext()).setClearPlaylistConfirmation(false);
+        }
+        host.clearPlaylist();
+    }
 
-        dialog.show(fragmentManager, TAG);
+    public static PlaylistClearDialog show(PlaylistClearDialogListener callback) {
+        PlaylistClearDialog dialog = new PlaylistClearDialog();
+
+        dialog.show(callback.getSupportFragmentManager(), TAG);
 
         return dialog;
     }

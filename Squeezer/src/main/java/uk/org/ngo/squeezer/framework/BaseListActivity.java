@@ -106,6 +106,14 @@ public abstract class BaseListActivity<VH extends ItemViewHolder<T>, T extends I
         saveVisiblePosition();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (itemAdapter != null) {
+            itemAdapter.setActivity(null);
+        }
+    }
+
     /**
      * Store the first visible position of {@link #getListView()}, in the retain fragment, so
      * we can later retrieve it.
@@ -127,6 +135,7 @@ public abstract class BaseListActivity<VH extends ItemViewHolder<T>, T extends I
                 itemAdapter = createItemListAdapter();
                 putRetainedValue(TAG_ADAPTER, itemAdapter);
             } else {
+                itemAdapter.setActivity(this);
                 // Update views with the count from the retained item adapter
                 itemAdapter.onCountUpdated();
             }

@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.itemlist.dialog.AlarmSettingsDialog;
@@ -233,6 +234,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     }
 
     public static void showTimePicker(BaseListActivity activity, boolean is24HourMode) {
+        Preferences preferences = new Preferences(activity);
         // Use the current time as the default values for the picker
         final Calendar c = Calendar.getInstance();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
@@ -240,8 +242,10 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
                 .setMinute(c.get(Calendar.MINUTE))
                 .setTimeFormat(is24HourMode ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
                 .setTitleText(R.string.ALARM_SET_TIME)
+                .setInputMode(preferences.getTimeInputMode())
                 .build();
         picker.addOnPositiveButtonClickListener(view -> {
+            preferences.setTimeInputMode(picker.getInputMode());
             if (activity.getService() != null) {
                 activity.getService().alarmAdd((picker.getHour() * 60 + picker.getMinute()) * 60);
                 // TODO add to list and animate the new alarm in

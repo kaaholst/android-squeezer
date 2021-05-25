@@ -2,10 +2,10 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
@@ -16,7 +16,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 public abstract class PlayerBaseView extends ViewParamItemView<Player> {
     private static final Map<String, Integer> modelIcons = PlayerBaseView.initializeModelIcons();
 
-    public PlayerBaseView(BaseActivity activity, @Nonnull View view) {
+    public PlayerBaseView(BaseActivity activity, @NonNull View view) {
         super(activity, view);
     }
 

@@ -18,7 +18,9 @@ package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
 
-import com.google.common.base.Joiner;
+import java.util.Arrays;
+
+import uk.org.ngo.squeezer.Util;
 
 public class NotificationState {
     public boolean hasPlayer;
@@ -32,7 +34,7 @@ public class NotificationState {
     public boolean playing;
 
     public String artistAlbum() {
-        return Joiner.on(" - ").skipNulls().join(artistName, albumName);
+        return Util.joinSkipEmpty(" - ", artistName, albumName);
     }
 
     @Override

@@ -16,11 +16,10 @@
 
 package uk.org.ngo.squeezer.util;
 
-import com.google.common.base.Strings;
-
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,20 +46,9 @@ public class ScanNetworkTaskTest extends TestCase {
         testTable.add(new BufferTest(
                 "Successor tuple", "EIPAD\049001NAME\04TestVERS\011", "IPAD:9001;NAME:Test"));
 
-        // Names longer than 127 characters are OK (catch errors as bytes are signed).  Need to
-        // use a byte[] here instead of a string, as a string literal \200 and above becomes a
-        // 2-byte value when String.getBytes() is called.
-        String name = Strings.repeat("a", 128);
-        byte [] buffer = ("ENAME\01" + name).getBytes();
-        buffer[5] = (byte) 0x80;
-        testTable.add(new BufferTest("128 char name", buffer, "NAME:" + name));
-
-        //noinspection ReuseOfLocalVariable
-        name = Strings.repeat("a", 256);
-        //noinspection ReuseOfLocalVariable
-        buffer = ("ENAME\01" + name).getBytes();
-        buffer[5] = (byte) 0xff;
-        testTable.add(new BufferTest("255 char name", buffer, "NAME:" + Strings.repeat("a", 255)));
+        // Names longer than 127 characters are OK (catch errors as bytes are signed).
+        addLongName(testTable, 128);
+        addLongName(testTable, 255);
 
         // Expected failure cases to handle..
 
@@ -83,6 +71,20 @@ public class ScanNetworkTaskTest extends TestCase {
             Map<String, String> actual = ScanNetworkTask.parseDiscover(test.buffer.length, test.buffer);
             assertEquals(test.message, test.expected, actual);
         }
+    }
+
+    private void addLongName(List<BufferTest> testTable, int n) {
+        String ENAME = "ENAME\01";
+
+        // Need to use a byte[] here instead of a string, as a string literal \200
+        // and above becomes a 2-byte value when String.getBytes() is called.
+        byte[] name = new byte[n];
+        Arrays.fill(name, (byte)'a');
+        byte[] buffer = new byte[ENAME.length()+ n];
+        System.arraycopy(ENAME.getBytes(), 0, buffer, 0, ENAME.length());
+        System.arraycopy(name, 0, buffer, ENAME.length(), n);
+        buffer[5] = (byte) n;
+        testTable.add(new BufferTest(n + " char name", buffer, "NAME:" + new String(name)));
     }
 
     /**

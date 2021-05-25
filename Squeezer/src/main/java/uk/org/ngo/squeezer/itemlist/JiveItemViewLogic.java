@@ -65,6 +65,8 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
         } else if (item.goAction.isSlideShow()) {
+            GalleryActivity.show(activity, item.goAction);
+        } else if (item.goAction.isTypeSlideShow()) {
             SlideShow.show(activity, item.goAction);
         } else if (item.goAction.isContextMenu()) {
             showContextMenu(viewHolder, item, item.goAction);

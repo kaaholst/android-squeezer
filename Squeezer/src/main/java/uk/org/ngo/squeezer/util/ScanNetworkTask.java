@@ -9,8 +9,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -174,7 +172,6 @@ public class ScanNetworkTask implements Runnable {
      * @return A map with type, value from the response packet. May be empty if the response is
      *      truncated
      */
-    @VisibleForTesting
     @NonNull
     static Map<String, String> parseDiscover(int packetLength, byte[] buffer) {
         Map<String, String> result = new HashMap<>();

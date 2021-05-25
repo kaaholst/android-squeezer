@@ -19,7 +19,8 @@
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="disabled">Disabled</string>
-    <string name="volume">%s volume</string>
+    <string name="pause">Pause</string>
+    <string name="mute">Mute</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
@@ -56,8 +57,8 @@
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability,
         try to connect
     </string>
-    <string name="settings_pause_on_incoming_call_title">Pause music on call</string>
-    <string name="settings_pause_on_incoming_call_summary">The music will pause when you receive or make a call</string>
+    <string name="settings_action_on_incoming_call_title">Action when you receive or make a call</string>
+    <string name="settings_no_action_on_incoming_call">No action</string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
     <string name="settings_scrobble_on">Song information is sent to Last.fm</string>

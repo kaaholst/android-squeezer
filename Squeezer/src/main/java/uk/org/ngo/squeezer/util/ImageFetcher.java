@@ -21,8 +21,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import android.util.Log;
 
-import com.google.common.io.ByteStreams;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -31,9 +29,8 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 
 /**
  * A subclass of {@link ImageWorker} that fetches images from a URL.
@@ -90,7 +87,6 @@ public class ImageFetcher extends ImageWorker {
      *
      * @return Undecoded bytes for the requested bitmap, null if downloading failed.
      */
-    @Nullable
     protected byte[] processBitmap(BitmapWorkerTaskParams params) {
         if (params == null || params.data == null) {
             Log.w(TAG, "processBitmap was called without any data " + params + " abandon");
@@ -143,7 +139,7 @@ public class ImageFetcher extends ImageWorker {
             }
 
             in = urlConnection.getInputStream();
-            bytes = ByteStreams.toByteArray(in);
+            bytes = Util.toByteArray(in);
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadUrlToStream - " + data + e);
         } finally {

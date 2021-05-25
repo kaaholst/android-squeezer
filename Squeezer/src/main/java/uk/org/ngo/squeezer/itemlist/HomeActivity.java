@@ -85,11 +85,6 @@ public class HomeActivity extends HomeMenuActivity {
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     public static void show(Context context) {
         Intent intent = new Intent(context, HomeActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

@@ -96,7 +96,7 @@ public abstract class Item implements Parcelable {
     }
 
     @NonNull
-    String getStringOrEmpty(Map<String, Object> record, String fieldName) {
+    static String getStringOrEmpty(Map<String, Object> record, String fieldName) {
         return Util.getStringOrEmpty(record, fieldName);
     }
 

@@ -77,8 +77,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         SwitchPreferenceCompat autoConnectPref = findPreference(Preferences.KEY_AUTO_CONNECT);
         autoConnectPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
 
-        SwitchPreferenceCompat pausePref = findPreference(Preferences.KEY_PAUSE_ON_INCOMING_CALL);
-        pausePref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_PAUSE_ON_INCOMING_CALL, true));
+        fillIncomingCallPreferences(preferences);
 
         fillScrobblePreferences(sharedPreferences);
 
@@ -146,6 +145,11 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         filenameStructurePreference.setEnabled(enabled && !useServerPath);
     }
 
+    private void fillIncomingCallPreferences(Preferences preferences) {
+        ListPreference incomingCallPref = findPreference(Preferences.KEY_ACTION_ON_INCOMING_CALL);
+        fillEnumPreference(incomingCallPref, Preferences.IncomingCallAction.class, preferences.getActionOnIncomingCall());
+    }
+
     private void fillDisplayPreferences(Preferences preferences) {
         ListPreference onSelectThemePref = findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
         ArrayList<String> entryValues = new ArrayList<>();
@@ -169,7 +173,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
             }
         }
         onSelectThemePref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectThemePref, onSelectThemePref.getValue());
 
         final SwitchPreferenceCompat clearPlaylistConfirmation = findPreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION);
         clearPlaylistConfirmation.setChecked(preferences.isClearPlaylistConfirmation());
@@ -193,7 +196,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
             listPreference.setValue(defaultValue.name());
         }
         listPreference.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(listPreference, listPreference.getValue());
     }
 
     @Override
@@ -212,23 +214,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     /**
-     * Explicitly set the preference's summary based on the value for the selected item.
-     * <p>
-     * Work around a bug in ListPreference on devices running earlier API versions (not
-     * sure when the bug starts) where the preference summary string is not automatically
-     * updated when the preference changes. See http://stackoverflow.com/a/7018053/775306
-     * for details.
-     *
-     * @param pref the preference to set
-     * @param value the preference's value (might not be set yet)
-     */
-    private void updateListPreferenceSummary(ListPreference pref, String value) {
-        CharSequence[] entries = pref.getEntries();
-        int index = pref.findIndexOfValue(value);
-        if (index != -1) pref.setSummary(entries[index]);
-    }
-
-    /**
      * A preference has been changed by the user, but has not yet been persisted.
      */
     @Override
@@ -238,12 +223,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.getInt(newValue.toString()));
-        }
-
-        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key) ||
-                Preferences.KEY_DOWNLOAD_PATH_STRUCTURE.equals(key) ||
-                Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE.equals(key)) {
-            updateListPreferenceSummary((ListPreference) preference, (String) newValue);
         }
 
         // If the user has enabled Scrobbling but we don't think it will work

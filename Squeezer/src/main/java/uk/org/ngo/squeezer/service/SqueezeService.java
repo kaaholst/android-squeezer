@@ -49,8 +49,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.google.common.io.Files;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -672,11 +670,19 @@ public class SqueezeService extends Service {
 
     PhoneStateListener phoneStateListener = new PhoneStateListener() {
         @Override
+
         public void onCallStateChanged(int state, String phoneNumber) {
-            if ((state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK)
-                    && new Preferences(SqueezeService.this).isPauseOnIncomingCall()
-            ) {
-                squeezeService.pause();
+            if ((state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK)) {
+                switch (new Preferences(SqueezeService.this).getActionOnIncomingCall()) {
+                    case NONE:
+                        break;
+                    case PAUSE:
+                        squeezeService.pause();
+                        break;
+                    case MUTE:
+                        squeezeService.mute();
+                        break;
+                }
             }
         }
     };
@@ -742,7 +748,7 @@ public class SqueezeService extends Service {
                     downloadSong(downloadUrl, song.title, song.album, song.artist, getLocalFile(song.url));
                 } else {
                     final String lastPathSegment = song.url.getLastPathSegment();
-                    final String fileExtension = Files.getFileExtension(lastPathSegment);
+                    final String fileExtension = Util.getFileExtension(lastPathSegment);
                     final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
                     downloadSong(downloadUrl, song.title, song.album, song.artist, localPath + "." + fileExtension);
                 }
@@ -868,6 +874,26 @@ public class SqueezeService extends Service {
         @NonNull
         public EventBus getEventBus() {
             return mEventBus;
+        }
+
+        @Override
+        public void mute() {
+            Player player = getActivePlayer();
+            if (player != null) {
+                mDelegate.command(player).cmd("mixer", "muting", "1").exec();
+            }
+        }
+
+        @Override
+        public void toggleMute() {
+            toggleMute(getActivePlayer());
+        }
+
+        @Override
+        public void toggleMute(Player player) {
+            if (player != null) {
+                mDelegate.command(player).cmd("mixer", "muting", player.getPlayerState().isMuted() ? "0" : "1").exec();
+            }
         }
 
         @Override

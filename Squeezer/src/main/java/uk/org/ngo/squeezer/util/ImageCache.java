@@ -22,21 +22,24 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.collection.LruCache;
-import android.util.Log;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-import com.google.common.io.ByteStreams;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import uk.org.ngo.squeezer.BuildConfig;
+import uk.org.ngo.squeezer.Util;
 
 /**
  * This class holds our bitmap caches (memory and disk).
@@ -79,8 +82,6 @@ public class ImageCache {
     private final Object mDiskCacheLock = new Object();
 
     private boolean mDiskCacheStarting = true;
-
-    private static final HashFunction mHashFunction = Hashing.md5();
 
     /**
      * Creating a new ImageCache object using the specified parameters.
@@ -421,7 +422,7 @@ public class ImageCache {
                         }
                         inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
                         if (inputStream != null) {
-                            return ByteStreams.toByteArray(inputStream);
+                            return Util.toByteArray(inputStream);
                         }
                     }
                 } catch (final IOException e) {
@@ -595,7 +596,19 @@ public class ImageCache {
      * filename.  The hashing method is MD5.
      */
     public static String hashKeyForDisk(String key) {
-        return mHashFunction.hashBytes(key.getBytes()).toString();
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] bytes = digest.digest(key.getBytes());
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+
+        }
+        return sb.toString();
     }
 
     /**

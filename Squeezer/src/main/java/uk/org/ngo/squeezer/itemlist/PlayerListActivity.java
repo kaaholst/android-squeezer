@@ -23,11 +23,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +57,7 @@ public class PlayerListActivity extends ItemListActivity implements
     /**
      * Map from player IDs to Players synced to that player ID.
      */
-    private final Multimap<String, Player> mPlayerSyncGroups = HashMultimap.create();
+    private final Map<String, Collection<Player>> mPlayerSyncGroups = new HashMap<>();
     protected Player mTrackingTouch = null;
     /**
      * An update arrived while tracking touches. UI should be re-synced.
@@ -268,25 +267,25 @@ public class PlayerListActivity extends ItemListActivity implements
             Log.d(TAG, "player discovered: id=" + playerId + ", syncMaster=" + syncMaster + ", name=" + name);
             // If a player doesn't have a sync master then it's in a group of its own.
             if (syncMaster == null) {
-                mPlayerSyncGroups.put(playerId, player);
+                mPlayerSyncGroups.put(playerId, new HashSet<>(Collections.singletonList(player)));
                 continue;
             }
 
             // If the master is this player then add itself and all the slaves.
             if (playerId.equals(syncMaster)) {
-                mPlayerSyncGroups.put(playerId, player);
+                mPlayerSyncGroups.get(playerId).add(player);
                 continue;
             }
 
             // Must be a slave. Add it under the master. This might have already
             // happened (in the block above), but might not. For example, it's possible
             // to have a player that's a syncslave of an player that is not connected.
-            mPlayerSyncGroups.put(syncMaster, player);
+            mPlayerSyncGroups.get(syncMaster).add(player);
         }
     }
 
     @NonNull
-    public Multimap<String, Player> getPlayerSyncGroups() {
+    public Map<String, Collection<Player>> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
     }
 

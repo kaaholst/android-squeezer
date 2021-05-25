@@ -16,7 +16,9 @@
 
 package uk.org.ngo.squeezer.model;
 
-import com.google.common.base.Joiner;
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import java.util.Map;
 
@@ -38,10 +40,11 @@ public class AlertWindow {
     public AlertWindow(Map<String, Object> display) {
         title = Util.getString(display, "title");
         Object[] texts = (Object[]) display.get("text");
-        String text = Joiner.on('\n').join(texts).replaceAll("\\\\n", "\n");
+        String text = TextUtils.join("\n", texts).replaceAll("\\\\n", "\n");
         this.text = (text.startsWith("\n") ? text.substring(1) : text);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "AlertWindow{" +

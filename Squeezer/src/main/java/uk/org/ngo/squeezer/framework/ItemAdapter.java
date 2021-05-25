@@ -49,7 +49,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     /**
      * Activity which hosts this adapter
      */
-    private final ItemListActivity activity;
+    private ItemListActivity activity;
 
     /**
      * List of items, possibly headed with an empty item.
@@ -138,6 +138,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     protected ItemListActivity getActivity() {
         return activity;
+    }
+
+    public void setActivity(ItemListActivity activity) {
+        this.activity = activity;
     }
 
     @Override

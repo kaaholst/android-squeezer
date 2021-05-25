@@ -21,8 +21,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.google.common.base.Joiner;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +58,7 @@ public class DisplayMessage {
         duration = Util.getInt(display, "duration", 3000);
         style = Util.getString(display, "style");
         Object[] texts = (Object[]) display.get("text");
-        String text = Joiner.on('\n').join(texts).replaceAll("\\\\n", "\n");
+        String text = TextUtils.join("\n",texts).replaceAll("\\\\n", "\n");
         this.text = (text.startsWith("\n") ? text.substring(1) : text);
         icon = Util.getImageUrl(display, display.containsKey("icon-id") ? "icon-id" : "icon");
     }
@@ -86,6 +84,7 @@ public class DisplayMessage {
         return !(icon.equals(Uri.EMPTY));
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "DisplayMessage{" +
@@ -103,7 +102,7 @@ public class DisplayMessage {
         return iconResource == null ? 0 : iconResource;
     }
 
-    private static Map<String, Integer> displayMessageIcons = initializeDisplayMessageIcons();
+    private static final Map<String, Integer> displayMessageIcons = initializeDisplayMessageIcons();
 
     private static Map<String, Integer> initializeDisplayMessageIcons() {
         Map<String, Integer> result = new HashMap<>();

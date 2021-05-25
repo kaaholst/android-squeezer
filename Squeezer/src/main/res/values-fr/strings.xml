@@ -23,7 +23,6 @@
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="disabled">Désactivé</string>
-    <string name="volume">%s volume</string>
     <string name="menu_item_players">Platine</string>
     <string name="menu_item_settings_label">Paramètres</string>
     <string name="menu_item_about_label">À propos</string>

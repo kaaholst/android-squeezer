@@ -23,16 +23,18 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Player;
@@ -47,7 +49,7 @@ public class PlayerSyncDialog extends DialogFragment {
      * Activities that host this dialog must implement this interface.
      */
     public interface PlayerSyncDialogHost {
-        Multimap<String, Player> getPlayerSyncGroups();
+        Map<String, Collection<Player>> getPlayerSyncGroups();
         Player getCurrentPlayer();
         void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
         void unsyncPlayer(@NonNull Player player);
@@ -79,7 +81,7 @@ public class PlayerSyncDialog extends DialogFragment {
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Multimap<String, Player> playerSyncGroups = mHost.getPlayerSyncGroups();
+        Map<String, Collection<Player>> playerSyncGroups = mHost.getPlayerSyncGroups();
         final Player currentPlayer = mHost.getCurrentPlayer();
 
         /* The names of each sync group. */
@@ -116,7 +118,7 @@ public class PlayerSyncDialog extends DialogFragment {
             for (Player slave : slaves) {
                 playerNames.add(slave.getName());
             }
-            playerSyncGroupNames.add(Joiner.on(", ").join(playerNames));
+            playerSyncGroupNames.add(TextUtils.join(", ", playerNames));
             playerSyncGroupMasterIds.add(masterId);
         }
 

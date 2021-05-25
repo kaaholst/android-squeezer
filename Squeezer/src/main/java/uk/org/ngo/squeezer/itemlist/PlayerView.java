@@ -19,11 +19,13 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 
 import uk.org.ngo.squeezer.R;
@@ -38,6 +40,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerView extends PlayerBaseView {
     private final PlayerListActivity activity;
+    private MaterialButton mute;
     private final Slider volumeBar;
 
     public PlayerView(PlayerListActivity activity, View view) {
@@ -46,6 +49,7 @@ public class PlayerView extends PlayerBaseView {
 
         setItemViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
 
+        mute = view.findViewById(R.id.mute);
         volumeBar = view.findViewById(R.id.volume_slider);
     }
 
@@ -55,6 +59,17 @@ public class PlayerView extends PlayerBaseView {
 
         PlayerState playerState = player.getPlayerState();
 
+        if (playerState.isMuted()) {
+            mute.setIconResource(R.drawable.ic_volume_off);
+            volumeBar.setEnabled(false);
+        }
+        mute.setOnClickListener(view -> {
+            ISqueezeService service = activity.getService();
+            if (service == null) {
+                return;
+            }
+            service.toggleMute(player);
+        });
         volumeBar.clearOnSliderTouchListeners();
         volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override

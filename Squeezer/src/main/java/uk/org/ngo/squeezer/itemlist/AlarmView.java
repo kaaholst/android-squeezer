@@ -45,8 +45,8 @@ import com.google.android.material.timepicker.TimeFormat;
 import java.text.DateFormatSymbols;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -224,14 +224,17 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     }
 
     public static void showTimePicker(BaseListActivity activity, Alarm alarm, boolean is24HourFormat) {
+        Preferences preferences = new Preferences(activity);
         long tod = alarm.getTod();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour((int) (tod / 3600))
                 .setMinute((int) ((tod / 60) % 60))
                 .setTimeFormat(is24HourFormat ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
                 .setTitleText(R.string.ALARM_SET_TIME)
+                .setInputMode(preferences.getTimeInputMode())
                 .build();
         picker.addOnPositiveButtonClickListener(view -> {
+            preferences.setTimeInputMode(picker.getInputMode());
             if (activity.getService() != null) {
                 int time = (picker.getHour() * 60 + picker.getMinute()) * 60;
                 alarm.setTod(time);
@@ -265,9 +268,8 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             return (alarmPlaylists.get(position).getId() != null);
         }
 
-        @NonNull
         @Override
-        public @Nonnull View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
            return Util.getSpinnerItemView(getActivity(), convertView, parent, getItem(position).getName());
         }
 

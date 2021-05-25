@@ -16,26 +16,38 @@
 
 package uk.org.ngo.squeezer.dialog;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseConfirmDialog;
 import uk.org.ngo.squeezer.model.JiveItem;
 
 public class DownloadDialog extends BaseConfirmDialog {
     private static final String TAG = DownloadDialog.class.getSimpleName();
-    private static final String TITLE_KEY = "TITLE_KEY";
+    private static final String ITEM_KEY = "ITEM_KEY";
 
-    public DownloadDialog(ConfirmDialogListener callback) {
-        super(callback);
+    private DownloadDialogListener host;
+
+    public interface DownloadDialogListener {
+        FragmentManager getSupportFragmentManager();
+        void doDownload(JiveItem item);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        host = (DownloadDialogListener) context;
     }
 
     @Override
     protected String title() {
-        return getString(R.string.download_item, getArguments().getString(TITLE_KEY));
+        return getString(R.string.download_item, ((JiveItem)getArguments().getParcelable(ITEM_KEY)).getName());
     }
 
     @Override
@@ -48,14 +60,29 @@ public class DownloadDialog extends BaseConfirmDialog {
         getDialog().getButton(DialogInterface.BUTTON_NEGATIVE).setText(persist ? R.string.disable_downloads : android.R.string.cancel);
     }
 
-    public static DownloadDialog show(FragmentManager fragmentManager, JiveItem item, ConfirmDialogListener callback) {
-        DownloadDialog dialog = new DownloadDialog(callback);
+    @Override
+    protected void ok(boolean persist) {
+        if (persist) {
+            new Preferences(getContext()).setDownloadConfirmation(false);
+        }
+        host.doDownload(getArguments().getParcelable(ITEM_KEY));
+    }
+
+    @Override
+    protected void cancel(boolean persist) {
+        if (persist) {
+            new Preferences(getContext()).setDownloadEnabled(false);
+        }
+    }
+
+    public static DownloadDialog show(JiveItem item, DownloadDialogListener callback) {
+        DownloadDialog dialog = new DownloadDialog();
 
         Bundle args = new Bundle();
-        args.putString(TITLE_KEY, item.getName());
+        args.putParcelable(ITEM_KEY, item);
         dialog.setArguments(args);
 
-        dialog.show(fragmentManager, TAG);
+        dialog.show(callback.getSupportFragmentManager(), TAG);
         return dialog;
     }
 }

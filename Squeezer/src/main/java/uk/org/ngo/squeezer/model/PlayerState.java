@@ -25,10 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 
-import com.google.common.collect.ImmutableList;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +133,7 @@ public class PlayerState implements Parcelable {
 
     public double statusSeen;
 
-    private int currentVolume = -1;
+    private int currentVolume = 101;
 
     private int sleepDuration;
 
@@ -145,7 +144,7 @@ public class PlayerState implements Parcelable {
     private String mSyncMaster;
 
     /** The players synced to this player. */
-    private ImmutableList<String> mSyncSlaves = new ImmutableList.Builder<String>().build();
+    private List<String> mSyncSlaves = Collections.emptyList();
 
     /** How the server is subscribed to the player's status changes. */
     @NonNull
@@ -310,8 +309,12 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
+    public boolean isMuted() {
+        return currentVolume < 0;
+    }
+
     public int getCurrentVolume() {
-        return (currentVolume == -1 ? 0: currentVolume);
+        return (currentVolume == 101 ? 0: Math.abs(currentVolume));
     }
 
     public boolean setCurrentVolume(int value) {
@@ -320,7 +323,7 @@ public class PlayerState implements Parcelable {
 
         int current = currentVolume;
         currentVolume = value;
-        return (current != -1); // Do not report a change if previous volume was unknown
+        return (current != 101); // Do not report a change if previous volume was unknown
     }
 
     public int getSleepDuration() {
@@ -375,11 +378,11 @@ public class PlayerState implements Parcelable {
         if (syncSlaves.equals(mSyncSlaves))
             return false;
 
-        mSyncSlaves = ImmutableList.copyOf(syncSlaves);
+        mSyncSlaves = Collections.unmodifiableList(syncSlaves);
         return true;
     }
 
-    public ImmutableList<String> getSyncSlaves() {
+    public List<String> getSyncSlaves() {
         return mSyncSlaves;
     }
 

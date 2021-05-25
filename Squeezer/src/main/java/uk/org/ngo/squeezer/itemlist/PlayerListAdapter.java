@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,16 +30,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.slider.Slider;
-import com.google.common.base.Joiner;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
@@ -116,18 +117,15 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
                 Player p = this.getItem(i);
                 playerNames.add(p.getName());
             }
-            syncGroupName = Joiner.on(", ").join(playerNames);
+            syncGroupName = TextUtils.join(", ", playerNames);
         }
 
     }
     /** The last set of player sync groups that were provided. */
-    private Multimap<String, Player> prevPlayerSyncGroups;
+    private Map<String, Collection<Player>> prevPlayerSyncGroups;
 
     /** Indicates if the list of players has changed. */
     boolean mPlayersChanged;
-
-    /** Joins elements together with ' - ', skipping nulls. */
-    private static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
 
     /** Count of how many players are in the adapter. */
     int mPlayerCount;
@@ -152,7 +150,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
      *     {@link PlayerListActivity#updateSyncGroups(Collection)} for how this map is
      *     generated.
      */
-    void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
+    void setSyncGroups(Map<String, Collection<Player>> playerSyncGroups) {
         // The players might not have changed (so there's no need to reset the contents of the
         // adapter) but information about an individual player might have done.
         if (prevPlayerSyncGroups != null && prevPlayerSyncGroups.equals(playerSyncGroups)) {
@@ -160,11 +158,11 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             return;
         }
 
-        prevPlayerSyncGroups = HashMultimap.create(playerSyncGroups);
+        prevPlayerSyncGroups = new HashMap<>(playerSyncGroups);
         clear();
 
         // Get a list of slaves for every synchronization group
-        for (Collection<Player> slaves: playerSyncGroups.asMap().values()) {
+        for (Collection<Player> slaves: playerSyncGroups.values()) {
             // create a new synchronization group
             SyncGroup syncGroup = new SyncGroup();
             mPlayerCount += slaves.size();
@@ -196,7 +194,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
         if (groupSong != null) {
-            holder.text2.setText(mJoiner.join(groupSong.getName(), groupSong.getArtist(),
+            holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.getArtist(),
                     groupSong.getAlbum()));
         }
 

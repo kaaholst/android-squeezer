@@ -7,6 +7,7 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import java.util.Calendar;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.JiveItem;
 
@@ -25,14 +26,17 @@ public class InputTimeDialog {
             minute = c.get(Calendar.MINUTE);
         }
 
+        Preferences preferences = new Preferences(activity);
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour(hour)
                 .setMinute(minute)
                 .setTimeFormat(DateFormat.is24HourFormat(activity) ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H)
                 .setTitleText(item.getName())
+                .setInputMode(preferences.getTimeInputMode())
                 .build();
         picker.addOnPositiveButtonClickListener(view -> {
-            item.inputValue = String.valueOf(picker.getHour() * 60 + picker.getMinute() * 60);
+            preferences.setTimeInputMode(picker.getInputMode());
+            item.inputValue = String.valueOf((picker.getHour() * 60 + picker.getMinute()) * 60);
             activity.action(item, item.goAction, alreadyPopped);
         });
         picker.show(activity.getSupportFragmentManager(), InputTimeDialog.class.getSimpleName());

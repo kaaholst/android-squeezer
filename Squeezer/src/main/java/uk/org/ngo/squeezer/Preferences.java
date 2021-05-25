@@ -25,11 +25,14 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.material.timepicker.MaterialTimePicker;
+
 import java.util.Random;
 import java.util.UUID;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
+import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ThemeManager;
@@ -69,8 +72,11 @@ public final class Preferences {
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
 
-    // Pause music on incoming call?
-    public static final String KEY_PAUSE_ON_INCOMING_CALL = "squeezer.pause_on_incoming_call";
+    // Pause music on incoming call? (OLD setting use to initialize action on incoming call
+    private static final String KEY_PAUSE_ON_INCOMING_CALL = "squeezer.pause_on_incoming_call";
+
+    // Action on incoming call
+    public static final String KEY_ACTION_ON_INCOMING_CALL = "squeezer.action_on_incoming_call";
 
     // Are we disconnected via the options menu?
     private static final String KEY_MANUAL_DISCONNECT = "squeezer.manual.disconnect";
@@ -145,6 +151,9 @@ public final class Preferences {
 
     // Store a unique id for this app instance.
     private static final String KEY_UUID = "squeezer.uuid";
+
+    // Preferred time input method.
+    private static final String KEY_TIME_INPUT_MODE = "squeezer.time_input_mode";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -391,8 +400,12 @@ public final class Preferences {
         return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
     }
 
-    public boolean isPauseOnIncomingCall() {
-        return sharedPreferences.getBoolean(KEY_PAUSE_ON_INCOMING_CALL, true);
+    public IncomingCallAction getActionOnIncomingCall() {
+        String string = sharedPreferences.getString(KEY_ACTION_ON_INCOMING_CALL, null);
+        if (string == null) {
+            return (sharedPreferences.getBoolean(KEY_PAUSE_ON_INCOMING_CALL, true) ? IncomingCallAction.PAUSE : IncomingCallAction.NONE);
+        }
+        return IncomingCallAction.valueOf(string);
     }
 
     public boolean controlSqueezePlayer(ServerAddress serverAddress) {
@@ -525,5 +538,30 @@ public final class Preferences {
     public DownloadFilenameStructure getDownloadFilenameStructure() {
         final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
         return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
+    }
+
+    public int getTimeInputMode() {
+        return sharedPreferences.getInt(KEY_TIME_INPUT_MODE, MaterialTimePicker.INPUT_MODE_CLOCK);
+    }
+
+    public void setTimeInputMode(int mode) {
+        sharedPreferences.edit().putInt(Preferences.KEY_TIME_INPUT_MODE, mode).apply();
+    }
+
+    public enum IncomingCallAction implements EnumWithText {
+        NONE(R.string.settings_no_action_on_incoming_call),
+        PAUSE(R.string.pause),
+        MUTE(R.string.mute);
+
+        private final int labelId;
+
+        IncomingCallAction(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
     }
 }

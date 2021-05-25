@@ -70,7 +70,7 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements DownloadDialog.DownloadDialogListener {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
 
@@ -361,7 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void onEvent(PlayerVolume event) {
         if (!mIgnoreVolumeChange && mVolumePanel != null && event.player == mService.getActivePlayer()) {
-            mVolumePanel.postVolumeChanged(event.volume, event.player.getName());
+            mVolumePanel.postVolumeChanged(event.muted, event.volume, event.player.getName());
         }
     }
 
@@ -372,7 +372,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             Player player = mService.getActivePlayer();
 
             if (playerState != null  && mVolumePanel != null) {
-                mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
+                mVolumePanel.postVolumeChanged(playerState.isMuted(), playerState.getCurrentVolume(),
                         player == null ? "" : player.getName());
             }
 
@@ -485,28 +485,19 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     public void downloadItem(JiveItem item) {
         if (new Preferences(this).isDownloadConfirmation()) {
-            DownloadDialog.show(getSupportFragmentManager(), item, new BaseConfirmDialog.ConfirmDialogListener() {
-                @Override
-                public void ok(boolean persist) {
-                    if (persist) {
-                        new Preferences(BaseActivity.this).setDownloadConfirmation(false);
-                    }
-                    doDownload(item);
-                }
-
-                @Override
-                public void cancel(boolean persist) {
-                    if (persist) {
-                        new Preferences(BaseActivity.this).setDownloadEnabled(false);
-                    }
-                }
-            });
+            DownloadDialog.show(item, this);
         } else {
-            doDownload(item);
+            if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                currentDownloadItem = item;
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            } else
+                mService.downloadItem(item);
         }
     }
 
-    private void doDownload(JiveItem item) {
+    @Override
+    public void doDownload(JiveItem item) {
         if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             currentDownloadItem = item;

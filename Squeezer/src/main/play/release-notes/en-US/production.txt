@@ -1,11 +1,7 @@
-&bull; Updated German translation
+&bull; Ability to mute/unmute players and mute music on call
 
-&bull; Fixed the icons for the Settings/Audio menu
+&bull; Support for pictures in plugins like Music & Artist Information
 
-&bull; Material design time pickers
+&bull; Fix bug in setting alarm time
 
-&bull; Remove Google Analytics from settings screen
-
-&bull; Rehandshake with the server when connection is lost, or the server requests it
-
-&bull; Fix some reported crashes.
+&bull; Fix various potential crashes.

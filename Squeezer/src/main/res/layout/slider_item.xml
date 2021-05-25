@@ -34,8 +34,7 @@
 
         <ImageView
             android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="48dp"
             app:srcCompat="@drawable/ic_volume_down"/>
 
         <com.google.android.material.slider.Slider
@@ -48,8 +47,7 @@
 
         <ImageView
             android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="48dp"
             app:srcCompat="@drawable/ic_volume_up"/>
     </LinearLayout>
 

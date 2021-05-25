@@ -25,9 +25,6 @@ import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
@@ -71,6 +68,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
+import uk.org.ngo.squeezer.util.FluentHashMap;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
 
@@ -156,21 +154,22 @@ class CometClient extends BaseClient {
             mItemRequestMap.put(itemListener.getDataType(), itemListener);
         }
 
-        mRequestMap = ImmutableMap.<String, ResponseHandler>builder()
-                .put("sync", (player, request, message) -> {
+        mRequestMap = new FluentHashMap<String, ResponseHandler>()
+                .with("sync", (player, request, message) -> {
                     // LMS does not send new player status for the affected players, even if status
                     // changes are subscribed, so we order them  here
                     for (Player value : getConnectionState().getPlayers().values()) {
                         requestPlayerStatus(value);
                     }
                 })
-                .put("mixer", (player, request, message) -> {
+                .with("mixer", (player, request, message) -> {
                     if (request.cmd.get(1).equals("volume")) {
                         String volume = (String) message.getDataAsMap().get("_volume");
                         if (volume != null) {
                             int newVolume = Integer.parseInt(volume);
-                            player.getPlayerState().setCurrentVolume(newVolume);
-                            mEventBus.post(new PlayerVolume(newVolume, player));
+                            PlayerState playerState = player.getPlayerState();
+                            playerState.setCurrentVolume(newVolume);
+                            mEventBus.post(new PlayerVolume(playerState.isMuted(), playerState.getCurrentVolume(), player));
                         } else {
                             // LMS delays player status for volume changes, so order it immediately to respond faster to user input
                             command(player, new String[]{"mixer", "volume", "?"}, Collections.emptyMap());
@@ -191,8 +190,7 @@ class CometClient extends BaseClient {
                             }
                         }
                     }
-                })
-                .build();
+                });
     }
 
     // Shims around ConnectionState methods.
@@ -811,8 +809,6 @@ class CometClient extends BaseClient {
     }
 
     private static class Request extends SlimCommand {
-        private static final Joiner joiner = Joiner.on(" ");
-
         private final ResponseHandler callback;
         private final Player player;
         private PagingParams page;
@@ -834,7 +830,7 @@ class CometClient extends BaseClient {
         }
 
         public Request prefs(String param, String ... prefs) {
-            param(param, Joiner.on(",").join(prefs));
+            param(param, TextUtils.join(",", prefs));
             return this;
         }
 
@@ -854,7 +850,7 @@ class CometClient extends BaseClient {
         }
 
         public String getRequest() {
-            return joiner.join(cmd);
+            return TextUtils.join(" ", cmd);
         }
 
         List<Object> slimRequest() {

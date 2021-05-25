@@ -27,11 +27,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import uk.org.ngo.squeezer.R;
 
 public abstract class BaseConfirmDialog extends DialogFragment {
-    private final ConfirmDialogListener callback;
-
-    public BaseConfirmDialog(ConfirmDialogListener callback) {
-        this.callback = callback;
-    }
 
     @NonNull
     @Override
@@ -39,8 +34,8 @@ public abstract class BaseConfirmDialog extends DialogFragment {
         return new MaterialAlertDialogBuilder(getActivity())
                 .setTitle(title())
                 .setMultiChoiceItems(new String[]{getString(R.string.DONT_ASK_AGAIN)}, new boolean[]{false}, (dialogInterface, i, b) -> onPersistChecked(b))
-                .setPositiveButton(okText(), (dialogInterface, i) -> callback.ok(isPersistChecked()))
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> callback.cancel(isPersistChecked()))
+                .setPositiveButton(okText(), (dialogInterface, i) -> ok(isPersistChecked()))
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> cancel(isPersistChecked()))
                 .create();
     }
 
@@ -62,8 +57,8 @@ public abstract class BaseConfirmDialog extends DialogFragment {
         return (AlertDialog) super.getDialog();
     }
 
-    public interface ConfirmDialogListener {
-        void ok(boolean persist);
-        void cancel(boolean persist);
+    protected abstract void ok(boolean persist);
+
+    protected void cancel(boolean persist) {
     }
 }

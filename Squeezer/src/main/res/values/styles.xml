@@ -56,11 +56,15 @@
         <item name="trackHeight">2dp</item>
         <item name="thumbRadius">6dp</item>
         <item name="haloRadius">12dp</item>
-        <item name="thumbColor">?attr/colorSecondary</item>
-        <item name="trackColorActive">?attr/colorSecondary</item>
-        <item name="tickColorActive">?attr/colorSecondary</item>
         <item name="trackColorInactive">@color/line_dark</item>
         <item name="tickColorInactive">@color/line_dark</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Slider</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Slider" parent="">
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="colorOnPrimary">?attr/colorSecondary</item>
+        <item name="colorOnSurface">?attr/colorSecondary</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->

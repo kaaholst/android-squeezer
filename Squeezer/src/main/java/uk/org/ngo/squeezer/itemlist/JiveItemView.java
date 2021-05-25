@@ -117,8 +117,8 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             onIcon();
         }
 
-        text1.setEnabled(isSelectable(item));
-        text2.setEnabled(isSelectable(item));
+        text1.setAlpha(getAlpha(item));
+        text2.setAlpha(getAlpha(item));
         itemView.setOnClickListener(view -> onItemSelected(item));
         itemView.setClickable(isSelectable(item));
 
@@ -132,6 +132,10 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
                 contextMenuRadio.setChecked(item.radio);
             }
         }
+    }
+
+    private float getAlpha(JiveItem item) {
+        return isSelectable(item) ? 1.0f : (item.checkbox != null || item.radio != null) ? 0.25f : 0.75f;
     }
 
 

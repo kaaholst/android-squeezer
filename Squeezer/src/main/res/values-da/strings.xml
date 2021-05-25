@@ -21,7 +21,8 @@
     <string name="on">Til</string>
     <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
-    <string name="volume">%s lydstyrke</string>
+    <string name="pause">Pause</string>
+    <string name="mute">Mute</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
@@ -58,8 +59,8 @@
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved
         aktiv Wi-Fi forbindelse
     </string>
-    <string name="settings_pause_on_incoming_call_title">Sæt afspilleren på pause ved opkald</string>
-    <string name="settings_pause_on_incoming_call_summary">Musikken vil stoppe når du modtager eller foretager et opkald</string>
+    <string name="settings_action_on_incoming_call_title">Handling når du modtager eller foretager et opkald</string>
+    <string name="settings_no_action_on_incoming_call">No action</string>
 
     <string name="settings_category_ui">Squeezer grænseflade</string>
 

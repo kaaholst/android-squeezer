@@ -2,6 +2,18 @@
 
 <changelog>
     <release
+        version="2.2.5"
+        versioncode="100">
+        <change>Ability to mute/unmute players and mute music on call</change>
+
+        <change>Support for pictures in plugins like Music &amp; Artist Information</change>
+
+        <change>Fix bug in setting alarm time</change>
+
+        <change>Fix various potential crashes.</change>
+    </release>
+
+    <release
         version="2.2.4"
         versioncode="97">
         <change>Updated German translation</change>

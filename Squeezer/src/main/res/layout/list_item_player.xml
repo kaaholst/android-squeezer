@@ -37,7 +37,7 @@ for the implementation.
 
 -->
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -50,65 +50,70 @@ for the implementation.
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_width="@dimen/album_art_icon_width"
         android:layout_height="@dimen/album_art_icon_height"
-        android:layout_marginEnd="8dp"
         android:contentDescription="@string/app_name"
-        android:maxHeight="@dimen/album_art_icon_height"
-        android:maxWidth="@dimen/album_art_icon_width"
-        android:minHeight="@dimen/album_art_icon_height"
-        android:minWidth="@dimen/album_art_icon_width"
         tools:src="@drawable/ic_transporter" />
 
     <TextView
         android:id="@+id/text1"
-        android:layout_width="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
+        android:layout_marginStart="8dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/icon"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
         tools:text="Player name" />
 
     <TextView
         android:id="@+id/text2"
-        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/text1"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
+        android:layout_marginStart="8dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/text1"
-        android:layout_toEndOf="@+id/icon"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
         tools:text="Sleeping in ..."
         android:layout_above="@+id/volume_slider" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/context_menu"
-        android:layout_below="@+id/icon"
-        android:layout_alignStart="@+id/icon"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="12dp"
-            app:srcCompat="@drawable/ic_volume_up"/>
-
-        <com.google.android.material.slider.Slider
-            android:id="@+id/volume_slider"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            tools:value="50"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:stepSize="1"
-            />
-    </LinearLayout>
-
-
     <include
         layout="@layout/context_menu_image_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
+    <Button style="@style/ImageButton"
+        android:id="@+id/mute"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
-</RelativeLayout>
+        app:icon="@drawable/ic_volume_down"/>
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/volume_slider"
+        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintStart_toEndOf="@id/mute"
+        app:layout_constraintEnd_toStartOf="@id/volume_up"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:value="50"
+        android:valueFrom="0"
+        android:valueTo="100"
+        android:stepSize="1"
+        />
+
+    <ImageView
+        android:id="@+id/volume_up"
+        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="12dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:srcCompat="@drawable/ic_volume_up"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

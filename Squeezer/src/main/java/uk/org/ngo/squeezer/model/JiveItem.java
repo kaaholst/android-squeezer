@@ -490,7 +490,7 @@ public class JiveItem extends Item {
         Window window = new Window();
         window.windowId = getString(params, "windowId");
         window.text = getString(params, "text");
-        window.textarea = getString(params, "textarea");
+        window.textarea = getStringOrEmpty(params, "textarea").replaceAll("\\\\n", "\n");
         window.textareaToken = getString(params, "textAreaToken");
         window.help = getString(params, "help");
         window.icon = getImageUrl(params, params.containsKey("icon-id") ? "icon-id" : "icon");

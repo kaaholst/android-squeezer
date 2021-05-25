@@ -110,6 +110,10 @@ public class Action implements Parcelable {
     }
 
     public boolean isSlideShow() {
+        return (action != null && action.params.containsKey("slideshow"));
+    }
+
+    public boolean isTypeSlideShow() {
         return (action != null && "slideshow".equals(action.params.get("type")));
     }
 

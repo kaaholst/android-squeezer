@@ -1,3 +1,15 @@
+2.2.5
+=====
+
+*   Ability to mute/unmute players and mute music on call
+
+*   Support for pictures in plugins like Music & Artist Information
+
+*   Fix bug in setting alarm time
+
+*   Fix various potential crashes.
+
+
 2.2.4
 =====
 

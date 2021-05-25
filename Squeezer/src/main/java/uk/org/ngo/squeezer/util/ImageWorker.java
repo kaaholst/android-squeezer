@@ -35,19 +35,19 @@ import android.os.Message;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
+
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
 
-import com.google.common.base.Joiner;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-
-import javax.annotation.Nullable;
+import java.util.Arrays;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -85,9 +85,6 @@ public abstract class ImageWorker {
     private static final int MESSAGE_FLUSH = 2;
     private static final int MESSAGE_CLOSE = 3;
     private static final int MESSAGE_CLEAR_MEMORY_CACHE = 4;
-
-    /** Joiner for the components that make up a key in the memory cache. */
-    protected static final Joiner mMemCacheKeyJoiner = Joiner.on(':');
 
     /** Paint to use when colouring debug swatches on images. */
     private static final Paint mCacheDebugPaint = new Paint();
@@ -313,7 +310,7 @@ public abstract class ImageWorker {
      */
     @NonNull
     private static String hashKeyForMemory(@NonNull String data, int width, int height) {
-        return mMemCacheKeyJoiner.join(width, height, data);
+        return TextUtils.join(":", Arrays.asList(width, height, data));
     }
 
     /**
