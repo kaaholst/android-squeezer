@@ -2,6 +2,12 @@
 
 <changelog>
     <release
+        version="2.2.6"
+        versioncode="101">
+        <change>Fix bug in players screen when some players are synced</change>
+    </release>
+
+    <release
         version="2.2.5"
         versioncode="100">
         <change>Ability to mute/unmute players and mute music on call</change>
