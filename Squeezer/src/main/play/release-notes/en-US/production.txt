@@ -1,7 +1,1 @@
-&bull; Ability to mute/unmute players and mute music on call
-
-&bull; Support for pictures in plugins like Music & Artist Information
-
-&bull; Fix bug in setting alarm time
-
-&bull; Fix various potential crashes.
+&bull; Fix bug in players screen when some players are synced
