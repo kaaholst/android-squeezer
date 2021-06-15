@@ -1,5 +1,6 @@
 package uk.org.ngo.squeezer.service;
 
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -281,94 +282,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         // so there are no races between the two timeouts
         request.idleTimeout(maxNetworkDelay * 2, TimeUnit.MILLISECONDS);
         request.timeout(maxNetworkDelay, TimeUnit.MILLISECONDS);
-        request.send(new BufferingResponseListener(_maxBufferSize) {
-            @Override
-            public boolean onHeader(Response response, HttpField field) {
-                HttpHeader header = field.getHeader();
-                if ((header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2)) {
-                    // We do not allow cookies to be handled by HttpClient, since one
-                    // HttpClient instance is shared by multiple BayeuxClient instances.
-                    // Instead, we store the cookies in the BayeuxClient instance.
-                    Map<String, List<String>> cookies = new HashMap<>(1);
-                    cookies.put(field.getName(), Collections.singletonList(field.getValue()));
-                    storeCookies(uri, cookies);
-                    return false;
-                }
-                return true;
-            }
-
-            private void storeCookies(URI uri, Map<String, List<String>> cookies) {
-                try {
-                    _cookieManager.put(uri, cookies);
-                } catch (IOException x) {
-                    Log.w(TAG, "", x);
-                }
-            }
-
-            @Override
-            public void onComplete(Result result) {
-                synchronized (HttpStreamingTransport.this) {
-                    _requests.remove(result.getRequest());
-                }
-
-                if (result.isFailed()) {
-                    listener.onFailure(result.getFailure(), requestMessages);
-                    return;
-                }
-
-                Response response = result.getResponse();
-                int status = response.getStatus();
-                if (status == HttpStatus.OK_200) {
-                    String content = getContentAsString();
-                    if (content != null && content.length() > 0) {
-                        try {
-                            List<Message.Mutable> responseMessages = parseMessages(content);
-                            //Log.v(TAG, "Received messages " + messages);
-                            for (Message.Mutable message : responseMessages) {
-                                // LMS echoes the data field in the publish response for messages to the
-                                // slim/unsubscribe channel.
-                                // This causes the comet libraries to decide the message is not a publish response.
-                                // We remove the data field for such messages, to have them correctly recognized
-                                // as publish responses.
-                                if (message.getChannel() != null && message.getChannel().startsWith("/slim/")) {
-                                    message.remove(Message.DATA_FIELD);
-                                }
-
-                                if (message.isSuccessful()) {
-                                    if (Channel.META_DISCONNECT.equals(message.getChannel())) {
-                                        _delegate.disconnect("Disconnect");
-                                    }
-                                } else {
-                                    // LMS does not put ID on all replies. In this case we look for a request with the same
-                                    // channel as this response, and use the id from that request.
-                                    if (message.isPublishReply() && message.getId() == null) {
-                                        for (Message.Mutable requestMessage : requestMessages) {
-                                            if (requestMessage.getChannel().equals(message.getChannel())) {
-                                                message.setId(requestMessage.getId());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            listener.onMessages(responseMessages);
-                        } catch (ParseException x) {
-                            listener.onFailure(x, requestMessages);
-                        }
-                    } else {
-                        Map<String, Object> failure = new HashMap<>(2);
-                        // Convert the 200 into 204 (no content)
-                        failure.put("httpCode", 204);
-                        TransportException x = new TransportException(failure);
-                        listener.onFailure(x, requestMessages);
-                    }
-                } else {
-                    Map<String, Object> failure = new HashMap<>(2);
-                    failure.put("httpCode", status);
-                    TransportException x = new TransportException(failure);
-                    listener.onFailure(x, requestMessages);
-                }
-            }
-        });
+        request.send(new SlimBufferingResponseListener(listener, requestMessages, uri));
     }
 
     private static void sendText(OutputStream stream, String json, HttpFields customHeaders) throws IOException {
@@ -387,7 +301,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         stream.flush();
     }
 
-    private class Delegate {
+    class Delegate {
         private Socket socket;
         private final HttpFields headers;
 
@@ -412,7 +326,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             return destination.getHostField();
         }
 
-        private boolean isConnected() {
+        boolean isConnected() {
             return socket != null && socket.isConnected();
         }
 
@@ -422,7 +336,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             new ListeningThread(this, socket.getInputStream()).start();
         }
 
-        private void disconnect(String reason) {
+        void disconnect(String reason) {
             if (isConnected()) {
                 Log.v(TAG, "Closing socket, reason: " + reason);
                 try {
@@ -434,7 +348,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        private void fail(Throwable failure, String reason) {
+        void fail(Throwable failure, String reason) {
             disconnect(reason);
             if (_exchanges.size() > 0) {
                 failMessages(failure);
@@ -548,7 +462,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             sendText(session.getOutputStream(), content, headers);
         }
 
-        private void onData(String data) {
+        void onData(String data) {
             try {
                 List<Message.Mutable> messages = parseMessages (data);
                 //Log.v(TAG,"Received messages " + data);
@@ -626,127 +540,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private static class ListeningThread extends Thread {
-        private final Delegate delegate;
-        private final BufferedReader reader;
-
-        public ListeningThread(Delegate delegate, InputStream inputStream) {
-            this.delegate = delegate;
-            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        }
-
-        @Override
-        public void run() {
-            while (delegate.isConnected()) {
-                try {
-                    int status = parseHttpStatus(readLine());
-
-                    boolean chunked = false;
-                    int contentSize = 0;
-                    String headerLine;
-                    while (!"".equals(headerLine = readLine())) {
-                        if ("Transfer-Encoding: chunked".equals(headerLine))
-                            chunked = true;
-                        int pos = headerLine.indexOf("Content-Length: ");
-                        if (pos == 0) {
-                            contentSize = Integer.parseInt(headerLine.substring("Content-Length: ".length()));
-                        }
-                    }
-
-                    if (!chunked) {
-                        String content = read(contentSize);
-                        if (content.length() > 0) {
-                            if (status == HttpStatus.OK_200) {
-                                delegate.onData(content);
-                            }
-                        } else {
-                            Map<String, Object> failure = new HashMap<>(2);
-                            // Convert the 200 into 204 (no content)
-                            failure.put("httpCode", HttpStatus.NO_CONTENT_204);
-                            TransportException x = new TransportException(failure);
-                            delegate.fail(x, "No content");
-                        }
-                    } else {
-                        String unprocessed = "";
-                        while (!"0".equals(readLine())) {
-                            String data = readLine();
-                            Log.v(TAG, "data = " + data);
-                            unprocessed += data;
-                            Log.v(TAG, "unprocessed = " + unprocessed);
-                            if (isValidJson(unprocessed)) {
-                                Log.v(TAG, "JSON is valid! Sending data to parser.");
-                                if (status == HttpStatus.OK_200) {
-                                    delegate.onData(unprocessed);
-                                }
-                                unprocessed = "";
-                            } else {
-                                Log.v(TAG, "JSON is not valid! Appending to next chunk.");
-                            }
-                        }
-                        readLine();//Read final/empty chunk
-                        delegate.disconnect("End of chunks");
-                    }
-
-                    if (status != HttpStatus.OK_200) {
-                        Map<String, Object> failure = new HashMap<>(2);
-                        failure.put("httpCode", status);
-                        TransportException x = new TransportException(failure);
-                        delegate.fail(x, "Unexpected HTTP status code");
-                    }
-                } catch (IOException e) {
-                    if (delegate.isConnected()) {
-                        delegate.fail(e, "IOException reading socket");
-                    }
-                }
-            }
-        }
-
-        private boolean isValidJson(String jsonStr) {
-            try {
-                JSONTokener tokenizer = new JSONTokener(jsonStr);
-                while (tokenizer.more()) {
-                    Object json = tokenizer.nextValue();
-                    if (!(json instanceof JSONObject || json instanceof JSONArray)) {
-                        return false;
-                    }
-                }
-                return true;
-            } catch (JSONException e) {
-                return false;
-            }
-        }
-
-        Pattern httpStatusLinePattern = Pattern.compile("HTTP/1.1 (\\d{3}) \\p{all}+");
-        private int parseHttpStatus(String statusLine) {
-            Matcher m = httpStatusLinePattern.matcher(statusLine);
-            try {
-                if (m.find()) {
-                    return Integer.parseInt(m.group(1));
-                }
-            } catch (NumberFormatException e) {
-            }
-            return -1;
-        }
-
-        private String readLine() throws IOException {
-            String inputLine = reader.readLine();
-            if (inputLine == null) {
-                throw new EOFException();
-            }
-            return inputLine;
-        }
-
-        private String read(int size) throws IOException {
-            char[] buffer = new char[size];
-            int length = reader.read(buffer);
-            if (length != size) {
-                throw new EOFException("Expected " + size + " characters, but got " + length);
-            }
-            return new String(buffer);
-        }
-    }
-
-
     private static String getAdviceAction(Map<String, Object> advice) {
         String action = null;
         if (advice != null && advice.containsKey(Message.RECONNECT_FIELD))
@@ -761,5 +554,110 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
     protected void customize(Request request) {
     }
+
+    class SlimBufferingResponseListener extends BufferingResponseListener {
+
+        private static final String TAG = "SlimBufferingResponseLi";
+
+        private final TransportListener listener;
+        private final List<Message.Mutable> requestMessages;
+        private final URI uri;
+
+        public SlimBufferingResponseListener(TransportListener listener,
+                                             List<Message.Mutable> requestMessages,
+                                             URI uri) {
+
+            this.listener = listener;
+            this.requestMessages = requestMessages;
+            this.uri = uri;
+        }
+
+        @Override
+        public boolean onHeader(Response response, HttpField field) {
+            HttpHeader header = field.getHeader();
+            if ((header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2)) {
+                // We do not allow cookies to be handled by HttpClient, since one
+                // HttpClient instance is shared by multiple BayeuxClient instances.
+                // Instead, we store the cookies in the BayeuxClient instance.
+                Map<String, List<String>> cookies = new HashMap<>(1);
+                cookies.put(field.getName(), Collections.singletonList(field.getValue()));
+                storeCookies(uri, cookies);
+                return false;
+            }
+            return true;
+        }
+
+        private void storeCookies(URI uri, Map<String, List<String>> cookies) {
+            try {
+                _cookieManager.put(uri, cookies);
+            } catch (IOException x) {
+                Log.w(TAG, "", x);
+            }
+        }
+
+        @Override
+        public void onComplete(Result result) {
+            synchronized (HttpStreamingTransport.this) {
+                _requests.remove(result.getRequest());
+            }
+
+            if (result.isFailed()) {
+                listener.onFailure(result.getFailure(), requestMessages);
+                return;
+            }
+
+            Response response = result.getResponse();
+            int status = response.getStatus();
+            if (status == HttpStatus.OK_200) {
+                String content = getContentAsString();
+                if (content != null && content.length() > 0) {
+                    try {
+                        List<Message.Mutable> responseMessages = parseMessages(content);
+                        //Log.v(TAG, "Received messages " + messages);
+                        for (Message.Mutable message : responseMessages) {
+                            // LMS echoes the data field in the publish response for messages to the
+                            // slim/unsubscribe channel.
+                            // This causes the comet libraries to decide the message is not a publish response.
+                            // We remove the data field for such messages, to have them correctly recognized
+                            // as publish responses.
+                            if (message.getChannel() != null && message.getChannel().startsWith("/slim/")) {
+                                message.remove(Message.DATA_FIELD);
+                            }
+
+                            if (message.isSuccessful()) {
+                                if (Channel.META_DISCONNECT.equals(message.getChannel())) {
+                                    _delegate.disconnect("Disconnect");
+                                }
+                            } else {
+                                // LMS does not put ID on all replies. In this case we look for a request with the same
+                                // channel as this response, and use the id from that request.
+                                if (message.isPublishReply() && message.getId() == null) {
+                                    for (Message.Mutable requestMessage : requestMessages) {
+                                        if (requestMessage.getChannel().equals(message.getChannel())) {
+                                            message.setId(requestMessage.getId());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        listener.onMessages(responseMessages);
+                    } catch (ParseException x) {
+                        listener.onFailure(x, requestMessages);
+                    }
+                } else {
+                    Map<String, Object> failure = new HashMap<>(2);
+                    // Convert the 200 into 204 (no content)
+                    failure.put("httpCode", 204);
+                    TransportException x = new TransportException(failure);
+                    listener.onFailure(x, requestMessages);
+                }
+            } else {
+                Map<String, Object> failure = new HashMap<>(2);
+                failure.put("httpCode", status);
+                TransportException x = new TransportException(failure);
+                listener.onFailure(x, requestMessages);
+            }
+        }
+    };
 
 }
