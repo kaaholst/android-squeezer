@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
@@ -48,6 +49,7 @@ public class ConnectionState {
 
     private final EventBus mEventBus;
     private final HomeMenuHandling mHomeMenuHandling;
+
 
     public final static String MEDIA_DIRS = "mediadirs";
 

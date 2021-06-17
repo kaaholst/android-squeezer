@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +62,9 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
+
+    private static final String TAG = "JiveItemViewLogic";
+
     void execGoAction(ViewParamItemView<JiveItem> viewHolder, JiveItem item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);

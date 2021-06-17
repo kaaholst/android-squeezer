@@ -28,16 +28,26 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.eclipse.jetty.util.ajax.JSON;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
+import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -165,8 +175,14 @@ public final class Preferences {
     // Archive mode
     public static final String KEY_CUSTOMIZE_HOME_MENU_MODE = "squeezer.customize_home_menu.mode";
 
+    // Custom shortcut mode
+    public static final String KEY_CUSTOMIZE_SHORTCUT_MODE = "squeezer.customize_shortcut.mode";
+
     // Map JiveItems to archive
     private static final String KEY_PLAYER_ARCHIVED_ITEMS_FORMAT = "squeezer.archived_menu_items.%s";
+
+    // Map custom shortcut in home menu
+    private static final String CUSTOM_SHORTCUTS = "squeezer.custom_shortcut_items";
 
     // Preferred time input method.
     private static final String KEY_TIME_INPUT_MODE = "squeezer.time_input_mode";
@@ -550,6 +566,11 @@ public final class Preferences {
         return string == null ? CustomizeHomeMenuMode.ARCHIVE : CustomizeHomeMenuMode.valueOf(string);
     }
 
+    public CustomizeShortcutsMode getCustomizeShortcutsMode() {
+        String string = sharedPreferences.getString(KEY_CUSTOMIZE_SHORTCUT_MODE, null);
+        return string == null ? CustomizeShortcutsMode.ENABLED : CustomizeShortcutsMode.valueOf(string);
+    }
+
     public List<String> getArchivedMenuItems(Player player) {
         List<String> list = new ArrayList<>();
         String string = sharedPreferences.getString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), null);
@@ -566,6 +587,53 @@ public final class Preferences {
         editor.apply();
         return;
     }
+
+    public void saveShortcuts(Map<String, Object> map) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        JSONObject json = new JSONObject(map);
+        editor.putString(CUSTOM_SHORTCUTS, json.toString());
+        editor.apply();
+    }
+
+//  TODO If possible, remove this or CustomJiveItemHandling.convertShortcuts()
+    public Map<String, Object> convertShortcuts(List<JiveItem> customShortcuts) {
+        Map<String, Object> map = new HashMap<>();
+        for (JiveItem item : customShortcuts) {
+            map.put(item.getName(), item.getRecord());
+        }
+        return map;
+    }
+
+    /**
+     * Return a map of names (keys) of shortcuts with value: Map<String, Object> which is a record
+     * and can be used as such when generating JiveItems
+     */
+    public HashMap<String, Map<String, Object>> restoreCustomShortcuts() {
+        HashMap<String, Map<String, Object>> allShortcutsFromPref = new HashMap<>();
+        String jsonString = sharedPreferences.getString(CUSTOM_SHORTCUTS, null);
+        if (TextUtils.isEmpty(jsonString)) {
+            return allShortcutsFromPref;
+        }
+        try {
+//          whole String to JSON, then extract name/record pairs
+            JSONObject allShortcuts = new JSONObject(jsonString);
+            Iterator<String> keysItr = allShortcuts.keys();
+            while (keysItr.hasNext()) {
+                String key = keysItr.next();
+                JSON json = new JSON();
+                try {
+                    Map<String, Object> recordFromPref = (Map) json.parse(allShortcuts.getString(key));
+                    allShortcutsFromPref.put(key, recordFromPref);
+                } catch (IllegalStateException e) {
+                    Log.w(TAG, "Can't parse custom shortcut '" + key + "': " + e.getMessage());
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return allShortcutsFromPref;
+    }
+
 
     public boolean isDownloadEnabled() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_ENABLED, true);
@@ -638,6 +706,23 @@ public final class Preferences {
         private final int labelId;
 
         CustomizeHomeMenuMode(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
+
+    public enum CustomizeShortcutsMode implements EnumWithText {
+        ENABLED(R.string.settings_custom_shortcut_enabled),
+        DISABLED(R.string.settings_custom_shortcut_disabled),
+        LOCKED(R.string.settings_custom_shortcut_locked);
+
+        private final int labelId;
+
+        CustomizeShortcutsMode(int labelId) {
             this.labelId = labelId;
         }
 

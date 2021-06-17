@@ -223,4 +223,16 @@ public interface ISqueezeService {
      * Trigger the event from another class
      */
     void triggerHomeMenuEvent();
+
+    /**
+     * Get mDelegate
+     * @return
+     */
+    SlimDelegate getDelegate();
+
+    /**
+     * Remove the item after it was long pressed on the home menu screen
+     * @param item
+     */
+    void removeCustomShortcut(JiveItem item);
 }

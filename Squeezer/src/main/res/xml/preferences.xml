@@ -83,6 +83,11 @@
             android:title="@string/settings_customize_home_menu_mode"
             android:dialogTitle="@string/settings_customize_home_menu_info"
             android:summary="%s"/>
+        <ListPreference
+            android:key="squeezer.customize_shortcut.mode"
+            android:title="@string/settings_customize_customShortcut_mode"
+            android:dialogTitle="@string/settings_customize_customShortcut_info"
+            android:summary="%s"/>
     </PreferenceCategory>
 
     <PreferenceCategory

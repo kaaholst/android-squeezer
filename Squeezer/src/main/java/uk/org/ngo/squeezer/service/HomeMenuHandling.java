@@ -1,12 +1,16 @@
 package uk.org.ngo.squeezer.service;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 import de.greenrobot.event.EventBus;
@@ -16,8 +20,14 @@ import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuHandling {
 
-    /** Home menu tree as received from slimserver */
+
+    private static final String TAG = "HomeMenuHandling";
+
+    /**
+     * Home menu tree as received from slimserver
+     */
     public final List<JiveItem> homeMenu = new Vector<>();
+    public CopyOnWriteArrayList<JiveItem> customShortcuts = new CopyOnWriteArrayList<>();
 
     public HomeMenuHandling(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
@@ -33,7 +43,7 @@ public class HomeMenuHandling {
         for (JiveItem archiveItem : homeMenu) {
             if (archiveItem.getNode().equals(JiveItem.ARCHIVE.getId())) {
                 Set<JiveItem> parents = getOriginalParents(archiveItem.getOriginalNode());
-                if ( parents.contains(toggledItem)) {
+                if (parents.contains(toggledItem)) {
                     archiveItem.setNode(archiveItem.getOriginalNode());
                 }
             }
@@ -124,25 +134,27 @@ public class HomeMenuHandling {
         }
         for (String s : archivedItems) {
             for (JiveItem item : homeMenu) {
-                if  (item.getId().equals(s)) {
+                if (item.getId().equals(s)) {
                     item.setNode(JiveItem.ARCHIVE.getId());
                 }
             }
         }
     }
 
-    public void setHomeMenu(List<String> archivedItems) {
+    public void setHomeMenu(List<String> archivedItems, Map<String, Map<String, Object>> customShortcuts) {
         homeMenu.remove(JiveItem.ARCHIVE);
         homeMenu.stream().forEach(item -> item.setNode(item.getOriginalNode()));
         addArchivedItems(archivedItems);
+        loadShortcutItems(customShortcuts);
         mEventBus.postSticky(new HomeMenuEvent(homeMenu));
     }
 
-    public void setHomeMenu(List<JiveItem> items, List<String> archivedItems) {
+    public void setHomeMenu(List<JiveItem> items, List<String> archivedItems, Map<String, Map<String, Object>> customShortcuts) {
         jiveMainNodes(items);
         homeMenu.clear();
         homeMenu.addAll(items);
         addArchivedItems(archivedItems);
+        loadShortcutItems(customShortcuts);
         mEventBus.postSticky(new HomeMenuEvent(homeMenu));
     }
 
@@ -152,10 +164,70 @@ public class HomeMenuHandling {
         addNode(JiveItem.ADVANCED_SETTINGS, homeMenu);
     }
 
-    private void addNode(JiveItem jiveItem, List<JiveItem> homeMenu) {
+    void addNode(JiveItem jiveItem, List<JiveItem> homeMenu) {
         if (!homeMenu.contains(jiveItem)) {
             jiveItem.setNode(jiveItem.getOriginalNode());
             homeMenu.add(jiveItem);
+        }
+    }
+
+    private final static String CUSTOM_SHORTCUT_NODE = "home";
+
+    /**
+     * Load complete list of stored items from preferences.
+     * Use action the values on the initialized customNodes.
+     */
+    public void loadShortcutItems(Map<String, Map<String, Object>> map) {
+        customShortcuts.clear();
+        for (Map.Entry<String, Map<String, Object>> pair : map.entrySet()) {
+            Map<String, Object> record = pair.getValue();
+            JiveItem shortcut = new JiveItem(record);
+            shortcut.setName(pair.getKey());
+            customShortcuts.add(setShortcut(shortcut));
+        }
+        homeMenu.addAll(customShortcuts);
+    }
+
+    public boolean triggerCustomShortcut(JiveItem itemToShortcut) {
+        return addShortcut(itemToShortcut);
+    }
+
+    private boolean addShortcut(JiveItem item) {
+        if (!shortcutAlreadyAdded(item)) {
+            JiveItem template = new JiveItem(item.getRecord());
+//            TODO template.setIcon
+            customShortcuts.add(setShortcut(template));
+            homeMenu.add(template);
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean shortcutAlreadyAdded(JiveItem itemToShortcut) {
+        for (JiveItem item : customShortcuts) {
+            if (item.getName().equals(itemToShortcut.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private JiveItem setShortcut(JiveItem item) {
+        item.setNode(CUSTOM_SHORTCUT_NODE);
+        item.setId("customShortcut_" + customShortcuts.size());
+        return item;
+    }
+
+    public void removeCustomShortcut(JiveItem item) {
+        customShortcuts.remove(item);
+        homeMenu.remove(item);
+    }
+
+    public void removeAllShortcuts() {
+        for (JiveItem item : customShortcuts) {
+            customShortcuts.remove(item);
+            homeMenu.remove(item);
         }
     }
 }

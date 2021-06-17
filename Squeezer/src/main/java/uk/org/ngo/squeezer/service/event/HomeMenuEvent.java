@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service.event;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.List;

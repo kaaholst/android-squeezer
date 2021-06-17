@@ -410,9 +410,20 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="remote_preset6Description">Preset 6</string>
     <string name="ARCHIVE_NODE">Archive</string>
     <string name="MENU_ITEM_MOVED">Menu item moved</string>
-    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are alread in Archive!</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are already in Archive!</string>
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Archive cannot be archived!</string>
     <string name="ARCHIVE_NODE_REMOVED">Removed empty Archive</string>
     <string name="CUSTOM_NODE">Custom</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">This item can not be archived!</string>
+    <string name="CUSTOM_SHORTCUT_NODE">customShortcut</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Custom shortcut removed</string>
+    <string name="ITEM_IS_ALREADY_A_SHORTCUT">Is already a shortcut!</string>
+    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut put on home menu</string>
+    <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Can not be shortcut or archived!</string>
+    <string name="settings_custom_shortcut_enabled">Long press puts a suitable item on home screen</string>
+    <string name="settings_custom_shortcut_disabled">Custom shortcuts disabled</string>
+    <string name="settings_custom_shortcut_locked">Disable long press, but leave shortcuts on home screen.</string>
+    <string name="settings_customize_customShortcut_mode">Custom Shortcuts</string>
+    <string name="settings_customize_customShortcut_info">Long press puts up to five suitable items on the home screen as shortcuts.</string>
+    <string name="ITEM_CANNOT_BE_SHORTCUT">Item can not be shortcut!</string>
 </resources>

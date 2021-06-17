@@ -21,39 +21,59 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import java.util.EnumSet;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.ViewParamItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Slider;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
+
     private final JiveItemViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
 
-    /** Width of the icon, if VIEW_PARAM_ICON is used. */
+    Preferences mPreferences = new Preferences(itemView.getContext());
+    final boolean isShortcutActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
+    final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
+
+    /**
+     * Width of the icon, if VIEW_PARAM_ICON is used.
+     */
     private int mIconWidth;
 
-    /** Height of the icon, if VIEW_PARAM_ICON is used. */
+    /**
+     * Height of the icon, if VIEW_PARAM_ICON is used.
+     */
     private int mIconHeight;
 
     JiveItemListActivity mActivity;
 
+    /**
+     * Will also be used (and set) in HomeMenuJiveItemView.
+     */
+    CustomJiveItemHandling mCustomJiveItemHandling = null;
+
     JiveItemView(@NonNull JiveItemListActivity activity, @NonNull View view) {
         super(activity, view);
         mActivity = activity;
+        if (mCustomJiveItemHandling == null) {
+            mCustomJiveItemHandling = new CustomJiveItemHandling(mActivity);
+        }
         setWindowStyle(activity.window.windowStyle);
         this.logicDelegate = new JiveItemViewLogic(activity);
-        setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
+        setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE);
 
         // Certain LMS actions (e.g. slider) doesn't have text in their views
         if (text1 != null) {
@@ -124,12 +144,8 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         text2.setAlpha(getAlpha(item));
         itemView.setOnClickListener(view -> onItemSelected(item));
 
-//      if Archive node is activated in settings
-        if (new Preferences(itemView.getContext()).getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE) {
-            itemView.setOnLongClickListener(view -> {
-                mActivity.showDisplayMessage(R.string.ITEM_CANNOT_BE_ARCHIVED);
-                return true;
-            });
+        if ( isShortcutActive || isArchiveActive ) {
+            itemView.setOnLongClickListener(view -> putItemAsShortcut(item));
         } else {
             itemView.setOnLongClickListener(null);
         }
@@ -146,6 +162,33 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
                 contextMenuRadio.setChecked(item.radio);
             }
         }
+    }
+
+    /**
+     * This view handles just shortcuts, but has to display the correct message anyway.
+     * @param item
+     * @return
+     */
+    private boolean putItemAsShortcut(JiveItem item) {
+        @StringRes int message = !isArchiveActive ? R.string.ITEM_CANNOT_BE_SHORTCUT :
+                isShortcutActive ? R.string.ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED : R.string.ITEM_CANNOT_BE_ARCHIVED;
+
+        if (!mCustomJiveItemHandling.isShortcutable(item)) {
+            mActivity.showDisplayMessage(message);
+        } else {
+            if (isShortcutActive) {
+                if (mCustomJiveItemHandling.triggerCustomShortcut(item)) {
+                    mPreferences.saveShortcuts(mCustomJiveItemHandling.convertShortcuts());
+//                  TODO: check ok?
+                    mActivity.showDisplayMessage(R.string.ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU);
+                } else {
+                    mActivity.showDisplayMessage(R.string.ITEM_IS_ALREADY_A_SHORTCUT);
+                }
+            } else {
+                mActivity.showDisplayMessage(R.string.ITEM_CANNOT_BE_ARCHIVED);
+            }
+        }
+        return true;
     }
 
     private float getAlpha(JiveItem item) {
@@ -168,7 +211,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             @Override
             public void onStopTrackingTouch(@NonNull com.google.android.material.slider.Slider seekBar) {
                 if (item.goAction != null) {
-                    item.inputValue = String.valueOf((int)seekBar.getValue());
+                    item.inputValue = String.valueOf((int) seekBar.getValue());
                     getActivity().action(item, item.goAction);
                 }
             }
@@ -242,7 +285,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().setSelectedIndex(getAdapterPosition());
             itemAdapter.notifyItemChanged(getAdapterPosition());
         }
-   }
+    }
 
     @Override
     public void showContextMenu(JiveItem item) {

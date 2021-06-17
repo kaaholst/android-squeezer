@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
@@ -182,6 +183,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         ListPreference customizeHomePref = findPreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE);
         fillEnumPreference(customizeHomePref, Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
+
+        ListPreference customizeShortcutsPref = findPreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE);
+        fillEnumPreference(customizeShortcutsPref, Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
     }
 
     private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {

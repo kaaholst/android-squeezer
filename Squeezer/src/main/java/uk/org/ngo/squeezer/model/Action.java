@@ -18,8 +18,11 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.InputType;
 
 import androidx.annotation.NonNull;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +34,9 @@ import uk.org.ngo.squeezer.Util;
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cactions_fields.3E
  */
 public class Action implements Parcelable {
+
+    private static final String TAG = "Action";
+
     private static final String INPUT_PLACEHOLDER = "__INPUT__";
     private static final String TAGGEDINPUT_PLACEHOLDER = "__TAGGEDINPUT__";
 
@@ -126,6 +132,12 @@ public class Action implements Parcelable {
                 '}';
     }
 
+    public String toJSONString() {
+        return "{\"Action\": {\"urlCommand\":\"null\"," + action.toJSONString() +
+                "}}";
+    }
+
+
     /**
      * Action which can be sent to the server.
      * <p>
@@ -197,6 +209,12 @@ public class Action implements Parcelable {
                     ", params=" + params +
                     ", nextWindow=" + nextWindow +
                     '}';
+        }
+
+        public String toJSONString() {
+            return "\"JsonAction\": {\"cmd\": " + cmd + ", \"params\": "
+                    + (new JSONObject(params)).toString() + // TODO toJSONString - ok bis auf isContextMenu:1 ??
+                    ", \"nextWindow\":  \"null\"}";
         }
     }
 
