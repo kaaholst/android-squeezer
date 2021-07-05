@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  Copyright (c) 2009 Google Inc.  All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-
 <resources>
+
     <string name="undo">Rückgängig</string>
     <string name="on">An</string>
     <string name="off">Aus</string>
     <string name="disabled">Deaktiviert</string>
+    <string name="pause">Pausieren</string>
+    <string name="mute">Lautlos</string>
     <string name="menu_item_players">Abspielgeräte</string>
     <string name="menu_item_settings_label">Einstellungen</string>
-    <string name="menu_item_about_label">Über</string>
-    <string name="menu_item_view">View</string>
+    <string name="menu_item_about_label">Info</string>
+    <string name="menu_item_view">Ansicht</string>
     <string name="activity_settings_name">Einstellungen</string>
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_manual_server_addr">Manuelle Eingabe der IP-Adresse</string>
@@ -37,8 +37,10 @@
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
-    <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der aktuellen Wiedergabeliste
-        nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation_off">Nicht vor dem Löschen der
+        aktuellen Wiedergabeliste nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der aktuellen
+        Wiedergabeliste nachfragen</string>
     <string name="settings_username_hint">Benutzername (optional)</string>
     <string name="settings_password_hint">Passwort (optional)</string>
     <string name="settings_use_wake_on_lan">Server aufwecken (Wake-on-LAN)</string>
@@ -51,7 +53,13 @@
         einzuschalten bzw. aufzuwecken.</p>
         <p>Dazu muss der Computer, auf dem der Squeezebox Server läuft Wake-on-LAN unterstützen.</p>]]>
     </string>
+
     <string name="settings_server_scan_progress">Suche nach Servern…</string>
+    <string name="settings_background_volume_title">Lautstärkenkontrolle im Hintergrund</string>
+    <string name="settings_background_volume_off">Die Lautstärke nur regeln, wenn die App sichtbar ist.</string>
+    <string name="settings_background_volume_on">Die Lautstärke auch regeln, wenn die App nicht sichtbar ist.</string>
+    <string name="settings_volume_increment_title">Intervall der Lautstärkenänderung</string>
+    <string name="settings_volume_increment_summary">Intervalle für die Telefontasten festlegen</string>
     <string name="settings_fadeinsecs_title">Einblenddauer</string>
     <string name="settings_fadeinsecs_summary">Geben Sie die Einblenddauer in Sekunden an. Ein Wert
         von 0 deaktivert das Einblenden.
@@ -60,26 +68,35 @@
     <string name="settings_autoconnect_summary">WLAN aktivieren und verbinden, sobald WLAN verfügbar
         ist
     </string>
+    <string name="settings_action_on_incoming_call_title">Verhalten bei Telefonanruf</string>
+    <string name="settings_no_action_on_incoming_call">Nichts tun</string>
+
     <string name="settings_scrobble_title">Scrobbeln nach Last.fm</string>
-    <string name="settings_scrobble_on">Lied-Informationen werden an Last.fm gesendet</string>
-    <string name="settings_scrobble_off">Lied-Informationen werden nicht an Last.fm gesendet
-    </string>
+    <string name="settings_scrobble_on">Lied-Informationen werden an Last.fm gesendet.</string>
+    <string name="settings_scrobble_off">Lied-Informationen werden nicht an Last.fm gesendet.</string>
     <string name="settings_scrobble_noapp">Keine Scrobble-Anwendung installiert</string>
     <string name="settings_market_not_found">Konnte Google Play nicht starten. Is es installiert?</string>
+
     <string name="settings_squeezeplayer_title">Starte SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Auswählen, um sicherzustellen, dass SqueezePlayer
         läuft, wenn Squeezer verwendet wird.</string>
     <string name="settings_category_ui">Squeezer-Schnittstelle</string>
+    <string name="settings_customize_home_menu_mode">Archiv</string>
+    <string name="settings_customize_home_menu_info">Startmenü und einige Untermenüs können angepasst werden.</string>
+    <string name="settings_customize_home_menu_archive">Langes Drücken archiviert/unarchiviert einen Menüpunkt</string>
+    <string name="settings_customize_home_menu_disabled">Archivfunktion deaktiviert</string>
+    <string name="settings_customize_home_menu_locked">Langes Drücken ist deaktiviert, aber Archivinhalte bleiben bestehen</string>
+
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
     <string name="menu_item_poweron">Einschalten \"%s\"</string>
     <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
     <string name="menu_item_rename">Umbenennen</string>
     <string name="menu_item_playlist">Wiedergabeliste</string>
-    <string name="menu_item_playlist_clear">Löschen</string>
-    <string name="menu_item_playlist_save">Speichern</string>
-    <string name="menu_item_playlist_show_current_song">Aktueller Titel</string>
-    <string name="menu_item_volume">Lautstärke</string>
+    <string name="menu_item_playlist_clear">Wiedergabeliste löschen</string>
+    <string name="menu_item_playlist_save">Wiedergabeliste speichern</string>
+    <string name="menu_item_playlist_show_current_song">Zum aktuellen Titel</string>
+    <string name="menu_item_volume">Lautstärke ändern</string>
     <string name="connecting_text">Verbinde</string>
     <string name="connecting_to_text">Verbinde mit Logitech Media Server %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen</string>
@@ -94,6 +111,7 @@
     <string name="wifi_enabled_text">WLAN ist aktiviert. Bitte warten Sie auf den
         Verbindungsaufbau!
     </string>
+
     <string name="notification_playing_text">Spiele %s</string>
     <string name="save_playlist_title">Wiedergabeliste speichern</string>
     <string name="save_playlist_hint">Name für die Wiedergabeliste eingeben</string>
@@ -104,7 +122,7 @@
     <string name="player_group_header">Gruppe: %s</string>
     <string name="player_group_volume">Gruppenlautstärke</string>
     <string name="menu_item_player_sync">Synchronisiere…</string>
-    <string name="menu_item_player_unsync">Nicht synchronisiert</string>
+    <string name="menu_item_player_unsync">Nichts synchronisiert</string>
 
     <string name="no_players_connected">Keine Player verbunden</string>
     <string name="player_list_changed">Die Liste der verbundenen Player wurde verändert, während
@@ -118,9 +136,12 @@
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individuelle Alarme können aktiviert werden.</string>
     <string name="all_alarms_off_hint">Alle Alarme wurden daktiviert</string>
+
     <string name="alarm_music_prompt">Musik für Alarm</string>
+
     <string name="alarms_settings_dialog_title">%s Alarm-Einstellungen</string>
     <string name="alarm_volume_text">Alarm-Lautstärke</string>
+
     <string name="alarm_snooze_duration_text">Snooze-Dauer</string>
     <plurals name="alarm_snooze_hint_text">
         <item quantity="one">Alarme snoozen für eine Minute.</item>
@@ -138,10 +159,9 @@
     <string name="alarm_fade_on_text">Alarme werden langsam eingeblendet.</string>
     <string name="alarm_fade_off_text">Alarme werden nicht langsam eingeblendet.</string>
 
-
     <string name="tips_title">Tipps</string>
     <string name="tip_volume">Sie können die Musiklautstärke mit den Lautstärketasten des Geräts
-        ändern.\n\nProbieren Sie es jetzt aus.
+        ändern.\n\nProbieren Sie es jetzt aus!
     </string>
 
     <!-- Reporting errors that from the server. -->
@@ -198,9 +218,10 @@
     <!-- Download dialog -->
     <string name="download_item">%s herunterladen</string>
     <string name="disable_downloads">Option "Herunterladen" deaktivieren</string>
+
     <string name="configure_select_player">Player auswählen</string>
     <string name="configure_select_button">Widget-Aktion</string>
-    <string name="remote_unknownDescription">Unknown</string>
+    <string name="remote_unknownDescription">Unbekannt</string>
     <string name="remote_openPlayer">Player in Squeezer öffnen</string>
     <string name="remote_openNowPlaying">"Aktuelle Wiedergabe" für Player öffnen</string>
     <string name="remote_openCurrentPlaylist">Aktuelle Wiedergabeliste für Player öffnen</string>
@@ -215,5 +236,11 @@
     <string name="remote_preset5Description">Favoritentaste 5</string>
     <string name="remote_preset6Description">Favoritentaste 6</string>
     <string name="ARCHIVE_NODE">Archiv</string>
+    <string name="MENU_ITEM_MOVED">Menüpunkt verschoben</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">Sie befinden sich bereits im Archiv!</string>
+    <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Das Archiv kann nicht archviert werden!</string>
+    <string name="ARCHIVE_NODE_REMOVED">Leeres Archiv aus dem Menü entfernt</string>
+    <string name="CUSTOM_NODE">Schnellwahl</string>
+    <string name="ITEM_CANNOT_BE_ARCHIVED">Kann nicht archiviert werden.</string>
 
 </resources>
