@@ -12,11 +12,10 @@ import androidx.annotation.ColorInt;
 
 public class TextDrawable extends Drawable {
     private static final int DEFAULT_TEXTSIZE = 15;
-    private Paint mPaint;
-    private CharSequence mText;
-    private int mIntrinsicWidth;
-    private int mIntrinsicHeight;
-    float textSize;
+    private final Paint mPaint;
+    private final CharSequence mText;
+    private final int mIntrinsicWidth;
+    private final int mIntrinsicHeight;
 
 
     public TextDrawable(Resources res, CharSequence text, @ColorInt int color) {
@@ -25,7 +24,7 @@ public class TextDrawable extends Drawable {
 
         mPaint.setColor(color);
         mPaint.setTextAlign(Paint.Align.CENTER);
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+        float textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
                 DEFAULT_TEXTSIZE, res.getDisplayMetrics());
         mPaint.setTextSize(textSize);
         mIntrinsicWidth = (int) (mPaint.measureText(mText, 0, mText.length()) + .5);
@@ -37,7 +36,7 @@ public class TextDrawable extends Drawable {
         Rect bounds = getBounds();
 
         canvas.drawText(mText, 0, mText.length(),
-                bounds.centerX(), bounds.centerY() + textSize/2, mPaint);
+                bounds.centerX(), bounds.centerY() - ((mPaint.descent() + mPaint.ascent()) / 2), mPaint);
     }
 
     @Override

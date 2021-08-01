@@ -66,11 +66,6 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     private final boolean mEmptyItem;
 
     /**
-     * Text to display before the items are received from SqueezeServer
-     */
-    private final String loadingText;
-
-    /**
      * Number of elements to be fetched at a time
      */
     private final int pageSize;
@@ -86,7 +81,6 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     public ItemAdapter(ItemListActivity activity, boolean emptyItem) {
         this.activity = activity;
         mEmptyItem = emptyItem;
-        loadingText = getActivity().getString(R.string.loading_text);
         pageSize = getActivity().getResources().getInteger(R.integer.PageSize);
         pages.clear();
     }
@@ -113,20 +107,17 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     @NonNull
     @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
-        return createViewHolder(view);
+        return createViewHolder(view, viewType);
     }
 
-    public abstract VH createViewHolder(View view);
+    public abstract VH createViewHolder(View view, int viewType);
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         T item = getItem(position);
-        if (item != null)
-            holder.bindView(item);
-        else
-            holder.bindView((position == 0 && mEmptyItem ? "" : loadingText));
+        holder.bindView(item);
     }
 
     @Override

@@ -19,17 +19,24 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemViewHolder;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
@@ -37,6 +44,11 @@ public class HomeMenuActivity extends JiveItemListActivity {
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
+        // Do nothing we get the home menu from the sticky HomeMenuEvent
+    }
+
+    @Override
+    public void maybeOrderVisiblePages(RecyclerView listView) {
         // Do nothing we get the home menu from the sticky HomeMenuEvent
     }
 
@@ -51,16 +63,24 @@ public class HomeMenuActivity extends JiveItemListActivity {
     }
 
     public void onEvent(HomeMenuEvent event) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (parent.window == null) {
-                    applyWindowStyle(Window.WindowStyle.HOME_MENU);
+        runOnUiThread(() -> {
+            if (parent.window == null) {
+                applyWindowStyle(Window.WindowStyle.HOME_MENU);
+            }
+            if (parent != JiveItem.HOME && window.text == null) {
+                updateHeader(parent);
+            }
+            clearItemAdapter();
+
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                if (JiveItem.HOME.equals(parent)) {
+                    // Turn off the home icon.
+                    actionBar.setDisplayHomeAsUpEnabled(false);
+                } else {
+                    boolean inArchive = JiveItem.ARCHIVE.equals(parent) || getService().isInArchive(parent);
+                    actionBar.setHomeAsUpIndicator(inArchive ? R.drawable.ic_action_archive : R.drawable.ic_action_home);
                 }
-                if (parent != JiveItem.HOME && window.text == null) {
-                    updateHeader(parent);
-                }
-                clearItemAdapter();
             }
         });
         List<JiveItem> menu = getMenuNode(parent.getId(), event.menuItems);
@@ -74,14 +94,11 @@ public class HomeMenuActivity extends JiveItemListActivity {
                 menu.add(item);
             }
         }
-        Collections.sort(menu, new Comparator<JiveItem>() {
-            @Override
-            public int compare(JiveItem o1, JiveItem o2) {
-                if (o1.getWeight() == o2.getWeight()) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-                return o1.getWeight() - o2.getWeight();
+        Collections.sort(menu, (o1, o2) -> {
+            if (o1.getWeight() == o2.getWeight()) {
+                return o1.getName().compareTo(o2.getName());
             }
+            return o1.getWeight() - o2.getWeight();
         });
         return menu;
     }
@@ -90,6 +107,17 @@ public class HomeMenuActivity extends JiveItemListActivity {
         final Intent intent = new Intent(activity, HomeMenuActivity.class);
         intent.putExtra(JiveItem.class.getName(), item);
         activity.startActivity(intent);
+    }
+
+    @Override
+    protected ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> createItemListAdapter() {
+
+        return new JiveItemAdapter(this) {
+            @Override
+            public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {
+                return new HomeMenuJiveItemView(HomeMenuActivity.this, view, this);
+            }
+        };
     }
 
 }

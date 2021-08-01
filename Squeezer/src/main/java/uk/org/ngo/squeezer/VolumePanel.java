@@ -156,7 +156,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
             currentProgress = progress;
             ISqueezeService service = activity.getService();
             if (service != null) {
-                service.adjustVolumeTo(progress);
+                service.setVolumeTo(progress);
             }
         }
     }

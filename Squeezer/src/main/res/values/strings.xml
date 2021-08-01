@@ -38,6 +38,8 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
     <string name="settings_clear_current_playlist_confirmation">Ask for confirmation before clear current playlist</string>
+    <string name="settings_clear_current_playlist_confirmation_off">No confirmation dialog for \'Clear current playlist\' button</string>
+    <string name="settings_clear_current_playlist_confirmation_on">Use a confirmation dialog for \'Clear current playlist\' button</string>
     <string name="settings_username_hint">User name (optional)</string>
     <string name="settings_password_hint">Password (optional)</string>
     <string name="settings_use_wake_on_lan">Wake up server (Wake-on-LAN)</string>
@@ -49,6 +51,11 @@
         <p>This requires the computer running the Squeezebox Server to be configured to use Wake-on-LAN.</p>]]>
     </string>
     <string name="settings_server_scan_progress">Scanning for servers…</string>
+    <string name="settings_background_volume_title">Background Volume Control</string>
+    <string name="settings_background_volume_off">Control player volume only when the app is visible.</string>
+    <string name="settings_background_volume_on">Allow changing player volume even when the app is not visible.</string>
+    <string name="settings_volume_increment_title">Volume up/down increments</string>
+    <string name="settings_volume_increment_summary">Set the increments for the phone volume buttons</string>
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when
         unpausing, in seconds. Enter 0 to disable fade in.
@@ -70,6 +77,11 @@
     <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
 
     <string name="settings_category_ui">Squeezer interface</string>
+    <string name="settings_customize_home_menu_mode">Archive</string>
+    <string name="settings_customize_home_menu_info">The home screen as well as several submenus can be customized</string>
+    <string name="settings_customize_home_menu_archive">Long press an item archives/unarchives that item</string>
+    <string name="settings_customize_home_menu_disabled">Disable archive</string>
+    <string name="settings_customize_home_menu_locked">Disable long press, but leave archived items in the archive</string>
 
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
@@ -99,7 +111,6 @@
     <string name="save_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
-    <string name="loading_text">Loading…</string>
     <string name="browse_items_text">%2$d %1$s</string>
 
     <string name="player_group_header">Group: %s</string>
@@ -396,4 +407,11 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="remote_preset4Description">Preset 4</string>
     <string name="remote_preset5Description">Preset 5</string>
     <string name="remote_preset6Description">Preset 6</string>
+    <string name="ARCHIVE_NODE">Archive</string>
+    <string name="MENU_ITEM_MOVED">Menu item moved</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are alread in Archive!</string>
+    <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Archive cannot be archived!</string>
+    <string name="ARCHIVE_NODE_REMOVED">Removed empty Archive</string>
+    <string name="CUSTOM_NODE">Custom</string>
+    <string name="ITEM_CANNOT_BE_ARCHIVED">This item can not be archived!</string>
 </resources>

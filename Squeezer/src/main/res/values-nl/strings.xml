@@ -67,7 +67,6 @@
     <string name="save_playlist_title">Bewaar playlist</string>
     <string name="save_playlist_hint">Voer naam playlist in</string>
     <string name="rename_title">Hernoem %s</string>
-    <string name="loading_text">Laden …</string>
     <string name="browse_items_text">%2$d %1$s</string>
     <string name="unknown_track">Onbekend nummer</string>
     <string name="unknown_album">Onbekend album</string>

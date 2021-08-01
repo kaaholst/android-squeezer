@@ -186,9 +186,6 @@ public class Player extends Item implements Comparable<Player> {
         double now = SystemClock.elapsedRealtime() / 1000.0;
         double trackCorrection = mPlayerState.rate * (now - mPlayerState.statusSeen);
         int trackElapsed = (int) (trackCorrection <= 0 ? mPlayerState.getCurrentTimeSecond() : mPlayerState.getCurrentTimeSecond() + trackCorrection);
-        if (trackElapsed > mPlayerState.getCurrentSongDuration()) {
-            trackElapsed = mPlayerState.getCurrentSongDuration();
-        }
 
         return new SongTimeChanged(this, trackElapsed, mPlayerState.getCurrentSongDuration());
     }

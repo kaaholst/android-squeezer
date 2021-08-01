@@ -243,21 +243,11 @@ public class PlayerListActivity extends ItemListActivity implements
      *
      * @param players List of players.
      */
-    public void updateSyncGroups(Collection<Player> players) {
-        Map<String, Player> connectedPlayers = new HashMap<>();
-
-        // Make a copy of the players we know about, ignoring unconnected ones.
-        for (Player player : players) {
-            if (!player.getConnected())
-                continue;
-
-            connectedPlayers.put(player.getId(), player);
-        }
-
+    public void updateSyncGroups(List<Player> players) {
         mPlayerSyncGroups.clear();
 
         // Iterate over all the connected players to build the list of master players.
-        for (Player player : connectedPlayers.values()) {
+        for (Player player : players) {
             String playerId = player.getId();
             String name = player.getName();
             PlayerState playerState = player.getPlayerState();

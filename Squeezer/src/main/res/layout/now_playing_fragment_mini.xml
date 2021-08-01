@@ -22,14 +22,12 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progressbar"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:maxHeight="2dp"
-        android:progressDrawable="@drawable/thin_progress_bar"/>
+        app:trackThickness="2dp"/>
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/album"
@@ -40,7 +38,7 @@
         android:maxWidth="@dimen/album_art_icon_width"
         android:minHeight="@dimen/album_art_icon_height"
         android:minWidth="@dimen/album_art_icon_width"
-        tools:src="@drawable/icon_pending_artwork"/>
+        tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/trackname"

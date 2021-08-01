@@ -16,27 +16,25 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.os.SystemClock;
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
-import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class ConnectionState {
@@ -45,27 +43,37 @@ public class ConnectionState {
 
     ConnectionState(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
+        mHomeMenuHandling = new HomeMenuHandling(eventBus);
     }
 
     private final EventBus mEventBus;
+    private final HomeMenuHandling mHomeMenuHandling;
 
     public final static String MEDIA_DIRS = "mediadirs";
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED})
+    @IntDef({MANUAL_DISCONNECT, DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
+    /** User disconnected */
+    public static final int MANUAL_DISCONNECT = 0;
     /** Ordinarily disconnected from the server. */
-    public static final int DISCONNECTED = 0;
+    public static final int DISCONNECTED = 1;
     /** A connection has been started. */
-    public static final int CONNECTION_STARTED = 1;
+    public static final int CONNECTION_STARTED = 2;
     /** The connection to the server did not complete. */
-    public static final int CONNECTION_FAILED = 2;
+    public static final int CONNECTION_FAILED = 3;
     /** The connection to the server completed, the handshake can start. */
-    public static final int CONNECTION_COMPLETED = 3;
+    public static final int CONNECTION_COMPLETED = 4;
 
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
+
+    /** Milliseconds since boot of latest auto connect */
+    private volatile long autoConnect;
+
+    /** Minimum milliseconds between automatic connection */
+    private static final long AUTO_CONNECT_INTERVAL = 60_000;
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
@@ -73,12 +81,18 @@ public class ConnectionState {
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
-    /** Home menu tree as received from slimserver */
-    private final List<JiveItem> homeMenu = new Vector<>();
-
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
+
+    public boolean canAutoConnect() {
+        return (mConnectionState == DISCONNECTED || mConnectionState == CONNECTION_FAILED)
+                && ((SystemClock.elapsedRealtime() - autoConnect) > AUTO_CONNECT_INTERVAL);
+    }
+
+    public void setAutoConnect() {
+        this.autoConnect = SystemClock.elapsedRealtime();
+    }
 
     /**
      * Sets a new connection state, and posts a sticky
@@ -112,7 +126,7 @@ public class ConnectionState {
     public void setPlayers(Map<String, Player> players) {
         mPlayers.clear();
         mPlayers.putAll(players);
-        mEventBus.postSticky(new PlayersChanged(players));
+        mEventBus.postSticky(new PlayersChanged());
     }
 
     Player getPlayer(String playerId) {
@@ -146,30 +160,14 @@ public class ConnectionState {
         this.mediaDirs.set(mediaDirs);
     }
 
-    void setHomeMenu(List<JiveItem> items) {
-        homeMenu.clear();
-        homeMenu.addAll(items);
-        mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+    public HomeMenuHandling getHomeMenuHandling() {
+        return mHomeMenuHandling;
     }
 
+//    For menu updates sent from LMS, handling of archived nodes needs testing!
     void menuStatusEvent(MenuStatusMessage event) {
         if (event.playerId.equals(getActivePlayer().getId())) {
-            for (JiveItem menuItem : event.menuItems) {
-                JiveItem item = null;
-                for (JiveItem menu : homeMenu) {
-                    if (menuItem.getId().equals(menu.getId())) {
-                        item = menu;
-                        break;
-                    }
-                }
-                if (item != null) {
-                    homeMenu.remove(item);
-                }
-                if (MenuStatusMessage.ADD.equals(event.menuDirective)) {
-                    homeMenu.add(menuItem);
-                }
-            }
-            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+            mHomeMenuHandling.handleMenuStatusEvent(event);
         }
     }
 
@@ -211,6 +209,7 @@ public class ConnectionState {
         return connectionState == CONNECTION_STARTED;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "ConnectionState{" +

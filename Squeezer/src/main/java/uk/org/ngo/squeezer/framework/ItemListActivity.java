@@ -18,16 +18,16 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import androidx.annotation.MainThread;
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -300,9 +300,8 @@ public abstract class ItemListActivity extends BaseActivity {
     public void maybeOrderVisiblePages(RecyclerView listView) {
         LinearLayoutManager layoutManager = (LinearLayoutManager) listView.getLayoutManager();
         int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
         if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
-            maybeOrderPage(0);
+            clearAndReOrderItems();
         } else {
             int pos = (firstVisibleItemPosition / mPageSize) * mPageSize;
             int end = firstVisibleItemPosition + listView.getChildCount();

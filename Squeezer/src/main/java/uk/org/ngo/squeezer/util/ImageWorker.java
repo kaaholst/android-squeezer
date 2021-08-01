@@ -37,6 +37,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,6 +51,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 import uk.org.ngo.squeezer.BuildConfig;
+import uk.org.ngo.squeezer.Util;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an
@@ -328,7 +330,7 @@ public abstract class ImageWorker {
      * @param resId
      */
     public void setLoadingImage(int resId) {
-        mLoadingBitmap = BitmapFactory.decodeResource(mResources, resId);
+        mLoadingBitmap = Util.drawableToBitmap(ResourcesCompat.getDrawable(mResources, resId, null));
     }
 
     /**

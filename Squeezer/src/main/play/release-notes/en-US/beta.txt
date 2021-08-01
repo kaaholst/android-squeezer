@@ -1,7 +1,15 @@
-&bull; Ability to mute/unmute players and mute music on call
+&bull; The home screen as well as several submenus can be customized. Contributed by Benjamin Viertel
 
-&bull; Support for pictures in plugins like Music & Artist Information
+&bull; Display remaining track time.
 
-&bull; Fix bug in setting alarm time
+&bull; Button for players screen in top bar if room.
 
-&bull; Fix various potential crashes.
+&bull; Allow changing player volume with the app running only in background.
+
+&bull; Configurable volume increments.
+
+&bull; Attempt to reconnect when the app is brought into the foreground.
+
+&bull; Unmute before volume is adjusted via hardware volume controls.
+
+&bull; Use skeleton views while loading.

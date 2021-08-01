@@ -89,7 +89,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         }
 
         @Override
-        public PlayerView createViewHolder(View view) {
+        public PlayerView createViewHolder(View view, int viewType) {
             return new PlayerView((PlayerListActivity) getActivity(), view);
         }
 
@@ -213,7 +213,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
                 }
                 int groupVolume = (int)value;
                 for (int i = 0; i < syncGroup.getItemCount(); i++) {
-                    service.adjustVolumeTo(syncGroup.getItem(i), trimVolume(groupVolume + holder.volumeOffsets[i]));
+                    service.setVolumeTo(syncGroup.getItem(i), trimVolume(groupVolume + holder.volumeOffsets[i]));
                 }
             }
         });

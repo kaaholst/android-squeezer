@@ -70,12 +70,15 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Preferences preferences = new Preferences(getActivity(), sharedPreferences);
 
+        SwitchPreferenceCompat backgroundVolumePref = findPreference(Preferences.KEY_BACKGROUND_VOLUME);
+        backgroundVolumePref.setChecked(preferences.isBackgroundVolume());
+
         fadeInPref = findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
-        updateFadeInSecondsSummary(sharedPreferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
+        updateFadeInSecondsSummary(preferences.getFadeInSecs());
 
         SwitchPreferenceCompat autoConnectPref = findPreference(Preferences.KEY_AUTO_CONNECT);
-        autoConnectPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
+        autoConnectPref.setChecked(preferences.isAutoConnect());
 
         fillIncomingCallPreferences(preferences);
 
@@ -176,6 +179,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         final SwitchPreferenceCompat clearPlaylistConfirmation = findPreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION);
         clearPlaylistConfirmation.setChecked(preferences.isClearPlaylistConfirmation());
+
+        ListPreference customizeHomePref = findPreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE);
+        fillEnumPreference(customizeHomePref, Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
     }
 
     private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {

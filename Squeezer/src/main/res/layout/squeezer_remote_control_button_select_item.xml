@@ -32,7 +32,7 @@
         style="@style/RemoteSelectButtonIcon"
         android:id="@+id/icon"
         android:contentDescription="@string/app_name"
-        tools:src="@drawable/icon_pending_artwork"/>
+        tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/text"

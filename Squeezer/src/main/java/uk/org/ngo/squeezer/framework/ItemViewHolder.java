@@ -57,11 +57,4 @@ public abstract class ItemViewHolder<T extends Item> extends RecyclerView.ViewHo
      */
     public abstract void bindView(final T item);
 
-    /**
-     * Display the text in this view holders item view.
-     *
-     * @param text The text to set in the view.
-     */
-    public abstract void bindView(String text);
-
 }

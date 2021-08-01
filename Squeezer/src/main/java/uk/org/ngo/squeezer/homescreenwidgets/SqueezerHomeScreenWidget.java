@@ -64,7 +64,7 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
                     // Auto connect if necessary
                     if (!squeezeService.isConnected()) {
                         Log.i(SqueezerHomeScreenWidget.TAG, "SqueezeService wasn't connected, connecting...");
-                        squeezeService.startConnect();
+                        squeezeService.startConnect(false);
                     }
                 }
             }

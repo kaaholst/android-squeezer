@@ -127,7 +127,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         }
 
         @Override
-        public AlarmView createViewHolder(View view) {
+        public AlarmView createViewHolder(View view, int viewType) {
             return new AlarmView((AlarmsActivity) getActivity(), view);
         }
 

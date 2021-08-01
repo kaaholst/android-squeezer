@@ -27,17 +27,17 @@ import java.util.EnumSet;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.Slider;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
-    private JiveItemViewLogic logicDelegate;
+    private final JiveItemViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
 
     /** Width of the icon, if VIEW_PARAM_ICON is used. */
@@ -50,7 +50,6 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         super(activity, view);
         setWindowStyle(activity.window.windowStyle);
         this.logicDelegate = new JiveItemViewLogic(activity);
-        setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
 
         // Certain LMS actions (e.g. slider) doesn't have text in their views
         if (text1 != null) {
@@ -89,11 +88,6 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     @Override
     public void bindView(JiveItem item) {
-        if (item.hasSlider()) {
-            bindSlider(item);
-            return;
-        }
-
         if (item.radio != null && item.radio) {
             getActivity().setSelectedIndex(getAdapterPosition());
         }
@@ -120,6 +114,17 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         text1.setAlpha(getAlpha(item));
         text2.setAlpha(getAlpha(item));
         itemView.setOnClickListener(view -> onItemSelected(item));
+
+//      if Archive node is activated in settings
+        if (new Preferences(itemView.getContext()).getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE) {
+            itemView.setOnLongClickListener(view -> {
+                getActivity().showDisplayMessage(R.string.ITEM_CANNOT_BE_ARCHIVED);
+                return true;
+            });
+        } else {
+            itemView.setOnLongClickListener(null);
+        }
+
         itemView.setClickable(isSelectable(item));
 
         if (item.hasContextMenu()) {
@@ -136,29 +141,6 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     private float getAlpha(JiveItem item) {
         return isSelectable(item) ? 1.0f : (item.checkbox != null || item.radio != null) ? 0.25f : 0.75f;
-    }
-
-
-    private void bindSlider(final JiveItem item) {
-        com.google.android.material.slider.Slider seekBar = itemView.findViewById(R.id.slider);
-        final Slider slider = item.slider;
-        seekBar.setValue(slider.initial);
-        seekBar.setValueFrom(slider.min);
-        seekBar.setValueTo(slider.max);
-        seekBar.addOnSliderTouchListener(new com.google.android.material.slider.Slider.OnSliderTouchListener() {
-
-            @Override
-            public void onStartTrackingTouch(@NonNull com.google.android.material.slider.Slider seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(@NonNull com.google.android.material.slider.Slider seekBar) {
-                if (item.goAction != null) {
-                    item.inputValue = String.valueOf((int)seekBar.getValue());
-                    getActivity().action(item, item.goAction);
-                }
-            }
-        });
     }
 
     protected boolean isSelectable(JiveItem item) {
@@ -214,7 +196,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         }
 
         if (item.radio != null) {
-            ItemAdapter<JiveItemView, JiveItem> itemAdapter = getActivity().getItemAdapter();
+            ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> itemAdapter = getActivity().getItemAdapter();
             int prevIndex = getActivity().getSelectedIndex();
             if (prevIndex >= 0 && prevIndex < itemAdapter.getItemCount()) {
                 JiveItem prevItem = itemAdapter.getItem(prevIndex);

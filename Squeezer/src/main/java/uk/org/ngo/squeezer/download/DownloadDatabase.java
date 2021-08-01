@@ -214,13 +214,13 @@ public class DownloadDatabase {
 
     private DownloadEntry getDownloadEntry(Cursor cursor) {
         DownloadEntry entry = new DownloadEntry();
-        entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
-        entry.url = Uri.parse(cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.URL)));
-        entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
-        entry.credentials = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.CREDENTIALS));
-        entry.title = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TITLE));
-        entry.album = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM));
-        entry.artist = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ARTIST));
+        entry.downloadId = cursor.getLong(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
+        entry.url = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.URL)));
+        entry.fileName = cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
+        entry.credentials = cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.CREDENTIALS));
+        entry.title = cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.TITLE));
+        entry.album = cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM));
+        entry.artist = cursor.getString(cursor.getColumnIndexOrThrow(DOWNLOAD_DATABASE.SONG.COLUMNS.ARTIST));
         return entry;
     }
 

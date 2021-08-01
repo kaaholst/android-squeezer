@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -48,6 +49,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  */
 public abstract class BaseListActivity<VH extends ItemViewHolder<T>, T extends Item> extends ItemListActivity implements IServiceItemListCallback<T> {
 
+    private static final String TAG = "BaseListActivity";
     /**
      * Tag for first visible position in mRetainFragment.
      */

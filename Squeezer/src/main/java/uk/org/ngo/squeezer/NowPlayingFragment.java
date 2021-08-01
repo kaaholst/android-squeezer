@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,17 +29,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,13 +45,23 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,16 +73,16 @@ import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
+import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
-import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -128,6 +127,7 @@ public class NowPlayingFragment extends Fragment {
     private TextView currentTime;
 
     private TextView totalTime;
+    private boolean showRemainingTime;
 
     private MenuItem menuItemDisconnect;
 
@@ -183,9 +183,9 @@ public class NowPlayingFragment extends Fragment {
                 if (!isConnected()) {
                     // Requires a serviceStub. Else we'll do this on the service
                     // connection callback.
-                    if (mService != null && !isManualDisconnect()) {
+                    if (canAutoConnect()) {
                         Log.v(TAG, "Initiated connect on WIFI connected");
-                        startVisibleConnection();
+                        startVisibleConnection(true);
                     }
                 }
             }
@@ -193,7 +193,7 @@ public class NowPlayingFragment extends Fragment {
     };
 
     /** Dialog displayed while connecting to the server. */
-    private ProgressDialog connectingDialog = null;
+    private Dialog connectingDialog = null;
 
     /**
      * Shows the "connecting" dialog if it's not already showing.
@@ -204,10 +204,14 @@ public class NowPlayingFragment extends Fragment {
             Preferences preferences = new Preferences(mActivity);
             Preferences.ServerAddress serverAddress = preferences.getServerAddress();
 
-            connectingDialog = ProgressDialog.show(mActivity,
-                    getText(R.string.connecting_text),
-                    getString(R.string.connecting_to_text, serverAddress.serverName()),
-                    true, false);
+            final View view = LayoutInflater.from(mActivity).inflate(R.layout.connecting, null);
+            final TextView connectingTo = view.findViewById(R.id.connecting_to);
+            connectingTo.setText(getString(R.string.connecting_to_text, serverAddress.serverName()));
+
+            connectingDialog = new MaterialAlertDialogBuilder(mActivity)
+                    .setView(view)
+                    .setCancelable(false)
+                    .show();
         }
     }
 
@@ -268,6 +272,7 @@ public class NowPlayingFragment extends Fragment {
             repeatButton = v.findViewById(R.id.repeat);
             currentTime = v.findViewById(R.id.currenttime);
             totalTime = v.findViewById(R.id.totaltime);
+            showRemainingTime = new Preferences(mActivity).isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
             playlistButton = v.findViewById(R.id.playlist);
 
@@ -335,6 +340,15 @@ public class NowPlayingFragment extends Fragment {
             slider.addOnChangeListener((s, value, fromUser) -> {
                 if (fromUser) {
                     currentTime.setText(Util.formatElapsedTime((int)value));
+                }
+            });
+
+            totalTime.setOnClickListener(view -> {
+                showRemainingTime = !showRemainingTime;
+                new Preferences(mActivity).setShowRemainingTime(showRemainingTime);
+                PlayerState playerState = getPlayerState();
+                if (playerState != null) {
+                    updateTimeDisplayTo((int)playerState.getCurrentTimeSecond(), playerState.getCurrentSongDuration());
                 }
             });
 
@@ -451,25 +465,14 @@ public class NowPlayingFragment extends Fragment {
     /**
      * Manages the list of connected players in the action bar.
      *
-     * @param players A list of players to show. May be empty (use {@code
-     * Collections.&lt;Player>emptyList()}) but not null.
+     * @param connectedPlayers A list of players to show. May be empty but not null.
      * @param activePlayer The currently active player. May be null.
      */
     @UiThread
-    private void updatePlayerDropDown(@NonNull Collection<Player> players,
-            @Nullable Player activePlayer) {
+    private void updatePlayerDropDown(@NonNull List<Player> connectedPlayers, @Nullable Player activePlayer) {
         if (!isAdded()) {
             return;
         }
-
-        // Only include players that are connected to the server.
-        List<Player> connectedPlayers = new ArrayList<>();
-        for (Player player : players) {
-            if (player.getConnected()) {
-                connectedPlayers.add(player);
-            }
-        }
-        Collections.sort(connectedPlayers); // sort players alphabetically by player name
 
         ActionBar actionBar = mActivity.getSupportActionBar();
 
@@ -531,9 +534,9 @@ public class NowPlayingFragment extends Fragment {
 
         maybeRegisterCallbacks(mService);
 
-        // Assume they want to connect (unless manually disconnected).
-        if (!isConnected() && !isManualDisconnect()) {
-            startVisibleConnection();
+        // Assume they want to connect
+        if (canAutoConnect()) {
+            startVisibleConnection(true);
         }
     }
 
@@ -574,10 +577,10 @@ public class NowPlayingFragment extends Fragment {
             if (updateSeekBar) {
                 if (slider.getValueTo() != secondsTotal) {
                     slider.setValueTo(secondsTotal > 0 ? secondsTotal : 1);
-                    totalTime.setText(Util.formatElapsedTime(secondsTotal));
                 }
                 slider.setEnabled(secondsTotal > 0);
-                slider.setValue(secondsTotal > 0 ? secondsIn : 0);
+                slider.setValue(secondsTotal > 0 ? Math.min(secondsIn, secondsTotal) : 0);
+                totalTime.setText(Util.formatElapsedTime(showRemainingTime ? secondsTotal - secondsIn : secondsTotal));
                 currentTime.setText(Util.formatElapsedTime(secondsIn));
             }
         } else {
@@ -635,7 +638,6 @@ public class NowPlayingFragment extends Fragment {
                 btnContextMenu.setVisibility(View.VISIBLE);
                 artistText.setText(song.getArtist());
                 albumText.setText(song.getAlbum());
-                totalTime.setText(Util.formatElapsedTime(playerState.getCurrentSongDuration()));
 
                 mService.pluginItems(song.moreAction, new IServiceItemListCallback<JiveItem>() {
                     @Override
@@ -710,6 +712,10 @@ public class NowPlayingFragment extends Fragment {
 
     private boolean isConnectInProgress() {
         return mService != null && mService.isConnectInProgress();
+    }
+
+    private boolean canAutoConnect() {
+        return mService != null && mService.canAutoConnect();
     }
 
     @Override
@@ -843,16 +849,7 @@ public class NowPlayingFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Has the user manually disconnected from the server?
-     *
-     * @return true if they have, false otherwise.
-     */
-    private boolean isManualDisconnect() {
-        return getActivity() instanceof ConnectActivity;
-    }
-
-    public void startVisibleConnection() {
+    public void startVisibleConnection(boolean autoConnect) {
         Log.v(TAG, "startVisibleConnection");
 
         // If were not connected to service or not attached to activity do nothing.
@@ -900,7 +897,7 @@ public class NowPlayingFragment extends Fragment {
             Log.v(TAG, "Connection is already in progress, connecting aborted");
             return;
         }
-        mService.startConnect();
+        mService.startConnect(autoConnect);
     }
 
 
@@ -914,6 +911,7 @@ public class NowPlayingFragment extends Fragment {
         }
 
         switch (event.connectionState) {
+            case ConnectionState.MANUAL_DISCONNECT:
             case ConnectionState.DISCONNECTED:
                 dismissConnectingDialog();
                 ConnectActivity.show(mActivity);
@@ -991,7 +989,7 @@ public class NowPlayingFragment extends Fragment {
 
     @MainThread
     public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
+        updatePlayerDropDown(mService.getPlayers(), mService.getActivePlayer());
     }
 
     @MainThread

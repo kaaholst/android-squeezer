@@ -27,14 +27,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.CallSuper;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -45,12 +37,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
+import androidx.core.app.TaskStackBuilder;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.dialog.DownloadDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.JiveItem;
@@ -96,9 +103,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     /** Volume control panel. */
     @Nullable
     private VolumePanel mVolumePanel;
-
-    /** Set this to true to stop displaying icon-based showBrieflies */
-    protected boolean ignoreIconMessages = false;
 
     /**
      * @return The squeezeservice, or null if not bound
@@ -329,9 +333,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
-                return changeVolumeBy(+5);
+                return adjustVolume(1);
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                return changeVolumeBy(-5);
+                return adjustVolume(-1);
         }
 
         return super.onKeyDown(keyCode, event);
@@ -349,13 +353,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         return super.onKeyUp(keyCode, event);
     }
 
-    private boolean changeVolumeBy(int delta) {
+    private boolean adjustVolume(int direction) {
         ISqueezeService service = getService();
         if (service == null) {
             return false;
         }
-        Log.v(TAG, "Adjust volume by: " + delta);
-        service.adjustVolumeBy(delta);
+        service.adjustVolume(direction);
         return true;
     }
 
@@ -386,9 +389,25 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         mIgnoreVolumeChange = ignoreVolumeChange;
     }
 
+    public void showDisplayMessage(@StringRes int resId) {
+        showDisplayMessage(getString(resId));
+    }
+
+    public void showDisplayMessage(String text) {
+        Map<String, Object> display = new HashMap<>();
+        display.put("text", new String[]{ text });
+        display.put("type", "text");
+        display.put("style", "style");  // TODO: What is the proper object for style?
+        DisplayMessage displayMessage = new DisplayMessage(display);
+        showDisplayMessage(displayMessage);
+    }
+
     public void onEventMainThread(DisplayEvent displayEvent) {
+        showDisplayMessage(displayEvent.message);
+    }
+
+    public void showDisplayMessage(DisplayMessage display) {
         boolean showMe = true;
-        DisplayMessage display = displayEvent.message;
         View layout = getLayoutInflater().inflate(R.layout.display_message, findViewById(R.id.display_message_container));
         ImageView artwork = layout.findViewById(R.id.artwork);
         artwork.setVisibility(View.GONE);
@@ -399,8 +418,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         text.setText(display.text);
 
         if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
-            if (display.isIcon() && ignoreIconMessages) {
-                //icon based messages afre ignored for the now playing screen
+            if (display.isIcon() && new HashSet<String>(Arrays.asList("play", "pause", "fwd", "rew")).contains(display.style)) {
+                // Play status is updated in the NowPlayingFragment (either full-screen or mini)
                 showMe = false;
             } else {
                 @DrawableRes int iconResource = display.getIconResource();
@@ -437,10 +456,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     // Safe accessors
-
-    public boolean isConnected() {
-        return mService != null && mService.isConnected();
-    }
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via

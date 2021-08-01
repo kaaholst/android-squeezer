@@ -77,7 +77,6 @@
     <string name="save_playlist_hint">Entrez le nom de la playlist</string>
     <string name="rename_title">Renommer %s</string>
     <string name="sync_title">Synchroniser %s sur…</string>
-    <string name="loading_text">Chargement…</string>
 
     <string name="player_group_header">Groupe: %s</string>
     <string name="menu_item_player_sync">Synchroniser…</string>

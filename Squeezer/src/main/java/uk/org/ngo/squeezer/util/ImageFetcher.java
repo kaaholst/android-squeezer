@@ -58,7 +58,7 @@ public class ImageFetcher extends ImageWorker {
                 result = sImageFetcher;
                 if (result == null) {
                     sImageFetcher = new ImageFetcher(context);
-                    sImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+                    sImageFetcher.setLoadingImage(R.drawable.pending);
                     ImageCache.ImageCacheParams imageCacheParams = new ImageCache.ImageCacheParams(context, "artwork");
                     imageCacheParams.setMemCacheSizePercent(context, 0.12f);
                     sImageFetcher.addImageCache(imageCacheParams);

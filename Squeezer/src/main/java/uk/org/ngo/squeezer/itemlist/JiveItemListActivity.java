@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
  *
@@ -25,15 +26,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.view.MenuCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,6 +35,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.MenuCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -56,13 +56,14 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
-import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ViewParamItemView;
-import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemViewHolder;
+import uk.org.ngo.squeezer.framework.ViewParamItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -74,7 +75,7 @@ import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
  * spatial component to navigation.
  */
-public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveItem>
+public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveItem>, JiveItem>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
     private static final String FINISH = "FINISH";
@@ -100,7 +101,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     private DividerItemDecoration dividerItemDecoration;
 
     @Override
-    protected ItemAdapter<JiveItemView, JiveItem> createItemListAdapter() {
+    protected ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> createItemListAdapter() {
         return new JiveItemAdapter(this);
     }
 
@@ -202,13 +203,6 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         getListView().addItemDecoration(dividerItemDecoration);
-        getListView().setRecyclerListener(viewHolder -> {
-            // Release strong reference when a view is recycled
-            final ImageView imageView = ((JiveItemView)viewHolder).icon;
-            if (imageView != null) {
-                imageView.setImageBitmap(null);
-            }
-        });
 
         setupListView();
     }
@@ -329,6 +323,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
         if (parent != null && parent.hasSubItems()) {
+            updateHeader(parent);
             getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
     }
@@ -684,26 +679,4 @@ public class JiveItemListActivity extends BaseListActivity<JiveItemView, JiveIte
         return intent;
     }
 
-    private static class JiveItemAdapter extends ItemAdapter<JiveItemView, JiveItem> {
-
-        public JiveItemAdapter(JiveItemListActivity activity) {
-            super(activity);
-        }
-
-        @Override
-        public JiveItemView createViewHolder(View view) {
-            return new JiveItemView(getActivity(), view);
-        }
-
-        @Override
-        protected int getItemViewType(JiveItem item) {
-            return item != null && item.hasSlider() ?
-                    R.layout.slider_item : (getActivity().getListLayout() == ArtworkListLayout.grid) ? R.layout.grid_item : R.layout.list_item;
-        }
-
-        @Override
-        protected JiveItemListActivity getActivity() {
-            return (JiveItemListActivity) super.getActivity();
-        }
-    }
 }

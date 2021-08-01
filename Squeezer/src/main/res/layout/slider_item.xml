@@ -18,7 +18,6 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="16dp"
@@ -33,6 +32,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/slider_down_icon"
             android:layout_width="24dp"
             android:layout_height="48dp"
             app:srcCompat="@drawable/ic_volume_down"/>
@@ -46,6 +46,7 @@
             />
 
         <ImageView
+            android:id="@+id/slider_up_icon"
             android:layout_width="24dp"
             android:layout_height="48dp"
             app:srcCompat="@drawable/ic_volume_up"/>

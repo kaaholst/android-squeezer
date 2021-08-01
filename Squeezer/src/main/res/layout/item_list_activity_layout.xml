@@ -34,20 +34,13 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:background="#90909090"
-        android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="9dp"
-            android:text="@string/loading_text"
-            android:textAppearance="@style/SqueezerTextAppearance.Medium" />
+            android:indeterminate="true" />
     </LinearLayout>
 
     <TextView

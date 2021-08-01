@@ -32,7 +32,6 @@
   <string name="save_playlist_title">Çalma listesini kaydet</string>
   <string name="save_playlist_hint">Çalma listesi adı girin</string>
     <string name="rename_title">%s yeniden adlandır</string>
-    <string name="loading_text">Yükleniyor...</string>
   <string name="browse_items_text">%2$d %1$s</string>
     <string name="unknown_track">Bilinmeyen parça</string>
   <string name="unknown_album">Bilinmeyen albüm</string>

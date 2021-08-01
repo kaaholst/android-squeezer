@@ -19,11 +19,11 @@ package uk.org.ngo.squeezer.service;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Collection;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.JiveItem;
@@ -38,10 +38,11 @@ public interface ISqueezeService {
 
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
-    void startConnect();
+    void startConnect(boolean autoConnect);
     void disconnect();
     boolean isConnected();
     boolean isConnectInProgress();
+    boolean canAutoConnect();
 
     /** Initiate the flow to register the controller with the server */
     void register(IServiceItemListCallback<JiveItem> callback);
@@ -49,7 +50,11 @@ public interface ISqueezeService {
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(String key);
 
-    // Call this to change the player we are controlling
+    /**
+     * Change the player that is controlled by Squeezer (the "active" player).
+     *
+     * @param player May be null, in which case no players are controlled.
+     */
     void setActivePlayer(@NonNull Player player);
 
     // Returns the player we are currently controlling
@@ -60,7 +65,7 @@ public interface ISqueezeService {
      * @return players that the server knows about (irrespective of power, connection, or
      * other status).
      */
-    Collection<Player> getPlayers();
+    List<Player> getPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
@@ -120,10 +125,10 @@ public interface ISqueezeService {
      */
     void mute();
     void toggleMute();
-    void adjustVolumeTo(Player player, int newVolume);
+    void setVolumeTo(Player player, int newVolume);
     void toggleMute(Player player);
-    void adjustVolumeTo(int newVolume);
-    void adjustVolumeBy(int delta);
+    void setVolumeTo(int newVolume);
+    void adjustVolume(int direction);
 
     /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
@@ -204,4 +209,18 @@ public interface ISqueezeService {
      */
     void downloadItem(JiveItem item) throws SqueezeService.HandshakeNotCompleteException;
 
+    /**
+     * Put menu item into the Archive node
+     */
+    boolean toggleArchiveItem(JiveItem item);
+
+    /**
+     * Check if this is a sub item in the archive
+     */
+    boolean isInArchive(JiveItem item);
+
+    /**
+     * Trigger the event from another class
+     */
+    void triggerHomeMenuEvent();
 }

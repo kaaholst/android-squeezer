@@ -30,13 +30,13 @@
         android:title="@string/menu_item_playlist"
         android:alphabeticShortcut="p"
         android:icon="@drawable/ic_action_playlist"
-        app:showAsAction="ifRoom|withText"
-        android:orderInCategory="1"/>
+        app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
-        android:icon="@drawable/ic_menu_choose_player"/>
+        android:icon="@drawable/ic_menu_choose_player"
+        app:showAsAction="ifRoom|withText"/>
 
     <item
         android:id="@+id/menu_item_alarm"

@@ -48,14 +48,9 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * the data type is known, but has not been fetched from the server yet.
  * <p>
  * To customise the view's display create an int of {@link ViewParam} and pass it to
- * {@link #setViewParams(int)} or {@link #setLoadingViewParams(int)} depending on whether
- * you want to change the layout of the view in its primary state or the loading state. For example,
- * if the primary state should show a context button you may not want to show that button while
- * waiting for data to arrive.
+ * {@link #setViewParams(int)}
  * <p>
- * Override {@link #bindView(Item)} and {@link #bindView(String)} to
- * control how data from the item is inserted in to the view.
- *
+ * Override {@link #bindView(Item)}  *
  * @param <T> the Item subclass this view represents.
  */
 public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
@@ -77,11 +72,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
      * View parameters for a filled-in view.  One primary line with context button.
      */
     @ViewParam private int itemViewParams = VIEW_PARAM_CONTEXT_BUTTON;
-
-    /**
-     * View parameters for a view that is loading data.  Primary line only.
-     */
-    @ViewParam private int loadingViewParams = 0;
 
     public final ImageView icon;
     public final TextView text1;
@@ -128,13 +118,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
         itemViewParams = viewParams;
     }
 
-    /**
-     * Set the view parameters to use for the view while data is being loaded.
-     */
-    protected void setLoadingViewParams(@ViewParam int viewParams) {
-        loadingViewParams = viewParams;
-    }
-
     @Override
     public ItemListActivity getActivity() {
         return (ItemListActivity) super.getActivity();
@@ -153,17 +136,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
 
         if (itemViewParams != viewParams) {
             setViewParams(itemViewParams);
-        }
-    }
-
-    /**
-     * Binds the text to {@link #text1}.
-     */
-    @Override
-    public void bindView(String text) {
-        text1.setText(text);
-        if (loadingViewParams != viewParams) {
-            setViewParams(loadingViewParams);
         }
     }
 

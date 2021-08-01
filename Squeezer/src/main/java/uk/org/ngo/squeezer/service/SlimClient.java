@@ -33,10 +33,10 @@ interface SlimClient {
      *
      * @param service The service hosting this connection.
      */
-    void startConnect(final SqueezeService service);
+    void startConnect(final SqueezeService service, boolean autoConnect);
 
     // XXX: Document
-    void disconnect();
+    void disconnect(boolean fromUser);
 
     ConnectionState getConnectionState();
     String getUsername();

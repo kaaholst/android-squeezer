@@ -33,6 +33,7 @@ import uk.org.ngo.squeezer.Util;
  * Data for a command to LMS
  */
 public class SlimCommand implements Parcelable {
+    private static final String TAG = "SlimCommand";
     /** Array of command terms, f.e. ['playlist', 'jump'] */
     public final List<String> cmd = new ArrayList<>();
 
@@ -86,6 +87,7 @@ public class SlimCommand implements Parcelable {
 
     public SlimCommand params(Map<String, Object> params) {
         this.params.putAll(params);
+//        Log.d(TAG, "cmd: " + this.toString());
         return this;
     }
 

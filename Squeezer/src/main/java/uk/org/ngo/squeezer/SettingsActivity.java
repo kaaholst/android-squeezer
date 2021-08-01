@@ -19,12 +19,14 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import uk.org.ngo.squeezer.util.ThemeManager;
 
 public class SettingsActivity extends AppCompatActivity {
+    private static final String TAG = "SettingsActivity";
 
     private final ThemeManager mThemeManager = new ThemeManager();
 

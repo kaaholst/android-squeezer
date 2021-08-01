@@ -191,11 +191,6 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         }
     }
 
-    @Override
-    public void bindView(String text) {
-        text1.setText(text);
-    }
-
 
     private void setDowText(int day) {
         SpannableString text = new SpannableString(getAlarmShortDayText(day));

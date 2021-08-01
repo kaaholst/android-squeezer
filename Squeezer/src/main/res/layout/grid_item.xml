@@ -60,7 +60,7 @@ for the implementation.
         android:maxWidth="@dimen/album_art_icon_grid_width"
         android:minHeight="@dimen/album_art_icon_grid_height"
         android:minWidth="@dimen/album_art_icon_grid_width"
-        tools:src="@drawable/icon_pending_artwork"/>
+        tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/text1"

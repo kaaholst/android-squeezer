@@ -21,9 +21,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.IntDef;
-
 import android.view.View;
+
+import androidx.annotation.IntDef;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -42,7 +42,6 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
  * connects.
  */
 public class ConnectActivity extends BaseActivity {
-
     @IntDef({MANUAL_DISCONNECT, CONNECTION_FAILED, LOGIN_FAILED, INVALID_URL})
     @Retention(RetentionPolicy.SOURCE)
     private  @interface DisconnectionReasons {}
@@ -160,7 +159,7 @@ public class ConnectActivity extends BaseActivity {
         if (serverAddressView.savePreferences()) {
             NowPlayingFragment fragment = (NowPlayingFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.now_playing_fragment);
-            fragment.startVisibleConnection();
+            fragment.startVisibleConnection(false);
         }
     }
 

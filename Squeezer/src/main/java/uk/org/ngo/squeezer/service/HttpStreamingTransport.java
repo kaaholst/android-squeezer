@@ -413,24 +413,36 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         private boolean isConnected() {
-            return socket != null && socket.isConnected();
+            synchronized (this) {
+                return socket != null && socket.isConnected();
+            }
         }
 
         public void connect(String host, int port) throws IOException {
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(host, port), 4000); // TODO use proper timeout
-            new ListeningThread(this, socket.getInputStream()).start();
+            Socket session = new Socket();
+
+            synchronized (this) {
+                socket = session;
+            }
+
+            session.connect(new InetSocketAddress(host, port), 4000); // TODO use proper timeout
+            new ListeningThread(this, session.getInputStream()).start();
         }
 
         private void disconnect(String reason) {
-            if (isConnected()) {
+            Socket session;
+            synchronized (this) {
+                session = socket;
+                socket = null;
+            }
+
+            if (session != null && session.isConnected()) {
                 Log.v(TAG, "Closing socket, reason: " + reason);
                 try {
-                    socket.close();
+                    session.close();
                 } catch (IOException x) {
                     Log.w(TAG, "Could not close socket", x);
                 }
-                socket = null;
             }
         }
 

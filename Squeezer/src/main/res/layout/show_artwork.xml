@@ -27,7 +27,7 @@
         android:layout_height="fill_parent"
         android:cropToPadding="false"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/icon_pending_artwork"/>
+        app:srcCompat="@drawable/pending"/>
 
 </RelativeLayout>
 

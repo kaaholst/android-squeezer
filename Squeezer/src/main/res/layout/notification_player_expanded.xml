@@ -34,7 +34,7 @@
         android:minHeight="@dimen/album_art_icon_expanded_notification_height"
         android:minWidth="@dimen/album_art_icon_expanded_notification_width"
         android:scaleType="centerCrop"
-        tools:src="@drawable/icon_pending_artwork"
+        tools:src="@drawable/pending"
         tools:ignore="ContentDescription"/>
 
     <TextView

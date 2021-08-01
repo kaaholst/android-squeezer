@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -59,10 +58,9 @@ public class PlayerView extends PlayerBaseView {
 
         PlayerState playerState = player.getPlayerState();
 
-        if (playerState.isMuted()) {
-            mute.setIconResource(R.drawable.ic_volume_off);
-            volumeBar.setEnabled(false);
-        }
+        mute.setIconResource(playerState.isMuted() ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
+        volumeBar.setEnabled(!playerState.isMuted());
+
         mute.setOnClickListener(view -> {
             ISqueezeService service = activity.getService();
             if (service == null) {
@@ -90,7 +88,7 @@ public class PlayerView extends PlayerBaseView {
                 if (service == null) {
                     return;
                 }
-                service.adjustVolumeTo(player, (int)value);
+                service.setVolumeTo(player, (int)value);
             }
         });
         volumeBar.setValue(playerState.getCurrentVolume());

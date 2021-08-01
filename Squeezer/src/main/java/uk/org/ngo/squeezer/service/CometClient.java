@@ -195,7 +195,7 @@ class CometClient extends BaseClient {
 
     // Shims around ConnectionState methods.
     @Override
-    public void startConnect(final SqueezeService service) {
+    public void startConnect(final SqueezeService service, boolean autoConnect) {
         Log.i(TAG, "startConnect()");
         // Start the background connect
         mBackgroundHandler.post(() -> {
@@ -212,6 +212,7 @@ class CometClient extends BaseClient {
             if (!mEventBus.isRegistered(CometClient.this)) {
                 mEventBus.register(CometClient.this);
             }
+            if (autoConnect) mConnectionState.setAutoConnect();
             mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
             final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
 
@@ -282,7 +283,7 @@ class CometClient extends BaseClient {
             mBayeuxClient.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
                 if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
                     // Advices are handled internally by the bayeux protocol, so skip these here
-                    disconnect();
+                    disconnect(false);
                 }
             });
 
@@ -597,8 +598,8 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void disconnect() {
-        disconnect(ConnectionState.DISCONNECTED);
+    public void disconnect(boolean fromUser) {
+        disconnect(fromUser ? ConnectionState.MANUAL_DISCONNECT : ConnectionState.DISCONNECTED);
     }
 
     private void disconnect(@ConnectionState.ConnectionStates int connectionState) {
@@ -754,7 +755,7 @@ class CometClient extends BaseClient {
                     break;
                 case MSG_HANDSHAKE_TIMEOUT:
                     Log.w(TAG, "Handshake timeout: " + mConnectionState);
-                    disconnect();
+                    disconnect(false);
                     break;
                 case MSG_SERVER_STATUS_TIMEOUT:
                     Log.w(TAG, "Server status timeout: initiate a new handshake");

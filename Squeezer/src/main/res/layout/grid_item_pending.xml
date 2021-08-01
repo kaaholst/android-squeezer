@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- Copyright (c) 2013 Google Inc.  All Rights Reserved
+ Copyright (c) 2013 Kurt Aaholst <kaaholst@gmail.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 -->
 
 <!--
-General layout for list items.
+General layout for grid items.
 
 The layout contains:
 
@@ -37,50 +37,45 @@ for the implementation.
 
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="?attr/selectableItemBackground"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
-    android:minHeight="48dp"
-    android:orientation="horizontal"
-    android:paddingBottom="4dp"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
     android:paddingStart="16dp"
-    android:paddingEnd="32dp"
-    android:paddingTop="4dp">
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp">
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/album_art_icon_width"
-        android:layout_height="@dimen/album_art_icon_height"
+        android:layout_width="@dimen/album_art_icon_grid_width"
+        android:layout_height="@dimen/album_art_icon_grid_height"
+        android:padding="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:contentDescription="@string/app_name"
-        android:layout_marginEnd="8dp"
-        tools:src="@drawable/pending"/>
+        android:maxHeight="@dimen/album_art_icon_grid_height"
+        android:maxWidth="@dimen/album_art_icon_grid_width"
+        android:minHeight="@dimen/album_art_icon_grid_height"
+        android:minWidth="@dimen/album_art_icon_grid_width"
+        android:src="@drawable/pending"/>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:minHeight="48dp"
-        android:orientation="vertical"
-        android:paddingEnd="8dp">
+    <ImageView
+        android:id="@+id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_below="@id/icon"
+        android:padding="4dp"
+        android:src="@drawable/pending"/>
 
-        <TextView
-            android:id="@+id/text1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
-            tools:text="text1"/>
-
-        <TextView
-            android:id="@+id/text2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
-            tools:text="text2"/>
-    </LinearLayout>
-
-    <include layout="@layout/context_menu_image_button"/>
-</LinearLayout>
+    <ImageView
+        android:id="@+id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:padding="4dp"
+        android:layout_below="@id/text1"
+        android:src="@drawable/pending"/>
+</RelativeLayout>

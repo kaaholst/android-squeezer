@@ -40,6 +40,8 @@
     <string name="settings_theme_dark">Mørk</string>
     <string name="settings_theme_light_dark">Lys, mørk handlingslinie</string>
     <string name="settings_clear_current_playlist_confirmation">Bekræft før ryd afspilningsliste</string>
+    <string name="settings_clear_current_playlist_confirmation_off">Ingen bekræftelse ved anvendelse af \"Ryd afspilningsliste\" knappen</string>
+    <string name="settings_clear_current_playlist_confirmation_on">Der skal bekræftes ved anvendelse af \"Ryd afspilningsliste\" knappen</string>
     <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
     <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_use_wake_on_lan">Væk server (Wake-on-LAN)</string>
@@ -51,6 +53,11 @@
         <p>Dette kræver, at computeren, der kører Squeezebox Server, skal konfigureres til at bruge Wake-on-LAN.</p>]]>
     </string>
     <string name="settings_server_scan_progress">Scanner efter servere…</string>
+    <string name="settings_background_volume_title">Skift lydstyrke i bagrunden</string>
+    <string name="settings_background_volume_off">Skift afspillerens lydstyrke er kun muligt når Squeezer vises</string>
+    <string name="settings_background_volume_on">Skift afspillerens lydstyrke selvom Squeezer ikke vises</string>
+    <string name="settings_volume_increment_title">Lydstyrke op/ned trin</string>
+    <string name="settings_volume_increment_summary">Indstil trinene til telefonens lydstyrkeknapper</string>
     <string name="settings_fadeinsecs_title">Indtoningsperiode</string>
     <string name="settings_fadeinsecs_summary">Angiv hvor mange sekunder der indtones. Angiv 0 for
         at deaktivere indtoning.
@@ -63,6 +70,11 @@
     <string name="settings_no_action_on_incoming_call">No action</string>
 
     <string name="settings_category_ui">Squeezer grænseflade</string>
+    <string name="settings_customize_home_menu_mode">Arkiv</string>
+    <string name="settings_customize_home_menu_info">Startmenuen i din Squeezebox og flere undermenuer kan tilpasses</string>
+    <string name="settings_customize_home_menu_archive">Langt tryk på et emne flytter det til arkiv/fjerner det fra arkiv</string>
+    <string name="settings_customize_home_menu_disabled">Deaktiver arkiv</string>
+    <string name="settings_customize_home_menu_locked">Deaktiver langt tryk, men behold arkiverede emner</string>
 
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
@@ -102,7 +114,6 @@
     <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>
     <string name="sync_title">Synkronisér %s med…</string>
-    <string name="loading_text">Henter…</string>
     <string name="browse_items_text">%2$d %1$s</string>
 
     <string name="player_group_header">Gruppe: %s</string>

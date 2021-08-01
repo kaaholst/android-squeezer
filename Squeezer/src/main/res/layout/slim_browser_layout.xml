@@ -44,7 +44,7 @@
             android:minHeight="@dimen/album_art_large_icon_height"
             android:minWidth="@dimen/album_art_large_icon_width"
             android:layout_marginEnd="8dp"
-            tools:src="@drawable/icon_pending_artwork"/>
+            tools:src="@drawable/pending"/>
 
         <LinearLayout
             android:layout_width="0dp"

@@ -21,12 +21,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -87,18 +91,24 @@ public final class Preferences {
     // Do we scrobble track information?
     // Deprecated, retained for compatibility when upgrading. Was an int, of
     // either 0 == No scrobbling, 1 == use ScrobbleDroid API, 2 == use SLS API
-    public static final String KEY_SCROBBLE = "squeezer.scrobble";
+    static final String KEY_SCROBBLE = "squeezer.scrobble";
 
     // Do we scrobble track information (if a scrobble service is available)?
     //
     // Type of underlying preference is bool / CheckBox
-    public static final String KEY_SCROBBLE_ENABLED = "squeezer.scrobble.enabled";
+    static final String KEY_SCROBBLE_ENABLED = "squeezer.scrobble.enabled";
 
     // Do we send anonymous usage statistics?
     public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
 
+    // Background Volume Control
+    static final String KEY_BACKGROUND_VOLUME = "squeezer.backgroundVolume";
+
+    // Volume up/down increments
+    private static final String KEY_VOLUME_INCREMENTS = "squeezer.volumeIncrements";
+
     // Fade-in period? (0 = disable fade-in)
-    public static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
+    static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
 
     // What do to when an album is selected in the list view
     private static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
@@ -152,8 +162,17 @@ public final class Preferences {
     // Store a unique id for this app instance.
     private static final String KEY_UUID = "squeezer.uuid";
 
+    // Archive mode
+    public static final String KEY_CUSTOMIZE_HOME_MENU_MODE = "squeezer.customize_home_menu.mode";
+
+    // Map JiveItems to archive
+    private static final String KEY_PLAYER_ARCHIVED_ITEMS_FORMAT = "squeezer.archived_menu_items.%s";
+
     // Preferred time input method.
     private static final String KEY_TIME_INPUT_MODE = "squeezer.time_input_mode";
+
+    // Show total time or remaining time.
+    private static final String KEY_SHOW_REMAINING_TIME = "squeezer.show_remaining_Time";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -378,6 +397,18 @@ public final class Preferences {
         editor.apply();
     }
 
+    public boolean isBackgroundVolume() {
+        return sharedPreferences.getBoolean(KEY_BACKGROUND_VOLUME, true);
+    }
+
+    public int getVolumeIncrements() {
+        return sharedPreferences.getInt(KEY_VOLUME_INCREMENTS, 5);
+    }
+
+    public int getFadeInSecs() {
+        return sharedPreferences.getInt(KEY_FADE_IN_SECS, 0);
+    }
+
     public String getTheme() {
         return getStringPreference(KEY_ON_THEME_SELECT_ACTION);
     }
@@ -386,6 +417,10 @@ public final class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name());
         editor.apply();
+    }
+
+    public boolean isScrobbleEnabled() {
+        return sharedPreferences.getBoolean(KEY_SCROBBLE_ENABLED, false);
     }
 
     public boolean isClearPlaylistConfirmation() {
@@ -510,6 +545,28 @@ public final class Preferences {
         return uuid;
     }
 
+    public CustomizeHomeMenuMode getCustomizeHomeMenuMode() {
+        String string = sharedPreferences.getString(KEY_CUSTOMIZE_HOME_MENU_MODE, null);
+        return string == null ? CustomizeHomeMenuMode.ARCHIVE : CustomizeHomeMenuMode.valueOf(string);
+    }
+
+    public List<String> getArchivedMenuItems(Player player) {
+        List<String> list = new ArrayList<>();
+        String string = sharedPreferences.getString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), null);
+        if ( TextUtils.isEmpty(string)) {
+            return list;
+        }
+        Collections.addAll(list, string.split(";"));
+        return list;
+    }
+
+    public void setArchivedMenuItems(List<String> list, Player player) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), TextUtils.join(";", list));
+        editor.apply();
+        return;
+    }
+
     public boolean isDownloadEnabled() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_ENABLED, true);
     }
@@ -548,6 +605,14 @@ public final class Preferences {
         sharedPreferences.edit().putInt(Preferences.KEY_TIME_INPUT_MODE, mode).apply();
     }
 
+    public boolean isShowRemainingTime() {
+        return sharedPreferences.getBoolean(KEY_SHOW_REMAINING_TIME, false);
+    }
+
+    public void setShowRemainingTime(boolean showRemainingTime) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_SHOW_REMAINING_TIME, showRemainingTime).apply();
+    }
+
     public enum IncomingCallAction implements EnumWithText {
         NONE(R.string.settings_no_action_on_incoming_call),
         PAUSE(R.string.pause),
@@ -556,6 +621,23 @@ public final class Preferences {
         private final int labelId;
 
         IncomingCallAction(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
+
+    public enum CustomizeHomeMenuMode implements EnumWithText {
+        ARCHIVE(R.string.settings_customize_home_menu_archive),
+        DISABLED(R.string.settings_customize_home_menu_disabled),
+        LOCKED(R.string.settings_customize_home_menu_locked);
+
+        private final int labelId;
+
+        CustomizeHomeMenuMode(int labelId) {
             this.labelId = labelId;
         }
 

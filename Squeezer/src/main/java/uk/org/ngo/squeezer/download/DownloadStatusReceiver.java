@@ -83,12 +83,12 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 return;
             }
 
-            int downloadId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-            int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-            String title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
-            String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
-            Uri local_url = Uri.parse(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)));
+            int downloadId = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID));
+            int status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+            int reason = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TITLE));
+            String url = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_URI));
+            Uri local_url = Uri.parse(cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI)));
             Log.i(TAG, "download complete(" + title + "): " + id);
 
             final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(context, downloadId);
@@ -150,7 +150,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
         String[] selectionArgs = new String[]{downloadEntry.title, downloadEntry.album, downloadEntry.artist};
         try (Cursor cursor = resolver.query(audioCollection, projection, selection, selectionArgs, null)) {
             if (cursor != null && cursor.moveToFirst()) {
-                uri = ContentUris.withAppendedId(audioCollection, cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID)));
+                uri = ContentUris.withAppendedId(audioCollection, cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns._ID)));
                 Log.i(TAG, downloadEntry.title + " found in media library: " + uri);
             }
         }

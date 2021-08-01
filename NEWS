@@ -1,3 +1,31 @@
+2.2.7
+=====
+
+*   The home screen as well as several submenus can be customized. Long press
+    an item to activate. Contributed by Benjamin Viertel
+
+*   Display remaining track time. Press track time at the right if the
+    progression bar to switch between total time and remaining time.
+
+*   Time counter while live streaming.
+
+*   Button for players screen in top bar if room.
+
+*   Allow changing player volume with the app running only in background.
+
+*   Configurable volume increments.
+
+*   Attempt to reconnect when the app is brought into the foreground.
+
+*   Use proper icons for slider items.
+
+*   Add missing icons for Boom settings.
+
+*   Unmute before volume is adjusted via hardware volume controls.
+
+*   Use skeleton views while loading.
+
+
 2.2.6
 =====
 
@@ -19,7 +47,7 @@
 2.2.4
 =====
 
-*   Updated German translation
+*   Updated German translation. Contributed by Benjamin Viertel
 
 *   Fixed the icons for the Settings/Audio menu
 

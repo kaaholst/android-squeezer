@@ -27,12 +27,15 @@
     <LinearLayout
         android:id="@+id/scan_progress"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal">
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            style="@style/Widget.MaterialComponents.CircularProgressIndicator.Small"
+            android:indeterminate="true" />
 
         <TextView
             android:layout_width="wrap_content"

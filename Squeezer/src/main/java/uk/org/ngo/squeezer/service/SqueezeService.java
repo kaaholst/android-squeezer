@@ -24,9 +24,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -41,9 +41,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.media.VolumeProviderCompat;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -51,8 +53,10 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -75,6 +79,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.NotificationUtil;
@@ -151,12 +156,13 @@ public class SqueezeService extends Service {
 
                 if (pm.isDeviceIdleMode()) {
                     Log.d(TAG, "Entering doze mode, disconnecting");
-                    disconnect();
+                    disconnect(false);
                 }
             }
         }
     };
 
+    private MyVolumeProvider mVolumeProvider;
 
     /**
      * Thrown when the service is asked to send a command to the server before the server
@@ -190,8 +196,8 @@ public class SqueezeService extends Service {
 
         cachePreferences();
 
-        setWifiLock(((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE)).createWifiLock(
-                WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
 
         mEventBus.register(this, 1);  // Get events before other subscribers
 
@@ -233,9 +239,19 @@ public class SqueezeService extends Service {
      * Cache the value of various preferences.
      */
     private void cachePreferences() {
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
-        scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
-        mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
+        final Preferences preferences = new Preferences(this);
+        scrobblingEnabled = preferences.isScrobbleEnabled();
+        mFadeInSecs = preferences.getFadeInSecs();
+        mVolumeProvider = new MyVolumeProvider(preferences.getVolumeIncrements());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (squeezeService.isConnected()) {
+                if (preferences.isBackgroundVolume()) {
+                    mMediaSession.setPlaybackToRemote(mVolumeProvider);
+                } else {
+                    mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+                }
+            }
+        }
     }
 
     @Override
@@ -259,7 +275,7 @@ public class SqueezeService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        disconnect();
+        disconnect(false);
         mEventBus.unregister(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -274,12 +290,12 @@ public class SqueezeService extends Service {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        disconnect();
+        disconnect(false);
         super.onTaskRemoved(rootIntent);
     }
 
-    void disconnect() {
-        mDelegate.disconnect();
+    void disconnect(boolean fromUser) {
+        mDelegate.disconnect(fromUser);
     }
 
     @Nullable public PlayerState getActivePlayerState() {
@@ -295,7 +311,10 @@ public class SqueezeService extends Service {
      */
     public void onEvent(PlayStatusChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
-            updateWifiLock(event.player.getPlayerState().isPlaying());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                int state = PlayerState.PLAY_STATE_PLAY.equals(event.playStatus) ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
+                mMediaSession.setPlaybackState(new PlaybackStateCompat.Builder().setState(state, 0, 0).build());
+            }
             updateOngoingNotification();
         }
     }
@@ -344,22 +363,12 @@ public class SqueezeService extends Service {
                 public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                     homeMenu.addAll(items);
                     if (homeMenu.size() == count) {
-                        jiveMainNodes();
-                        mDelegate.setHomeMenu(homeMenu);
+                        Preferences preferences = new Preferences(SqueezeService.this);
+                        boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
+                        List<String> archivedMenuItems = useArchive ? preferences.getArchivedMenuItems(activePlayer) : Collections.emptyList();
+                        mDelegate.setHomeMenu(homeMenu, archivedMenuItems);
                     }
                 }
-
-                private void jiveMainNodes() {
-                    addNode(JiveItem.EXTRAS);
-                    addNode(JiveItem.SETTINGS);
-                    addNode(JiveItem.ADVANCED_SETTINGS);
-                }
-
-                private void addNode(JiveItem jiveItem) {
-                    if (!homeMenu.contains(jiveItem))
-                        homeMenu.add(jiveItem);
-                }
-
                 @Override
                 public Object getClient() {
                     return SqueezeService.this;
@@ -414,7 +423,6 @@ public class SqueezeService extends Service {
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void updateOngoingNotification() {
         PlayerState activePlayerState = getActivePlayerState();
 
@@ -449,7 +457,7 @@ public class SqueezeService extends Service {
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
                     (data, bitmap) -> {
                         if (bitmap == null) {
-                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_pending_artwork);
+                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_no_artwork);
                         }
 
                         metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
@@ -623,11 +631,15 @@ public class SqueezeService extends Service {
                 ConnectionState.isConnectInProgress(event.connectionState)) {
             startForeground();
 
-            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            }
         } else {
-            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+            }
 
             mHandshakeComplete = false;
             stopForeground();
@@ -639,6 +651,10 @@ public class SqueezeService extends Service {
             Log.i(TAG, "startForeground");
             foreGround = true;
 
+            if (!wifiLock.isHeld()) {
+                wifiLock.acquire();
+            }
+
             NotificationState notificationState = notificationState();
             NotificationData notificationData = new NotificationData(notificationState);
             Notification notification = notificationData.builder.build();
@@ -649,6 +665,13 @@ public class SqueezeService extends Service {
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
                 mMediaSession.setMetadata(metaBuilder.build());
+
+                mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+                if (new Preferences(this).isBackgroundVolume()) {
+                    mMediaSession.setPlaybackToRemote(mVolumeProvider);
+                }
+                mMediaSession.setActive(true);
             } else {
                 notification.bigContentView = notificationData.expandedView;
             }
@@ -691,8 +714,22 @@ public class SqueezeService extends Service {
         Log.i(TAG, "stopForeground");
         foreGround = false;
         ongoingNotification = null;
+
+        if (wifiLock.isHeld()) {
+            wifiLock.release();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+            mMediaSession.setActive(false);
+        }
+
         stopForeground(true);
         stopSelf();
+    }
+
+    public void onEvent(PlayerVolume event) {
+        mVolumeProvider.setCurrentVolume(event.volume / mVolumeProvider.step);
     }
 
     public void onEvent(HandshakeComplete event) {
@@ -709,9 +746,9 @@ public class SqueezeService extends Service {
         Player activePlayer = mDelegate.getActivePlayer();
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
-            changeActivePlayer(getPreferredPlayer(event.players.values()));
+            changeActivePlayer(getPreferredPlayer(mDelegate.getPlayers().values()));
         } else {
-            activePlayer = event.players.get(activePlayer.getId());
+            activePlayer = mDelegate.getPlayer(activePlayer.getId());
             mDelegate.setActivePlayer(activePlayer);
             updateAllPlayerSubscriptionStates();
             requestPlayerData();
@@ -830,43 +867,6 @@ public class SqueezeService extends Service {
 
     private WifiManager.WifiLock wifiLock;
 
-    void setWifiLock(WifiManager.WifiLock wifiLock) {
-        this.wifiLock = wifiLock;
-    }
-
-    void updateWifiLock(boolean state) {
-        // TODO: this might be running in the wrong thread.  Is wifiLock thread-safe?
-        if (state && !wifiLock.isHeld()) {
-            Log.v(TAG, "Locking wifi while playing.");
-            wifiLock.acquire();
-        }
-        if (!state && wifiLock.isHeld()) {
-            Log.v(TAG, "Unlocking wifi.");
-            try {
-                wifiLock.release();
-                // Seen a crash here with:
-                //
-                // Permission Denial: broadcastIntent() requesting a sticky
-                // broadcast
-                // from pid=29506, uid=10061 requires
-                // android.permission.BROADCAST_STICKY
-                //
-                // Catching the exception (which seems harmless) seems better
-                // than requesting an additional permission.
-
-                // Seen a crash here with
-                //
-                // java.lang.RuntimeException: WifiLock under-locked
-                // Squeezer_WifiLock
-                //
-                // Both crashes occurred when the wifi was disabled, on HTC Hero
-                // devices running 2.1-update1.
-            } catch (SecurityException e) {
-                Log.v(TAG, "Caught odd SecurityException releasing wifilock");
-            }
-        }
-    }
-
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
     private class SqueezeServiceBinder extends Binder implements ISqueezeService {
 
@@ -897,21 +897,30 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void adjustVolumeTo(Player player, int newVolume) {
+        public void setVolumeTo(Player player, int newVolume) {
             mDelegate.command(player).cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
         }
 
         @Override
-        public void adjustVolumeTo(int newVolume) {
+        public void setVolumeTo(int newVolume) {
             mDelegate.activePlayerCommand().cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
         }
 
         @Override
-        public void adjustVolumeBy(int delta) {
-            if (delta > 0) {
-                mDelegate.activePlayerCommand().cmd("mixer", "volume", "+" + delta).exec();
-            } else if (delta < 0) {
-                mDelegate.activePlayerCommand().cmd("mixer", "volume", String.valueOf(delta)).exec();
+        public void adjustVolume(int direction) {
+            if (direction != 0) {
+                Player player = getActivePlayer();
+                if (player != null) {
+                    if (player.getPlayerState().isMuted()) {
+                        mDelegate.command(player).cmd("mixer", "muting", "0").exec();
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    mDelegate.command(player).cmd("mixer", "volume", (direction > 0 ? "+" : "") + direction * mVolumeProvider.step).exec();
+                }
             }
         }
 
@@ -926,8 +935,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void startConnect() {
-            mDelegate.startConnect(SqueezeService.this);
+        public boolean canAutoConnect() {
+            return mDelegate.canAutoConnect();
+        }
+
+        @Override
+        public void startConnect(boolean autoConnect) {
+            mDelegate.startConnect(SqueezeService.this, autoConnect);
         }
 
         @Override
@@ -935,7 +949,7 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return;
             }
-            SqueezeService.this.disconnect();
+            SqueezeService.this.disconnect(true);
         }
 
         @Override
@@ -1201,11 +1215,6 @@ public class SqueezeService extends Service {
             return playerState != null && playerState.isPlaying();
         }
 
-        /**
-         * Change the player that is controlled by Squeezer (the "active" player).
-         *
-         * @param newActivePlayer May be null, in which case no players are controlled.
-         */
         @Override
         public void setActivePlayer(@Nullable final Player newActivePlayer) {
             changeActivePlayer(newActivePlayer);
@@ -1218,18 +1227,17 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public Collection<Player> getPlayers() {
-            return mDelegate.getPlayers().values();
+        public List<Player> getPlayers() {
+            return mDelegate.getPlayers().values().stream().filter(Player::getConnected).sorted().collect(Collectors.toList());
         }
 
         @Override
         public Player getPlayer(String playerId) throws PlayerNotFoundException {
-            for (Player player : getPlayers()) {
-                if (player.getId().equals(playerId)) {
-                    return player;
-                }
+            Player player = mDelegate.getPlayer(playerId);
+            if (player == null) {
+                throw new PlayerNotFoundException(SqueezeService.this);
             }
-            throw new PlayerNotFoundException(SqueezeService.this);
+            return player;
         }
 
         @Override
@@ -1269,7 +1277,14 @@ public class SqueezeService extends Service {
         @Override
         public void preferenceChanged(String key) {
             Log.i(TAG, "Preference changed: " + key);
-            cachePreferences();
+            if (Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE.equals(key)) {
+                Preferences preferences = new Preferences(SqueezeService.this);
+                boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
+                List<String> archivedMenuItems = useArchive ? preferences.getArchivedMenuItems(getActivePlayer()) : Collections.emptyList();
+                mDelegate.setHomeMenu(archivedMenuItems);
+            } else {
+                cachePreferences();
+            }
         }
 
 
@@ -1400,6 +1415,21 @@ public class SqueezeService extends Service {
             IServiceItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;
             mDelegate.requestItems(-1, callback).params(command.params).cmd(command.cmd()).exec();
         }
+
+        public boolean toggleArchiveItem(JiveItem item) {
+            List<String> menu = mDelegate.toggleArchiveItem(item);
+            new Preferences(SqueezeService.this).setArchivedMenuItems(menu, getActivePlayer());
+            return menu.isEmpty();
+        }
+
+        @Override
+        public boolean isInArchive(JiveItem item) {
+           return mDelegate.isInArchive(item);
+        }
+
+        public void triggerHomeMenuEvent() {
+            mDelegate.triggerHomeMenuEvent();
+        }
     }
 
     /**
@@ -1451,6 +1481,25 @@ public class SqueezeService extends Service {
         public synchronized void unregister(Object subscriber) {
             super.unregister(subscriber);
             updateAllPlayerSubscriptionStates();
+        }
+    }
+
+    private class MyVolumeProvider extends VolumeProviderCompat {
+        private final int step;
+
+        public MyVolumeProvider(int step) {
+            super(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 100 / step, 1);
+            this.step = step;
+        }
+
+        @Override
+        public void onAdjustVolume(int direction) {
+            squeezeService.adjustVolume(direction);
+        }
+
+        @Override
+        public void onSetVolumeTo(int volume) {
+            squeezeService.setVolumeTo(volume * step);
         }
     }
 }

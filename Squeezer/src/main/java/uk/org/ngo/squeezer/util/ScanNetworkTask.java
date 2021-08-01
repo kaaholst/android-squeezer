@@ -1,7 +1,6 @@
 package uk.org.ngo.squeezer.util;
 
 import android.content.Context;
-import android.net.wifi.WifiManager;
 
 import androidx.annotation.NonNull;
 
@@ -28,7 +27,6 @@ public class ScanNetworkTask implements Runnable {
     private static final String TAG = ScanNetworkTask.class.getSimpleName();
 
     private final ScanNetworkCallback callback;
-    private final WifiManager wm;
     private final int defaultHttpPort;
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
     private volatile boolean cancelled;
@@ -50,7 +48,6 @@ public class ScanNetworkTask implements Runnable {
 
     public ScanNetworkTask(Context context, ScanNetworkCallback callback) {
         this.callback = callback;
-        wm = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         defaultHttpPort = context.getResources().getInteger(R.integer.DefaultHttpPort);
     }
 
@@ -71,7 +68,6 @@ public class ScanNetworkTask implements Runnable {
      */
     @Override
     public void run() {
-        WifiManager.WifiLock wifiLock;
         DatagramSocket socket = null;
 
         // UDP broadcast data that causes Squeeze servers to reply. The
@@ -90,12 +86,7 @@ public class ScanNetworkTask implements Runnable {
         byte[] data = new byte[512];
         System.arraycopy(request, 0, data, 0, request.length);
 
-        wifiLock = wm.createWifiLock(TAG);
-
         // mServerMap.put("Dummy", "127.0.0.1");
-
-        Log.v(TAG, "Locking WiFi while scanning");
-        wifiLock.acquire();
 
         try {
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
@@ -145,9 +136,6 @@ public class ScanNetworkTask implements Runnable {
             if (socket != null) {
                 socket.close();
             }
-
-            Log.v(TAG, "Scanning complete, unlocking WiFi");
-            wifiLock.release();
         }
 
         // For testing that multiple servers are handled correctly.

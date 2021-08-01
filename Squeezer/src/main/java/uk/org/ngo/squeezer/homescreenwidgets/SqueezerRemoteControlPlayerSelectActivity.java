@@ -83,7 +83,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         Log.d(TAG, "onServiceConnected: service.isConnected=" + service.isConnected());
 
         if (!service.isConnected()) {
-            service.startConnect();
+            service.startConnect(false);
         }
     }
 
@@ -118,8 +118,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
     }
 
     protected void updatePlayerList() {
-        adapter.players = new ArrayList<>(getService().getPlayers());
-        Collections.sort(adapter.players);
+        adapter.players = getService().getPlayers();
         adapter.notifyDataSetChanged();
     }
 

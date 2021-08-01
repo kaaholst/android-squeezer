@@ -55,32 +55,23 @@ for the implementation.
         android:layout_width="@dimen/album_art_icon_width"
         android:layout_height="@dimen/album_art_icon_height"
         android:contentDescription="@string/app_name"
+        android:padding="4dp"
         android:layout_marginEnd="8dp"
-        tools:src="@drawable/pending"/>
+        android:src="@drawable/pending"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:minHeight="48dp"
         android:orientation="vertical"
         android:paddingEnd="8dp">
 
-        <TextView
+        <ImageView
             android:id="@+id/text1"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
-            tools:text="text1"/>
-
-        <TextView
-            android:id="@+id/text2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
-            tools:text="text2"/>
+            android:layout_height="28dp"
+            android:padding="4dp"
+            android:src="@drawable/pending"/>
     </LinearLayout>
-
-    <include layout="@layout/context_menu_image_button"/>
 </LinearLayout>

@@ -1,1 +1,15 @@
-&bull; Fix bug in players screen when some players are synced
+&bull; The home screen as well as several submenus can be customized. Contributed by Benjamin Viertel
+
+&bull; Display remaining track time.
+
+&bull; Button for players screen in top bar if room.
+
+&bull; Allow changing player volume with the app running only in background.
+
+&bull; Configurable volume increments.
+
+&bull; Attempt to reconnect when the app is brought into the foreground.
+
+&bull; Unmute before volume is adjusted via hardware volume controls.
+
+&bull; Use skeleton views while loading.
