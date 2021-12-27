@@ -42,10 +42,6 @@ public class Player extends Item implements Comparable<Player> {
     /** Is the player connected? */
     private boolean mConnected;
 
-    /** Is the player playing the tracks of a filesystem folder randomly **/
-    // TODO persist mRandomPlaying in PlayerState
-    private boolean mRandomPlaying;
-
     @Override
     public int compareTo(@NonNull Player otherPlayer) {
         return this.mName.compareToIgnoreCase((otherPlayer).mName);
@@ -206,13 +202,5 @@ public class Player extends Item implements Comparable<Player> {
 
     public boolean isSyncVolume() {
         return "1".equals(getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME));
-    }
-
-    public boolean isRandomPlaying() {
-        return mRandomPlaying;
-    }
-
-    public void setRandomPlaying(boolean b) {
-        mRandomPlaying = b;
     }
 }
