@@ -764,8 +764,10 @@ public class SqueezeService extends Service {
         int index = playerState.getCurrentPlaylistIndex();
         String nextTrack = randomPlay.getNextTrack();
         if (endRandomPlay(number, index)) {
-            Log.v(TAG, "handleRandomOnEvent: End Random Play by not adding more tracks");
+            Log.v(TAG, String.format("handleRandomOnEvent: End Random Play and reset '%s'.", player.getName()));
             randomPlay.reset(player);
+        } else if (firstTwoTracksLoaded(number, index)) {
+            return;
         } else {
             String folderID = randomPlay.getActiveFolderID();
             Set<String> tracks = randomPlay.getTracks(folderID);
@@ -796,11 +798,11 @@ public class SqueezeService extends Service {
             // last track playing
             return false;
         }
-        else if ((number - index == 2) && (number == 1)) {
-            // handle situation after fast initialization
-            return false;
-        }
-        return true;
+        else return !firstTwoTracksLoaded(number, index);
+    }
+
+    private boolean firstTwoTracksLoaded(int number, int index) {
+        return (number - index == 2) && (number == 2);
     }
 
     public void onEvent(PlayersChanged event) {
