@@ -61,7 +61,6 @@
     <string name="settings_action_on_incoming_call_title">Handling når du modtager eller foretager et opkald</string>
     <string name="settings_no_action_on_incoming_call">No action</string>
 
-    <string name="settings_category_ui">Squeezer grænseflade</string>
     <string name="settings_customize_home_menu_mode">Arkiv</string>
     <string name="settings_customize_home_menu_info">Startmenuen i din Squeezebox og flere undermenuer kan tilpasses</string>
     <string name="settings_customize_home_menu_archive">Langt tryk på et emne flytter det til arkiv/fjerner det fra arkiv</string>

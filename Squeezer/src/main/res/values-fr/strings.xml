@@ -48,8 +48,6 @@
     <string name="settings_squeezeplayer_title">Démarrer SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Cochez cette option pour vous assurer que SqueezePlayer est en cours d’exécution lorsque vous utilisez Squeezer.</string>
 
-    <string name="settings_category_ui">Interface</string>
-
     <string name="menu_item_disconnect">Déconnecter</string>
     <string name="menu_item_connect">Connexion</string>
     <string name="menu_item_poweron">Allumer \"%s\"</string>

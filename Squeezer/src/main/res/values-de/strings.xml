@@ -33,10 +33,8 @@
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
-    <string name="settings_clear_current_playlist_confirmation_off">Nicht vor dem Löschen der
-        aktuellen Wiedergabeliste nachfragen</string>
-    <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der aktuellen
-        Wiedergabeliste nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation_off">nicht nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der Wiedergabeliste</string>
     <string name="settings_username_hint">Benutzername (optional)</string>
     <string name="settings_password_hint">Passwort (optional)</string>
     <string name="settings_use_wake_on_lan">Server aufwecken (Wake-on-LAN)</string>
@@ -72,12 +70,12 @@
     <string name="settings_squeezeplayer_title">Starte SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Auswählen, um sicherzustellen, dass SqueezePlayer
         läuft, wenn Squeezer verwendet wird.</string>
-    <string name="settings_category_ui">Squeezer-Schnittstelle</string>
+    <string name="settings_category_ui">Shortcuts, Erscheinungsbild, etc.</string>
     <string name="settings_customize_home_menu_mode">Archiv</string>
-    <string name="settings_customize_home_menu_info">Startmenü und einige Untermenüs können angepasst werden.</string>
-    <string name="settings_customize_home_menu_archive">Langes Drücken archiviert/unarchiviert einen Menüpunkt</string>
-    <string name="settings_customize_home_menu_disabled">Archivfunktion deaktiviert</string>
-    <string name="settings_customize_home_menu_locked">Langes Drücken ist deaktiviert, aber Archivinhalte bleiben bestehen</string>
+    <string name="settings_customize_home_menu_info">Langes Drücken (un)archiviert den Menüeintrag</string>
+    <string name="settings_customize_home_menu_archive">Aktiviert</string>
+    <string name="settings_customize_home_menu_disabled">Deaktiviert</string>
+    <string name="settings_customize_home_menu_locked">Deaktiviert, aber Archivinhalte bleiben bestehen</string>
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
@@ -219,25 +217,26 @@
     <string name="remote_preset5Description">Favoritentaste 5</string>
     <string name="remote_preset6Description">Favoritentaste 6</string>
     <string name="ARCHIVE_NODE">Archiv</string>
-    <string name="MENU_ITEM_MOVED">Menüpunkt verschoben</string>
+    <string name="MENU_ITEM_MOVED">Menüpunkt (un-)archiviert</string>
     <string name="MENU_IS_SUBMENU_IN_ARCHIVE">Sie befinden sich bereits im Archiv!</string>
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Das Archiv kann nicht archviert werden!</string>
     <string name="ARCHIVE_NODE_REMOVED">Leeres Archiv aus dem Menü entfernt</string>
-    <string name="ITEM_CANNOT_BE_ARCHIVED">Kann nicht archiviert werden.</string>
-    <string name="settings_clear_current_playlist_confirmation_on">Beim Löschen der aktuellen Wiedergabeliste nachfragen</string>
+    <string name="ITEM_CANNOT_BE_ARCHIVED">Kann nicht archiviert werden!</string>
+    <string name="settings_clear_current_playlist_confirmation_on">nachfragen</string>
     <string name="CUSTOM_SHORTCUT_REMOVED">Shortcut entfernt</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Ist bereits ein Shortcut!</string>
     <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut auf Home Menü abgelegt</string>
     <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Nicht archivierbar oder shortcutfähig!</string>
-    <string name="settings_custom_shortcut_enabled">Langes Drücken setzt Shortcut in Home Menü</string>
-    <string name="settings_custom_shortcut_disabled">Setzen von Shortcuts deaktiviert</string>
-    <string name="settings_custom_shortcut_locked">Langed Drücken setzt keinen Shortcut, aber bestehende bleiben.</string>
-    <string name="settings_customize_customShortcut_mode">Individuelle Shortcuts</string>
-    <string name="settings_customize_customShortcut_info">Langes Drücken setzt einen Shortcut im Home Menü.
-        (Bei Änderungen der Verzeichnisstruktur Shortcuts erneuern!)</string>
+    <string name="settings_custom_shortcut_enabled">Aktiviert</string>
+    <string name="settings_custom_shortcut_disabled">Deaktiviert</string>
+    <string name="settings_custom_shortcut_locked">Deaktiviert, aber Anzeige bestehender Shortcuts</string>
+    <string name="settings_customize_customShortcut_mode">Shortcuts</string>
+    <string name="settings_customize_customShortcut_info">Langes Drücken setzt Shortcut</string>
     <string name="ITEM_CANNOT_BE_SHORTCUT">Menüeintrag ist nicht shortcutfähig!</string>
     <string name="PLAY_RANDOM_FOLDER">Zufallswiedergabe</string>
     <string name="backward_seconds">Zurück Sekunden</string>
     <string name="forward_seconds">Vorwärts Sekunden</string>
+    <string name="RANDOM_PLAY_UNABLE">Fehler bei der Zufallswiedergabe</string>
+    <string name="RANDOM_PLAY_STARTED">Zufallswiedergabe gestartet</string>
 
 </resources>

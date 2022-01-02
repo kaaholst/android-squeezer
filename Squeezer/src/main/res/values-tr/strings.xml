@@ -13,8 +13,7 @@
   <string name="settings_scrobble_on">Şarkı bilgisi Last.fm sitesine gönderildi</string>
   <string name="settings_market_not_found">Google Play başlatılamıyor, yüklü mü?</string>
   <string name="settings_squeezeplayer_title">SqueezePlayer\'ı başlat</string>
-  <string name="settings_category_ui">Squeezer arayüz</string>
-  <string name="menu_item_disconnect">Bağlantıyı Kes</string>
+    <string name="menu_item_disconnect">Bağlantıyı Kes</string>
   <string name="menu_item_connect">Bağlan</string>
   <string name="menu_item_poweron">\"%s\" aç</string>
   <string name="menu_item_poweroff">\"%s\" kapat</string>

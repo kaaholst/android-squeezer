@@ -37,7 +37,6 @@
     <string name="settings_market_not_found">Kon Google Play niet starten. Is het wel geïnstalleerd?</string>
     <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Vink deze optie aan om er zeker van te zijn dat SqueezePlayer werkt bij gebruik van Squeezer</string>
-    <string name="settings_category_ui">Squeezer interface</string>
     <string name="menu_item_disconnect">Verbreek contact</string>
     <string name="menu_item_connect">Verbind</string>
     <string name="menu_item_poweron">Aanzetten \"%s\"</string>
