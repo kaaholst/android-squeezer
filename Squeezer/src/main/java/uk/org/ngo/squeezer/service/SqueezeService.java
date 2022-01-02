@@ -749,7 +749,7 @@ public class SqueezeService extends Service {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateOngoingNotification();
         }
-        if (event.player.isRandomPlaying()) {
+        if (event.player.getPlayerState().isRandomPlaying()) {
             handleRandomOnEvent(event.player);
         }
     }

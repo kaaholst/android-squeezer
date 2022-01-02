@@ -41,7 +41,7 @@ public class RandomPlay {
         this.firstFound = false;
         this.nextTrack = "";
         this.activeFolderID = "";
-        player.setRandomPlaying(false);
+        player.getPlayerState().setRandomPlaying(false);
     }
 
     String getNextTrack() {
@@ -113,7 +113,7 @@ public class RandomPlay {
                 // Generate playlist
                 rDelegate.fillPlaylist(new HashSet<>(rDelegate.getTracks(this.folderID)),
                         player, "no_ignore");
-                player.setRandomPlaying(true);
+                player.getPlayerState().setRandomPlaying(true);
             }
         }
 
