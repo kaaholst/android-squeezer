@@ -667,6 +667,29 @@ public class SqueezeService extends Service {
             Notification notification = notificationData.builder.build();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mMediaSession.setCallback(new MediaSessionCompat.Callback() {
+
+                    @Override
+                    public void onPlay() {
+                        squeezeService.play();
+                    }
+
+                    @Override
+                    public void onPause() {
+                        squeezeService.pause();
+                    }
+
+                    @Override
+                    public void onSkipToNext() {
+                        squeezeService.nextTrack();
+                    }
+
+                    @Override
+                    public void onSkipToPrevious() {
+                        squeezeService.previousTrack();
+                    }
+                });
+
                 final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
