@@ -74,7 +74,7 @@ public class PlayerState implements Parcelable {
         source.readStringList(mSyncSlaves);
         mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
         prefs = source.readHashMap(getClass().getClassLoader());
-        mRandomPlaying =(source.readByte() == 1);
+        mPlayR =(source.readByte() == 1);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class PlayerState implements Parcelable {
         dest.writeStringList(mSyncSlaves);
         dest.writeString(mPlayerSubscriptionType.name());
         dest.writeMap(prefs);
-        dest.writeByte(mRandomPlaying ? (byte) 1 : (byte) 0);
+        dest.writeByte(mPlayR ? (byte) 1 : (byte) 0);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class PlayerState implements Parcelable {
     private double sleep;
 
     /** Is the player playing the tracks of a filesystem folder randomly (via context menu) **/
-    private boolean mRandomPlaying;
+    private boolean mPlayR;
 
     /** The player this player is synced to (null if none). */
     @Nullable
@@ -403,12 +403,12 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean isRandomPlaying() {
-        return mRandomPlaying;
+        return mPlayR;
     }
 
     private static final String TAG = "PlayerState";
     public void setRandomPlaying(boolean b) {
-        mRandomPlaying = b;
+        mPlayR = b;
     }
 
     @StringDef({PLAY_STATE_PLAY, PLAY_STATE_PAUSE, PLAY_STATE_STOP})
@@ -436,7 +436,7 @@ public class PlayerState implements Parcelable {
                 ", mSyncMaster='" + mSyncMaster + '\'' +
                 ", mSyncSlaves=" + mSyncSlaves +
                 ", mPlayerSubscriptionType='" + mPlayerSubscriptionType + '\'' +
-                ", mRandomPlaying='" + mRandomPlaying + '\'' +
+                ", mPlayR='" + mPlayR + '\'' +
                 '}';
     }
 

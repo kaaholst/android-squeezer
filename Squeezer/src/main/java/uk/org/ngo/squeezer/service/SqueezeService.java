@@ -762,13 +762,16 @@ public class SqueezeService extends Service {
 
         int number = playerState.getCurrentPlaylistTracksNum();
         int index = playerState.getCurrentPlaylistIndex();
+        Log.i(TAG, String.format("Random Play event for %s has number %d with index %d.", player.getName(), number, index));
         String nextTrack = randomPlay.getNextTrack();
         if (endRandomPlay(number, index)) {
-            Log.v(TAG, String.format("handleRandomOnEvent: End Random Play and reset '%s'.", player.getName()));
+            Log.i(TAG, String.format("End Random Play and reset '%s'.", player.getName()));
             randomPlay.reset(player);
         } else if (firstTwoTracksLoaded(number, index)) {
+            Log.i(TAG, String.format("Ignore event after Random Play initialization for player '%s'.", player.getName()));
             return;
         } else {
+            Log.i(TAG, String.format("Handle Random Play after event for player '%s'.", player.getName()));
             String folderID = randomPlay.getActiveFolderID();
             Set<String> tracks = randomPlay.getTracks(folderID);
             Set<String> played = preferences.loadRandomPlayed(folderID);
@@ -776,13 +779,18 @@ public class SqueezeService extends Service {
             preferences.saveRandomPlayed(folderID, played);
             Set<String> unplayed = new HashSet<>(tracks);
             if (played.size() == tracks.size()) {
-                Log.v(TAG, "handleRandomOnEvent: All played, clear played");
+                Log.i(TAG, String.format("All Random played from folder %s on player %s. Clear!", folderID, player.getName()));
                 played.clear();
                 preferences.saveRandomPlayed(folderID, played);
             } else {
                 unplayed.removeAll(played);
+                Log.i(TAG, String.format("Loaded %s unplayed tracks from folder %s for Random Play on player %s.", unplayed.size(), folderID, player.getName()));
             }
-            randomPlayDelegate.fillPlaylist(unplayed, player, nextTrack);
+            if (unplayed.size() > 0) {
+                randomPlayDelegate.fillPlaylist(unplayed, player, nextTrack);
+            } else {
+                Log.e(TAG, String.format("No unplayed tracks found for Random Play in folder %s on %s!", folderID, player.getName()));
+            }
         }
     }
 

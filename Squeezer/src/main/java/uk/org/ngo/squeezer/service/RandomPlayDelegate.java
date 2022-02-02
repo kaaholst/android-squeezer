@@ -20,6 +20,7 @@ public class RandomPlayDelegate {
     private SlimDelegate slimDelegate;
 
     static String pickTrack(Set<String> unplayed, String ignore) {
+        Log.i(TAG, String.format("Picking track randomly. Ignore '%s'.", ignore));
         Object[] stringArray = unplayed.toArray();
         String track = "";
         Random random = new Random();
@@ -31,18 +32,13 @@ public class RandomPlayDelegate {
     }
 
     void fillPlaylist(Set<String> unplayed, Player player, String ignore) {
-        if (unplayed.size() > 0 ) {
-            String nextTrack = pickTrack(unplayed, ignore);
-            slimDelegate.command(player).cmd("playlistcontrol")
-                    .param("cmd", "add").param("track_id", nextTrack).exec();
-
-            // Get the next track and set it for this player's instance.
-            // It will be loaded to be added to the played tracks when the next track begins
-            // to play (the track info does not contain the ID, so we have to do this).
-            slimDelegate.setNextTrack(player, nextTrack);
-        } else {
-            Log.e(TAG, "fillPlaylist: Could not find track and load it.");
-        }
+        String nextTrack = pickTrack(unplayed, ignore);
+        slimDelegate.command(player).cmd("playlistcontrol")
+                .param("cmd", "add").param("track_id", nextTrack).exec();
+        // Get the next track and set it for this player's instance.
+        // It will be loaded to be added to the played tracks when the next track begins
+        // to play (the track info does not contain the ID, so we have to do this).
+        slimDelegate.setNextTrack(player, nextTrack);
     }
 
     void addItems(String folderID, Set<String> folderTracks) {

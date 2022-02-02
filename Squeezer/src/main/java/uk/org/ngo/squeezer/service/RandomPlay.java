@@ -62,10 +62,12 @@ public class RandomPlay {
     }
 
     void setNextTrack(String nextTrack) {
+        Log.i(TAG, String.format("Set nextTrack %s for Random Play on %s", nextTrack, player.getName()));
         this.nextTrack = nextTrack;
     }
 
     void setActiveFolderID(String folderID) {
+        Log.i(TAG, String.format("Set folder %s for Random Play on %s", folderID, player.getName()));
         this.activeFolderID = folderID;
     }
 
@@ -100,7 +102,11 @@ public class RandomPlay {
             if (!RandomPlay.this.firstFound) {
                 Set<String> loaded = new HashSet<>(rDelegate.getTracks(this.folderID));
                 loaded.removeAll(this.played);
-                playFirst(loaded);
+                if (loaded.size() > 0) {
+                    playFirst(loaded);
+                } else {
+                    Log.i(TAG, String.format("No unplayed tracks found yet for Random Play on %s.", player.getName()));
+                }
             }
 
             // All items loaded, if no unplayed are found, clear played
@@ -128,17 +134,14 @@ public class RandomPlay {
 
         // Get a track to play it, add it to played, save played to pref
         private void playFirst(Set<String> unplayed, String ignore) {
-            if (unplayed.size() > 0 ) {
-                String first = rDelegate.pickTrack(unplayed, ignore);
-                rDelegate.getSlimDelegate().command(rDelegate.getSlimDelegate().getActivePlayer())
-                        .cmd("playlistcontrol").param("cmd", "load")
-                        .param("play_index", "1").param("track_id", first).exec();
-                this.played.add(first);
-                RandomPlay.this.firstFound = true;
-                new Preferences(Squeezer.getContext()).saveRandomPlayed(folderID, played);
-            } else {
-                Log.e(TAG, "playFirst: Could not load first track.");
-            }
+            String first = rDelegate.pickTrack(unplayed, ignore);
+            rDelegate.getSlimDelegate().command(rDelegate.getSlimDelegate().getActivePlayer())
+                    .cmd("playlistcontrol").param("cmd", "load")
+                    .param("play_index", "1").param("track_id", first).exec();
+            this.played.add(first);
+            RandomPlay.this.firstFound = true;
+            new Preferences(Squeezer.getContext()).saveRandomPlayed(folderID, played);
+            Log.i(TAG, String.format("Saved first Random Play track to preferences for %s on %s", folderID, player.getName()));
         }
     }
 }
