@@ -1,15 +1,11 @@
-&bull; The home screen as well as several submenus can be customized. Contributed by Benjamin Viertel
+&bull; Random play folder. Start from the context menu of a music folder
 
-&bull; Display remaining track time.
+&bull; Items from a music service are marked with the corresponding logo.
 
-&bull; Button for players screen in top bar if room.
+&bull; Don't require Wi-Fi for server discovery.
 
-&bull; Allow changing player volume with the app running only in background.
+&bull; Custom Shortcuts. Long press an item to add a shortcut to the top level menu.
 
-&bull; Configurable volume increments.
+&bull; Volume buttons and volume popup can control volume of synced players, instead of only the selected player.
 
-&bull; Attempt to reconnect when the app is brought into the foreground.
-
-&bull; Unmute before volume is adjusted via hardware volume controls.
-
-&bull; Use skeleton views while loading.
+&bull; Ongoing notification show current track number and number of tracks in the current playlist.

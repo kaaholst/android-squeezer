@@ -32,7 +32,6 @@ import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Item;
-import uk.org.ngo.squeezer.widget.SquareImageView;
 
 /**
  * Represents the view hierarchy for a single {@link Item} subclass, suitable for displaying in a
@@ -40,7 +39,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * <p>
  * This class supports views that have a {@link TextView} to display the primary information about
  * the {@link Item} and can optionally enable additional views.  The layout is defined in {@code
- * res/layout/list_item.xml}. <ul> <li>A {@link SquareImageView} suitable for displaying icons</li>
+ * res/layout/list_item.xml}. <ul> <li>A {@link ImageView} suitable for displaying icons</li>
  * <li>A second, smaller {@link TextView} for additional item information</li> <li>A {@link
  * Button} that shows a disclosure triangle for a context menu</li> </ul> The view can
  * display an item in one of two states.  The primary state is when the data to be inserted in to
@@ -61,7 +60,7 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
     @Retention(RetentionPolicy.SOURCE)
     /* Parameters that control which additional views will be enabled in the item view. */
     public @interface ViewParam {}
-    /** Adds a {@link SquareImageView} for displaying artwork or other iconography. */
+    /** Adds a {@link ImageView} for displaying artwork or other iconography. */
     public static final int VIEW_PARAM_ICON = 1;
     /** Adds a second line for detail information ({@code R.id.text2}). */
     public static final int VIEW_PARAM_TWO_LINE = 1 << 1;
@@ -128,10 +127,11 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
      */
     @Override
     public void bindView(T item) {
+        super.bindView(item);
         text1.setText(item.getName());
 
         if (contextMenuButton!= null) {
-            contextMenuButton.setOnClickListener(v -> showContextMenu(item));
+            contextMenuButton.setOnClickListener(v -> showContextMenu());
         }
 
         if (itemViewParams != viewParams) {
@@ -149,6 +149,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
      * inflate their context menu and show it.
      *
      */
-    public void showContextMenu(T item) {
+    public void showContextMenu() {
     }
 }

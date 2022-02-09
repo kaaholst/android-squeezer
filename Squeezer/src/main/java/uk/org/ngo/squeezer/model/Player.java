@@ -57,7 +57,8 @@ public class Player extends Item implements Comparable<Player> {
         PLAY_TRACK_ALBUM("playtrackalbum"),
         DEFEAT_DESTRUCTIVE_TTP("defeatDestructiveTouchToPlay"),
         SYNC_VOLUME("syncVolume"),
-        SYNC_POWER("syncPower");
+        SYNC_POWER("syncPower"),
+        DIGITAL_VOLUME_CONTROL("digitalVolumeControl");
 
         private final String prefName;
 
@@ -130,7 +131,7 @@ public class Player extends Item implements Comparable<Player> {
         return mPlayerState;
     }
 
-    public static final Creator<Player> CREATOR = new Creator<Player>() {
+    public static final Creator<Player> CREATOR = new Creator<>() {
         @Override
         public Player[] newArray(int size) {
             return new Player[size];
@@ -155,7 +156,7 @@ public class Player extends Item implements Comparable<Player> {
     /**
      * Comparator to compare two players by ID.
      */
-    public static final Comparator<Player> compareById = (lhs, rhs) -> lhs.getId().compareTo(rhs.getId());
+    public static final Comparator<Player> compareById = Comparator.comparing(Item::getId);
 
     @Override
     public boolean equals(Object o) {
@@ -183,11 +184,7 @@ public class Player extends Item implements Comparable<Player> {
     }
 
     public SongTimeChanged getTrackElapsed() {
-        double now = SystemClock.elapsedRealtime() / 1000.0;
-        double trackCorrection = mPlayerState.rate * (now - mPlayerState.statusSeen);
-        int trackElapsed = (int) (trackCorrection <= 0 ? mPlayerState.getCurrentTimeSecond() : mPlayerState.getCurrentTimeSecond() + trackCorrection);
-
-        return new SongTimeChanged(this, trackElapsed, mPlayerState.getCurrentSongDuration());
+        return new SongTimeChanged(this, mPlayerState.getTrackElapsed(), mPlayerState.getCurrentSongDuration());
     }
 
     public int getSleepingIn() {
@@ -196,5 +193,9 @@ public class Player extends Item implements Comparable<Player> {
         double remaining = (correction <= 0 ? mPlayerState.getSleep() : mPlayerState.getSleep() - correction);
 
         return (int) remaining;
+    }
+
+    public boolean isSyncVolume() {
+        return "1".equals(getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME));
     }
 }

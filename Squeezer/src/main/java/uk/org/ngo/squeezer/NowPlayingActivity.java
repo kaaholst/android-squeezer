@@ -21,18 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.core.view.GestureDetectorCompat;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 public class NowPlayingActivity extends BaseActivity {
-    private static final String TAG = "NowPlayingActivity";
-
-    private GestureDetectorCompat mDetector;
 
     /**
      * Called when the activity is first created.
@@ -46,14 +40,6 @@ public class NowPlayingActivity extends BaseActivity {
         if (actionBar != null) {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_action_down);
         }
-
-        mDetector = new GestureDetectorCompat(this, new OnSwipeListener() {
-            @Override
-            public boolean onSwipeDown() {
-                finish();
-                return true;
-            }
-        });
     }
 
     public static void show(Context context) {
@@ -77,12 +63,6 @@ public class NowPlayingActivity extends BaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event){
-        mDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
     }
 
     @Override

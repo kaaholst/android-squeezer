@@ -16,12 +16,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
     }
 }
 
 ext {
-    compileSdkVersion = 30
+    compileSdkVersion = 31
     minSdkVersion = 19
     targetSdkVersion = 30
 

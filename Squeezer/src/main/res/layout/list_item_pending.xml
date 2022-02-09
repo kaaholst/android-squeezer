@@ -21,7 +21,7 @@ General layout for list items.
 
 The layout contains:
 
- * @id/icon - SquareImageView, suitable for showing album artwork or other
+ * @id/icon - ImageView, suitable for showing album artwork or other
    icons.
 
  * @id/text1 - TextView, main entry text.
@@ -37,41 +37,26 @@ for the implementation.
 
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="?attr/selectableItemBackground"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:minHeight="48dp"
-    android:orientation="horizontal"
-    android:paddingBottom="4dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="32dp"
-    android:paddingTop="4dp">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/SqueezerWidget.List.Item">
 
-    <uk.org.ngo.squeezer.widget.SquareImageView
+    <ImageView
+        style="@style/SqueezerWidget.List.CoverArt"
         android:id="@+id/icon"
-        android:layout_width="@dimen/album_art_icon_width"
-        android:layout_height="@dimen/album_art_icon_height"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:contentDescription="@string/app_name"
-        android:padding="4dp"
-        android:layout_marginEnd="8dp"
         android:src="@drawable/pending"/>
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/text1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingEnd="8dp">
+        android:layout_height="28dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/pending"/>
 
-        <ImageView
-            android:id="@+id/text1"
-            android:layout_width="fill_parent"
-            android:layout_height="28dp"
-            android:padding="4dp"
-            android:src="@drawable/pending"/>
-    </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

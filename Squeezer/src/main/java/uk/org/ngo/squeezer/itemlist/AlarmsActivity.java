@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.text.format.DateFormat;
 import android.view.View;
@@ -79,6 +80,8 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         if (savedInstanceState != null) {
             mActivePlayer = savedInstanceState.getParcelable("activePlayer");
         }
+
+        ((SimpleItemAnimator) getListView().getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     @Override

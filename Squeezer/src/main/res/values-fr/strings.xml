@@ -18,7 +18,7 @@
  limitations under the License.
 -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="undo">Annuler</string>
     <string name="on">On</string>
     <string name="off">Off</string>
@@ -30,8 +30,6 @@
     <string name="activity_settings_name">Paramètres</string>
     <string name="settings_serveraddr_hint">Nom ou adresse IP du serveur</string>
     <string name="settings_server_prompt">Choisissez un serveur</string>
-    <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Le scan est désactivée, car le Wi-Fi est éteint.</string>
     <string name="settings_theme_title">Thème</string>
     <string name="settings_theme_dark">Sombre</string>
     <string name="settings_theme_light_dark">Clair, barre d\'action sombre</string>
@@ -40,8 +38,6 @@
     <string name="settings_server_scan_progress">Recherche de serveurs…</string>
     <string name="settings_fadeinsecs_title">Temps d\'ouverture en fondu</string>
     <string name="settings_fadeinsecs_summary">Entrez la durée d\'ouverture en fondu, en secondes, quand en pause. Entrez 0 pour désactiver l\'ouverture en fondu.</string>
-    <string name="settings_autoconnect_title">Connexion automatique</string>
-    <string name="settings_autoconnect_summary">Connexion et disponibilité du Wi-Fi, essayez de vous connecter</string>
 
     <string name="settings_scrobble_title">Faire du scrobble par Last.fm</string>
     <string name="settings_scrobble_on">Les informations sur le morceau sont envoyées à Last.fm</string>
@@ -69,9 +65,6 @@
     <string name="connection_failed_text">La connexion a échoué.</string>
     <string name="login_failed_text">Échec de la connexion. Assurez-vous que le nom d\'utilisateur et le mot de passe corrects sont entrés.</string>
     <string name="disconnected_text">Débranché.</string>
-    <string name="wifi_disabled_text">Wi-Fi est désactivé</string>
-    <string name="enable_wifi_text">"Cela activera le Wi-Fi sur votre appareil Android. Quand la connexion Wi-Fi est établie, Squeezer essaiera automatiquement de se connecter à votre SqueezeBox. Activer le Wi-Fi maintenant?"</string>
-    <string name="wifi_enabled_text">Wi-Fi est activé. Veuillez attendre une connexion Wi-Fi active.</string>
     <string name="notification_playing_text">%s joue</string>
     <string name="save_playlist_title">Enregistrer la playlist</string>
     <string name="save_playlist_hint">Entrez le nom de la playlist</string>
@@ -134,7 +127,7 @@
 
 
     <plurals name="seconds">
-        <item quantity="one">seconde</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">seconde</item>
         <item quantity="other">secondes</item>
     </plurals>
 

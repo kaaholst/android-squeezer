@@ -28,7 +28,7 @@
     android:paddingEnd="32dp"
     android:paddingTop="4dp">
 
-    <uk.org.ngo.squeezer.widget.SquareImageView
+    <ImageView
         style="@style/RemoteSelectButtonIcon"
         android:id="@+id/icon"
         android:contentDescription="@string/app_name"

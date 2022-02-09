@@ -27,52 +27,47 @@
     app:cardCornerRadius="2dp"
     app:contentPadding="4dp">
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:animateLayoutChanges="true"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants">
 
-    <RelativeLayout
-        android:id="@+id/line1"
-        android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textAppearance="@style/SqueezerTextAppearance.XLarge"
+        tools:text="07:45" />
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:textAppearance="@style/SqueezerTextAppearance.XLarge"
-            tools:text="07:45" />
+    <TextView
+        android:id="@+id/am_pm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBaseline_toBaselineOf="@id/time"
+        app:layout_constraintStart_toEndOf="@id/time"
+        android:layout_alignBaseline="@+id/time"
+        android:layout_toStartOf="@+id/enabled"
+        android:paddingStart="@dimen/ampm_left_padding"
+        android:paddingEnd="@dimen/ampm_left_padding"
+        android:textAppearance="@style/SqueezerTextAppearance.Small"
+        tools:text="AM" />
 
-        <TextView
-            android:id="@+id/am_pm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/time"
-            android:layout_toEndOf="@+id/time"
-            android:layout_toStartOf="@+id/enabled"
-            android:paddingStart="@dimen/ampm_left_padding"
-            android:paddingEnd="@dimen/ampm_left_padding"
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
-            tools:text="AM" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/enabled"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/enabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <CheckBox
         android:id="@+id/repeat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/line1"
+        app:layout_constraintTop_toBottomOf="@id/time"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="12dp"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
         android:text="@string/ALARM_ALARM_REPEAT" />
@@ -81,8 +76,8 @@
         android:id="@+id/delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/repeat"
-        android:layout_alignParentEnd="true"
+        app:layout_constraintBaseline_toBaselineOf="@id/repeat"
+        app:layout_constraintEnd_toEndOf="parent"
         android:padding="8dp"
         app:icon="@drawable/ic_delete" />
 
@@ -90,7 +85,8 @@
         android:id="@+id/dow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/repeat"
+        app:layout_constraintTop_toBottomOf="@id/repeat"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
@@ -109,13 +105,20 @@
         <include layout="@layout/day_of_week_button" />
     </LinearLayout>
 
-    <Spinner
-        android:id="@+id/playlist"
-        android:layout_width="fill_parent"
-        android:layout_height="?attr/dropdownListPreferredItemHeight"
-        android:layout_below="@id/dow"
-        android:prompt="@string/alarm_music_prompt"
-        android:spinnerMode="dialog"
-        tools:layout_height="?android:attr/dropdownListPreferredItemHeight" />
-</RelativeLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/dow"
+        app:layout_constraintStart_toStartOf="parent"
+        android:labelFor="@id/playlist"
+        android:hint="@string/alarm_music_prompt"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <AutoCompleteTextView
+            android:id="@+id/playlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

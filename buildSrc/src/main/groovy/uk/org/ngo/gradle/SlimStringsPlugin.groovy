@@ -86,7 +86,7 @@ class SlimStringsPlugin implements Plugin<Project> {
                 languages.each {language, file ->
                     def xmlWriter = new FileWriter(file)
                     def xmlMarkup = new MarkupBuilder(xmlWriter)
-                    xmlMarkup.resources('"xmlns:tools=\"http://schemas.android.com/tools"') {
+                    xmlMarkup.resources( 'xmlns:tools':'http://schemas.android.com/tools', 'tools:ignore':'MissingTranslation') {
                         mkp.comment('\nAutomatically generated file. DO NOT MODIFY\n')
                         translations[language].each { name, translation ->
                             string(name: name, translation.replace("'", "\\'").replace("...", "…"))

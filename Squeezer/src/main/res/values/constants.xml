@@ -17,7 +17,7 @@
 -->
 
 <resources>
-    <integer name="PageSize">50</integer>
+    <integer name="PageSize">512</integer>
     <integer name="DefaultCliPort">9090</integer>
     <integer name="DefaultHttpPort">9000</integer>
 </resources>

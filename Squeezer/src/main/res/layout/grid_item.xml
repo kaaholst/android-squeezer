@@ -21,7 +21,7 @@ General layout for grid items.
 
 The layout contains:
 
- * @id/icon - SquareImageView, suitable for showing album artwork or other
+ * @id/icon - ImageView, suitable for showing album artwork or other
    icons.
 
  * @id/text1 - TextView, main entry text.
@@ -37,47 +37,38 @@ for the implementation.
 
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="?attr/selectableItemBackground"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical"
-    android:paddingBottom="8dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="8dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/SqueezerWidget.Grid.Item">
 
-    <uk.org.ngo.squeezer.widget.SquareImageView
+    <ImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/album_art_icon_grid_width"
-        android:layout_height="@dimen/album_art_icon_grid_height"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
+        style="@style/SqueezerWidget.Grid.CoverArt"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/app_name"
-        android:maxHeight="@dimen/album_art_icon_grid_height"
-        android:maxWidth="@dimen/album_art_icon_grid_width"
-        android:minHeight="@dimen/album_art_icon_grid_height"
-        android:minWidth="@dimen/album_art_icon_grid_width"
         tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/text1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/icon"
-        android:layout_toStartOf="@id/context_menu"
+        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
         android:paddingTop="4dp"
         android:textAppearance="@style/SqueezerTextAppearance.GridItem.Primary"
         tools:text="Album name"/>
 
     <TextView
         android:id="@+id/text2"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text1"
-        android:layout_toStartOf="@id/context_menu"
+        app:layout_constraintTop_toBottomOf="@id/text1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
         android:textAppearance="@style/SqueezerTextAppearance.GridItem.Secondary"
         tools:text="Artist info"/>
 
@@ -85,6 +76,6 @@ for the implementation.
         layout="@layout/context_menu_image_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_below="@id/icon"
-        android:layout_alignParentEnd="true"/>
-</RelativeLayout>
+        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

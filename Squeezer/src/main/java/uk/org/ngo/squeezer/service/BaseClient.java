@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.service;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -113,7 +114,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getDouble(tokenMap, "time"));
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
-        boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(tokenMap, "sync_slaves").split(",")).filter(TextUtils::isEmpty).collect(Collectors.toList()));
+        boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(tokenMap, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
         boolean changedPlayStatus = updatePlayStatus(playerState, Util.getString(tokenMap, "mode"));
 
         // Playing status
@@ -134,7 +135,7 @@ abstract class BaseClient implements SlimClient {
 
         // Volume
         if (changedVolume) {
-            mEventBus.post(new PlayerVolume(playerState.isMuted(), playerState.getCurrentVolume(), player));
+            mEventBus.post(new PlayerVolume(player));
         }
 
         // Power status

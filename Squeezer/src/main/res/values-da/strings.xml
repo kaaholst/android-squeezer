@@ -31,10 +31,6 @@
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_manual_server_addr">Angiv adressen manuelt</string>
     <string name="settings_server_prompt">Vælg en server</string>
-    <string name="settings_server_rescan">Opdatér</string>
-    <string name="settings_server_scanning_disabled_msg">Server-opdagelse er deaktiveret, fordi Wi-Fi ikke
-        er tilsluttet.
-    </string>
     <string name="settings_local_server">Lokal server</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_dark">Mørk</string>
@@ -61,10 +57,6 @@
     <string name="settings_fadeinsecs_title">Indtoningsperiode</string>
     <string name="settings_fadeinsecs_summary">Angiv hvor mange sekunder der indtones. Angiv 0 for
         at deaktivere indtoning.
-    </string>
-    <string name="settings_autoconnect_title">Forbind automatisk</string>
-    <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved
-        aktiv Wi-Fi forbindelse
     </string>
     <string name="settings_action_on_incoming_call_title">Handling når du modtager eller foretager et opkald</string>
     <string name="settings_no_action_on_incoming_call">No action</string>
@@ -101,20 +93,11 @@
     <string name="login_failed_text">Login mislykkedes, kontrollér at brugernavn og adgangskode er korrekte.</string>
     <string name="invalid_url_text">Angiv venligst en gyldig adresse.</string>
     <string name="disconnected_text">Afbrudt.</string>
-    <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
-    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås
-        en aktiv forbindelse, vil Squeezer automatisk forsøge at forbinde til din SqueezeBox
-        server.\nSlå Wi-Fi til?
-    </string>
-    <string name="wifi_enabled_text">Wi-Fi er aktiveret. Vent venligst på en aktiv
-        Wi-Fi-forbindelse.
-    </string>
     <string name="notification_playing_text">%s spiller</string>
     <string name="save_playlist_title">Gem afspilningsliste</string>
     <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>
     <string name="sync_title">Synkronisér %s med…</string>
-    <string name="browse_items_text">%2$d %1$s</string>
 
     <string name="player_group_header">Gruppe: %s</string>
     <string name="player_group_volume">Gruppe volumen</string>
@@ -136,7 +119,7 @@
     <string name="all_alarms_off_hint">Alle vækkeure er slået fra</string>
     <string name="alarm_music_prompt">Vækkelyd</string>
     <string name="alarms_settings_dialog_title">%s indstillinger for vækkeur</string>
-    <string name="alarm_volume_text" translatable="false">Lydstyrke for vækkeur</string>
+    <string name="alarm_volume_text">Lydstyrke for vækkeur</string>
     <string name="alarm_fade_text">Skru langsomt op for vækkeur</string>
     <string name="alarm_fade_off_text">Vækkeuret skruer ikke langsomt op</string>
     <string name="alarm_fade_on_text">Vækkeuret skruer langsomt op</string>
@@ -221,5 +204,27 @@
     <string name="remote_preset4Description">Forudindstillet 4</string>
     <string name="remote_preset5Description">Forudindstillet 5</string>
     <string name="remote_preset6Description">Forudindstillet 6</string>
+    <string name="pref_cat_third_party">Tredjepartsintegration</string>
+    <string name="settings_download_use_server_path">Brug serversti og filnavn</string>
+    <string name="ARCHIVE_NODE">Arkiv</string>
+    <string name="MENU_ITEM_MOVED">Menupunktet er flyttet</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">Du er allerede i arkivet!</string>
+    <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Arkivet kan ikke arkiveres!</string>
+    <string name="ARCHIVE_NODE_REMOVED">Fjernet tomt arkiv</string>
+    <string name="ITEM_CANNOT_BE_ARCHIVED">Dette element kan ikke arkiveres!</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Tilpasset genvej fjernet</string>
+    <string name="ITEM_IS_ALREADY_A_SHORTCUT">Er allerede en genvej!</string>
+    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Genvej sat på startmenuen</string>
+    <string name="settings_custom_shortcut_enabled">Langt tryk sætter et egnet element på startskærmen</string>
+    <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Kan ikke være genvej eller arkiveres!</string>
+    <string name="settings_custom_shortcut_disabled">Brugerdefinerede genveje deaktiveret</string>
+    <string name="settings_custom_shortcut_locked">Deaktiver langt tryk, men behold genveje på startskærmen.</string>
+    <string name="settings_customize_customShortcut_mode">Brugerdefinerede genveje</string>
+    <string name="settings_customize_customShortcut_info">Langt tryk sætter genveje på menuen på øverste niveau.
+        (Ændringer i mapper kræver fornyede genveje.)</string>
+    <string name="ITEM_CANNOT_BE_SHORTCUT">Dette element kan ikke være genvej!</string>
+    <string name="PLAY_RANDOM_FOLDER">Spil tilfældigt</string>
+    <string name="backward_seconds">Sekunder tilbage</string>
+    <string name="forward_seconds">Sekunder frem</string>
 
 </resources>

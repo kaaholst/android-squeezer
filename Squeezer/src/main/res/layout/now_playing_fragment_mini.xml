@@ -16,7 +16,8 @@
  limitations under the License.
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -26,43 +27,40 @@
         android:id="@+id/progressbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:trackThickness="2dp"/>
 
-    <uk.org.ngo.squeezer.widget.SquareImageView
+    <ImageView
         android:id="@+id/album"
-        android:layout_width="@dimen/album_art_icon_width"
-        android:layout_height="@dimen/album_art_icon_height"
-        android:layout_below="@id/progressbar"
-        android:maxHeight="@dimen/album_art_icon_height"
-        android:maxWidth="@dimen/album_art_icon_width"
-        android:minHeight="@dimen/album_art_icon_height"
-        android:minWidth="@dimen/album_art_icon_width"
+        android:layout_width="@dimen/album_art_icon_size"
+        android:layout_height="@dimen/album_art_icon_size"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintStart_toStartOf="parent"
         tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/trackname"
-        android:layout_below="@id/progressbar"
-        android:layout_toStartOf="@id/media_buttons"
-        android:layout_toEndOf="@id/album"
-        android:paddingStart="4dp"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintStart_toEndOf="@id/album"
+        app:layout_constraintEnd_toStartOf="@id/media_buttons"
+        android:layout_marginStart="8dp"
         style="@style/SqueezerWidget.NowPlayingMini.SongName"/>
 
     <TextView
         android:id="@+id/artistalbumname"
-        android:layout_below="@id/trackname"
-        android:layout_toStartOf="@id/media_buttons"
-        android:layout_toEndOf="@id/album"
-        android:paddingStart="4dp"
+        app:layout_constraintTop_toBottomOf="@id/trackname"
+        app:layout_constraintStart_toEndOf="@id/album"
+        app:layout_constraintEnd_toStartOf="@id/media_buttons"
+        android:layout_marginStart="8dp"
         style="@style/SqueezerWidget.NowPlayingMini.ArtistAlbumName"/>
 
     <LinearLayout
         android:id="@+id/media_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/progressbar"
-        android:layout_alignParentEnd="true"
-        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintEnd_toEndOf="parent"
         android:orientation="horizontal">
 
         <Button
@@ -85,4 +83,4 @@
             app:icon="@drawable/ic_action_next"
             style="@style/BottomBar.MediaButton"/>
     </LinearLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

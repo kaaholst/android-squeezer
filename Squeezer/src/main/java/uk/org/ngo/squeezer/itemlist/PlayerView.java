@@ -101,7 +101,7 @@ public class PlayerView extends PlayerBaseView {
     }
 
     @Override
-    public void showContextMenu(final Player item) {
+    public void showContextMenu() {
         PopupMenu popup = new PopupMenu(getActivity(), contextMenuButtonHolder);
         popup.inflate(R.menu.player_context_menu);
 

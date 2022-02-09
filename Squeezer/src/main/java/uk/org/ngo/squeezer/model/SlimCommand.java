@@ -87,7 +87,6 @@ public class SlimCommand implements Parcelable {
 
     public SlimCommand params(Map<String, Object> params) {
         this.params.putAll(params);
-//        Log.d(TAG, "cmd: " + this.toString());
         return this;
     }
 

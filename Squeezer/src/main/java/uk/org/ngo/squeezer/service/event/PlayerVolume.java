@@ -23,7 +23,7 @@ import uk.org.ngo.squeezer.model.Player;
 /** Event sent when a player's volume has changed. */
 public class PlayerVolume {
     /** True if the volume is muted */
-    public boolean muted;
+    public final boolean muted;
 
     /** The player's new volume. */
     public final int volume;
@@ -31,6 +31,10 @@ public class PlayerVolume {
     /** The player that was affected. */
     @NonNull
     public final Player player;
+
+    public PlayerVolume(@NonNull Player player) {
+        this(player.getPlayerState().isMuted(), player.getPlayerState().getCurrentVolume(), player);
+    }
 
     public PlayerVolume(boolean muted, int volume, @NonNull Player player) {
         this.muted = muted;

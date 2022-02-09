@@ -16,88 +16,74 @@
  limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
-        android:id="@+id/scan_progress"
-        android:layout_width="fill_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            style="@style/Widget.MaterialComponents.CircularProgressIndicator.Small"
-            android:indeterminate="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:text="@string/settings_server_scan_progress" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/scan_disabled_msg"
-        android:layout_width="fill_parent"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/server_name_til"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
-        android:text="@string/settings_server_scanning_disabled_msg"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:startIconDrawable="@drawable/ic_refresh"
+        app:hintEnabled="false">
 
-    <LinearLayout
-        android:id="@+id/scan_results"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/scan_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/settings_server_rescan"
-            app:icon="@drawable/ic_refresh" />
-
-        <TextView
+        <AutoCompleteTextView
             android:id="@+id/server_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:text="@string/settings_manual_server_addr"
-            android:textAppearance="@style/SqueezerTextAppearance.Medium"
-            android:visibility="gone" />
+            tools:text="@string/settings_server_scan_progress"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <Spinner
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/found_servers_til"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/server_name_til"
+        app:layout_constraintStart_toStartOf="parent"
+        android:hint="@string/settings_server_prompt"
+        android:labelFor="@id/found_servers"
+        app:startIconDrawable="@drawable/ic_refresh"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <AutoCompleteTextView
             android:id="@+id/found_servers"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:prompt="@string/settings_server_prompt" />
-    </LinearLayout>
+            android:inputType="none"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/scan_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/found_servers_til"
+        app:layout_constraintStart_toStartOf="parent"
+        android:max="100"/>
 
     <RadioButton
         android:id="@+id/squeezeServer"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/scan_progress"
+        app:layout_constraintStart_toStartOf="parent"
         android:text="@string/settings_local_server" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/server_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/squeezeServer"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="4dp"
-        app:cardCornerRadius="2dp"
-        app:contentPadding="4dp">
+        app:cardCornerRadius="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -173,7 +159,9 @@
         android:id="@+id/squeezeNetwork"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        app:layout_constraintTop_toBottomOf="@id/server_info"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"
         android:text="@string/mysqueezebox_com" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

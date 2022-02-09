@@ -18,8 +18,6 @@ package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
 
-import java.util.Arrays;
-
 import uk.org.ngo.squeezer.Util;
 
 public class NotificationState {
@@ -32,6 +30,14 @@ public class NotificationState {
     public String artistName;
     public Uri artworkUrl;
     public boolean playing;
+    public int currentTrack;
+    public int numTracks;
+
+    public String player() {
+        if (playerName == null) return null;
+
+        return playerName + " " + currentTrack + "/" + numTracks;
+    }
 
     public String artistAlbum() {
         return Util.joinSkipEmpty(" - ", artistName, albumName);
@@ -47,6 +53,8 @@ public class NotificationState {
         if (hasPlayer != that.hasPlayer) return false;
         if (hasSong != that.hasSong) return false;
         if (playing != that.playing) return false;
+        if (currentTrack != that.currentTrack) return false;
+        if (numTracks != that.numTracks) return false;
         if (playerName != null ? !playerName.equals(that.playerName) : that.playerName != null)
             return false;
         if (songName != null ? !songName.equals(that.songName) : that.songName != null)
@@ -68,6 +76,8 @@ public class NotificationState {
         result = 31 * result + (artistName != null ? artistName.hashCode() : 0);
         result = 31 * result + (artworkUrl != null ? artworkUrl.hashCode() : 0);
         result = 31 * result + (playing ? 1 : 0);
+        result = 31 * result + currentTrack;
+        result = 31 * result + numTracks;
         return result;
     }
 }

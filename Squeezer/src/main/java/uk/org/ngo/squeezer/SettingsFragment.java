@@ -70,15 +70,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Preferences preferences = new Preferences(getActivity(), sharedPreferences);
 
-        SwitchPreferenceCompat backgroundVolumePref = findPreference(Preferences.KEY_BACKGROUND_VOLUME);
-        backgroundVolumePref.setChecked(preferences.isBackgroundVolume());
-
         fadeInPref = findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
         updateFadeInSecondsSummary(preferences.getFadeInSecs());
-
-        SwitchPreferenceCompat autoConnectPref = findPreference(Preferences.KEY_AUTO_CONNECT);
-        autoConnectPref.setChecked(preferences.isAutoConnect());
 
         fillIncomingCallPreferences(preferences);
 
@@ -182,6 +176,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         ListPreference customizeHomePref = findPreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE);
         fillEnumPreference(customizeHomePref, Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
+
+        ListPreference customizeShortcutsPref = findPreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE);
+        fillEnumPreference(customizeShortcutsPref, Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
     }
 
     private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {
@@ -249,6 +246,11 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
+
+        // The fragment may no longer be attached to its activity. If so, do nothing.
+        if (!isAdded()) {
+            return;
+        }
 
         if (key.equals(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
                 key.equals(Preferences.KEY_DOWNLOAD_ENABLED)

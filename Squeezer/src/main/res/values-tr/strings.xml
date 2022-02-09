@@ -10,7 +10,6 @@
   <string name="settings_username_hint">Kullanıcı adı (isteğe bağlı)</string>
   <string name="settings_password_hint">Şifre (isteğe bağlı)</string>
   <string name="settings_server_scan_progress">Sunucular aranıyor...</string>
-  <string name="settings_autoconnect_title">Otomatik bağlan</string>
   <string name="settings_scrobble_on">Şarkı bilgisi Last.fm sitesine gönderildi</string>
   <string name="settings_market_not_found">Google Play başlatılamıyor, yüklü mü?</string>
   <string name="settings_squeezeplayer_title">SqueezePlayer\'ı başlat</string>
@@ -27,12 +26,10 @@
     <string name="connection_failed_text">Bağlantı başarız.</string>
   <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
   <string name="disconnected_text">Bağlantı kesildi.</string>
-  <string name="wifi_disabled_text">Wi-Fi devre dışı</string>
   <string name="notification_playing_text">%s çalıyor</string>
   <string name="save_playlist_title">Çalma listesini kaydet</string>
   <string name="save_playlist_hint">Çalma listesi adı girin</string>
     <string name="rename_title">%s yeniden adlandır</string>
-  <string name="browse_items_text">%2$d %1$s</string>
     <string name="unknown_track">Bilinmeyen parça</string>
   <string name="unknown_album">Bilinmeyen albüm</string>
   <string name="unknown_artist">Bilinmeyen sanatçı</string>

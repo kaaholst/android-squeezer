@@ -21,7 +21,7 @@ General layout for list items.
 
 The layout contains:
 
- * @id/icon - SquareImageView, suitable for showing album artwork or other
+ * @id/icon - ImageView, suitable for showing album artwork or other
    icons.
 
  * @id/text1 - TextView, main entry text.
@@ -48,12 +48,12 @@ for the implementation.
     android:descendantFocusability="blocksDescendants"
     android:minHeight="48dp">
 
-    <uk.org.ngo.squeezer.widget.SquareImageView
+    <ImageView
         android:id="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="@dimen/album_art_icon_width"
-        android:layout_height="@dimen/album_art_icon_height"
+        android:layout_width="@dimen/album_art_icon_size"
+        android:layout_height="@dimen/album_art_icon_size"
         android:contentDescription="@string/app_name"
         tools:src="@drawable/ic_transporter" />
 

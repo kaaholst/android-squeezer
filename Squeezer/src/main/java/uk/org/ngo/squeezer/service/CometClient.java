@@ -169,13 +169,10 @@ class CometClient extends BaseClient {
                             int newVolume = Integer.parseInt(volume);
                             PlayerState playerState = player.getPlayerState();
                             playerState.setCurrentVolume(newVolume);
-                            mEventBus.post(new PlayerVolume(playerState.isMuted(), playerState.getCurrentVolume(), player));
+                            mEventBus.post(new PlayerVolume(player));
                         } else {
-                            // LMS delays player status for volume changes, so order it immediately to respond faster to user input
-                            command(player, new String[]{"mixer", "volume", "?"}, Collections.emptyMap());
-
                             // Since LMS doesn't send player status when volume is updated via a synced player we order them explicitly
-                            if ("1".equals(player.getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME))) {
+                            if (player.isSyncVolume()) {
                                 List<String> slaves = player.getPlayerState().getSyncSlaves();
                                 Player master = getConnectionState().getPlayer(player.getPlayerState().getSyncMaster());
                                 if (master != null && master != player) {

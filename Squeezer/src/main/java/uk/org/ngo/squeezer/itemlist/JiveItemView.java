@@ -16,38 +16,52 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import java.util.EnumSet;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
-import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
+
     private final JiveItemViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
 
-    /** Width of the icon, if VIEW_PARAM_ICON is used. */
-    private int mIconWidth;
+    Preferences mPreferences = new Preferences(itemView.getContext());
+    final boolean isShortcutActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
+    final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
 
-    /** Height of the icon, if VIEW_PARAM_ICON is used. */
-    private int mIconHeight;
+    /**
+     * Will also be used (and set) in HomeMenuJiveItemView.
+     */
+    CustomJiveItemHandling mCustomJiveItemHandling = null;
 
     JiveItemView(@NonNull JiveItemListActivity activity, @NonNull View view) {
         super(activity, view);
+        if (mCustomJiveItemHandling == null) {
+            mCustomJiveItemHandling = new CustomJiveItemHandling(activity);
+        }
         setWindowStyle(activity.window.windowStyle);
         this.logicDelegate = new JiveItemViewLogic(activity);
 
@@ -77,17 +91,11 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     void setWindowStyle(Window.WindowStyle windowStyle) {
         this.windowStyle = windowStyle;
-        if (listLayout() == ArtworkListLayout.grid) {
-            mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
-            mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
-        } else {
-            mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_width);
-            mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_height);
-        }
     }
 
     @Override
     public void bindView(JiveItem item) {
+        super.bindView(item);
         if (item.radio != null && item.radio) {
             getActivity().setSelectedIndex(getAdapterPosition());
         }
@@ -102,8 +110,6 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             ImageFetcher.getInstance(getActivity()).loadImage(
                     item.getIcon(),
                     icon,
-                    mIconWidth,
-                    mIconHeight,
                     this::onIcon
             );
         } else {
@@ -111,21 +117,17 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             onIcon();
         }
 
-        text1.setAlpha(getAlpha(item));
-        text2.setAlpha(getAlpha(item));
-        itemView.setOnClickListener(view -> onItemSelected(item));
+        text1.setAlpha(getAlpha());
+        text2.setAlpha(getAlpha());
+        itemView.setOnClickListener(view -> onItemSelected());
 
-//      if Archive node is activated in settings
-        if (new Preferences(itemView.getContext()).getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE) {
-            itemView.setOnLongClickListener(view -> {
-                getActivity().showDisplayMessage(R.string.ITEM_CANNOT_BE_ARCHIVED);
-                return true;
-            });
+        if ( isShortcutActive || isArchiveActive ) {
+            itemView.setOnLongClickListener(view -> putItemAsShortcut());
         } else {
             itemView.setOnLongClickListener(null);
         }
 
-        itemView.setClickable(isSelectable(item));
+        itemView.setClickable(isSelectable());
 
         if (item.hasContextMenu()) {
             contextMenuButton.setVisibility(item.checkbox == null && item.radio == null ? View.VISIBLE : View.GONE);
@@ -139,11 +141,36 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         }
     }
 
-    private float getAlpha(JiveItem item) {
-        return isSelectable(item) ? 1.0f : (item.checkbox != null || item.radio != null) ? 0.25f : 0.75f;
+    /**
+     * This view handles just shortcuts, but has to display the correct message anyway.
+     */
+    private boolean putItemAsShortcut() {
+        @StringRes int message = !isArchiveActive ? R.string.ITEM_CANNOT_BE_SHORTCUT :
+                isShortcutActive ? R.string.ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED : R.string.ITEM_CANNOT_BE_ARCHIVED;
+
+        if (!mCustomJiveItemHandling.isShortcutable(item)) {
+            getActivity().showDisplayMessage(message);
+        } else {
+            if (isShortcutActive) {
+                if (mCustomJiveItemHandling.triggerCustomShortcut(item)) {
+                    mPreferences.saveShortcuts(mCustomJiveItemHandling.convertShortcuts());
+//                  TODO: check ok?
+                    getActivity().showDisplayMessage(R.string.ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU);
+                } else {
+                    getActivity().showDisplayMessage(R.string.ITEM_IS_ALREADY_A_SHORTCUT);
+                }
+            } else {
+                getActivity().showDisplayMessage(R.string.ITEM_CANNOT_BE_ARCHIVED);
+            }
+        }
+        return true;
     }
 
-    protected boolean isSelectable(JiveItem item) {
+    private float getAlpha() {
+        return isSelectable() ? 1.0f : (item.checkbox != null || item.radio != null) ? 0.25f : 0.75f;
+    }
+
+    protected boolean isSelectable() {
         return item.isSelectable();
     }
 
@@ -171,9 +198,30 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     }
 
     protected void onIcon() {
+        Drawable logo = item.getLogo(getActivity());
+        if (logo != null) {
+            Drawable drawable = icon.getDrawable();
+            Bitmap drawableBitmap = Util.drawableToBitmap(drawable);
+
+            boolean large = (listLayout() == ArtworkListLayout.grid);
+            int iconSize = drawable.getIntrinsicWidth();
+            if (iconSize <= 0) {
+                iconSize = icon.getWidth();
+            }
+            int logoSize = (int)(iconSize * (large ? 0.2 : 0.3));
+            int start = (int)(iconSize * (large ? 0.78 : 0.68));
+            int top = (int)(iconSize * 0.02);
+            Bitmap logoBitmap = Util.getBitmap(logo, logoSize, logoSize);
+
+            Canvas canvas = new Canvas(drawableBitmap);
+            Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+            canvas.drawBitmap(logoBitmap, start, top, paint);
+
+            icon.setImageBitmap(drawableBitmap);
+        }
     }
 
-    private void onItemSelected(JiveItem item) {
+    public void onItemSelected() {
         Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
         Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
         if (item.checkbox != null) {
@@ -210,10 +258,10 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().setSelectedIndex(getAdapterPosition());
             itemAdapter.notifyItemChanged(getAdapterPosition());
         }
-   }
+    }
 
     @Override
-    public void showContextMenu(JiveItem item) {
+    public void showContextMenu() {
         logicDelegate.showContextMenu(this, item);
     }
 

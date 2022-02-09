@@ -54,8 +54,10 @@ import android.widget.RemoteViews;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
@@ -78,7 +80,6 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
-import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -125,6 +126,8 @@ public class SqueezeService extends Service {
 
     private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
 
+    private final RandomPlayDelegate randomPlayDelegate = new RandomPlayDelegate(mDelegate);
+
     /**
      * Is scrobbling enabled?
      */
@@ -136,6 +139,7 @@ public class SqueezeService extends Service {
     private boolean scrobblingPreviouslyEnabled;
 
     int mFadeInSecs;
+    boolean mGroupVolume;
 
     private static final String ACTION_NEXT_TRACK = "uk.org.ngo.squeezer.service.ACTION_NEXT_TRACK";
     private static final String ACTION_PREV_TRACK = "uk.org.ngo.squeezer.service.ACTION_PREV_TRACK";
@@ -242,6 +246,7 @@ public class SqueezeService extends Service {
         final Preferences preferences = new Preferences(this);
         scrobblingEnabled = preferences.isScrobbleEnabled();
         mFadeInSecs = preferences.getFadeInSecs();
+        mGroupVolume = preferences.isGroupVolume();
         mVolumeProvider = new MyVolumeProvider(preferences.getVolumeIncrements());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (squeezeService.isConnected()) {
@@ -346,6 +351,32 @@ public class SqueezeService extends Service {
         new Preferences(this).setLastPlayer(newActivePlayer);
     }
 
+    class JiveItemServiceItemListCallback implements IServiceItemListCallback<JiveItem> {
+
+        private final List<JiveItem> homeMenu = new ArrayList<>();
+
+        @Override
+        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
+            homeMenu.addAll(items);
+            if (homeMenu.size() == count) {
+                Preferences preferences = new Preferences(SqueezeService.this);
+                boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
+                List<String> archivedMenuItems = Collections.emptyList();
+                if ((useArchive) && (mDelegate.getActivePlayer() != null)) {
+                    archivedMenuItems = preferences.getArchivedMenuItems(mDelegate.getActivePlayer());
+                }
+                Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
+                mDelegate.setHomeMenu(homeMenu, archivedMenuItems, customShortcuts);
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return SqueezeService.this;
+        }
+    }
+
+
     private void requestPlayerData() {
         Player activePlayer = mDelegate.getActivePlayer();
 
@@ -353,27 +384,10 @@ public class SqueezeService extends Service {
             mDelegate.subscribeDisplayStatus(activePlayer, true);
             mDelegate.subscribeMenuStatus(activePlayer, true);
             mDelegate.requestPlayerStatus(activePlayer);
-
             // Start an asynchronous fetch of the squeezeservers "home menu" items
             // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
-            mDelegate.requestItems(activePlayer, 0, new IServiceItemListCallback<JiveItem>() {
-                private final List<JiveItem> homeMenu = new ArrayList<>();
-
-                @Override
-                public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
-                    homeMenu.addAll(items);
-                    if (homeMenu.size() == count) {
-                        Preferences preferences = new Preferences(SqueezeService.this);
-                        boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
-                        List<String> archivedMenuItems = useArchive ? preferences.getArchivedMenuItems(activePlayer) : Collections.emptyList();
-                        mDelegate.setHomeMenu(homeMenu, archivedMenuItems);
-                    }
-                }
-                @Override
-                public Object getClient() {
-                    return SqueezeService.this;
-                }
-            }).cmd("menu").param("direct", "1").exec();
+            mDelegate.requestItems(activePlayer, 0, new JiveItemServiceItemListCallback())
+                    .cmd("menu").param("direct", "1").exec();
         }
     }
 
@@ -391,14 +405,7 @@ public class SqueezeService extends Service {
      * how frequently we need to know its status.
      */
     private PlayerState.PlayerSubscriptionType calculateSubscriptionTypeFor(Player player) {
-        Player activePlayer = mDelegate.getActivePlayer();
-
-        if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
-                (mEventBus.hasSubscriberForEvent(PlayStatusChanged.class) && player.equals(activePlayer))) {
-            return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
-        } else {
-            return PlayerState.PlayerSubscriptionType.NOTIFY_NONE;
-        }
+        return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
     }
 
     /**
@@ -473,12 +480,12 @@ public class SqueezeService extends Service {
             nm.notify(PLAYBACKSERVICE_STATUS, notification);
 
             ImageFetcher.getInstance(this).loadImage(this, notificationState.artworkUrl, notificationData.normalView, R.id.album,
-                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_width),
-                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_height),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_size),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_size),
                     nm, PLAYBACKSERVICE_STATUS, notification);
             ImageFetcher.getInstance(this).loadImage(this, notificationState.artworkUrl, notificationData.expandedView, R.id.album,
-                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_width),
-                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_height),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_size),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_size),
                     nm, PLAYBACKSERVICE_STATUS, notification);
         }
     }
@@ -517,7 +524,7 @@ public class SqueezeService extends Service {
                 builder.setShowWhen(false);
                 builder.setContentTitle(notificationState.songName);
                 builder.setContentText(notificationState.artistAlbum());
-                builder.setSubText(notificationState.playerName);
+                builder.setSubText(notificationState.player());
                 builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(2, 3)
                         .setMediaSession(mMediaSession.getSessionToken()));
@@ -599,6 +606,8 @@ public class SqueezeService extends Service {
             final PlayerState activePlayerState = activePlayer.getPlayerState();
 
             notificationState.playing = activePlayerState.isPlaying();
+            notificationState.currentTrack = activePlayerState.getCurrentPlaylistIndex()+1;
+            notificationState.numTracks = activePlayerState.getCurrentPlaylistTracksNum();
 
             final CurrentPlaylistItem currentSong = activePlayerState.getCurrentSong();
             notificationState.hasSong = (currentSong != null);
@@ -729,7 +738,9 @@ public class SqueezeService extends Service {
     }
 
     public void onEvent(PlayerVolume event) {
-        mVolumeProvider.setCurrentVolume(event.volume / mVolumeProvider.step);
+        if (event.player == mDelegate.getActivePlayer()) {
+            mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
+        }
     }
 
     public void onEvent(HandshakeComplete event) {
@@ -740,6 +751,68 @@ public class SqueezeService extends Service {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateOngoingNotification();
         }
+        if (event.player.getPlayerState().isRandomPlaying()) {
+            handleRandomOnEvent(event.player);
+        }
+    }
+
+    private void handleRandomOnEvent(Player player) {
+
+        RandomPlay randomPlay = mDelegate.getRandomPlay(player);
+        Preferences preferences = new Preferences(SqueezeService.this);
+        PlayerState playerState = player.getPlayerState();
+
+        int number = playerState.getCurrentPlaylistTracksNum();
+        int index = playerState.getCurrentPlaylistIndex();
+        Log.i(TAG, String.format("Random Play event for %s has number %d with index %d.", player.getName(), number, index));
+        String nextTrack = randomPlay.getNextTrack();
+        if (endRandomPlay(number, index)) {
+            Log.i(TAG, String.format("End Random Play and reset '%s'.", player.getName()));
+            randomPlay.reset(player);
+        } else if (firstTwoTracksLoaded(number, index)) {
+            Log.i(TAG, String.format("Ignore event after Random Play initialization for player '%s'.", player.getName()));
+            return;
+        } else {
+            Log.i(TAG, String.format("Handle Random Play after event for player '%s'.", player.getName()));
+            String folderID = randomPlay.getActiveFolderID();
+            Set<String> tracks = randomPlay.getTracks(folderID);
+            Set<String> played = preferences.loadRandomPlayed(folderID);
+            played.add(nextTrack);
+            preferences.saveRandomPlayed(folderID, played);
+            Set<String> unplayed = new HashSet<>(tracks);
+            if (played.size() == tracks.size()) {
+                Log.i(TAG, String.format("All Random played from folder %s on player %s. Clear!", folderID, player.getName()));
+                played.clear();
+                preferences.saveRandomPlayed(folderID, played);
+            } else {
+                unplayed.removeAll(played);
+                Log.i(TAG, String.format("Loaded %s unplayed tracks from folder %s for Random Play on player %s.", unplayed.size(), folderID, player.getName()));
+            }
+            if (unplayed.size() > 0) {
+                randomPlayDelegate.fillPlaylist(unplayed, player, nextTrack);
+            } else {
+                Log.e(TAG, String.format("No unplayed tracks found for Random Play in folder %s on %s!", folderID, player.getName()));
+            }
+        }
+    }
+
+    private boolean endRandomPlay(int number, int index) {
+        // After a MusicChanged event we have to check if this meant that the last track of random
+        // play is now playing. In this case we load another track. If the track changed but there
+        // are more tracks in the playlist after it, it means that the user might have added tracks
+        // to the end of the playlist. So we deactivate Random Play.
+        // On the other hand the user might have just chosen another track from the already played
+        // random tracks (currently we don't consider this).
+        // TODO endRandomPlay could be better.
+        if ( (number - index == 1) && (number > 1) ) {
+            // last track playing
+            return false;
+        }
+        else return !firstTwoTracksLoaded(number, index);
+    }
+
+    private boolean firstTwoTracksLoaded(int number, int index) {
+        return (number - index == 2) && (number == 2);
     }
 
     public void onEvent(PlayersChanged event) {
@@ -810,7 +883,7 @@ public class SqueezeService extends Service {
                 if ("track".equals(item.type)) {
                     Log.i(TAG, "downloadMusicFolderTrack(" + item + ")");
                     SlimCommand command = JiveItem.downloadCommand(item.id);
-                    mDelegate.requestItems(-1, songDownloadCallback).params(command.params).cmd(command.cmd()).exec();
+                    mDelegate.requestAllItems(songDownloadCallback).params(command.params).cmd(command.cmd()).exec();
                 }
             }
         }
@@ -898,19 +971,44 @@ public class SqueezeService extends Service {
 
         @Override
         public void setVolumeTo(Player player, int newVolume) {
-            mDelegate.command(player).cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
+            setPlayerVolume(player, newVolume);
         }
 
         @Override
-        public void setVolumeTo(int newVolume) {
-            mDelegate.activePlayerCommand().cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
+        public boolean canAdjustVolumeForSyncGroup() {
+            return mDelegate.getVolumeSyncGroup(true).size() > 1;
+        }
+
+        @Override
+        public void setVolumeTo(int percentage) {
+            Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
+
+            int lowestVolume = 100;
+            int higestVolume = 0;
+            for (Player player : syncGroup) {
+                int currentVolume = player.getPlayerState().getCurrentVolume();
+                if (currentVolume < lowestVolume) lowestVolume = currentVolume;
+                if (currentVolume > higestVolume) higestVolume = currentVolume;
+            }
+            int volumeInRange = (int) Math.round(percentage / 100.0 * (100 - (higestVolume - lowestVolume)));
+            for (Player player : syncGroup) {
+                int currentVolume = player.getPlayerState().getCurrentVolume();
+                int volumeOffset = currentVolume - lowestVolume;
+                setPlayerVolume(player, volumeOffset + volumeInRange);
+            }
         }
 
         @Override
         public void adjustVolume(int direction) {
-            if (direction != 0) {
-                Player player = getActivePlayer();
-                if (player != null) {
+            Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
+            int adjust = direction * mVolumeProvider.step;
+            for (Player player : syncGroup) {
+                int currentVolume = player.getPlayerState().getCurrentVolume();
+                if (currentVolume + adjust < 0) adjust = -currentVolume;
+                if (currentVolume + adjust > 100) adjust = 100 - currentVolume;
+            }
+            if (adjust != 0) {
+                for (Player player : syncGroup) {
                     if (player.getPlayerState().isMuted()) {
                         mDelegate.command(player).cmd("mixer", "muting", "0").exec();
                         try {
@@ -919,9 +1017,17 @@ public class SqueezeService extends Service {
                             e.printStackTrace();
                         }
                     }
-                    mDelegate.command(player).cmd("mixer", "volume", (direction > 0 ? "+" : "") + direction * mVolumeProvider.step).exec();
+                    int currentVolume = player.getPlayerState().getCurrentVolume();
+                    setPlayerVolume(player, currentVolume + adjust);
                 }
             }
+        }
+
+        private void setPlayerVolume(Player player, int percentage) {
+            int volume = Math.min(100, Math.max(0, percentage));
+            mDelegate.command(player).cmd("mixer", "volume", String.valueOf(volume)).exec();
+            player.getPlayerState().setCurrentVolume(volume);
+            mEventBus.post(new PlayerVolume(player));
         }
 
         @Override
@@ -1241,8 +1347,8 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public PlayerState getPlayerState() {
-            return getActivePlayerState();
+        public @NonNull VolumeInfo getVolume() {
+            return mDelegate.getVolume(mGroupVolume);
         }
 
         /**
@@ -1261,17 +1367,17 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean setSecondsElapsed(int seconds) {
-            if (!isConnected()) {
-                return false;
+        public void setSecondsElapsed(int seconds) {
+            if (isConnected() && seconds >= 0) {
+                mDelegate.activePlayerCommand().cmd("time", String.valueOf(seconds)).exec();
             }
-            if (seconds < 0) {
-                return false;
+        }
+
+        @Override
+        public void adjustSecondsElapsed(int seconds) {
+            if (isConnected()) {
+                mDelegate.activePlayerCommand().cmd("time", (seconds > 0 ? "+" : "") + seconds).exec();
             }
-
-            mDelegate.activePlayerCommand().cmd("time", String.valueOf(seconds)).exec();
-
-            return true;
         }
 
         @Override
@@ -1280,8 +1386,19 @@ public class SqueezeService extends Service {
             if (Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE.equals(key)) {
                 Preferences preferences = new Preferences(SqueezeService.this);
                 boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
-                List<String> archivedMenuItems = useArchive ? preferences.getArchivedMenuItems(getActivePlayer()) : Collections.emptyList();
-                mDelegate.setHomeMenu(archivedMenuItems);
+                List<String> archivedMenuItems = Collections.emptyList();
+                if ((useArchive) && (getActivePlayer() != null)) {
+                    archivedMenuItems = preferences.getArchivedMenuItems(getActivePlayer());
+                }
+                Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
+                mDelegate.setHomeMenu(archivedMenuItems, customShortcuts);
+            }
+            else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
+                Preferences preferences = new Preferences(SqueezeService.this);
+                if (preferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.DISABLED) {
+                    mDelegate.getHomeMenuHandling().removeAllShortcuts();
+                    preferences.saveShortcuts(preferences.convertShortcuts(mDelegate.getHomeMenuHandling().customShortcuts)); // TODO check for simplification
+                }
             } else {
                 cachePreferences();
             }
@@ -1413,7 +1530,28 @@ public class SqueezeService extends Service {
             Log.i(TAG, "downloadItem(" + item + ")");
             SlimCommand command = item.downloadCommand();
             IServiceItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;
-            mDelegate.requestItems(-1, callback).params(command.params).cmd(command.cmd()).exec();
+            mDelegate.requestAllItems(callback).params(command.params).cmd(command.cmd()).exec();
+        }
+
+        public Boolean randomPlayFolder(JiveItem item) {
+            SlimCommand command = item.randomPlayFolderCommand();
+            String folderID = (String) command.params.get("folder_id");
+            if (folderID == null) {
+                Log.e(TAG, "randomPlayFolder: No folder_id");
+                return false;
+            }
+            Set<String> played =
+                    new Preferences(SqueezeService.this).loadRandomPlayed(folderID);
+            Player player = mDelegate.getActivePlayer();
+            RandomPlay randomPlay = mDelegate.getRandomPlay(player);
+            randomPlay.reset(player);
+            RandomPlay.RandomPlayCallback randomPlayCallback
+                    = randomPlay.new RandomPlayCallback(randomPlayDelegate, folderID, played);
+            mDelegate.requestAllItems(randomPlayCallback)
+                    .params(command.params)
+                    .cmd(command.cmd())
+                    .exec();
+            return true;
         }
 
         public boolean toggleArchiveItem(JiveItem item) {
@@ -1429,6 +1567,16 @@ public class SqueezeService extends Service {
 
         public void triggerHomeMenuEvent() {
             mDelegate.triggerHomeMenuEvent();
+        }
+
+        @Override
+        public SlimDelegate getDelegate() {
+            return mDelegate;
+        }
+
+        @Override
+        public void removeCustomShortcut(JiveItem item) {
+            mDelegate.removeCustomShortcut(item);
         }
     }
 

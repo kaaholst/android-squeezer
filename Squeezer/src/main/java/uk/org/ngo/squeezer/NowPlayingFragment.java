@@ -26,7 +26,6 @@ import android.content.ServiceConnection;
 import android.content.res.ColorStateList;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -37,12 +36,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -52,10 +50,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.GestureDetectorCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
-import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
@@ -330,6 +324,23 @@ public class NowPlayingFragment extends Fragment {
                 }
             });
 
+            final GestureDetectorCompat detector = new GestureDetectorCompat(mActivity, new OnSwipeListener() {
+                @Override
+                public boolean onSwipeDown() {
+                    mActivity.finish();
+                    return true;
+                }
+
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    if (mService != null) new CuePanel(requireActivity(), albumArt, mService);
+                    return true;
+                }
+            });
+            albumArt.setOnTouchListener((view, event) -> {
+                return detector.onTouchEvent(event);
+            });
+
             shuffleButton.setOnClickListener(view -> mService.toggleShuffle());
 
             repeatButton.setOnClickListener(view -> mService.toggleRepeat());
@@ -348,7 +359,7 @@ public class NowPlayingFragment extends Fragment {
                 new Preferences(mActivity).setShowRemainingTime(showRemainingTime);
                 PlayerState playerState = getPlayerState();
                 if (playerState != null) {
-                    updateTimeDisplayTo((int)playerState.getCurrentTimeSecond(), playerState.getCurrentSongDuration());
+                    updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
                 }
             });
 
@@ -482,36 +493,25 @@ public class NowPlayingFragment extends Fragment {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setCustomView(R.layout.action_bar_custom_view);
-            Spinner spinner = (Spinner) actionBar.getCustomView();
+            AutoCompleteTextView spinner = actionBar.getCustomView().findViewById(R.id.player);
             final Context actionBarContext = actionBar.getThemedContext();
-            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    actionBarContext, android.R.layout.simple_spinner_dropdown_item,
-                    connectedPlayers) {
-                @Override
-                public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
-                            getItem(position).getName());
-                }
-
+            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(actionBarContext, R.layout.dropdown_item, connectedPlayers) {
                 @Override
                 public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
-                            getItem(position).getName());
+                    TextView view = (TextView) getActivity().getLayoutInflater().inflate(R.layout.dropdown_item, parent, false);
+                    view.setText(getItem(position).getName());
+                    return view;
                 }
             };
             spinner.setAdapter(playerAdapter);
-            spinner.setOnItemSelectedListener(null);
             playerAdapter.notifyDataSetChanged();
-            spinner.setSelection((activePlayer != null) ? playerAdapter.getPosition(activePlayer) : 0, false);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    mService.setActivePlayer(playerAdapter.getItem(position));
+            spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
+            spinner.setOnItemClickListener((adapterView, parent, position, id) -> {
+                Player selectedItem = playerAdapter.getItem(position);
+                spinner.setText(selectedItem.getName(), false);
+                if (getActivePlayer() != selectedItem) {
+                    mService.setActivePlayer(selectedItem);
                     updateUiFromPlayerState(mService.getActivePlayerState());
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
                 }
             });
         } else {
@@ -549,10 +549,8 @@ public class NowPlayingFragment extends Fragment {
             maybeRegisterCallbacks(mService);
         }
 
-        if (new Preferences(mActivity).isAutoConnect()) {
-            mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
-                    ConnectivityManager.CONNECTIVITY_ACTION));
-        }
+        mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     /**
@@ -615,8 +613,7 @@ public class NowPlayingFragment extends Fragment {
      */
     @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
-        updateTimeDisplayTo((int)playerState.getCurrentTimeSecond(),
-                playerState.getCurrentSongDuration());
+        updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
 
         CurrentPlaylistItem song = playerState.getCurrentSong();
         if (song == null) {
@@ -639,7 +636,7 @@ public class NowPlayingFragment extends Fragment {
                 artistText.setText(song.getArtist());
                 albumText.setText(song.getAlbum());
 
-                mService.pluginItems(song.moreAction, new IServiceItemListCallback<JiveItem>() {
+                mService.pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
@@ -683,15 +680,19 @@ public class NowPlayingFragment extends Fragment {
         return null;
     }
 
-    private boolean setSecondsElapsed(int seconds) {
-        return mService != null && mService.setSecondsElapsed(seconds);
+    private void disconnect() {
+        if (mService != null) mService.disconnect();
+    }
+
+    private void setSecondsElapsed(int seconds) {
+        if (mService != null) mService.setSecondsElapsed(seconds);
     }
 
     private PlayerState getPlayerState() {
         if (mService == null) {
             return null;
         }
-        return mService.getPlayerState();
+        return mService.getActivePlayerState();
     }
 
     private Player getActivePlayer() {
@@ -724,9 +725,7 @@ public class NowPlayingFragment extends Fragment {
 
         dismissConnectingDialog();
 
-        if (new Preferences(mActivity).isAutoConnect()) {
-            mActivity.unregisterReceiver(broadcastReceiver);
-        }
+        mActivity.unregisterReceiver(broadcastReceiver);
 
         if (mRegisteredCallbacks) {
             mService.getEventBus().unregister(this);
@@ -833,7 +832,7 @@ public class NowPlayingFragment extends Fragment {
             SettingsActivity.show(mActivity);
             return true;
         } else if (itemId == R.id.menu_item_disconnect) {
-            mService.disconnect();
+            disconnect();
             return true;
         } else if (itemId == R.id.menu_item_players) {
             PlayerListActivity.show(mActivity);
@@ -858,34 +857,6 @@ public class NowPlayingFragment extends Fragment {
         }
 
         Preferences preferences = new Preferences(mActivity);
-
-        // If we are configured to automatically connect on Wi-Fi availability
-        // we will also give the user the opportunity to enable Wi-Fi
-        if (preferences.isAutoConnect()) {
-            WifiManager wifiManager = (WifiManager) mActivity
-                    .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            if (!wifiManager.isWifiEnabled()) {
-                FragmentManager fragmentManager = getParentFragmentManager();
-                if (fragmentManager == null) {
-                    Log.i(TAG, "fragment manager is null so we can't show EnableWifiDialog");
-                    return;
-                }
-
-                FragmentTransaction ft = fragmentManager.beginTransaction();
-                Fragment prev = fragmentManager.findFragmentByTag(EnableWifiDialog.TAG);
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                ft.addToBackStack(null);
-
-                // Create and show the dialog.
-                DialogFragment enableWifiDialog = new EnableWifiDialog();
-                enableWifiDialog.show(ft, EnableWifiDialog.TAG);
-                return;
-                // When a Wi-Fi connection is made this method will be called again by the
-                // broadcastReceiver
-            }
-        }
 
         if (!preferences.hasServerConfig()) {
             // Set up a server connection, if it is not present

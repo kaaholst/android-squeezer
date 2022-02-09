@@ -25,18 +25,11 @@
     <string name="activity_settings_name">Instellingen</string>
     <string name="settings_serveraddr_hint">Naam of IP adres van server</string>
     <string name="settings_server_prompt">Kies een server</string>
-    <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat Wi-Fi
-        niet is verbonden.
-    </string>
     <string name="settings_username_hint">Gebruikersnaam (optioneel)</string>
     <string name="settings_password_hint">Wachtwoord (optioneel)</string>
     <string name="settings_server_scan_progress">Zoeken naar servers…</string>
     <string name="settings_fadeinsecs_title">Duur fade in</string>
     <string name="settings_fadeinsecs_summary">Voer aantal seconden in voor fade in na pauzeren. Voer 0 in om fade in uit te schakelen.</string>
-    <string name="settings_autoconnect_title">Automatisch verbinden.</string>
-    <string name="settings_autoconnect_summary">Bied aan Wi-Fi in te schakelen, en bij Wi-Fi
-        beschikbaarheid, probeer te verbinden.
-    </string>
     <string name="settings_scrobble_title">Scrobble naar Last.fm</string>
     <string name="settings_scrobble_on">Informatie van muzieknummer is verzonden naar Last.fm</string>
     <string name="settings_scrobble_off">Informatie van muzieknummer is niet verzonden naar Last.fm</string>
@@ -58,16 +51,10 @@
     <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
     <string name="disconnected_text">Contact verbroken.</string>
-    <string name="wifi_disabled_text">Wi-Fi is uitgeschakeld</string>
-    <string name="enable_wifi_text">Dit zet Wi-Fi aan op uw Android. Gelieve wachten voor een
-        actieve Wi-Fi connectie. Nu Wi-Fi aanzetten?
-    </string>
-    <string name="wifi_enabled_text">Wi-Fi staat aan. Wacht op actieve Wi-Fi verbinding.</string>
     <string name="notification_playing_text">%s speelt af</string>
     <string name="save_playlist_title">Bewaar playlist</string>
     <string name="save_playlist_hint">Voer naam playlist in</string>
     <string name="rename_title">Hernoem %s</string>
-    <string name="browse_items_text">%2$d %1$s</string>
     <string name="unknown_track">Onbekend nummer</string>
     <string name="unknown_album">Onbekend album</string>
     <string name="unknown_artist">Onbekende artiest</string>

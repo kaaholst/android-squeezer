@@ -49,7 +49,7 @@ Take new screenshots for market/screenshots.
 
 ### Upload to Google Play (beta, and production)
 
-    ./gradlew publishRelease
+    ./gradlew publishReleaseApk
 
 ### Upload to Amazon Appstore
 

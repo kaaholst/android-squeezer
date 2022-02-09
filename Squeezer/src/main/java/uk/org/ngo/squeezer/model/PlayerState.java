@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -73,6 +74,7 @@ public class PlayerState implements Parcelable {
         source.readStringList(mSyncSlaves);
         mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
         prefs = source.readHashMap(getClass().getClassLoader());
+        mPlayR =(source.readByte() == 1);
     }
 
     @Override
@@ -94,6 +96,7 @@ public class PlayerState implements Parcelable {
         dest.writeStringList(mSyncSlaves);
         dest.writeString(mPlayerSubscriptionType.name());
         dest.writeMap(prefs);
+        dest.writeByte(mPlayR ? (byte) 1 : (byte) 0);
     }
 
     @Override
@@ -138,6 +141,9 @@ public class PlayerState implements Parcelable {
     private int sleepDuration;
 
     private double sleep;
+
+    /** Is the player playing the tracks of a filesystem folder randomly (via context menu) **/
+    private boolean mPlayR;
 
     /** The player this player is synced to (null if none). */
     @Nullable
@@ -285,16 +291,18 @@ public class PlayerState implements Parcelable {
         this.remote = remote;
     }
 
-    public double getCurrentTimeSecond() {
-        return currentTimeSecond;
-    }
-
     public boolean setCurrentTimeSecond(double value) {
         if (value == currentTimeSecond)
             return false;
 
         currentTimeSecond = value;
         return true;
+    }
+
+    public int getTrackElapsed() {
+        double now = SystemClock.elapsedRealtime() / 1000.0;
+        double trackCorrection = rate * (now - statusSeen);
+        return  (int) (trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection);
     }
 
     public int getCurrentSongDuration() {
@@ -394,6 +402,15 @@ public class PlayerState implements Parcelable {
         mPlayerSubscriptionType = type;
     }
 
+    public boolean isRandomPlaying() {
+        return mPlayR;
+    }
+
+    private static final String TAG = "PlayerState";
+    public void setRandomPlaying(boolean b) {
+        mPlayR = b;
+    }
+
     @StringDef({PLAY_STATE_PLAY, PLAY_STATE_PAUSE, PLAY_STATE_STOP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface PlayState {}
@@ -419,6 +436,7 @@ public class PlayerState implements Parcelable {
                 ", mSyncMaster='" + mSyncMaster + '\'' +
                 ", mSyncSlaves=" + mSyncSlaves +
                 ", mPlayerSubscriptionType='" + mPlayerSubscriptionType + '\'' +
+                ", mPlayR='" + mPlayR + '\'' +
                 '}';
     }
 

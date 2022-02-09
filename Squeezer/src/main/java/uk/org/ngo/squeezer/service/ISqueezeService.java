@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
@@ -70,6 +71,9 @@ public interface ISqueezeService {
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
 
+    // Get the volume info of the active player or sync group if active player is synced
+    @NonNull VolumeInfo getVolume();
+
     // Player control
     void togglePower(Player player);
     void playerRename(Player player, String newName);
@@ -114,9 +118,9 @@ public interface ISqueezeService {
     boolean playlistSave(String name);
     boolean button(Player player, IRButton button);
 
-    boolean setSecondsElapsed(int seconds);
+    void setSecondsElapsed(int seconds);
+    void adjustSecondsElapsed(int seconds);
 
-    PlayerState getPlayerState();
     String getCurrentPlaylist();
 
     /**
@@ -129,6 +133,11 @@ public interface ISqueezeService {
     void toggleMute(Player player);
     void setVolumeTo(int newVolume);
     void adjustVolume(int direction);
+
+    /**
+     * @return  whether the active player is in a sync group where the player's volumes are not synced by LMS
+     */
+    boolean canAdjustVolumeForSyncGroup();
 
     /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
@@ -223,4 +232,36 @@ public interface ISqueezeService {
      * Trigger the event from another class
      */
     void triggerHomeMenuEvent();
+
+    /**
+     * Get mDelegate
+     * @return
+     */
+    SlimDelegate getDelegate();
+
+    /**
+     * Remove the item after it was long pressed on the home menu screen
+     * @param item
+     */
+    void removeCustomShortcut(JiveItem item);
+
+    class VolumeInfo {
+        /** True if the volume is muted */
+        public final boolean muted;
+
+        /** The player's new volume. */
+        public final int volume;
+
+        /** Name of player or group. */
+        @NonNull
+        public final String name;
+
+        public VolumeInfo(boolean muted, int volume, @NonNull String name) {
+            this.muted = muted;
+            this.volume = volume;
+            this.name = name;
+        }
+    }
+
+    Boolean randomPlayFolder(JiveItem item);
 }

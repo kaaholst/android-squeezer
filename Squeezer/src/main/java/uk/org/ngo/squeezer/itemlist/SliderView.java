@@ -36,6 +36,7 @@ public class SliderView extends ItemViewHolder<JiveItem> {
 
     @Override
     public void bindView(JiveItem item) {
+        super.bindView(item);
         com.google.android.material.slider.Slider seekBar = itemView.findViewById(R.id.slider);
         final Slider slider = item.slider;
         seekBar.setValue(slider.initial);

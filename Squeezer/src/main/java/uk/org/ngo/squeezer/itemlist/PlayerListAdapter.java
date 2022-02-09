@@ -147,7 +147,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the sync master to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#updateSyncGroups(Collection)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(List)} for how this map is
      *     generated.
      */
     void setSyncGroups(Map<String, Collection<Player>> playerSyncGroups) {
@@ -201,7 +201,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         holder.contextMenuButton.setVisibility(syncGroup.getItemCount() > 1 ? View.VISIBLE : View.GONE);
         holder.contextMenuButton.setOnClickListener(v -> showContextMenu(holder));
 
-        holder.groupVolume.setVisibility(syncGroup.getItemCount() > 1 && !("1".equals(syncGroup.getItem(0).getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME))) ? View.VISIBLE : View.GONE);
+        holder.groupVolume.setVisibility(syncGroup.getItemCount() > 1 && !syncGroup.getItem(0).isSyncVolume() ? View.VISIBLE : View.GONE);
         holder.volumeOffsets = new int[syncGroup.getItemCount()];
         holder.calcGroupOffsets();
         holder.volumeBar.clearOnChangeListeners();

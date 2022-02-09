@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 import android.view.View;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +37,7 @@ import uk.org.ngo.squeezer.model.Item;
 public abstract class ItemViewHolder<T extends Item> extends RecyclerView.ViewHolder {
 
     private final BaseActivity activity;
+    protected T item;
 
     public ItemViewHolder(@NonNull BaseActivity activity, @NonNull View view) {
         super(view);
@@ -55,6 +57,9 @@ public abstract class ItemViewHolder<T extends Item> extends RecyclerView.ViewHo
      *
      * @param item The item to be bound
      */
-    public abstract void bindView(final T item);
+    @CallSuper
+    public void bindView(final T item) {
+        this.item = item;
+    }
 
 }

@@ -13,7 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">Squeezer</string>
     <string name="undo">Undo</string>
     <string name="on">On</string>
@@ -29,10 +31,6 @@
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_manual_server_addr">Manually enter address</string>
     <string name="settings_server_prompt">Choose a server</string>
-    <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Server discovery is disabled, because Wi-Fi is not
-        connected.
-    </string>
     <string name="settings_local_server">Local server</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
@@ -51,6 +49,7 @@
         <p>This requires the computer running the Squeezebox Server to be configured to use Wake-on-LAN.</p>]]>
     </string>
     <string name="settings_server_scan_progress">Scanning for servers…</string>
+    <string name="settings_volume_title">Settings for Volume Control </string>
     <string name="settings_background_volume_title">Background Volume Control</string>
     <string name="settings_background_volume_off">Control player volume only when the app is visible.</string>
     <string name="settings_background_volume_on">Allow changing player volume even when the app is not visible.</string>
@@ -59,10 +58,6 @@
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when
         unpausing, in seconds. Enter 0 to disable fade in.
-    </string>
-    <string name="settings_autoconnect_title">Auto-connect</string>
-    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability,
-        try to connect
     </string>
     <string name="settings_action_on_incoming_call_title">Action when you receive or make a call</string>
     <string name="settings_no_action_on_incoming_call">No action</string>
@@ -99,22 +94,16 @@
     <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
     <string name="invalid_url_text">Please enter a valid address.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="wifi_disabled_text">Wi-Fi is disabled</string>
-    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
-        Wi-Fi connection is made, Squeezer will automatically try to connect to your SqueezeBox
-        Server. Turn on Wi-Fi now?
-    </string>
-    <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
-    </string>
     <string name="notification_playing_text">%s playing</string>
     <string name="save_playlist_title">Save playlist</string>
     <string name="save_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
-    <string name="browse_items_text">%2$d %1$s</string>
 
     <string name="player_group_header">Group: %s</string>
     <string name="player_group_volume">Group volume</string>
+    <string name="player_group_volume_on">Adjust volume for synced players</string>
+    <string name="player_group_volume_off">Adjust volume for selected player only</string>
     <string name="menu_item_player_sync">Synchronize…</string>
     <string name="menu_item_player_unsync">No synchronization</string>
 
@@ -387,7 +376,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="disable_downloads">Disable downloads</string>
 
     <string name="about_team" translatable="false">Team</string>
-    <string name="about_authors" translatable="false">Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
+    <string name="about_authors" translatable="false">Benjamin Viertel\nKurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
     <string name="about_support" translatable="false">Support</string>
     <string name="about_support_text" translatable="false">https://github.com/kaaholst/android-squeezer</string>
     <string name="mysqueezebox_com" translatable="false">mysqueezebox.com</string>
@@ -409,9 +398,24 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="remote_preset6Description">Preset 6</string>
     <string name="ARCHIVE_NODE">Archive</string>
     <string name="MENU_ITEM_MOVED">Menu item moved</string>
-    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are alread in Archive!</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are already in Archive!</string>
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Archive cannot be archived!</string>
     <string name="ARCHIVE_NODE_REMOVED">Removed empty Archive</string>
-    <string name="CUSTOM_NODE">Custom</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">This item can not be archived!</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Custom shortcut removed</string>
+    <string name="ITEM_IS_ALREADY_A_SHORTCUT">Is already a shortcut!</string>
+    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut put on home menu</string>
+    <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Can not be shortcut or archived!</string>
+    <string name="settings_custom_shortcut_enabled">Long press puts a suitable item on home screen</string>
+    <string name="settings_custom_shortcut_disabled">Custom shortcuts disabled</string>
+    <string name="settings_custom_shortcut_locked">Disable long press, but leave shortcuts on home screen.</string>
+    <string name="settings_customize_customShortcut_mode">Custom Shortcuts</string>
+    <string name="settings_customize_customShortcut_info">Long press puts shortcuts on top level menu.
+        (Changes in folders need renewed shortcuts.)</string>
+    <string name="ITEM_CANNOT_BE_SHORTCUT">Item can not be shortcut!</string>
+    <string name="PLAY_RANDOM_FOLDER">Play random</string>
+    <string name="backward" translatable="false">⏪ %d</string>
+    <string name="forward" translatable="false">%d ⏩</string>
+    <string name="backward_seconds">Backward seconds</string>
+    <string name="forward_seconds">Forward seconds</string>
 </resources>

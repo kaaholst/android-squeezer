@@ -47,10 +47,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -363,27 +366,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     public void onEvent(PlayerVolume event) {
-        if (!mIgnoreVolumeChange && mVolumePanel != null && event.player == mService.getActivePlayer()) {
-            mVolumePanel.postVolumeChanged(event.muted, event.volume, event.player.getName());
+        if (!mIgnoreVolumeChange && mService != null && event.player == mService.getActivePlayer()) {
+            showVolumePanel();
         }
     }
 
     // Show the volume dialog.
-    public boolean showVolumePanel() {
-        if (mService != null) {
-            PlayerState playerState = mService.getPlayerState();
-            Player player = mService.getActivePlayer();
-
-            if (playerState != null  && mVolumePanel != null) {
-                mVolumePanel.postVolumeChanged(playerState.isMuted(), playerState.getCurrentVolume(),
-                        player == null ? "" : player.getName());
-            }
-
-            return true;
-        } else {
-            return false;
+    public void showVolumePanel() {
+        if (mService != null && mVolumePanel != null) {
+            ISqueezeService.VolumeInfo volumeInfo = mService.getVolume();
+            mVolumePanel.postVolumeChanged(volumeInfo.muted, volumeInfo.volume, volumeInfo.name);
         }
     }
+
 
     public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
         mIgnoreVolumeChange = ignoreVolumeChange;
@@ -418,7 +413,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         text.setText(display.text);
 
         if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
-            if (display.isIcon() && new HashSet<String>(Arrays.asList("play", "pause", "fwd", "rew")).contains(display.style)) {
+            if (display.isIcon() && new HashSet<String>(Arrays.asList("play", "pause", "stop", "fwd", "rew")).contains(display.style)) {
                 // Play status is updated in the NowPlayingFragment (either full-screen or mini)
                 showMe = false;
             } else {
@@ -508,6 +503,14 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             } else
                 mService.downloadItem(item);
+        }
+    }
+
+    public void randomPlayFolder(JiveItem item) {
+        if (!mService.randomPlayFolder(item)) {
+            showDisplayMessage("Unable to start Random Play");
+        } else {
+            showDisplayMessage("Random Play started");
         }
     }
 

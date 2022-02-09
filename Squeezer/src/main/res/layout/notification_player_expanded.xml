@@ -21,18 +21,17 @@
     android:layout_width="match_parent"
     android:layout_height="128dp">
 
-    <!-- RemoteViews do not support custom views such as uk.org.ngo.squeezer.widget.SquareImageView. -->
     <ImageView
         android:id="@+id/album"
-        android:layout_width="@dimen/album_art_icon_expanded_notification_width"
-        android:layout_height="@dimen/album_art_icon_expanded_notification_height"
+        android:layout_width="@dimen/album_art_icon_expanded_notification_size"
+        android:layout_height="@dimen/album_art_icon_expanded_notification_size"
         android:layout_gravity="center"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:maxHeight="@dimen/album_art_icon_expanded_notification_height"
-        android:maxWidth="@dimen/album_art_icon_expanded_notification_width"
-        android:minHeight="@dimen/album_art_icon_expanded_notification_height"
-        android:minWidth="@dimen/album_art_icon_expanded_notification_width"
+        android:maxHeight="@dimen/album_art_icon_expanded_notification_size"
+        android:maxWidth="@dimen/album_art_icon_expanded_notification_size"
+        android:minHeight="@dimen/album_art_icon_expanded_notification_size"
+        android:minWidth="@dimen/album_art_icon_expanded_notification_size"
         android:scaleType="centerCrop"
         tools:src="@drawable/pending"
         tools:ignore="ContentDescription"/>

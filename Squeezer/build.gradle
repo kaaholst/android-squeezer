@@ -2,14 +2,11 @@ buildscript {
     repositories {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
-    dependencies {
-        classpath 'com.github.triplet.gradle:play-publisher:3.4.0-agp4.2'
-    }
 }
 
 plugins {
     id 'com.android.application'
-    id 'com.github.triplet.play' version '2.3.0'
+    id 'com.github.triplet.play' version '3.7.0'
 }
 
 apply plugin: 'uk.org.ngo.gradle.whatsnew'
@@ -25,10 +22,10 @@ dependencies {
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.annotation:annotation:1.3.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.5.0'
     implementation 'androidx.preference:preference:1.1.1'
 
     // EventBus, https://github.com/greenrobot/EventBus.
@@ -48,7 +45,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-android:1.7.30'
 
     // JVM tests
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 android {
@@ -66,8 +63,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 104
-        versionName "2.2.7"
+        versionCode 110
+        versionName "2.2.8"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -76,15 +73,12 @@ android {
     compileOptions {
         // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
-        // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        // Sets Java compatibility to Java 11
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     lintOptions {
-        // Downgrade missing translations to non-fatal severity.
-        warning 'MissingTranslation'
-        warning 'ImpliedQuantity'
         lintConfig file("lint.xml")
     }
 
@@ -110,10 +104,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            ext.enableCrashlytics = false
-        }
-
         release {
             minifyEnabled true
             shrinkResources true
@@ -201,6 +191,9 @@ slimstrings {
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_4',
+            'SETUP_DIGITALVOLUMECONTROL',
+            'SETUP_DIGITALVOLUMECONTROL_OFF',
+            'SETUP_DIGITALVOLUMECONTROL_ON',
             'SETUP_SYNCVOLUME',
             'SETUP_SYNCVOLUME_DESC',
             'SETUP_SYNCVOLUME_OFF',

@@ -24,20 +24,31 @@ import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.eclipse.jetty.util.ajax.JSON;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -74,7 +85,7 @@ public final class Preferences {
     private static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
 
     // Do we automatically try and connect on WiFi availability?
-    public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
+    private static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
 
     // Pause music on incoming call? (OLD setting use to initialize action on incoming call
     private static final String KEY_PAUSE_ON_INCOMING_CALL = "squeezer.pause_on_incoming_call";
@@ -102,10 +113,13 @@ public final class Preferences {
     public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
 
     // Background Volume Control
-    static final String KEY_BACKGROUND_VOLUME = "squeezer.backgroundVolume";
+    private static final String KEY_BACKGROUND_VOLUME = "squeezer.backgroundVolume";
 
     // Volume up/down increments
     private static final String KEY_VOLUME_INCREMENTS = "squeezer.volumeIncrements";
+
+    // Adjust volume for sync group when applicable
+    private static final String KEY_GROUP_VOLUME = "squeezer.groupVolume";
 
     // Fade-in period? (0 = disable fade-in)
     static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
@@ -165,14 +179,27 @@ public final class Preferences {
     // Archive mode
     public static final String KEY_CUSTOMIZE_HOME_MENU_MODE = "squeezer.customize_home_menu.mode";
 
+    // Custom shortcut mode
+    public static final String KEY_CUSTOMIZE_SHORTCUT_MODE = "squeezer.customize_shortcut.mode";
+
     // Map JiveItems to archive
     private static final String KEY_PLAYER_ARCHIVED_ITEMS_FORMAT = "squeezer.archived_menu_items.%s";
+
+    // Map custom shortcut in home menu
+    private static final String CUSTOM_SHORTCUTS = "squeezer.custom_shortcut_items";
 
     // Preferred time input method.
     private static final String KEY_TIME_INPUT_MODE = "squeezer.time_input_mode";
 
     // Show total time or remaining time.
     private static final String KEY_SHOW_REMAINING_TIME = "squeezer.show_remaining_Time";
+
+    // Store played tracks per folderID for 'Random play folders'
+    private static final String KEY_FOLDERID_RANDOM_PLAYED = "squeezer.random_played_tracks.%s";
+
+    // Number of seconds for the quick jump backward/forward buttons.
+    private static final String KEY_BACKWARD_SECONDS = "squeezer.backword_jump";
+    private static final String KEY_FORWARD_SECONDS = "squeezer.forword_jump";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -258,6 +285,23 @@ public final class Preferences {
 
     private String prefix(ServerAddress serverAddress) {
         return (serverAddress.bssId != null ? serverAddress.bssId + "_ " : "") + serverAddress.localAddress() + "_";
+    }
+
+    public void saveRandomPlayed(String folderID, Set<String> set) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(String.format(KEY_FOLDERID_RANDOM_PLAYED, folderID),
+                TextUtils.join(";", set));
+        editor.apply();
+    }
+
+    public Set<String> loadRandomPlayed(String folderID) {
+        Set<String> set = new HashSet<>();
+        String string = sharedPreferences.getString(String.format(KEY_FOLDERID_RANDOM_PLAYED, folderID), null);
+        if (TextUtils.isEmpty(string)) {
+            return set;
+        }
+        Collections.addAll(set, string.split(";"));
+        return set;
     }
 
     public static class ServerAddress {
@@ -401,8 +445,24 @@ public final class Preferences {
         return sharedPreferences.getBoolean(KEY_BACKGROUND_VOLUME, true);
     }
 
+    public void setBackgroundVolume(boolean backgroundVolume) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_BACKGROUND_VOLUME, backgroundVolume).apply();
+    }
+
     public int getVolumeIncrements() {
         return sharedPreferences.getInt(KEY_VOLUME_INCREMENTS, 5);
+    }
+
+    public void setVolumeIncrements(int step) {
+        sharedPreferences.edit().putInt(Preferences.KEY_VOLUME_INCREMENTS, step).apply();
+    }
+
+    public boolean isGroupVolume() {
+        return sharedPreferences.getBoolean(KEY_GROUP_VOLUME, true);
+    }
+
+    public void setGroupVolume(boolean groupVolume) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_GROUP_VOLUME, groupVolume).apply();
     }
 
     public int getFadeInSecs() {
@@ -414,9 +474,7 @@ public final class Preferences {
     }
 
     public void setTheme(ThemeManager.Theme theme) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name());
-        editor.apply();
+        sharedPreferences.edit().putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name()).apply();
     }
 
     public boolean isScrobbleEnabled() {
@@ -429,10 +487,6 @@ public final class Preferences {
 
     public void setClearPlaylistConfirmation(boolean b) {
         sharedPreferences.edit().putBoolean(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION, b).apply();
-    }
-
-    public boolean isAutoConnect() {
-        return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
     }
 
     public IncomingCallAction getActionOnIncomingCall() {
@@ -484,9 +538,7 @@ public final class Preferences {
     }
 
     private void setListLayout(String preference, ArtworkListLayout artworkListLayout) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(preference, artworkListLayout.name());
-        editor.apply();
+        sharedPreferences.edit().putString(preference, artworkListLayout.name()).apply();
     }
 
     /** Get max lines for the supplied list layout. */
@@ -495,9 +547,7 @@ public final class Preferences {
     }
 
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines);
-        editor.apply();
+        sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
     }
 
     /**
@@ -550,6 +600,12 @@ public final class Preferences {
         return string == null ? CustomizeHomeMenuMode.ARCHIVE : CustomizeHomeMenuMode.valueOf(string);
     }
 
+    public CustomizeShortcutsMode getCustomizeShortcutsMode() {
+        String string = sharedPreferences.getString(KEY_CUSTOMIZE_SHORTCUT_MODE, null);
+        return string == null ? CustomizeShortcutsMode.ENABLED : CustomizeShortcutsMode.valueOf(string);
+    }
+
+    @NonNull
     public List<String> getArchivedMenuItems(Player player) {
         List<String> list = new ArrayList<>();
         String string = sharedPreferences.getString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), null);
@@ -564,8 +620,54 @@ public final class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), TextUtils.join(";", list));
         editor.apply();
-        return;
     }
+
+    public void saveShortcuts(Map<String, Object> map) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        JSONObject json = new JSONObject(map);
+        editor.putString(CUSTOM_SHORTCUTS, json.toString());
+        editor.apply();
+    }
+
+//  TODO If possible, remove this or CustomJiveItemHandling.convertShortcuts()
+    public Map<String, Object> convertShortcuts(List<JiveItem> customShortcuts) {
+        Map<String, Object> map = new HashMap<>();
+        for (JiveItem item : customShortcuts) {
+            map.put(item.getName(), item.getRecord());
+        }
+        return map;
+    }
+
+    /**
+     * Return a map of names (keys) of shortcuts with value: Map<String, Object> which is a record
+     * and can be used as such when generating JiveItems
+     */
+    public HashMap<String, Map<String, Object>> restoreCustomShortcuts() {
+        HashMap<String, Map<String, Object>> allShortcutsFromPref = new HashMap<>();
+        String jsonString = sharedPreferences.getString(CUSTOM_SHORTCUTS, null);
+        if (TextUtils.isEmpty(jsonString)) {
+            return allShortcutsFromPref;
+        }
+        try {
+//          whole String to JSON, then extract name/record pairs
+            JSONObject allShortcuts = new JSONObject(jsonString);
+            Iterator<String> keysItr = allShortcuts.keys();
+            while (keysItr.hasNext()) {
+                String key = keysItr.next();
+                JSON json = new JSON();
+                try {
+                    Map<String, Object> recordFromPref = (Map) json.parse(allShortcuts.getString(key));
+                    allShortcutsFromPref.put(key, recordFromPref);
+                } catch (IllegalStateException e) {
+                    Log.w(TAG, "Can't parse custom shortcut '" + key + "': " + e.getMessage());
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return allShortcutsFromPref;
+    }
+
 
     public boolean isDownloadEnabled() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_ENABLED, true);
@@ -613,6 +715,22 @@ public final class Preferences {
         sharedPreferences.edit().putBoolean(Preferences.KEY_SHOW_REMAINING_TIME, showRemainingTime).apply();
     }
 
+    public int getBackwardSeconds() {
+        return sharedPreferences.getInt(KEY_BACKWARD_SECONDS, 10);
+    }
+
+    public void setBackwardSeconds(int seconds) {
+        sharedPreferences.edit().putInt(KEY_BACKWARD_SECONDS, seconds).apply();
+    }
+
+    public int getForwardSeconds() {
+        return sharedPreferences.getInt(KEY_FORWARD_SECONDS, 10);
+    }
+
+    public void setForwardSeconds(int seconds) {
+        sharedPreferences.edit().putInt(KEY_FORWARD_SECONDS, seconds).apply();
+    }
+
     public enum IncomingCallAction implements EnumWithText {
         NONE(R.string.settings_no_action_on_incoming_call),
         PAUSE(R.string.pause),
@@ -638,6 +756,23 @@ public final class Preferences {
         private final int labelId;
 
         CustomizeHomeMenuMode(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
+
+    public enum CustomizeShortcutsMode implements EnumWithText {
+        ENABLED(R.string.settings_custom_shortcut_enabled),
+        DISABLED(R.string.settings_custom_shortcut_disabled),
+        LOCKED(R.string.settings_custom_shortcut_locked);
+
+        private final int labelId;
+
+        CustomizeShortcutsMode(int labelId) {
             this.labelId = labelId;
         }
 

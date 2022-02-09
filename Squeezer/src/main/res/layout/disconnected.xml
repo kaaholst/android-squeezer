@@ -12,25 +12,19 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <uk.org.ngo.squeezer.dialog.ServerAddressView
-                android:id="@+id/server_address_view"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onUserInitiatesConnect"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/menu_item_connect"/>
-        </LinearLayout>
+        <uk.org.ngo.squeezer.dialog.ServerAddressView
+            android:id="@+id/server_address_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
     </ScrollView>
+
+    <Button
+        android:id="@+id/connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/menu_item_connect"/>
 
     <!--
       Fragment needs to be present to provide menus, but does not need

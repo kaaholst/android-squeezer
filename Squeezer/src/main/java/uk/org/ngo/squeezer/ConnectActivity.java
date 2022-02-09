@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.IntDef;
 
@@ -69,6 +68,8 @@ public class ConnectActivity extends BaseActivity {
         setContentView(R.layout.disconnected);
         serverAddressView = findViewById(R.id.server_address_view);
         setErrorMessageFromReason(mDisconnectionReason);
+
+        findViewById(R.id.connect).setOnClickListener(view -> onUserInitiatesConnect());
     }
 
     /**
@@ -152,10 +153,8 @@ public class ConnectActivity extends BaseActivity {
 
     /**
      * Act on the user requesting a server connection through the activity's UI.
-     *
-     * @param view The view the user pressed.
      */
-    public void onUserInitiatesConnect(View view) {
+    public void onUserInitiatesConnect() {
         if (serverAddressView.savePreferences()) {
             NowPlayingFragment fragment = (NowPlayingFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.now_playing_fragment);

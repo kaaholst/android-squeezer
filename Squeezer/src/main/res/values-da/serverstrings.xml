@@ -1,9 +1,11 @@
-<resources>"xmlns:tools="http://schemas.android.com/tools"<!-- 
+<resources xmlns:tools='http://schemas.android.com/tools' tools:ignore='MissingTranslation'><!-- 
 Automatically generated file. DO NOT MODIFY
  -->
+  <string name='SETUP_DIGITALVOLUMECONTROL'>Justering af lydstyrke</string>
   <string name='X_MINUTES'>%s minutter</string>
   <string name='SLEEP'>Slumre</string>
   <string name='ALARM'>Vækkeur</string>
+  <string name='SETUP_DIGITALVOLUMECONTROL_OFF'>Udgangsnivau er fast 100%</string>
   <string name='SETUP_SYNCPOWER_ON'>Tænd/sluk med gruppe</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Fjerner\n%s\nfra afspilningsliste…</string>
   <string name='SETTINGS'>Indstillinger</string>
@@ -30,6 +32,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_SYNCVOLUME_OFF'>Synkroniser ikke afspillerens lydstyrke</string>
   <string name='CLEARING_PLAYLIST'>Rydder afspilningsliste…</string>
   <string name='ALARM_SHORT_DAY_3'>Ons</string>
+  <string name='SETUP_DIGITALVOLUMECONTROL_ON'>Lydstyrkekontrol er aktiveret for udgange</string>
   <string name='ALARM_SHORT_DAY_0'>Søn</string>
   <string name='ALARM_SHORT_DAY_1'>Man</string>
   <string name='ALARM_SET_TIME'>Indstil uret</string>

@@ -31,6 +31,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.view.GestureDetectorCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
 import java.util.Map;
 
@@ -100,7 +101,8 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-        getListView().setOnDragListener(new ListDragListener(this));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CurrentPlaylistItemCallback(this));
+        itemTouchHelper.attachToRecyclerView(getListView());
     }
 
     @Override
@@ -247,17 +249,15 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         super.onItemsReceived(count, start, parameters, playlistItems, dataType);
 
         ISqueezeService service = getService();
-        if (service == null) {
-            return;
-        }
-
-        int selectedIndex = service.getPlayerState().getCurrentPlaylistIndex();
-        setSelectedIndex(selectedIndex);
-        // Initially position the list at the currently playing song.
-        // Do it again once it has loaded because the newly displayed items
-        // may push the current song outside the displayed area
-        if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
-            runOnUiThread(() -> getListView().scrollToPosition(selectedIndex));
+        if (service != null) {
+            int selectedIndex = service.getActivePlayerState().getCurrentPlaylistIndex();
+            setSelectedIndex(selectedIndex);
+            // Initially position the list at the currently playing song.
+            // Do it again once it has loaded because the newly displayed items
+            // may push the current song outside the displayed area
+            if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
+                runOnUiThread(() -> getListView().scrollToPosition(selectedIndex));
+            }
         }
     }
 

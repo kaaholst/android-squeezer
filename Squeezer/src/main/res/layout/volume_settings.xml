@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ Copyright (c) 2022 Kurt Aaholst <kaaholst@gmail.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="24dp"
+        android:paddingHorizontal="24dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SqueezerTextAppearance.Medium"
+            android:text="@string/settings_background_volume_title"/>
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/background_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:textAppearance="@style/SqueezerTextAppearance.Small"
+            tools:text="@string/settings_background_volume_on"/>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SqueezerTextAppearance.Medium"
+            android:text="@string/settings_volume_increment_title"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SqueezerTextAppearance.Small"
+            android:text="@string/settings_volume_increment_summary"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/volume_increments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:valueFrom="1"
+            android:valueTo="10"
+            android:stepSize="1" />
+
+        <TextView
+            android:id="@+id/group_volume_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SqueezerTextAppearance.Medium"
+            android:text="@string/player_group_volume"/>
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/group_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SqueezerTextAppearance.Small"
+            android:text="@string/player_group_volume_off" />
+
+        <TextView
+            android:id="@+id/fixed_volume_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SqueezerTextAppearance.Medium"
+            android:text="@string/SETUP_DIGITALVOLUMECONTROL"/>
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/fixed_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SqueezerTextAppearance.Small"
+            android:text="@string/SETUP_DIGITALVOLUMECONTROL_OFF" />
+    </LinearLayout>
+</ScrollView>

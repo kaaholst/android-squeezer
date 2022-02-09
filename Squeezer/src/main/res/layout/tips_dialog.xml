@@ -34,7 +34,7 @@ limitations under the License.
             android:layout_width="fill_parent"
             android:text="@string/tips_title"
             android:textSize="32sp"
-            app:drawableLeftCompat="@drawable/ic_launcher"
+            app:drawableLeftCompat="@drawable/logo"
             android:drawablePadding="8dp"/>
 
         <TextView

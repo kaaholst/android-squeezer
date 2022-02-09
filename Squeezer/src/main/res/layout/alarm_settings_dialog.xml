@@ -14,21 +14,24 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:paddingBottom="16dp"
     android:paddingEnd="8dp"
     android:paddingStart="8dp"
     android:paddingTop="16dp">
 
     <TextView
+        android:id="@+id/alarm_volume_title"
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="@string/alarm_volume_text" />
@@ -38,6 +41,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_volume_title"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         tools:text="Volume hint text" />
@@ -46,7 +51,8 @@
         android:id="@+id/alarm_volume_slider"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/alarm_volume_hint"
+        app:layout_constraintStart_toStartOf="parent"
         app:labelBehavior="gone"
         tools:value="50"
         android:valueFrom="0"
@@ -57,9 +63,12 @@
         android:paddingEnd="16dp" />
 
     <TextView
+        android:id="@+id/alarm_snooze_title"
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_volume_slider"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="@string/alarm_snooze_duration_text" />
@@ -69,6 +78,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_snooze_title"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         tools:text="Snooze hint text" />
@@ -77,7 +88,8 @@
         android:id="@+id/alarm_snooze_slider"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/alarm_snooze_hint"
+        app:layout_constraintStart_toStartOf="parent"
         app:labelBehavior="gone"
         tools:value="9"
         android:valueFrom="0"
@@ -88,9 +100,12 @@
         android:paddingEnd="16dp" />
 
     <TextView
+        android:id="@+id/alarm_timeout_title"
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_snooze_slider"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="@string/alarm_timeout_text" />
@@ -100,6 +115,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_timeout_title"
+        app:layout_constraintStart_toStartOf="parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="@string/alarm_timeout_hint_text_zero" />
@@ -108,7 +125,8 @@
         android:id="@+id/alarm_timeout_slider"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/alarm_timeout_hint"
+        app:layout_constraintStart_toStartOf="parent"
         app:labelBehavior="gone"
         tools:value="60"
         android:valueFrom="0"
@@ -118,36 +136,34 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/alarm_fade_title"
+        style="@style/SqueezerTextAppearance.ListItem.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_timeout_slider"
+        app:layout_constraintStart_toStartOf="parent"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/alarm_fade_text" />
 
-        <TextView
-            android:id="@+id/textView7"
-            style="@style/SqueezerTextAppearance.ListItem.Primary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="@string/alarm_fade_text" />
+    <TextView
+        android:id="@+id/alarm_fade_hint"
+        style="@style/SqueezerTextAppearance.ListItem.Secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/alarm_fade_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/alarm_fade_off_text" />
 
-        <TextView
-            android:id="@+id/alarm_fade_hint"
-            style="@style/SqueezerTextAppearance.ListItem.Secondary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView7"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="@string/alarm_fade_off_text" />
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/alarm_fade"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        app:layout_constraintTop_toBottomOf="@id/alarm_timeout_slider"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/alarm_fade"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="16dp" />
-    </RelativeLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

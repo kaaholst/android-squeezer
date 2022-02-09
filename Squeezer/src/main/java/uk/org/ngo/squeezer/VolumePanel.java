@@ -39,6 +39,7 @@ import androidx.core.graphics.ColorUtils;
 import com.sdsmdg.harjot.crollerTest.Croller;
 import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
 
+import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -96,6 +97,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         });
 
         label = view.findViewById(R.id.label);
+        view.findViewById(R.id.settings).setOnClickListener(view1 -> new VolumeSettings().show(activity.getSupportFragmentManager(), VolumeSettings.class.getName()));
 
         seekbar = view.findViewById(R.id.level);
         seekbar.setOnCrollerChangeListener(this);

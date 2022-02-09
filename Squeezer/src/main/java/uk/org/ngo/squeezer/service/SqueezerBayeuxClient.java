@@ -26,6 +26,7 @@ import org.cometd.common.HashMapMessage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -36,6 +37,7 @@ import uk.org.ngo.squeezer.BuildConfig;
  */
 class SqueezerBayeuxClient extends BayeuxClient {
     private static final String TAG = SqueezerBayeuxClient.class.getSimpleName();
+    private static final boolean LOG_JSON_PRETTY_PRINT = false;
 
     SqueezerBayeuxClient(String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
@@ -46,7 +48,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
         super.onSending(messages);
         for (Message message : messages) {
             if (BuildConfig.DEBUG) {
-                Log.v(TAG, "SEND: " + message.getJSON());
+                logMessage("SEND", message);
             }
         }
     }
@@ -56,7 +58,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
         super.onMessages(messages);
         for (Message message : messages) {
             if (BuildConfig.DEBUG) {
-                Log.v(TAG, "RECV: " + message.getJSON());
+                logMessage("RECV", message);
             }
         }
     }
@@ -82,5 +84,53 @@ class SqueezerBayeuxClient extends BayeuxClient {
         message.getAdvice(true).put(Message.RECONNECT_FIELD, Message.RECONNECT_HANDSHAKE_VALUE);
         message.setClientId(getId());
         processHandshake(message);
+    }
+
+    private void logMessage(String s, Message message) {
+        if (LOG_JSON_PRETTY_PRINT) {
+            StringBuilder sb = new StringBuilder();
+            json(sb, 0, null, message);
+            // To avoid having long messages truncated
+            while (sb.length() > 4000) {
+                Log.v(TAG, s + ":\n" + sb.substring(0, 4000));
+                sb.delete(0, 4000);
+            }
+            Log.v(TAG, s + ":\n" + sb.toString());
+        } else {
+            Log.v(TAG, s + ": " + message.getJSON());
+        }
+    }
+
+    private void json(StringBuilder sb, int indent, String key, Object object) {
+        if (indent > 0) sb.append(String.format("%" + indent*2 + "s", ""));
+        if (key != null) {
+            sb.append(key);
+        }
+        if (object == null) {
+            sb.append("null\n");
+        } else if (object.getClass().isArray()) {
+            Object[] arr = (Object[]) object;
+            sb.append("[\n");
+            for (Object o : arr) {
+                json(sb, indent+1, null, o);
+            }
+            json(sb, indent, null, "]");
+        } else if (object instanceof List) {
+            List<?> list = (List<?>) object;
+            sb.append("[\n");
+            for (Object o : list) {
+                json(sb, indent+1, null, o);
+            }
+            json(sb, indent, null, "]");
+        } else if (object instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) object;
+            sb.append("{\n");
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                json(sb, indent+1, entry.getKey() + ": ", entry.getValue());
+            }
+            json(sb, indent, null, "}");
+        } else {
+            sb.append(object.toString()).append("\n");
+        }
     }
 }

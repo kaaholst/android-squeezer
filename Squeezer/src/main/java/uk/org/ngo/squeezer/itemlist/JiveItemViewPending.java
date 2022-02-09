@@ -38,6 +38,7 @@ public class JiveItemViewPending extends ItemViewHolder<JiveItem> {
 
     @Override
     public void bindView(JiveItem item) {
+        super.bindView(item);
         icon.setVisibility(showIcon ? View.VISIBLE : View.GONE);
     }
 

@@ -16,10 +16,13 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
@@ -28,7 +31,8 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
 
-class SlimDelegate {
+public class SlimDelegate {
+
     @NonNull private final SlimClient mClient;
 
     SlimDelegate(@NonNull EventBus eventBus) {
@@ -94,20 +98,20 @@ class SlimDelegate {
         return new PlayerCommand(mClient, mClient.getConnectionState().getActivePlayer());
     }
 
-    <T> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, player, start, callback);
+    <T> Request<T> requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, player, start, BaseClient.mPageSize, callback);
     }
 
-    <T> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, player, 0, 200, callback);
+    <T> Request<T> requestItems(Player player, IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, player, 0, BaseClient.mPageSize, callback);
     }
 
-    <T> Request requestItems(int start, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, start, callback);
+    <T> Request<T> requestAllItems(IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, null, -1, BaseClient.mPageSize, callback);
     }
 
-    <T> Request requestItems(IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, 0, 200, callback);
+    <T> Request<T> requestItems(IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, null, 0, BaseClient.mPageSize, callback);
     }
 
     public Player getActivePlayer() {
@@ -126,12 +130,24 @@ class SlimDelegate {
         return mClient.getConnectionState().getPlayers();
     }
 
-    void setHomeMenu(List<String> archivedItems) {
-        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(archivedItems);
+    public Set<Player> getSyncGroup() {
+        return mClient.getConnectionState().getSyncGroup();
     }
 
-    void setHomeMenu(List<JiveItem> items, List<String> archivedItems) {
-        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(items, archivedItems);
+    public Set<Player> getVolumeSyncGroup(boolean groupVolume) {
+        return mClient.getConnectionState().getVolumeSyncGroup(groupVolume);
+    }
+
+    public @NonNull ISqueezeService.VolumeInfo getVolume(boolean groupVolume) {
+        return mClient.getConnectionState().getVolume(groupVolume);
+    }
+
+    void setHomeMenu(List<String> archivedItems,  Map<String, Map<String, Object>> customShortcuts) {
+        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(archivedItems, customShortcuts);
+    }
+
+    void setHomeMenu(List<JiveItem> items, List<String> archivedItems, Map<String, Map<String, Object>> customShortcuts) {
+        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(items, archivedItems, customShortcuts);
     }
 
     public String getUsername() {
@@ -161,6 +177,38 @@ class SlimDelegate {
     public void triggerHomeMenuEvent() {
         mClient.getConnectionState().getHomeMenuHandling().triggerHomeMenuEvent();
     }
+
+    public HomeMenuHandling getHomeMenuHandling() {
+        return mClient.getConnectionState().getHomeMenuHandling();
+    }
+
+    public void removeCustomShortcut(JiveItem item) {
+        mClient.getConnectionState().getHomeMenuHandling().removeCustomShortcut(item);
+    }
+
+    public int addItems(String folderID, Set<String> set) {
+        Player player = mClient.getConnectionState().getActivePlayer();
+        return mClient.getConnectionState().getRandomPlay(player).addItems(folderID, set);
+    }
+
+    public Set<String> getTracks(String folderID) {
+        Player player = mClient.getConnectionState().getActivePlayer();
+        return mClient.getConnectionState().getRandomPlay(player).getTracks(folderID);
+    }
+
+    public RandomPlay getRandomPlay(Player player) {
+        return mClient.getConnectionState().getRandomPlay(player);
+    }
+
+    public void setNextTrack(Player player, String nextTrack) {
+        mClient.getConnectionState().getRandomPlay(player).setNextTrack(nextTrack);
+    }
+
+    public void setActiveFolderID(String folderID) {
+        Player player = mClient.getConnectionState().getActivePlayer();
+        mClient.getConnectionState().getRandomPlay(player).setActiveFolderID(folderID);
+    }
+
 
     static class Command extends SlimCommand {
         final SlimClient slimClient;
@@ -226,18 +274,6 @@ class SlimDelegate {
             this.callback = callback;
             this.start = start;
             this.pageSize = pageSize;
-        }
-
-        private Request(SlimClient slimClient, Player player, int start, IServiceItemListCallback<T> callback) {
-            this(slimClient, player, start, BaseClient.mPageSize, callback);
-        }
-
-        private Request(SlimClient slimClient, int start, IServiceItemListCallback<T> callback) {
-            this(slimClient, null, start, BaseClient.mPageSize, callback);
-        }
-
-        private Request(SlimClient slimClient, int start, int pageSize, IServiceItemListCallback<T> callback) {
-            this(slimClient, null, start, pageSize, callback);
         }
 
         @Override

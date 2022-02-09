@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    card_view:cardCornerRadius="2dp"
-    card_view:contentPadding="4dp">
+    app:cardCornerRadius="2dp"
+    app:contentPadding="4dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/text1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/context_menu_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/context_menu_button"
             android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary.Highlight"
             tools:text="@string/player_group_header"/>
 
@@ -30,8 +27,9 @@
             android:id="@+id/text2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/text1"
-            android:layout_toStartOf="@id/context_menu_button"
+            app:layout_constraintTop_toBottomOf="@id/text1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/context_menu_button"
             android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
             tools:text="text2"/>
 
@@ -39,41 +37,44 @@
             android:id="@+id/context_menu_button"
             android:layout_height="48dp"
             android:layout_width="48dp"
-            android:layout_alignParentEnd="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:icon="@drawable/ic_menu_overflow"
             />
-        </RelativeLayout>
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/group_volume"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/text2"
+            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="12dp">
 
             <TextView
                 android:id="@+id/group_volume_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 android:text="@string/player_group_volume"
                 android:labelFor="@id/group_volume_slider"/>
 
             <ImageView
                 android:id="@+id/volume_down_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="12dp"
-                android:layout_below="@id/group_volume_label"
-                android:layout_alignParentStart="true"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                app:layout_constraintTop_toBottomOf="@id/group_volume_label"
+                app:layout_constraintStart_toStartOf="parent"
                 app:srcCompat="@drawable/ic_volume_down"/>
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/group_volume_slider"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/volume_down_icon"
-                android:layout_toStartOf="@id/volume_up_icon"
-                android:layout_below="@id/group_volume_label"
+                app:layout_constraintTop_toBottomOf="@id/group_volume_label"
+                app:layout_constraintStart_toEndOf="@id/volume_down_icon"
+                app:layout_constraintEnd_toStartOf="@id/volume_up_icon"
                 app:labelBehavior="gone"
                 tools:value="50"
                 android:valueFrom="0"
@@ -82,20 +83,23 @@
 
             <ImageView
                 android:id="@+id/volume_up_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_below="@id/group_volume_label"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="12dp"
-                app:srcCompat="@drawable/ic_volume_up"/>
-        </RelativeLayout>
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                app:layout_constraintTop_toBottomOf="@id/group_volume_label"
+                app:layout_constraintStart_toEndOf="@id/group_volume_slider"
+                app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_volume_up"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/players_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/group_volume"
+            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="12dp"
             tools:listitem="@layout/list_item_player"/>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +62,9 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
+
+    private static final String TAG = "JiveItemViewLogic";
+
     void execGoAction(ViewParamItemView<JiveItem> viewHolder, JiveItem item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
@@ -157,13 +161,21 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
         if (preferences.isDownloadEnabled() && contextMenuItem != null && contextMenuItem.canDownload()) {
             menu.add(Menu.NONE, index++, Menu.NONE, R.string.DOWNLOAD);
         }
+        if (canRandomPlay(contextMenuItem)) {
+            menu.add(Menu.NONE, index++, Menu.NONE, R.string.PLAY_RANDOM_FOLDER);
+        }
+
         final int offset = index;
         for (JiveItem jiveItem : items) {
             menu.add(Menu.NONE, index++, Menu.NONE, jiveItem.getName()).setEnabled(jiveItem.goAction != null);
         }
 
         contextPopup.setOnMenuItemClickListener(menuItem -> {
-            if (menuItem.getItemId() < offset) {
+            if ( (menuItem.getItemId() == offset - 1)
+                    && (canRandomPlay(contextMenuItem))) {
+                activity.randomPlayFolder(contextMenuItem); //
+            }
+            else if (menuItem.getItemId() < offset) {
                 activity.downloadItem(contextMenuItem);
             } else {
                 doItemContext(viewHolder, items.get(menuItem.getItemId() - offset));
@@ -172,6 +184,17 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
         });
         contextPopup.setOnDismissListener(this);
         contextPopup.show();
+    }
+
+    private boolean canRandomPlay(JiveItem contextMenuItem) {
+        // Do not set Random Play in the context menu of the headline item of the folder if
+        // Nullobject. It works fine on first level.
+        // TODO: Maybe make this ignore work for all
+        //  folders. See JiveItem.randomPlayFolderCommand()
+        return (contextMenuItem != null) &&
+                (contextMenuItem.moreAction != null) &&
+                contextMenuItem.moreAction.action.cmd.contains("folderinfo") &&
+                (contextMenuItem.randomPlayFolderCommand() != null);
     }
 
     private void doItemContext(ViewParamItemView<JiveItem> viewHolder, JiveItem item) {

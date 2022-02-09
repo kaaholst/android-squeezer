@@ -89,6 +89,7 @@ public class PlayerListActivity extends ItemListActivity implements
     public void onEventMainThread(PlayerVolume event) {
         if (mTrackingTouch != event.player) {
             adapter.notifyItemChanged(event.player);
+            adapter.notifyGroupChanged(event.player);
         }
     }
 

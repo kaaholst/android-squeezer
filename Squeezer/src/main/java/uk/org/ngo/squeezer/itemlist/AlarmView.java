@@ -17,10 +17,8 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 
@@ -30,13 +28,10 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -48,7 +43,6 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -65,18 +59,14 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     private final String timeFormat;
     private final String am;
     private final String pm;
-    private Alarm alarm;
     private final TextView time;
     private final TextView amPm;
     private final CompoundButtonWrapper enabled;
     private final CompoundButtonWrapper repeat;
     private final Button delete;
-    private final Spinner playlist;
+    private final AutoCompleteTextView playlist;
     private final LinearLayout dowHolder;
     private final TextView[] dowTexts = new TextView[7];
-
-    // Only used for the loading view, is null otherwise
-    private final TextView text1;
 
     public AlarmView(@NonNull AlarmsActivity activity, @NonNull View view) {
         super(activity, view);
@@ -96,17 +86,17 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         enabled = new CompoundButtonWrapper(view.findViewById(R.id.enabled));
         enabled.setOncheckedChangeListener((compoundButton, b) -> {
             if (getActivity().getService() != null) {
-                alarm.setEnabled(b);
-                getActivity().getService().alarmEnable(alarm.getId(), b);
+                item.setEnabled(b);
+                getActivity().getService().alarmEnable(item.getId(), b);
             }
         });
         repeat = new CompoundButtonWrapper(view.findViewById(R.id.repeat));
         dowHolder = view.findViewById(R.id.dow);
         repeat.setOncheckedChangeListener((compoundButton, b) -> {
             if (getActivity().getService() != null) {
-                alarm.setRepeat(b);
-                getActivity().getService().alarmRepeat(alarm.getId(), b);
-                dowHolder.setVisibility(b ? View.VISIBLE : View.GONE);
+                item.setRepeat(b);
+                getActivity().getService().alarmRepeat(item.getId(), b);
+                activity.getItemAdapter().notifyItemChanged(getAbsoluteAdapterPosition());
             }
         });
         delete = view.findViewById(R.id.delete);
@@ -116,13 +106,13 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             final int finalDay = day;
             dowButton.setOnClickListener(v -> {
                 if (getActivity().getService() != null) {
-                    boolean wasChecked = alarm.isDayActive(finalDay);
+                    boolean wasChecked = item.isDayActive(finalDay);
                     if (wasChecked) {
-                        alarm.clearDay(finalDay);
-                        getActivity().getService().alarmRemoveDay(alarm.getId(), finalDay);
+                        item.clearDay(finalDay);
+                        getActivity().getService().alarmRemoveDay(item.getId(), finalDay);
                     } else {
-                        alarm.setDay(finalDay);
-                        getActivity().getService().alarmAddDay(alarm.getId(), finalDay);
+                        item.setDay(finalDay);
+                        getActivity().getService().alarmAddDay(item.getId(), finalDay);
                     }
                     setDowText(finalDay);
                 }
@@ -130,32 +120,24 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             dowTexts[day] = (TextView) dowButton.getChildAt(0);
         }
         delete.setOnClickListener(v -> {
-            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(getAdapterPosition(), alarm));
-            mActivity.getItemAdapter().removeItem(getAdapterPosition());
+            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(getAbsoluteAdapterPosition(), item));
+            mActivity.getItemAdapter().removeItem(getAbsoluteAdapterPosition());
         });
-        playlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-                final AlarmPlaylist selectedAlarmPlaylist = mActivity.getAlarmPlaylists().get(position);
-                if (getActivity().getService() != null &&
-                        selectedAlarmPlaylist.getId() != null &&
-                        !selectedAlarmPlaylist.getId().equals(alarm.getPlayListId())) {
-                    alarm.setPlayListId(selectedAlarmPlaylist.getId());
-                    getActivity().getService().alarmSetPlaylist(alarm.getId(), selectedAlarmPlaylist);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+        playlist.setOnItemClickListener((adapterView, parent, position, id) -> {
+            final AlarmPlaylist selectedAlarmPlaylist = mActivity.getAlarmPlaylists().get(position);
+            playlist.setText(selectedAlarmPlaylist.getName(), false);
+            if (getActivity().getService() != null &&
+                    selectedAlarmPlaylist.getId() != null &&
+                    !selectedAlarmPlaylist.getId().equals(item.getPlayListId())) {
+                item.setPlayListId(selectedAlarmPlaylist.getId());
+                getActivity().getService().alarmSetPlaylist(item.getId(), selectedAlarmPlaylist);
             }
         });
-
-        // For the loading view (otherwise the view won't have a R.id.text1)
-        text1 = view.findViewById(R.id.text1);
     }
 
     @Override
     public void bindView(Alarm item) {
+        super.bindView(item);
         long tod = item.getTod();
         int hour = (int) (tod / 3600);
         int minute = (int) ((tod / 60) % 60);
@@ -165,7 +147,6 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             if (displayHour == 0) displayHour = 12;
         }
 
-        alarm = item;
         time.setText(String.format(timeFormat, displayHour, minute));
         BaseListActivity activity = (BaseListActivity) getActivity();
         time.setOnClickListener(view -> showTimePicker(activity, item, is24HourFormat));
@@ -178,7 +159,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             for (int i = 0; i < alarmPlaylists.size(); i++) {
                 AlarmPlaylist alarmPlaylist = alarmPlaylists.get(i);
                 if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getPlayListId())) {
-                    playlist.setSelection(i);
+                    playlist.setText(alarmPlaylist.getName(), false);
                     break;
                 }
             }
@@ -194,7 +175,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
     private void setDowText(int day) {
         SpannableString text = new SpannableString(getAlarmShortDayText(day));
-        if (alarm.isDayActive(day)) {
+        if (item.isDayActive(day)) {
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
             Drawable underline = mResources.getDrawable(R.drawable.underline);
@@ -249,7 +230,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         private final List<AlarmPlaylist> alarmPlaylists;
 
         public AlarmPlaylistSpinnerAdapter(List<AlarmPlaylist> alarmPlaylists) {
-            super(getActivity(), android.R.layout.simple_spinner_dropdown_item, alarmPlaylists);
+            super(getActivity(), R.layout.alarm_playlist_dropdown_item, alarmPlaylists);
             this.alarmPlaylists = alarmPlaylists;
         }
 
@@ -265,24 +246,15 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         @Override
         public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
-           return Util.getSpinnerItemView(getActivity(), convertView, parent, getItem(position).getName());
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
             if (!isEnabled(position)) {
-                FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_category_dropdown_item, parent, false);
-                CheckedTextView spinnerItemView = view.findViewById(R.id.text);
+                TextView spinnerItemView = (TextView) getActivity().getLayoutInflater().inflate(R.layout.dropdown_item, parent, false);
                 spinnerItemView.setText(getItem(position).getCategory());
                 spinnerItemView.setTypeface(spinnerItemView.getTypeface(), Typeface.BOLD);
-                // Hide the checkmark for headings.
-                spinnerItemView.setCheckMarkDrawable(new ColorDrawable(Color.TRANSPARENT));
-                return view;
+                return spinnerItemView;
             } else {
-                FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_dropdown_item, parent, false);
-                TextView spinnerItemView = view.findViewById(R.id.text);
+                TextView spinnerItemView = (TextView) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_dropdown_item, parent, false);
                 spinnerItemView.setText(getItem(position).getName());
-                return view;
+                return spinnerItemView;
             }
         }
     }
