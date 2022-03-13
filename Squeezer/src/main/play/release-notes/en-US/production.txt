@@ -1,11 +1,1 @@
-&bull; Random play folder. Start from the context menu of a music folder
-
-&bull; Items from a music service are marked with the corresponding logo.
-
-&bull; Don't require Wi-Fi for server discovery.
-
-&bull; Custom Shortcuts. Long press an item to add a shortcut to the top level menu.
-
-&bull; Volume buttons and volume popup can control volume of synced players, instead of only the selected player.
-
-&bull; Ongoing notification show current track number and number of tracks in the current playlist.
+&bull; Fix assorted potential crashes.

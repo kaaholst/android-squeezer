@@ -47,13 +47,15 @@ public class CuePanel extends Handler {
 
     private static final int MSG_TIMEOUT = 1;
 
-    private final Dialog dialog;
+    private final FragmentActivity activity;
     @NonNull
     private final View parent;
+    private final Dialog dialog;
 
     public CuePanel(FragmentActivity activity, @NonNull View parent, @NonNull ISqueezeService service) {
         super(Looper.getMainLooper());
         this.parent = parent;
+        this.activity = activity;
         Preferences preferences = new Preferences(activity);
         int backwardSeconds = preferences.getBackwardSeconds();
         int forwardSeconds = preferences.getForwardSeconds();
@@ -110,7 +112,7 @@ public class CuePanel extends Handler {
 
     public void dismiss() {
         removeMessages(MSG_TIMEOUT);
-        if (dialog.isShowing()) {
+        if (!activity.isDestroyed() && dialog.isShowing()) {
             dialog.dismiss();
             fadeParent(0.4, 1.0);
         }

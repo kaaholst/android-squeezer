@@ -2,6 +2,12 @@
 
 <changelog>
     <release
+        version="2.2.9"
+        versioncode="111">
+        <change>Fix assorted potential crashes.</change>
+    </release>
+
+    <release
         version="2.2.8"
         versioncode="110">
         <change>Random play folder. Start from the context menu of a music folder</change>

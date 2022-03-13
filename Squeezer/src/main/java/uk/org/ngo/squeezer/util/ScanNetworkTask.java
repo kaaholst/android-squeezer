@@ -138,7 +138,9 @@ public class ScanNetworkTask implements Runnable {
 
         // For testing that multiple servers are handled correctly.
         // mServerMap.put("Dummy", "127.0.0.1");
-        uiThreadHandler.post(() -> callback.onScanFinished(mServerMap));
+        if (!cancelled) {
+            uiThreadHandler.post(() -> callback.onScanFinished(mServerMap));
+        }
     }
 
     /**

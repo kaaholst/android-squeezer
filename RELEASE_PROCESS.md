@@ -71,6 +71,7 @@ and the release branch is no longer necessary.
     git checkout master
     git merge --no-ff release-x.y.z
     git tag -a x.y.z -m "Code for the x.y.z release."
+    git push origin x.y.z
 
 ### Merge the changes back to the develop branch.
 
