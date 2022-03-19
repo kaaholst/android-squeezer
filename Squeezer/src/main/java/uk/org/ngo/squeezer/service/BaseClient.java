@@ -124,7 +124,7 @@ abstract class BaseClient implements SlimClient {
 
         // Current playlist
         if (changedPlaylist) {
-            mEventBus.post(new PlaylistChanged(player));
+            mEventBus.postSticky(new PlaylistChanged(player));
         }
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
