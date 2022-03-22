@@ -30,6 +30,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +68,7 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
 
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         getService().pluginItems(action, this);
     }

@@ -29,7 +29,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    implementation 'de.greenrobot:eventbus:2.4.1'
+    implementation 'org.greenrobot:eventbus:3.1.0'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'

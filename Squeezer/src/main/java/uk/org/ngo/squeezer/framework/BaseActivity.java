@@ -75,6 +75,9 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 /**
  * Common base class for all activities in Squeezer.
  *
@@ -293,7 +296,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
      */
     private void maybeRegisterOnEventBus(@NonNull ISqueezeService service) {
         if (!mRegisteredOnEventBus) {
-            service.getEventBus().registerSticky(this);
+            service.getEventBus().register(this);
             mRegisteredOnEventBus = true;
         }
     }
@@ -365,6 +368,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         return true;
     }
 
+    @Subscribe(sticky = true)
     public void onEvent(PlayerVolume event) {
         if (!mIgnoreVolumeChange && mService != null && event.player == mService.getActivePlayer()) {
             showVolumePanel();
@@ -397,6 +401,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         showDisplayMessage(displayMessage);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DisplayEvent displayEvent) {
         showDisplayMessage(displayEvent.message);
     }
@@ -446,6 +451,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(AlertEvent alert) {
         AlertEventDialog.show(getSupportFragmentManager(), alert.message.title, alert.message.text);
     }

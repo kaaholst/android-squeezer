@@ -323,6 +323,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         }
     }
 
+    // TODO: Adding Annotation will result in crash - @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
         if (parent != null && parent.hasSubItems()) {

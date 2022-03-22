@@ -23,6 +23,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +86,6 @@ public class PlayerListActivity extends ItemListActivity implements
     protected boolean needPlayer() {
         return false;
     }
-
 
 
     public void onEventMainThread(PlayerVolume event) {
@@ -216,11 +218,13 @@ public class PlayerListActivity extends ItemListActivity implements
         // initially connected to the server.
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
         updateAndExpandPlayerList();
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerStateChanged event) {
         if (mTrackingTouch == null) {
             updateAndExpandPlayerList();

@@ -29,6 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -266,6 +269,7 @@ public abstract class ItemListActivity extends BaseActivity {
      * Update the UI with the player change
      */
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ActivePlayerChanged event) {
         Log.i(TAG, "ActivePlayerChanged: " + event.player);
         supportInvalidateOptionsMenu();
@@ -282,6 +286,7 @@ public abstract class ItemListActivity extends BaseActivity {
      * Orders any pages requested before the handshake completed.
      */
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         // Order any pages that were requested before the handshake complete.
         while (!mOrderedPagesBeforeHandshake.empty()) {

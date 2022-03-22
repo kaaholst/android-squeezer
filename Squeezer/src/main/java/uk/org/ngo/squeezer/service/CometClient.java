@@ -47,7 +47,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.AlertWindow;
@@ -590,6 +592,7 @@ class CometClient extends BaseClient {
         }
     }
 
+    @Subscribe
     public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
     }

@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +64,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
         new Preferences(this).setHomeMenuLayout(listLayout);
     }
 
+    @Subscribe(sticky = true)
     public void onEvent(HomeMenuEvent event) {
         runOnUiThread(() -> {
             if (parent.window == null) {

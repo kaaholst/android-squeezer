@@ -28,6 +28,9 @@ import android.os.Bundle;
 import androidx.annotation.MainThread;
 import androidx.preference.PreferenceManager;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
@@ -56,6 +59,7 @@ public class HomeActivity extends HomeMenuActivity {
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
 

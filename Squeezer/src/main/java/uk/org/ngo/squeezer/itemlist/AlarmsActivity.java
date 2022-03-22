@@ -31,6 +31,9 @@ import android.widget.TextView;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -203,6 +206,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ActivePlayerChanged event) {
         super.onEventMainThread(event);
         mActivePlayer = event.player;

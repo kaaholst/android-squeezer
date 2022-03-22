@@ -51,6 +51,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -203,7 +205,7 @@ public class SqueezeService extends Service {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
 
-        mEventBus.register(this, 1);  // Get events before other subscribers
+        mEventBus.register(this);  // Get events before other subscribers - now with Annotation
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             registerReceiver(deviceIdleModeReceiver, new IntentFilter(
@@ -314,6 +316,9 @@ public class SqueezeService extends Service {
      * <p>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      */
+
+    //TODO: Added priority to all methods here because this class was registered with prio in Eventbus 2
+    @Subscribe(priority = 1)
     public void onEvent(PlayStatusChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -635,6 +640,7 @@ public class SqueezeService extends Service {
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(ConnectionChanged event) {
         if (ConnectionState.isConnected(event.connectionState) ||
                 ConnectionState.isConnectInProgress(event.connectionState)) {
@@ -760,16 +766,19 @@ public class SqueezeService extends Service {
         stopSelf();
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(PlayerVolume event) {
         if (event.player == mDelegate.getActivePlayer()) {
             mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
         }
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(HandshakeComplete event) {
         mHandshakeComplete = true;
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(MusicChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateOngoingNotification();
@@ -838,6 +847,7 @@ public class SqueezeService extends Service {
         return (number - index == 2) && (number == 2);
     }
 
+    @Subscribe(priority = 1)
     public void onEvent(PlayersChanged event) {
         Player activePlayer = mDelegate.getActivePlayer();
         if (activePlayer == null) {
@@ -1610,17 +1620,11 @@ public class SqueezeService extends Service {
      * For example, this ensures that if a new client subscribes and needs real
      * time updates, the player subscription states will be updated accordingly.
      */
-    class EventBus extends de.greenrobot.event.EventBus {
+    class EventBus extends org.greenrobot.eventbus.EventBus {
 
         @Override
         public void register(Object subscriber) {
             super.register(subscriber);
-            updateAllPlayerSubscriptionStates();
-        }
-
-        @Override
-        public void register(Object subscriber, int priority) {
-            super.register(subscriber, priority);
             updateAllPlayerSubscriptionStates();
         }
 
@@ -1634,18 +1638,6 @@ public class SqueezeService extends Service {
         public void postSticky(Object event) {
             Log.v("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
             super.postSticky(event);
-        }
-
-        @Override
-        public void registerSticky(Object subscriber) {
-            super.registerSticky(subscriber);
-            updateAllPlayerSubscriptionStates();
-        }
-
-        @Override
-        public void registerSticky(Object subscriber, int priority) {
-            super.registerSticky(subscriber, priority);
-            updateAllPlayerSubscriptionStates();
         }
 
         @Override
