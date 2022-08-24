@@ -19,7 +19,7 @@
     <string name="on">An</string>
     <string name="off">Aus</string>
     <string name="disabled">Deaktiviert</string>
-    <string name="pause">Pausieren</string>
+    <string name="pause">Wiedergabe pausieren</string>
     <string name="mute">Lautlos</string>
     <string name="menu_item_players">Abspielgeräte</string>
     <string name="menu_item_settings_label">Einstellungen</string>
@@ -33,7 +33,7 @@
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
-    <string name="settings_clear_current_playlist_confirmation_off">nicht nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation_off">Nicht nachfragen</string>
     <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der Wiedergabeliste</string>
     <string name="settings_username_hint">Benutzername (optional)</string>
     <string name="settings_password_hint">Passwort (optional)</string>
@@ -54,7 +54,7 @@
     <string name="settings_background_volume_on">Die Lautstärke auch regeln, wenn die App nicht sichtbar ist.</string>
     <string name="settings_volume_increment_title">Intervall der Lautstärkenänderung</string>
     <string name="settings_volume_increment_summary">Intervalle für die Telefontasten festlegen</string>
-    <string name="settings_fadeinsecs_title">Einblenddauer</string>
+    <string name="settings_fadeinsecs_title">Einblenddauer für Titel</string>
     <string name="settings_fadeinsecs_summary">Geben Sie die Einblenddauer in Sekunden an. Ein Wert
         von 0 deaktivert das Einblenden.
     </string>
@@ -70,17 +70,17 @@
     <string name="settings_squeezeplayer_title">Starte SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Auswählen, um sicherzustellen, dass SqueezePlayer
         läuft, wenn Squeezer verwendet wird.</string>
-    <string name="settings_category_ui">Shortcuts, Erscheinungsbild, etc.</string>
-    <string name="settings_customize_home_menu_mode">Archiv</string>
-    <string name="settings_customize_home_menu_info">Langes Drücken (un)archiviert den Menüeintrag</string>
+    <string name="settings_category_ui">Shortcuts, Archivfunktion, etc.</string>
+    <string name="settings_customize_home_menu_mode">Archivfunktion</string>
+    <string name="settings_customize_home_menu_info">Langes Drücken auf bspw. \'Einstellungen\' archiviert den Eintrag</string>
     <string name="settings_customize_home_menu_archive">Aktiviert</string>
     <string name="settings_customize_home_menu_disabled">Deaktiviert</string>
     <string name="settings_customize_home_menu_locked">Deaktiviert, aber Archivinhalte bleiben bestehen</string>
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
-    <string name="menu_item_poweron">Einschalten \"%s\"</string>
-    <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
+    <string name="menu_item_poweron">" %s einschalten"</string>
+    <string name="menu_item_poweroff">%s ausschalten</string>
     <string name="menu_item_rename">Umbenennen</string>
     <string name="menu_item_playlist">Wiedergabeliste</string>
     <string name="menu_item_playlist_clear">Wiedergabeliste löschen</string>
@@ -164,7 +164,7 @@
     <string name="DOWNLOAD">Herunterladen</string>
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Das Herunterladen wurde abgebrochen, da keine
         ausreichenden Rechte zum Speichern vorhanden sind.</string>
-    <string name="DONT_ASK_AGAIN">Nicht erneut nachfragen.</string>
+    <string name="DONT_ASK_AGAIN">Nicht erneut nachfragen</string>
 
     <!-- Song display options -->
 
@@ -176,7 +176,7 @@
     <string name="pref_cat_third_party">Integration von Drittanbietern</string>
     <string name="confirm_cancel_downloads">Laufende Downloads abbrechen?</string>
 
-    <string name="settings_category_download">Herunterladen</string>
+    <string name="settings_category_download">Herunterladen von Titeln</string>
     <string name="settings_download_enabled">Downloads aktivieren</string>
     <string name="settings_download_confirmation">Vor dem Herunterladen nachfragen</string>
     <string name="settings_download_use_server_path">Serverpfad und -dateinamen verwenden</string>
@@ -222,21 +222,35 @@
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Das Archiv kann nicht archviert werden!</string>
     <string name="ARCHIVE_NODE_REMOVED">Leeres Archiv aus dem Menü entfernt</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">Kann nicht archiviert werden!</string>
-    <string name="settings_clear_current_playlist_confirmation_on">nachfragen</string>
+    <string name="settings_clear_current_playlist_confirmation_on">Nachfragen</string>
     <string name="CUSTOM_SHORTCUT_REMOVED">Shortcut entfernt</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Ist bereits ein Shortcut!</string>
-    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut auf Home Menü abgelegt</string>
+    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut auf Home-Menü abgelegt</string>
     <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Nicht archivierbar oder shortcutfähig!</string>
     <string name="settings_custom_shortcut_enabled">Aktiviert</string>
     <string name="settings_custom_shortcut_disabled">Deaktiviert</string>
     <string name="settings_custom_shortcut_locked">Deaktiviert, aber Anzeige bestehender Shortcuts</string>
-    <string name="settings_customize_customShortcut_mode">Shortcuts</string>
-    <string name="settings_customize_customShortcut_info">Langes Drücken setzt Shortcut</string>
+    <string name="settings_customize_customShortcut_mode">Shortcut-Funktion</string>
+    <string name="settings_customize_customShortcut_info">Langes Drücken auf bspw. ein Album setzt Shortcut im Home-Menü</string>
     <string name="ITEM_CANNOT_BE_SHORTCUT">Menüeintrag ist nicht shortcutfähig!</string>
     <string name="PLAY_RANDOM_FOLDER">Zufallswiedergabe</string>
     <string name="backward_seconds">Zurück Sekunden</string>
     <string name="forward_seconds">Vorwärts Sekunden</string>
     <string name="RANDOM_PLAY_UNABLE">Fehler bei der Zufallswiedergabe</string>
     <string name="RANDOM_PLAY_STARTED">Zufallswiedergabe gestartet</string>
+    <string name="minutes">Minuten</string>
+    <string name="settings_screensaver_title">Display aktiviert lassen</string>
+    <string name="settings_screensaver_off">Nein</string>
+    <string name="settings_screensaver_on">Ja</string>
+    <string name="settings_screensaver_clock">Uhr zeigen bei Inaktivität</string>
+    <string name="settings_volume_title">Einstellungen für Lautstärkeregelung</string>
+    <string name="settings_restore_after_call">Nach Beendigung wieder starten</string>
+    <string name="call_state_permission_message">Bei einem Anruf kann Squeezer die Wiedergabe pausieren.</string>
+    <string name="call_state_permission_title">Squeezer benötigt eine Freigabe um den Anrufstatus abzurufen.</string>
+    <string name="request_permission">Freigabe anfragen</string>
+    <string name="settings_category_display">Bildschirmeinstellungen</string>
+    <string name="player_group_volume_on">Lautstärke für synchronisierte Player anpassen</string>
+    <string name="player_group_volume_off">Lautstärke für ausgewählte Player anpassen</string>
+    <string name="set_sleep_timer">Einschlaftimer setzen</string>
 
 </resources>
