@@ -11,7 +11,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_3'>Nachfragen, wenn die aktuelle Wiedergabeliste mehr als einen Titel enthält und die Wiedergabe läuft</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_2'>Nachfragen, wenn die aktuelle Wiedergabeliste mehr als einen Titel enthält</string>
   <string name='SETUP_SYNCPOWER_OFF'>Getrennt ein-/ausschalten</string>
-  <string name='NO_PLAYER_FOUND'>Kein Player gefunden</string>
+  <string name='NO_PLAYER_FOUND'>Kein Player gefunden.</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_4'>Nachfragen, wenn die Wiedergabe läuft, und aktuell keine Radiostation wiedergegeben wird</string>
   <string name='SLEEP_CANCEL'>Schlafmodus abbrechen</string>
   <string name='ALARM_SHORT_DAY_6'>Sa</string>
