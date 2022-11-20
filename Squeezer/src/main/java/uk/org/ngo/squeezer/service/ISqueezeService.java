@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -128,6 +128,7 @@ public interface ISqueezeService {
      * interval [0, 100].
      */
     void mute();
+    void unmute();
     void toggleMute();
     void setVolumeTo(Player player, int newVolume);
     void toggleMute(Player player);

@@ -35,7 +35,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:scaleType="fitCenter"
-        tools:src="@drawable/icon_album_noart_fullscreen"/>
+        tools:src="@drawable/icon_album"/>
 
     <!-- The trackname TextView needs to be wrapped in a LinearLayout.
 

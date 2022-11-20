@@ -20,11 +20,12 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,11 @@ public class HomeMenuActivity extends JiveItemListActivity {
     }
 
     @Override
+    public void clearAndReOrderItems() {
+        // Do nothing we get the home menu from the sticky HomeMenuEvent
+    }
+
+    @Override
     public void maybeOrderVisiblePages(RecyclerView listView) {
         // Do nothing we get the home menu from the sticky HomeMenuEvent
     }
@@ -62,6 +68,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
         new Preferences(this).setHomeMenuLayout(listLayout);
     }
 
+    @Subscribe(sticky = true)
     public void onEvent(HomeMenuEvent event) {
         runOnUiThread(() -> {
             if (parent.window == null) {
@@ -78,7 +85,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
                     // Turn off the home icon.
                     actionBar.setDisplayHomeAsUpEnabled(false);
                 } else {
-                    boolean inArchive = JiveItem.ARCHIVE.equals(parent) || getService().isInArchive(parent);
+                    boolean inArchive = JiveItem.ARCHIVE.equals(parent) || requireService().isInArchive(parent);
                     actionBar.setHomeAsUpIndicator(inArchive ? R.drawable.ic_action_archive : R.drawable.ic_action_home);
                 }
             }
@@ -87,10 +94,14 @@ public class HomeMenuActivity extends JiveItemListActivity {
         onItemsReceived(menu.size(), 0, menu, JiveItem.class);
     }
 
+    /**
+     * Return a list of menu items filtered by the given node and player specific items, and ordered
+     * by weight, name.
+     */
     private List<JiveItem> getMenuNode(String node, List<JiveItem> homeMenu) {
         ArrayList<JiveItem> menu = new ArrayList<>();
         for (JiveItem item : homeMenu) {
-            if (node.equals(item.getNode())) {
+            if (node.equals(item.getNode()) && (item.goAction == null || forActivePlayer(item.goAction))) {
                 menu.add(item);
             }
         }

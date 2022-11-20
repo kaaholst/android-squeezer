@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -24,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -41,15 +43,19 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.media.VolumeProviderCompat;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,6 +89,7 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.Intents;
 import uk.org.ngo.squeezer.util.NotificationUtil;
 import uk.org.ngo.squeezer.util.Scrobble;
 
@@ -203,7 +210,7 @@ public class SqueezeService extends Service {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
 
-        mEventBus.register(this, 1);  // Get events before other subscribers
+        mEventBus.register(this);  // Get events before other subscribers - now with Annotation
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             registerReceiver(deviceIdleModeReceiver, new IntentFilter(
@@ -314,6 +321,8 @@ public class SqueezeService extends Service {
      * <p>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      */
+
+    @Subscribe(priority = 1)
     public void onEvent(PlayStatusChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -321,6 +330,7 @@ public class SqueezeService extends Service {
                 mMediaSession.setPlaybackState(new PlaybackStateCompat.Builder().setState(state, 0, 0).build());
             }
             updateOngoingNotification();
+            if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) musicPaused = false;
         }
     }
 
@@ -508,7 +518,7 @@ public class SqueezeService extends Service {
 
             Intent showNowPlaying = new Intent(SqueezeService.this, NowPlayingActivity.class)
                     .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            PendingIntent pIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, 0);
+            PendingIntent pIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, Intents.immutablePendingIntent());
 
 
             NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
@@ -632,27 +642,8 @@ public class SqueezeService extends Service {
     private PendingIntent getPendingIntent(@NonNull String action){
         Intent intent = new Intent(this, SqueezeService.class);
         intent.setAction(action);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
 
-    public void onEvent(ConnectionChanged event) {
-        if (ConnectionState.isConnected(event.connectionState) ||
-                ConnectionState.isConnectInProgress(event.connectionState)) {
-            startForeground();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
-            }
-
-            mHandshakeComplete = false;
-            stopForeground();
-        }
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | Intents.immutablePendingIntent());
     }
 
     private void startForeground() {
@@ -669,6 +660,29 @@ public class SqueezeService extends Service {
             Notification notification = notificationData.builder.build();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mMediaSession.setCallback(new MediaSessionCompat.Callback() {
+
+                    @Override
+                    public void onPlay() {
+                        squeezeService.play();
+                    }
+
+                    @Override
+                    public void onPause() {
+                        squeezeService.pause();
+                    }
+
+                    @Override
+                    public void onSkipToNext() {
+                        squeezeService.nextTrack();
+                    }
+
+                    @Override
+                    public void onSkipToPrevious() {
+                        squeezeService.previousTrack();
+                    }
+                });
+
                 final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
                 metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
@@ -700,25 +714,6 @@ public class SqueezeService extends Service {
         }
     }
 
-    PhoneStateListener phoneStateListener = new PhoneStateListener() {
-        @Override
-
-        public void onCallStateChanged(int state, String phoneNumber) {
-            if ((state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK)) {
-                switch (new Preferences(SqueezeService.this).getActionOnIncomingCall()) {
-                    case NONE:
-                        break;
-                    case PAUSE:
-                        squeezeService.pause();
-                        break;
-                    case MUTE:
-                        squeezeService.mute();
-                        break;
-                }
-            }
-        }
-    };
-
     private void stopForeground() {
         Log.i(TAG, "stopForeground");
         foreGround = false;
@@ -737,16 +732,113 @@ public class SqueezeService extends Service {
         stopSelf();
     }
 
+    private void registerCallStateListener() {
+        if (!callStateListenerRegistered) {
+            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "calling registerTelephonyCallback");
+                    telephonyManager.registerTelephonyCallback(getMainExecutor(), callStateListener);
+                }
+            } else {
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            }
+            callStateListenerRegistered = true;
+        }
+    }
+
+    private void unregisterCallStateListener() {
+        if (callStateListenerRegistered) {
+            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                telephonyManager.unregisterTelephonyCallback(callStateListener);
+            } else {
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+            }
+            callStateListenerRegistered = false;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    private static abstract class CallStateListener extends TelephonyCallback implements TelephonyCallback.CallStateListener {
+        @Override
+        abstract public void onCallStateChanged(int state);
+    }
+
+    private boolean callStateListenerRegistered = false;
+    private boolean musicPaused = false;
+
+    private CallStateListener callStateListener = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
+            new CallStateListener() {
+                @Override
+                public void onCallStateChanged(int state) {
+                    SqueezeService.this.onCallStateChanged(state);
+                }
+            }
+            : null;
+
+    private PhoneStateListener phoneStateListener = (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) ?
+            new PhoneStateListener() {
+                @Override
+                public void onCallStateChanged(int state, String phoneNumber) {
+                    SqueezeService.this.onCallStateChanged(state);
+                }
+            }
+            : null;
+
+    private void onCallStateChanged(int state) {
+        Preferences preferences = new Preferences(SqueezeService.this);
+        Preferences.IncomingCallAction incomingCallAction = preferences.getActionOnIncomingCall();
+        if (incomingCallAction != Preferences.IncomingCallAction.NONE) {
+            PerformAction action = null;
+            boolean isPlaying = (getActivePlayerState() != null && getActivePlayerState().isPlaying());
+            if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+                if (isPlaying) {
+                    action = incomingCallAction != Preferences.IncomingCallAction.PAUSE ? squeezeService::pause : squeezeService::mute;
+                    musicPaused = true;
+                }
+            } else {
+                if (musicPaused && preferences.restoreMusicAfterCall()) {
+                    action = incomingCallAction != Preferences.IncomingCallAction.PAUSE ? squeezeService::play : squeezeService::unmute;
+                }
+                musicPaused = false;
+            }
+            if (action != null) action.exec();
+        }
+    }
+
+    private interface PerformAction {
+        void exec();
+    }
+
+    @Subscribe(sticky = true, priority = 1)
+    public void onEvent(ConnectionChanged event) {
+        if (ConnectionState.isConnected(event.connectionState) ||
+                ConnectionState.isConnectInProgress(event.connectionState)) {
+            startForeground();
+            registerCallStateListener();
+        } else {
+            unregisterCallStateListener();
+            mHandshakeComplete = false;
+            stopForeground();
+        }
+        musicPaused = false;
+    }
+
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(PlayerVolume event) {
         if (event.player == mDelegate.getActivePlayer()) {
             mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
         }
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(HandshakeComplete event) {
+        Log.d("SqueezeService", "Handshake complete");
         mHandshakeComplete = true;
     }
 
+    @Subscribe(sticky = true, priority = 1)
     public void onEvent(MusicChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateOngoingNotification();
@@ -815,6 +907,7 @@ public class SqueezeService extends Service {
         return (number - index == 2) && (number == 2);
     }
 
+    @Subscribe(priority = 1)
     public void onEvent(PlayersChanged event) {
         Player activePlayer = mDelegate.getActivePlayer();
         if (activePlayer == null) {
@@ -951,10 +1044,12 @@ public class SqueezeService extends Service {
 
         @Override
         public void mute() {
-            Player player = getActivePlayer();
-            if (player != null) {
-                mDelegate.command(player).cmd("mixer", "muting", "1").exec();
-            }
+            mute(getActivePlayer(), false);
+        }
+
+        @Override
+        public void unmute() {
+            mute(getActivePlayer(), true);
         }
 
         @Override
@@ -965,7 +1060,13 @@ public class SqueezeService extends Service {
         @Override
         public void toggleMute(Player player) {
             if (player != null) {
-                mDelegate.command(player).cmd("mixer", "muting", player.getPlayerState().isMuted() ? "0" : "1").exec();
+                mute(player, !player.getPlayerState().isMuted());
+            }
+        }
+
+        private void mute(Player player, boolean mute) {
+            if (player != null) {
+                mDelegate.command(player).cmd("mixer", "muting", mute ? "1" : "0").exec();
             }
         }
 
@@ -998,6 +1099,13 @@ public class SqueezeService extends Service {
             }
         }
 
+        private void setPlayerVolume(Player player, int percentage) {
+            int volume = Math.min(100, Math.max(0, percentage));
+            mDelegate.command(player).cmd("mixer", "volume", String.valueOf(volume)).exec();
+            player.getPlayerState().setCurrentVolume(volume);
+            mEventBus.post(new PlayerVolume(player));
+        }
+
         @Override
         public void adjustVolume(int direction) {
             Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
@@ -1017,16 +1125,15 @@ public class SqueezeService extends Service {
                             e.printStackTrace();
                         }
                     }
-                    int currentVolume = player.getPlayerState().getCurrentVolume();
-                    setPlayerVolume(player, currentVolume + adjust);
+                    adjustPlayerVolume(player, adjust);
                 }
             }
         }
 
-        private void setPlayerVolume(Player player, int percentage) {
-            int volume = Math.min(100, Math.max(0, percentage));
-            mDelegate.command(player).cmd("mixer", "volume", String.valueOf(volume)).exec();
-            player.getPlayerState().setCurrentVolume(volume);
+        private void adjustPlayerVolume(Player player, int adjust) {
+            mDelegate.command(player).cmd("mixer", "volume", (adjust > 0 ? "+" : "") + adjust).exec();
+            int currentVolume = player.getPlayerState().getCurrentVolume();
+            player.getPlayerState().setCurrentVolume(currentVolume + adjust);
             mEventBus.post(new PlayerVolume(player));
         }
 
@@ -1392,12 +1499,15 @@ public class SqueezeService extends Service {
                 }
                 Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
                 mDelegate.setHomeMenu(archivedMenuItems, customShortcuts);
-            }
-            else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
+            } else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
                 Preferences preferences = new Preferences(SqueezeService.this);
                 if (preferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.DISABLED) {
                     mDelegate.getHomeMenuHandling().removeAllShortcuts();
                     preferences.saveShortcuts(preferences.convertShortcuts(mDelegate.getHomeMenuHandling().customShortcuts)); // TODO check for simplification
+                }
+            } else if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
+                if (new Preferences(SqueezeService.this).getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE) {
+                    registerCallStateListener();
                 }
             } else {
                 cachePreferences();
@@ -1587,17 +1697,11 @@ public class SqueezeService extends Service {
      * For example, this ensures that if a new client subscribes and needs real
      * time updates, the player subscription states will be updated accordingly.
      */
-    class EventBus extends de.greenrobot.event.EventBus {
+    class EventBus extends org.greenrobot.eventbus.EventBus {
 
         @Override
         public void register(Object subscriber) {
             super.register(subscriber);
-            updateAllPlayerSubscriptionStates();
-        }
-
-        @Override
-        public void register(Object subscriber, int priority) {
-            super.register(subscriber, priority);
             updateAllPlayerSubscriptionStates();
         }
 
@@ -1611,18 +1715,6 @@ public class SqueezeService extends Service {
         public void postSticky(Object event) {
             Log.v("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
             super.postSticky(event);
-        }
-
-        @Override
-        public void registerSticky(Object subscriber) {
-            super.registerSticky(subscriber);
-            updateAllPlayerSubscriptionStates();
-        }
-
-        @Override
-        public void registerSticky(Object subscriber, int priority) {
-            super.registerSticky(subscriber, priority);
-            updateAllPlayerSubscriptionStates();
         }
 
         @Override

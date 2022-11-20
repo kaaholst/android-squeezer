@@ -21,7 +21,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.fragment.app.FragmentManager;
+
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerSleepDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -46,7 +49,7 @@ public class PlayerViewLogic {
     /**
      * If menu item is a known player action, perform it and return true.
      */
-    public static boolean doPlayerAction(ISqueezeService service, MenuItem menuItem, Player selectedItem) {
+    public static boolean doPlayerAction(FragmentManager fragmentManager, ISqueezeService service, MenuItem menuItem, Player selectedItem) {
         switch (menuItem.getItemId()) {
             case R.id.sleep:
                 // This is the start of a context menu.
@@ -76,6 +79,9 @@ public class PlayerViewLogic {
                 return true;
             case R.id.in_90_minutes:
                 service.sleep(selectedItem, 90*60);
+                return true;
+            case R.id.in_x_minutes:
+                new PlayerSleepDialog(selectedItem).show(fragmentManager, PlayerSleepDialog.class.getName());
                 return true;
             case R.id.cancel_sleep:
                 service.sleep(selectedItem, 0);

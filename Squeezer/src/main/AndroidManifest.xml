@@ -22,12 +22,14 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.REORDER_TASKS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" android:minSdkVersion="31"/>
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -39,7 +41,8 @@
         android:allowBackup="true"
         android:supportsRtl="true">
 
-        <receiver android:name=".homescreenwidgets.SqueezerRemoteControl">
+        <receiver android:exported="false"
+            android:name=".homescreenwidgets.SqueezerRemoteControl">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -49,7 +52,8 @@
                 android:resource="@xml/squeezer_remote_control_info" />
         </receiver>
 
-        <activity android:name=".homescreenwidgets.SqueezerRemoteControlPlayerSelectActivity">
+        <activity android:exported="false"
+            android:name=".homescreenwidgets.SqueezerRemoteControlPlayerSelectActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -60,8 +64,8 @@
         <!-- Newer Android versions no longer include the Apache HTTP library -->
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
-        <activity android:name=".itemlist.HomeActivity"
-            android:label="@string/app_name">
+        <activity android:exported="true"
+            android:name=".itemlist.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -70,14 +74,11 @@
 
         <activity
             android:name=".itemlist.HomeMenuActivity"
-            android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
-        <activity
+        <activity android:exported="true"
             android:name=".NowPlayingActivity"
-            android:label="@string/app_name"
-            android:exported="true"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
@@ -93,48 +94,56 @@
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
-        <activity
+        <activity android:exported="true"
             android:name=".itemlist.PlayerListActivity"
-            android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
-        <activity
+        <activity android:exported="true"
             android:name=".itemlist.AlarmsActivity"
-            android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
-        <activity
+        <activity android:exported="true"
             android:name=".itemlist.CurrentPlaylistActivity"
-            android:exported="true"
-            android:label="@string/app_name"
             android:parentActivityName=".NowPlayingActivity">
         </activity>
 
         <activity
             android:name=".itemlist.JiveItemListActivity"
-            android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
         <activity
             android:name=".itemlist.GalleryActivity"
-            android:label="@string/app_name"
             android:parentActivityName=".itemlist.JiveItemListActivity">
+        </activity>
+
+        <activity
+            android:name=".screensaver.Screensaver"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar">
         </activity>
 
         <service android:exported="false" android:label="Squeezer Service"
             android:name=".service.SqueezeService">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
         </service>
+
+        <receiver android:exported="false"
+            android:name="androidx.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".download.CancelDownloadsActivity"
             android:theme="@android:style/Theme.Dialog"/>
 
-        <receiver
-            android:name=".download.DownloadStatusReceiver"
-            android:exported="true">
+        <receiver android:exported="true"
+            android:name=".download.DownloadStatusReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />

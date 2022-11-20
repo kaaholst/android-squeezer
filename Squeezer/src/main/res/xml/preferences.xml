@@ -16,7 +16,6 @@
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="first_preferencescreen">
 
     <uk.org.ngo.squeezer.IntEditTextPreference
@@ -29,28 +28,26 @@
         android:title="@string/settings_action_on_incoming_call_title"
         android:summary="%s"/>
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_third_party">
-
-        <SwitchPreferenceCompat
-            android:key="squeezer.scrobble.enabled"
-            android:summaryOff="@string/settings_scrobble_off"
-            android:summaryOn="@string/settings_scrobble_on"
-            android:title="@string/settings_scrobble_title"/>
-
-        <SwitchPreferenceCompat
-            android:key="squeezer.squeezeplayer.enabled"
-            android:summary="@string/settings_squeezeplayer_summary"
-            android:title="@string/settings_squeezeplayer_title"/>
-    </PreferenceCategory>
+    <CheckBoxPreference
+        android:key="squeezer.restore_after_call"
+        android:summary="@string/settings_restore_after_call"/>
 
     <PreferenceCategory
-        android:title="@string/settings_category_ui">
+        android:title="@string/settings_category_display">
 
         <ListPreference
             android:key="squeezer.theme"
             android:title="@string/settings_theme_title"
             android:summary="%s"/>
+
+        <ListPreference
+            android:key="squeezer.screensaver"
+            android:title="@string/settings_screensaver_title"
+            android:summary="%s"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_ui">
 
         <SwitchPreferenceCompat
             android:key="squeezer.clear.current_playlist.confirmation"
@@ -68,6 +65,21 @@
             android:title="@string/settings_customize_customShortcut_mode"
             android:dialogTitle="@string/settings_customize_customShortcut_info"
             android:summary="%s"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_cat_third_party">
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.scrobble.enabled"
+            android:summaryOff="@string/settings_scrobble_off"
+            android:summaryOn="@string/settings_scrobble_on"
+            android:title="@string/settings_scrobble_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.squeezeplayer.enabled"
+            android:summary="@string/settings_squeezeplayer_summary"
+            android:title="@string/settings_squeezeplayer_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory

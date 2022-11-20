@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
@@ -124,7 +124,7 @@ abstract class BaseClient implements SlimClient {
 
         // Current playlist
         if (changedPlaylist) {
-            mEventBus.post(new PlaylistChanged(player));
+            mEventBus.postSticky(new PlaylistChanged(player));
         }
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
@@ -169,7 +169,9 @@ abstract class BaseClient implements SlimClient {
     }
 
     protected void postPlayerStateChanged(Player player) {
-        mEventBus.post(new PlayerStateChanged(player));
+        if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class)) {
+            mEventBus.post(new PlayerStateChanged(player));
+        }
     }
 
     private boolean updatePlayStatus(PlayerState playerState, String playStatus) {

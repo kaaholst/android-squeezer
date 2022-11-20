@@ -129,6 +129,11 @@
         <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
     </style>
 
+    <!-- Text on the screensaver -->
+    <style name="SqueezerTextAppearance.Screensaver" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">64sp</item>
+    </style>
+
     <!-- Widget appearance. Apply these using the "style" attribute. -->
     <style name="SqueezerWidget"/>
 
@@ -204,11 +209,11 @@
     </style>
 
     <style name="SqueezerWidget.MediaButton.Shuffle">
-        <item name="icon">@drawable/btn_shuffle</item>
+        <item name="icon">@drawable/shuffle</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Repeat">
-        <item name="icon">@drawable/btn_repeat</item>
+        <item name="icon">@drawable/ic_repeat_white</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Volume" parent="Widget.MaterialComponents.Button.TextButton">

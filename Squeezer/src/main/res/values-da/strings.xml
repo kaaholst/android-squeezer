@@ -23,6 +23,7 @@
     <string name="disabled">Deaktiveret</string>
     <string name="pause">Pause</string>
     <string name="mute">Mute</string>
+    <string name="minutes">minutter</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
@@ -35,9 +36,14 @@
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_dark">Mørk</string>
     <string name="settings_theme_light_dark">Lys, mørk handlingslinie</string>
-    <string name="settings_clear_current_playlist_confirmation">Bekræft før ryd afspilningsliste</string>
-    <string name="settings_clear_current_playlist_confirmation_off">Ingen bekræftelse ved anvendelse af \"Ryd afspilningsliste\" knappen</string>
-    <string name="settings_clear_current_playlist_confirmation_on">Der skal bekræftes ved anvendelse af \"Ryd afspilningsliste\" knappen</string>
+    <string name="settings_screensaver_title">Hold skærmen tændt</string>
+    <string name="settings_screensaver_off">Nej</string>
+    <string name="settings_screensaver_on">Ja</string>
+    <string name="settings_screensaver_clock">Vis ur ved inaktivitet</string>
+    <string name="settings_use_flat_icons">Flade ikoner</string>
+    <string name="settings_clear_current_playlist_confirmation">Når afspilningslisten ryddes</string>
+    <string name="settings_clear_current_playlist_confirmation_off">bed ikke om bekræftelse</string>
+    <string name="settings_clear_current_playlist_confirmation_on">bed om bekræftelse</string>
     <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
     <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_use_wake_on_lan">Væk server (Wake-on-LAN)</string>
@@ -49,6 +55,7 @@
         <p>Dette kræver, at computeren, der kører Squeezebox Server, skal konfigureres til at bruge Wake-on-LAN.</p>]]>
     </string>
     <string name="settings_server_scan_progress">Scanner efter servere…</string>
+    <string name="settings_volume_title">Indstillinger for lydstyrkekontrol</string>
     <string name="settings_background_volume_title">Skift lydstyrke i bagrunden</string>
     <string name="settings_background_volume_off">Skift afspillerens lydstyrke er kun muligt når Squeezer vises</string>
     <string name="settings_background_volume_on">Skift afspillerens lydstyrke selvom Squeezer ikke vises</string>
@@ -59,14 +66,20 @@
         at deaktivere indtoning.
     </string>
     <string name="settings_action_on_incoming_call_title">Handling når du modtager eller foretager et opkald</string>
-    <string name="settings_no_action_on_incoming_call">No action</string>
+    <string name="settings_no_action_on_incoming_call">Gør intet</string>
+    <string name="settings_restore_after_call">Vend automatisk tilbage til musik efter et telefon opkald</string>
+    <string name="call_state_permission_title">Adgang til telefon er påkrævet</string>
+    <string name="call_state_permission_message">Squeezer kan sætte musikken på pause, når du modtager eller foretager
+        et opkald. Dette kræver, at Squeezer bliver underrettet, når opkaldstilstanden ændres.</string>
+    <string name="request_permission">Anmod om tilladelse</string>
 
-    <string name="settings_category_ui">Squeezer grænseflade</string>
+    <string name="settings_category_display">Skærm</string>
+    <string name="settings_category_ui">Genveje, mv.</string>
     <string name="settings_customize_home_menu_mode">Arkiv</string>
-    <string name="settings_customize_home_menu_info">Startmenuen i din Squeezebox og flere undermenuer kan tilpasses</string>
-    <string name="settings_customize_home_menu_archive">Langt tryk på et emne flytter det til arkiv/fjerner det fra arkiv</string>
-    <string name="settings_customize_home_menu_disabled">Deaktiver arkiv</string>
-    <string name="settings_customize_home_menu_locked">Deaktiver langt tryk, men behold arkiverede emner</string>
+    <string name="settings_customize_home_menu_info">Langt tryk på et passende emne arkiverer det</string>
+    <string name="settings_customize_home_menu_archive">Aktiveret</string>
+    <string name="settings_customize_home_menu_disabled">Deaktiveret</string>
+    <string name="settings_customize_home_menu_locked">Deaktiveret, men behold arkiverede emner</string>
 
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
@@ -101,10 +114,13 @@
 
     <string name="player_group_header">Gruppe: %s</string>
     <string name="player_group_volume">Gruppe volumen</string>
+    <string name="player_group_volume_on">Juster lydstyrken for synkroniserede afspillere</string>
+    <string name="player_group_volume_off">Juster kun lydstyrken for den valgte afspiller</string>
     <string name="menu_item_player_sync">Synkronisér…</string>
     <string name="menu_item_player_unsync">Ingen synkronisering</string>
     <string name="menu_item_power_off">Sluk</string>
     <string name="menu_item_power_on">Tænd</string>
+    <string name="set_sleep_timer">Sæt slumretid</string>
 
     <string name="no_players_connected">Der er ingen afspillere tilsluttet</string>
     <string name="player_list_changed">Tilsluttede spillere ændret, mens genvejsmenuen var åben,
@@ -183,6 +199,7 @@
     <string name="download_filename_structure_albumartist_number_title">Kunstner (Album) - Nummer - Titel</string>
     <string name="download_filename_structure_title">Titel</string>
     <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
+    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">kunne ikke tilføjes enhedens medie database</string>
 
     <!-- Download dialog -->
     <string name="download_item">Hent %s</string>
@@ -212,19 +229,20 @@
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Arkivet kan ikke arkiveres!</string>
     <string name="ARCHIVE_NODE_REMOVED">Fjernet tomt arkiv</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">Dette element kan ikke arkiveres!</string>
-    <string name="CUSTOM_SHORTCUT_REMOVED">Tilpasset genvej fjernet</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Genvej er fjernet fra startskærmen</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Er allerede en genvej!</string>
     <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Genvej sat på startmenuen</string>
-    <string name="settings_custom_shortcut_enabled">Langt tryk sætter et egnet element på startskærmen</string>
     <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Kan ikke være genvej eller arkiveres!</string>
-    <string name="settings_custom_shortcut_disabled">Brugerdefinerede genveje deaktiveret</string>
-    <string name="settings_custom_shortcut_locked">Deaktiver langt tryk, men behold genveje på startskærmen.</string>
+    <string name="settings_custom_shortcut_enabled">Aktiveret</string>
+    <string name="settings_custom_shortcut_disabled">Deaktiveret</string>
+    <string name="settings_custom_shortcut_locked">Deaktiveret, men vis nuværende genveje</string>
     <string name="settings_customize_customShortcut_mode">Brugerdefinerede genveje</string>
-    <string name="settings_customize_customShortcut_info">Langt tryk sætter genveje på menuen på øverste niveau.
-        (Ændringer i mapper kræver fornyede genveje.)</string>
+    <string name="settings_customize_customShortcut_info">Langt tryk tilføjer genvej på startskærmen</string>
     <string name="ITEM_CANNOT_BE_SHORTCUT">Dette element kan ikke være genvej!</string>
     <string name="PLAY_RANDOM_FOLDER">Spil tilfældigt</string>
     <string name="backward_seconds">Sekunder tilbage</string>
     <string name="forward_seconds">Sekunder frem</string>
+    <string name="RANDOM_PLAY_UNABLE">Fejl ved start af tilfældig afspilning</string>
+    <string name="RANDOM_PLAY_STARTED">Tilfældig afspilning er start</string>
 
 </resources>

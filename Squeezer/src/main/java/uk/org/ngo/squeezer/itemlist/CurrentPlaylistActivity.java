@@ -33,6 +33,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -192,6 +195,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         return getService().getCurrentPlaylist();
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MusicChanged event) {
         if (getService() == null) {
             return;
@@ -204,6 +208,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         }
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlaylistChanged event) {
         if (getService() == null) {
             return;

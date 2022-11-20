@@ -23,6 +23,7 @@
     <string name="disabled">Disabled</string>
     <string name="pause">Pause</string>
     <string name="mute">Mute</string>
+    <string name="minutes">minutes</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
@@ -35,9 +36,14 @@
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
-    <string name="settings_clear_current_playlist_confirmation">Ask for confirmation before clear current playlist</string>
-    <string name="settings_clear_current_playlist_confirmation_off">No confirmation dialog for \'Clear current playlist\' button</string>
-    <string name="settings_clear_current_playlist_confirmation_on">Use a confirmation dialog for \'Clear current playlist\' button</string>
+    <string name="settings_screensaver_title">Keep screen on</string>
+    <string name="settings_screensaver_off">No</string>
+    <string name="settings_screensaver_on">Yes</string>
+    <string name="settings_screensaver_clock">Show clock when idle</string>
+    <string name="settings_use_flat_icons">Flat icons</string>
+    <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
+    <string name="settings_clear_current_playlist_confirmation_off">do not ask for confirmation</string>
+    <string name="settings_clear_current_playlist_confirmation_on">ask for confirmation</string>
     <string name="settings_username_hint">User name (optional)</string>
     <string name="settings_password_hint">Password (optional)</string>
     <string name="settings_use_wake_on_lan">Wake up server (Wake-on-LAN)</string>
@@ -49,7 +55,7 @@
         <p>This requires the computer running the Squeezebox Server to be configured to use Wake-on-LAN.</p>]]>
     </string>
     <string name="settings_server_scan_progress">Scanning for servers…</string>
-    <string name="settings_volume_title">Settings for Volume Control </string>
+    <string name="settings_volume_title">Settings for Volume Control</string>
     <string name="settings_background_volume_title">Background Volume Control</string>
     <string name="settings_background_volume_off">Control player volume only when the app is visible.</string>
     <string name="settings_background_volume_on">Allow changing player volume even when the app is not visible.</string>
@@ -61,6 +67,11 @@
     </string>
     <string name="settings_action_on_incoming_call_title">Action when you receive or make a call</string>
     <string name="settings_no_action_on_incoming_call">No action</string>
+    <string name="settings_restore_after_call">Automatically return to music after a phone call</string>
+    <string name="call_state_permission_title">Call state permission required</string>
+    <string name="call_state_permission_message">Squeezer can pause music when you receive or make a call.
+        This requires that Squeezer is allowed to be notified when call state changes.</string>
+    <string name="request_permission">Request permission</string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
     <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
@@ -71,12 +82,13 @@
     <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
 
-    <string name="settings_category_ui">Squeezer interface</string>
+    <string name="settings_category_display">Display</string>
+    <string name="settings_category_ui">Shortcuts, etc.</string>
     <string name="settings_customize_home_menu_mode">Archive</string>
-    <string name="settings_customize_home_menu_info">The home screen as well as several submenus can be customized</string>
-    <string name="settings_customize_home_menu_archive">Long press an item archives/unarchives that item</string>
-    <string name="settings_customize_home_menu_disabled">Disable archive</string>
-    <string name="settings_customize_home_menu_locked">Disable long press, but leave archived items in the archive</string>
+    <string name="settings_customize_home_menu_info">Long press on suitable menu item puts it into an archive</string>
+    <string name="settings_customize_home_menu_archive">Enabled</string>
+    <string name="settings_customize_home_menu_disabled">Disabled</string>
+    <string name="settings_customize_home_menu_locked">Disabled, but keep archive</string>
 
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
@@ -152,6 +164,7 @@
 
     <string name="menu_item_power_off">Turn off</string>
     <string name="menu_item_power_on">Turn on</string>
+    <string name="set_sleep_timer">Set sleep timer</string>
 
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
@@ -397,25 +410,26 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="remote_preset5Description">Preset 5</string>
     <string name="remote_preset6Description">Preset 6</string>
     <string name="ARCHIVE_NODE">Archive</string>
-    <string name="MENU_ITEM_MOVED">Menu item moved</string>
+    <string name="MENU_ITEM_MOVED">Menu item (un)archived</string>
     <string name="MENU_IS_SUBMENU_IN_ARCHIVE">You are already in Archive!</string>
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Archive cannot be archived!</string>
     <string name="ARCHIVE_NODE_REMOVED">Removed empty Archive</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">This item can not be archived!</string>
-    <string name="CUSTOM_SHORTCUT_REMOVED">Custom shortcut removed</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Shortcut removed from home menu</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Is already a shortcut!</string>
     <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut put on home menu</string>
     <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Can not be shortcut or archived!</string>
-    <string name="settings_custom_shortcut_enabled">Long press puts a suitable item on home screen</string>
-    <string name="settings_custom_shortcut_disabled">Custom shortcuts disabled</string>
-    <string name="settings_custom_shortcut_locked">Disable long press, but leave shortcuts on home screen.</string>
-    <string name="settings_customize_customShortcut_mode">Custom Shortcuts</string>
-    <string name="settings_customize_customShortcut_info">Long press puts shortcuts on top level menu.
-        (Changes in folders need renewed shortcuts.)</string>
+    <string name="settings_custom_shortcut_enabled">Enabled</string>
+    <string name="settings_custom_shortcut_disabled">Disabled</string>
+    <string name="settings_custom_shortcut_locked">Disabled, but show existing shortcuts.</string>
+    <string name="settings_customize_customShortcut_mode">Shortcuts</string>
+    <string name="settings_customize_customShortcut_info">Long press puts shortcuts in home menu.</string>
     <string name="ITEM_CANNOT_BE_SHORTCUT">Item can not be shortcut!</string>
     <string name="PLAY_RANDOM_FOLDER">Play random</string>
     <string name="backward" translatable="false">⏪ %d</string>
     <string name="forward" translatable="false">%d ⏩</string>
     <string name="backward_seconds">Backward seconds</string>
     <string name="forward_seconds">Forward seconds</string>
+    <string name="RANDOM_PLAY_UNABLE">Unable to start Random Play</string>
+    <string name="RANDOM_PLAY_STARTED">Random Play started</string>
 </resources>

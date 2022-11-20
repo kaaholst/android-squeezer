@@ -37,7 +37,6 @@ import android.widget.TextView;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
-import java.text.DateFormatSymbols;
 import java.util.List;
 
 
@@ -48,6 +47,7 @@ import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
+import uk.org.ngo.squeezer.util.TimeUtil;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class AlarmView extends ItemViewHolder<Alarm> {
@@ -56,9 +56,6 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     private final int mColorSelected;
     private final float mDensity;
     private final boolean is24HourFormat;
-    private final String timeFormat;
-    private final String am;
-    private final String pm;
     private final TextView time;
     private final TextView amPm;
     private final CompoundButtonWrapper enabled;
@@ -76,10 +73,6 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         mDensity = mResources.getDisplayMetrics().density;
 
         is24HourFormat = DateFormat.is24HourFormat(getActivity());
-        timeFormat = is24HourFormat ? "%02d:%02d" : "%d:%02d";
-        String[] amPmStrings = new DateFormatSymbols().getAmPmStrings();
-        am = amPmStrings[0];
-        pm = amPmStrings[1];
         time = view.findViewById(R.id.time);
         amPm = view.findViewById(R.id.am_pm);
         amPm.setVisibility(is24HourFormat ? View.GONE : View.VISIBLE);
@@ -141,16 +134,11 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         long tod = item.getTod();
         int hour = (int) (tod / 3600);
         int minute = (int) ((tod / 60) % 60);
-        int displayHour = hour;
-        if (!is24HourFormat) {
-            displayHour = displayHour % 12;
-            if (displayHour == 0) displayHour = 12;
-        }
 
-        time.setText(String.format(timeFormat, displayHour, minute));
+        time.setText(TimeUtil.timeFormat(hour, minute, is24HourFormat));
         BaseListActivity activity = (BaseListActivity) getActivity();
         time.setOnClickListener(view -> showTimePicker(activity, item, is24HourFormat));
-        amPm.setText(hour < 12 ? am : pm);
+        amPm.setText(TimeUtil.formatAmPm(hour));
         enabled.setChecked(item.isEnabled());
         repeat.setChecked(item.isRepeat());
         if (!mActivity.getAlarmPlaylists().isEmpty()) {

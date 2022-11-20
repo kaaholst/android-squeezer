@@ -93,6 +93,9 @@ public final class Preferences {
     // Action on incoming call
     public static final String KEY_ACTION_ON_INCOMING_CALL = "squeezer.action_on_incoming_call";
 
+    // Restore music on end call if we performed action on incoming call
+    public static final String KEY_RESTORE_MUSIC_AFTER_CALL = "squeezer.restore_after_call";
+
     // Are we disconnected via the options menu?
     private static final String KEY_MANUAL_DISCONNECT = "squeezer.manual.disconnect";
 
@@ -139,6 +142,9 @@ public final class Preferences {
     // Preferred maximum info per item for a given list layout
     public static final String KEY_MAX_LINES_FORMAT = "squeezer.%s.maxLines";
 
+    // Use flat icons or legacy LMS icons
+    public static final String KEY_FLAT_ICONS = "squeezer.use_flat_icons";
+
     // Preferred song list layout.
     private static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
 
@@ -147,6 +153,9 @@ public final class Preferences {
 
     // Preferred UI theme.
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
+
+    // Screensaver
+    public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
     // Download confirmation
     static final String KEY_CLEAR_PLAYLIST_CONFIRMATION = "squeezer.clear.current_playlist.confirmation";
@@ -200,6 +209,9 @@ public final class Preferences {
     // Number of seconds for the quick jump backward/forward buttons.
     private static final String KEY_BACKWARD_SECONDS = "squeezer.backword_jump";
     private static final String KEY_FORWARD_SECONDS = "squeezer.forword_jump";
+
+    // Number of minutes for the custom sleep duration.
+    private static final String KEY_SLEEP_MINUTES = "squeezer.sleep_minutes";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -477,6 +489,11 @@ public final class Preferences {
         sharedPreferences.edit().putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name()).apply();
     }
 
+    public ScreensaverMode getScreensaverMode() {
+        String string = sharedPreferences.getString(KEY_SCREENSAVER, null);
+        return string == null ? ScreensaverMode.OFF : ScreensaverMode.valueOf(string);
+    }
+
     public boolean isScrobbleEnabled() {
         return sharedPreferences.getBoolean(KEY_SCROBBLE_ENABLED, false);
     }
@@ -495,6 +512,14 @@ public final class Preferences {
             return (sharedPreferences.getBoolean(KEY_PAUSE_ON_INCOMING_CALL, true) ? IncomingCallAction.PAUSE : IncomingCallAction.NONE);
         }
         return IncomingCallAction.valueOf(string);
+    }
+
+    public void setActionOnIncomingCall(IncomingCallAction action) {
+        sharedPreferences.edit().putString(KEY_ACTION_ON_INCOMING_CALL, action.name()).apply();
+    }
+
+    public boolean restoreMusicAfterCall() {
+        return sharedPreferences.getBoolean(KEY_RESTORE_MUSIC_AFTER_CALL, false);
     }
 
     public boolean controlSqueezePlayer(ServerAddress serverAddress) {
@@ -548,6 +573,14 @@ public final class Preferences {
 
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
         sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
+    }
+
+    public boolean useFlatIcons() {
+        return sharedPreferences.getBoolean(KEY_FLAT_ICONS, true);
+    }
+
+    public void useFlatIcons(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_FLAT_ICONS, b).apply();
     }
 
     /**
@@ -731,6 +764,14 @@ public final class Preferences {
         sharedPreferences.edit().putInt(KEY_FORWARD_SECONDS, seconds).apply();
     }
 
+    public int getSleepMinutes() {
+        return sharedPreferences.getInt(KEY_SLEEP_MINUTES, 120);
+    }
+
+    public void setSleepMinutes(int minutes) {
+        sharedPreferences.edit().putInt(KEY_SLEEP_MINUTES, minutes).apply();
+    }
+
     public enum IncomingCallAction implements EnumWithText {
         NONE(R.string.settings_no_action_on_incoming_call),
         PAUSE(R.string.pause),
@@ -739,6 +780,23 @@ public final class Preferences {
         private final int labelId;
 
         IncomingCallAction(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
+
+    public enum ScreensaverMode implements EnumWithText {
+        OFF(R.string.settings_screensaver_off),
+        ON(R.string.settings_screensaver_on),
+        CLOCK(R.string.settings_screensaver_clock);
+
+        private final int labelId;
+
+        ScreensaverMode(int labelId) {
             this.labelId = labelId;
         }
 

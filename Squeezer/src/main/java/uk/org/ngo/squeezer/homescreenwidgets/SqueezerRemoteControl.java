@@ -15,6 +15,7 @@ import android.widget.RemoteViews;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.util.Intents;
 
 
 /**
@@ -75,7 +76,7 @@ public class SqueezerRemoteControl extends SqueezerHomeScreenWidget {
         intent.setAction(ACTION_PREFIX + button.name());
         intent.putExtra(PLAYER_ID, playerId);
 
-        return PendingIntent.getBroadcast(context, playerId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getBroadcast(context, playerId.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | Intents.immutablePendingIntent());
     }
 
     // Read the prefix from the SharedPreferences object for this widget.

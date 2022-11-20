@@ -155,7 +155,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         }
     }
 
-    private final IServiceItemListCallback<AlarmPlaylist> alarmPlaylistsCallback = new IServiceItemListCallback<AlarmPlaylist>() {
+    private final IServiceItemListCallback<AlarmPlaylist> alarmPlaylistsCallback = new IServiceItemListCallback<>() {
         private final List<AlarmPlaylist> alarmPlaylists = new ArrayList<>();
 
         @Override

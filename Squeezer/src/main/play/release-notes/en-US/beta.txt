@@ -1,11 +1,19 @@
-&bull; Random play folder. Start from the context menu of a music folder
+&bull; Support player specific LMS plugins.
 
-&bull; Items from a music service are marked with the corresponding logo.
+&bull; Ability to set own Sleep Timer
 
-&bull; Don't require Wi-Fi for server discovery.
+&bull; Optionally continue music when a call ends.
 
-&bull; Custom Shortcuts. Long press an item to add a shortcut to the top level menu.
+&bull; Use flat icons
 
-&bull; Volume buttons and volume popup can control volume of synced players, instead of only the selected player.
+&bull; Implement keep screen on and screensaver
 
-&bull; Ongoing notification show current track number and number of tracks in the current playlist.
+&bull; Target Android 12
+
+&bull; Fix an issue which could cause the loading view to keep showing
+
+&bull; Fix playlist not updating after resume
+
+&bull; Fix a network issue, which enables Squeezer to connect to a server from the internet via a VPN.
+
+&bull; Fix various potential crashes.

@@ -80,6 +80,15 @@
                     app:showAsAction="never"
                     />
             </group>
+            <group
+                android:id="@+id/menu_group_flat_icons"
+                android:checkableBehavior="all">
+                <item
+                    android:id="@+id/menu_item_flat_icons"
+                    android:title="@string/settings_use_flat_icons"
+                    app:showAsAction="never"
+                    />
+            </group>
         </menu>
     </item>
 </menu>

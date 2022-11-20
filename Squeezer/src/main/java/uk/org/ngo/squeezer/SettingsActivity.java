@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -36,7 +35,6 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
     }
-
 
     @Override
     public void onResume() {

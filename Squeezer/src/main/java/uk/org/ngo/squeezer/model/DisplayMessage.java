@@ -107,33 +107,33 @@ public class DisplayMessage {
     private static Map<String, Integer> initializeDisplayMessageIcons() {
         Map<String, Integer> result = new HashMap<>();
 
-        result.put("volume", R.drawable.icon_popup_box_volume_bar);
-        result.put("mute", R.drawable.icon_popup_box_volume_mute);
+        result.put("volume", R.drawable.ic_volume_up_white);
+        result.put("mute", R.drawable.ic_volume_off_white);
 
-        result.put("sleep_15", R.drawable.icon_popup_box_sleep_15);
-        result.put("sleep_30", R.drawable.icon_popup_box_sleep_30);
-        result.put("sleep_45", R.drawable.icon_popup_box_sleep_45);
-        result.put("sleep_60", R.drawable.icon_popup_box_sleep_60);
-        result.put("sleep_90", R.drawable.icon_popup_box_sleep_90);
-        result.put("sleep_cancel", R.drawable.icon_popup_box_sleep_off);
+        result.put("sleep_15", R.drawable.ic_sleep_15);
+        result.put("sleep_30", R.drawable.ic_sleep_30);
+        result.put("sleep_45", R.drawable.ic_sleep_45);
+        result.put("sleep_60", R.drawable.ic_sleep_60);
+        result.put("sleep_90", R.drawable.ic_sleep_90);
+        result.put("sleep_cancel", R.drawable.ic_sleep_off);
 
-        result.put("shuffle0", R.drawable.icon_popup_box_shuffle_off);
-        result.put("shuffle1", R.drawable.icon_popup_box_shuffle);
-        result.put("shuffle2", R.drawable.icon_popup_box_shuffle_album);
+        result.put("shuffle0", R.drawable.ic_shuffle_off);
+        result.put("shuffle1", R.drawable.ic_shuffle_song);
+        result.put("shuffle2", R.drawable.ic_shuffle_album);
 
-        result.put("repeat0", R.drawable.icon_popup_box_repeat_off);
-        result.put("repeat1", R.drawable.icon_popup_box_repeat_song);
-        result.put("repeat2", R.drawable.icon_popup_box_repeat);
+        result.put("repeat0", R.drawable.ic_repeat_off);
+        result.put("repeat1", R.drawable.ic_repeat_song);
+        result.put("repeat2", R.drawable.ic_repeat_white);
 
-        result.put("pause", R.drawable.icon_popup_box_pause);
-        result.put("play", R.drawable.icon_popup_box_play);
-        result.put("fwd", R.drawable.icon_popup_box_fwd);
-        result.put("rew", R.drawable.icon_popup_box_rew);
-        result.put("stop", R.drawable.icon_popup_box_stop);
+        result.put("pause", R.drawable.ic_action_pause);
+        result.put("play", R.drawable.ic_action_play);
+        result.put("fwd", R.drawable.ic_action_next);
+        result.put("rew", R.drawable.ic_action_previous);
+        result.put("stop", R.drawable.ic_action_stop);
 
-        result.put("add", R.drawable.add);
+        result.put("add", R.drawable.ic_add);
         result.put("favorite", R.drawable.icon_popup_favorite);
-        result.put("lineIn", R.drawable.icon_linein);
+        result.put("lineIn", R.drawable.icon_line_in_white);
 
         return result;
     }

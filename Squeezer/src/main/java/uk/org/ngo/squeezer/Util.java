@@ -193,11 +193,16 @@ public class Util {
     }
 
     public static String[] getStringArray(Map<String, Object> record, String fieldName) {
-        return getStringArray((Object[]) record.get(fieldName));
+        return getStringArray(record.get(fieldName));
     }
 
-    private static String[] getStringArray(Object[] objects) {
-        String[] result = new String[objects == null ? 0 : objects.length];
+    private static String[] getStringArray(Object object) {
+        if (object != null  && !object.getClass().isArray()) {
+            return new String[]{ getString(object, null) };
+        }
+
+        Object[] objects = (Object[])object;
+        String[] result = new String[object == null ? 0 : objects.length];
         if (objects != null) {
             for (int i = 0; i < objects.length; i++) {
                 result[i] = getString(objects[i], null);

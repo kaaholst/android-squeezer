@@ -35,6 +35,8 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -73,24 +75,23 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     /** Map server names to IP addresses. */
     private Map<String, String> discoveredServers;
 
-    private ArrayAdapter<String> serversAdapter;
     private boolean isManual;
     private OnClickListener startNetWorkScan;
 
     public ServerAddressView(final Context context) {
         super(context);
-        initialize(context);
+        initialize();
     }
 
     public ServerAddressView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initialize(context);
+        initialize();
     }
 
-    private void initialize(final Context context) {
-        inflate(context, R.layout.server_address_view, this);
+    private void initialize() {
+        inflate(getContext(), R.layout.server_address_view, this);
         if (!isInEditMode()) {
-            preferences = new Preferences(context);
+            preferences = new Preferences(getContext());
             serverAddress = preferences.getServerAddress();
             if (serverAddress.localAddress() == null) {
                 Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
@@ -111,11 +112,11 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             macLayout = findViewById(R.id.mac_til);
             macEditText = findViewById(R.id.mac);
             macLayout.setEndIconOnClickListener(view -> {
-                FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+                FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
                 InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
             });
             macLayout.setErrorIconOnClickListener(view -> {
-                FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+                FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
                 InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
             });
             macEditText.setOnFocusChangeListener((view, b) -> {
@@ -149,16 +150,15 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             serverName = findViewById(R.id.server_name);
 
             // Set up the servers spinner.
-            serversAdapter = new ArrayAdapter<>(context, R.layout.dropdown_item);
             serversSpinner_til = findViewById(R.id.found_servers_til);
             serversSpinner = findViewById(R.id.found_servers);
-            serversSpinner.setAdapter(serversAdapter);
+            serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item));
 
             setSqueezeNetwork(serverAddress.squeezeNetwork);
             setServerAddress(serverAddress.localAddress());
 
-            startNetworkScan(context);
-            startNetWorkScan = v -> startNetworkScan(context);
+            startNetworkScan();
+            startNetWorkScan = v -> startNetworkScan();
             serversSpinner_til.setStartIconOnClickListener(startNetWorkScan);
         }
     }
@@ -202,14 +202,14 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     /**
      * Starts scanning for servers.
      */
-    void startNetworkScan(Context context) {
+    private void startNetworkScan() {
         scanProgress.setVisibility(VISIBLE);
         serverName_til.setStartIconDrawable(android.R.color.transparent);
         serverName_til.setStartIconOnClickListener(null);
         serverName.setText(R.string.settings_server_scan_progress);
         serverName_til.setVisibility(VISIBLE);
         serversSpinner_til.setVisibility(GONE);
-        scanNetworkTask = new ScanNetworkTask(context, this);
+        scanNetworkTask = new ScanNetworkTask(getContext(), this);
         new Thread(scanNetworkTask).start();
 
         scanProgress.setProgress(0);
@@ -236,7 +236,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         serverName.setText(R.string.settings_manual_server_addr);
         serverName_til.setVisibility(GONE);
         serversSpinner_til.setVisibility(GONE);
-        serversAdapter.clear();
 
         discoveredServers = serverMap;
 
@@ -249,13 +248,11 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             serverName_til.setStartIconOnClickListener(startNetWorkScan);
             serverName_til.setVisibility(VISIBLE);
         } else {
-            for (Entry<String, String> e : discoveredServers.entrySet()) {
-                serversAdapter.add(e.getKey());
-            }
-            serversAdapter.add(getContext().getString(R.string.settings_manual_server_addr));
-            serversAdapter.notifyDataSetChanged();
+            List<String> keys = new ArrayList<>(discoveredServers.keySet());
+            keys.add(getContext().getString(R.string.settings_manual_server_addr));
+            serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, keys));
 
-            // First look the stored server name in the list of found servers
+            // First look for the stored server name in the list of found servers
             String addressOfStoredServerName = discoveredServers.get(serverAddress.serverName());
             int position = getServerPosition(addressOfStoredServerName);
 
@@ -264,13 +261,16 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                 position = getServerPosition(serverAddress.localAddress());
             }
 
-            serversSpinner.setText(serversAdapter.getItem(position < 0 ? serversAdapter.getCount() - 1 : position), false);
+            // This shouldn't happen, but crash reports say that it does
+            if (keys.size() > 0) {
+                serversSpinner.setText(keys.get(position < 0 ? keys.size() - 1 : position), false);
+            }
             isManual = (position < 0);
             setEditServerAddressAvailability(serverAddress.squeezeNetwork);
 
-            serversSpinner.setOnItemClickListener((adapterView, parent, pos, id) -> {
-                String serverAddress = discoveredServers.get(serversAdapter.getItem(pos));
-                isManual = (pos == serversAdapter.getCount() - 1);
+            serversSpinner.setOnItemClickListener((parent, view, pos, id) -> {
+                String serverAddress = discoveredServers.get((String) ((TextView)view).getText());
+                isManual = (pos == parent.getCount() - 1);
                 setSqueezeNetwork(false);
                 setServerAddress(serverAddress);
             });
@@ -302,7 +302,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private void setEditServerAddressAvailability(boolean isSqueezeNetwork) {
         if (isSqueezeNetwork) {
             serverAddressEditText.setEnabled(false);
-        } else if (serversAdapter.getCount() == 0) {
+        } else if (discoveredServers == null || discoveredServers.isEmpty()) {
             serverAddressEditText.setEnabled(true);
         } else {
             serverAddressEditText.setEnabled(isManual);

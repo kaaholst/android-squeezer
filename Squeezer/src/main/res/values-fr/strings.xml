@@ -48,8 +48,6 @@
     <string name="settings_squeezeplayer_title">Démarrer SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Cochez cette option pour vous assurer que SqueezePlayer est en cours d’exécution lorsque vous utilisez Squeezer.</string>
 
-    <string name="settings_category_ui">Interface</string>
-
     <string name="menu_item_disconnect">Déconnecter</string>
     <string name="menu_item_connect">Connexion</string>
     <string name="menu_item_poweron">Allumer \"%s\"</string>
@@ -93,14 +91,14 @@
     <string name="alarm_volume_text">Volume de l\'alarme</string>
 
     <string name="alarm_snooze_duration_text">Durée de la fonction de répétition</string>
-    <plurals name="alarm_snooze_hint_text">
+    <plurals name="alarm_snooze_hint_text" tools:ignore="MissingQuantity">
         <item quantity="one">Répétition %d minute</item>
         <item quantity="other">Répétition %d minutes</item>
     </plurals>
 
     <string name="alarm_timeout_text">Durée du réveil</string>
     <string name="alarm_timeout_hint_text_zero">Les alarmes jouent indéfiniment</string>
-    <plurals name="alarm_timeout_hint_text">
+    <plurals name="alarm_timeout_hint_text" tools:ignore="MissingQuantity">
         <item quantity="one">Durée : %d minute</item>
         <item quantity="other">Durée : %d minutes</item>
     </plurals>
@@ -126,7 +124,7 @@
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Téléchargement annulé car nous n’avons pas l’autorisation de sauvegarder les fichiers téléchargés</string>
 
 
-    <plurals name="seconds">
+    <plurals name="seconds" tools:ignore="MissingQuantity">
         <item quantity="one" tools:ignore="ImpliedQuantity">seconde</item>
         <item quantity="other">secondes</item>
     </plurals>

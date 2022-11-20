@@ -30,4 +30,7 @@
 
     <!-- Inset for current playlist nom playing emblem -->
     <dimen name="now_playing_emblem_inset">12dip</dimen>
+
+    <!-- Inset for flat_icons as foreground when using legacy icons -->
+    <dimen name="album_art_inset">2dp</dimen>
 </resources>

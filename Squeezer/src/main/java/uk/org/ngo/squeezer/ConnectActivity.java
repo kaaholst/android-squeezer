@@ -21,10 +21,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 
 import com.google.android.material.textfield.TextInputLayout;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -154,7 +158,7 @@ public class ConnectActivity extends BaseActivity {
     /**
      * Act on the user requesting a server connection through the activity's UI.
      */
-    public void onUserInitiatesConnect() {
+    private void onUserInitiatesConnect() {
         if (serverAddressView.savePreferences()) {
             NowPlayingFragment fragment = (NowPlayingFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.now_playing_fragment);
@@ -162,11 +166,9 @@ public class ConnectActivity extends BaseActivity {
         }
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
-        final Intent intent = new Intent(this, HomeActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        Log.d("ConnectActivity", "Handshake complete");
+        HomeActivity.show(this);
     }
 }

@@ -28,13 +28,7 @@ public class ScanNetworkTask implements Runnable {
 
     private final ScanNetworkCallback callback;
     private final int defaultHttpPort;
-    private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
     private volatile boolean cancelled;
-
-    /**
-     * Map server names to IP addresses.
-     */
-    private final TreeMap<String, String> mServerMap = new TreeMap<>();
 
     /**
      * UDP port to broadcast discovery requests to.
@@ -68,6 +62,8 @@ public class ScanNetworkTask implements Runnable {
      */
     @Override
     public void run() {
+        TreeMap<String, String> serverMap = new TreeMap<>();
+
         DatagramSocket socket = null;
 
         // UDP broadcast data that causes Squeeze servers to reply. The
@@ -87,7 +83,7 @@ public class ScanNetworkTask implements Runnable {
         System.arraycopy(request, 0, data, 0, request.length);
 
         try {
-            InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
+           InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
             boolean timedOut;
             socket = new DatagramSocket();
             DatagramPacket discoveryPacket = new DatagramPacket(data, data.length,
@@ -112,7 +108,7 @@ public class ScanNetworkTask implements Runnable {
                         if (name != null) {
                             String host = responsePacket.getAddress().getHostAddress();
                             String port = discover.containsKey("JSON") ? discover.get("JSON") : String.valueOf(defaultHttpPort);
-                            mServerMap.put(name, host + ':' + port);
+                            serverMap.put(name, host + ':' + port);
                         }
                     }
                 } catch (IOException e) {
@@ -136,11 +132,12 @@ public class ScanNetworkTask implements Runnable {
             }
         }
 
-        // For testing that multiple servers are handled correctly.
-        // mServerMap.put("Dummy", "127.0.0.1");
-        if (!cancelled) {
-            uiThreadHandler.post(() -> callback.onScanFinished(mServerMap));
-        }
+        Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+        uiThreadHandler.post(() -> {
+            // For testing that multiple servers are handled correctly.
+            // serverMap.put("Dummy", "127.0.0.1");
+            if (!cancelled)  callback.onScanFinished(serverMap);
+        });
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -56,12 +57,16 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
+import uk.org.ngo.squeezer.dialog.CallStateDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
@@ -92,9 +97,10 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
-public class NowPlayingFragment extends Fragment {
+public class NowPlayingFragment extends Fragment implements CallStateDialog.CallStateDialogHost {
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -297,11 +303,11 @@ public class NowPlayingFragment extends Fragment {
         // Marquee effect on TextViews only works if they're focused.
         trackText.requestFocus();
 
-        playPauseButton.setOnClickListener(view -> mService.togglePausePlay());
+        playPauseButton.setOnClickListener(view -> requireService().togglePausePlay());
 
         volumeButton.setOnClickListener(view -> mActivity.showVolumePanel());
-        nextButton.setOnClickListener(view -> mService.nextTrack());
-        prevButton.setOnClickListener(view -> mService.previousTrack());
+        nextButton.setOnClickListener(view -> requireService().nextTrack());
+        prevButton.setOnClickListener(view -> requireService().previousTrack());
 
         if (mFullHeightLayout) {
             artistText.setOnClickListener(v1 -> {
@@ -341,9 +347,9 @@ public class NowPlayingFragment extends Fragment {
                 return detector.onTouchEvent(event);
             });
 
-            shuffleButton.setOnClickListener(view -> mService.toggleShuffle());
+            shuffleButton.setOnClickListener(view -> requireService().toggleShuffle());
 
-            repeatButton.setOnClickListener(view -> mService.toggleRepeat());
+            repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
 
             playlistButton.setOnClickListener(view -> CurrentPlaylistActivity.show(mActivity));
 
@@ -368,6 +374,7 @@ public class NowPlayingFragment extends Fragment {
 
                 // Disable updates when user drags the thumb.
                 @Override
+                @SuppressLint("RestrictedApi")
                 public void onStartTrackingTouch(@NonNull Slider s) {
                     seekingSong = getCurrentSong();
                     updateSeekBar = false;
@@ -377,6 +384,7 @@ public class NowPlayingFragment extends Fragment {
                 // we started seeking then jump to the new point in the track,
                 // otherwise ignore the seek.
                 @Override
+                @SuppressLint("RestrictedApi")
                 public void onStopTrackingTouch(@NonNull Slider s) {
                     CurrentPlaylistItem thisSong = getCurrentSong();
 
@@ -498,7 +506,7 @@ public class NowPlayingFragment extends Fragment {
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(actionBarContext, R.layout.dropdown_item, connectedPlayers) {
                 @Override
                 public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                    TextView view = (TextView) getActivity().getLayoutInflater().inflate(R.layout.dropdown_item, parent, false);
+                    TextView view = (TextView) requireActivity().getLayoutInflater().inflate(R.layout.dropdown_item, parent, false);
                     view.setText(getItem(position).getName());
                     return view;
                 }
@@ -510,8 +518,8 @@ public class NowPlayingFragment extends Fragment {
                 Player selectedItem = playerAdapter.getItem(position);
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
-                    mService.setActivePlayer(selectedItem);
-                    updateUiFromPlayerState(mService.getActivePlayerState());
+                    requireService().setActivePlayer(selectedItem);
+                    updateUiFromPlayerState(requireService().getActivePlayerState());
                 }
             });
         } else {
@@ -540,6 +548,19 @@ public class NowPlayingFragment extends Fragment {
         }
     }
 
+    /**
+     * Return the {@link ISqueezeService} this activity is currently bound to.
+     *
+     * @throws IllegalStateException if service is not bound.
+     */
+    @NonNull
+    private ISqueezeService requireService() {
+        if (mService == null) {
+            throw new IllegalStateException(this + " service is not bound");
+        }
+        return mService;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -563,7 +584,7 @@ public class NowPlayingFragment extends Fragment {
      */
     private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
-            service.getEventBus().registerSticky(this);
+            service.getEventBus().register(this);
 
             mRegisteredCallbacks = true;
         }
@@ -636,7 +657,7 @@ public class NowPlayingFragment extends Fragment {
                 artistText.setText(song.getArtist());
                 albumText.setText(song.getAlbum());
 
-                mService.pluginItems(song.moreAction, new IServiceItemListCallback<>() {
+                requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
@@ -662,8 +683,8 @@ public class NowPlayingFragment extends Fragment {
             }
         }
 
-        if (!song.hasIconUri()) {
-            albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album_noart_fullscreen));
+        if (!song.useIcon()) {
+            albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
         }
@@ -728,7 +749,7 @@ public class NowPlayingFragment extends Fragment {
         mActivity.unregisterReceiver(broadcastReceiver);
 
         if (mRegisteredCallbacks) {
-            mService.getEventBus().unregister(this);
+            requireService().getEventBus().unregister(this);
             mRegisteredCallbacks = false;
         }
 
@@ -816,7 +837,7 @@ public class NowPlayingFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (PlayerViewLogic.doPlayerAction(mService, item, getActivePlayer())) {
+        if (PlayerViewLogic.doPlayerAction(getParentFragmentManager(), mService, item, getActivePlayer())) {
             return true;
         }
 
@@ -871,8 +892,16 @@ public class NowPlayingFragment extends Fragment {
         mService.startConnect(autoConnect);
     }
 
+    private final CallStatePermissionLauncher requestCallStateLauncher = new CallStatePermissionLauncher(this);
+
+    @Override
+    public void requestCallStatePermission() {
+        requestCallStateLauncher.requestCallStatePermission();
+    }
+
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
 
@@ -911,6 +940,7 @@ public class NowPlayingFragment extends Fragment {
      }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
@@ -943,41 +973,49 @@ public class NowPlayingFragment extends Fragment {
             return;
 
         updateUiFromPlayerState(playerState);
+
+        requestCallStateLauncher.trySetAction(new Preferences(mActivity).getActionOnIncomingCall());
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
         // We're connected but the controller needs to register with the server
         JiveItemListActivity.register(mActivity);
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MusicChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updateSongInfo(event.playerState);
         }
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(mService.getPlayers(), mService.getActivePlayer());
+        updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayStatusChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updatePlayPauseIcon(event.playStatus);
         }
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PowerStatusChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updatePlayerMenuItems();
         }
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HomeMenuEvent event) {
         globalSearch = null;
         for (JiveItem menuItem : event.menuItems) {
@@ -992,22 +1030,25 @@ public class NowPlayingFragment extends Fragment {
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(RepeatStatusChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updateRepeatStatus(event.repeatStatus);
         }
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ShuffleStatusChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updateShuffleStatus(event.shuffleStatus);
         }
     }
 
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(SongTimeChanged event) {
-        if (event.player.equals(mService.getActivePlayer())) {
+        if (event.player.equals(requireService().getActivePlayer())) {
             updateTimeDisplayTo(event.currentPosition, event.duration);
         }
     }

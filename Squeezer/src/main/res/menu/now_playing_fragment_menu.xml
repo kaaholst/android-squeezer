@@ -29,7 +29,7 @@
         android:id="@+id/menu_item_playlist"
         android:title="@string/menu_item_playlist"
         android:alphabeticShortcut="p"
-        android:icon="@drawable/ic_action_playlist"
+        android:icon="@drawable/ic_menu_playlist"
         app:showAsAction="ifRoom|withText" />
 
     <item
@@ -41,23 +41,23 @@
     <item
         android:id="@+id/menu_item_alarm"
         android:title="@string/ALARM"
-        android:icon="@drawable/ic_menu_alarm"/>
+        android:icon="@drawable/alarm_clock"/>
 
     <item
         android:id="@+id/menu_item_disconnect"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@drawable/ic_action_disconnect"
         android:title="@string/menu_item_disconnect"/>
 
     <!-- Force these to the bottom of the menu. -->
 
     <item
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_settings_36"
         android:id="@+id/menu_item_settings"
         android:title="@string/menu_item_settings_label"
         android:orderInCategory="99"/>
 
     <item
-        android:icon="@android:drawable/ic_menu_info_details"
+        android:icon="@drawable/ic_info"
         android:id="@+id/menu_item_about"
         android:title="@string/menu_item_about_label"
         android:orderInCategory="100"/>

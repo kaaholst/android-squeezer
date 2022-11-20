@@ -34,10 +34,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.MenuCompat;
@@ -48,6 +48,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,8 +65,10 @@ import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.ThemeManager;
@@ -99,6 +102,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private MenuItem menuItemOneLine;
     private MenuItem menuItemTwoLines;
     private MenuItem menuItemAllInfo;
+    private MenuItem menuItemFlatIcons;
 
     private ViewParamItemView<JiveItem> parentViewHolder;
     private DividerItemDecoration dividerItemDecoration;
@@ -242,7 +246,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
         if (parent.hasIcon() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
             parentViewHolder.icon.setVisibility(View.VISIBLE);
-            if (parent.hasIconUri()) {
+            if (parent.useIcon()) {
                 ImageFetcher.getInstance(this).loadImage(parent.getIcon(), parentViewHolder.icon);
             } else {
                 parentViewHolder.icon.setImageDrawable(parent.getIconDrawable(this));
@@ -324,11 +328,27 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
     public void onEventMainThread(HandshakeComplete event) {
+        Log.d("JiveItemListActivity", "Handshake complete");
         super.onEventMainThread(event);
         if (parent != null && parent.hasSubItems()) {
             updateHeader(parent);
             getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
+    }
+
+    @MainThread
+    public void onEventMainThread(ActivePlayerChanged event) {
+        if (action != null && !forActivePlayer(action)) {
+            finish();
+            return;
+        }
+        super.onEventMainThread(event);
+    }
+
+    protected boolean forActivePlayer(Action action) {
+        Player activePlayer = requireService().getActivePlayer();
+        String playerId = (activePlayer != null ? activePlayer.getId() : null);
+        return !action.isPlayerSpecific() || Arrays.asList(action.action.players).contains(playerId);
     }
 
     @Override
@@ -549,6 +569,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         menuItemOneLine = viewMenu.findItem(R.id.menu_item_one_line);
         menuItemTwoLines = viewMenu.findItem(R.id.menu_item_two_lines);
         menuItemAllInfo = viewMenu.findItem(R.id.menu_item_all_lines);
+        menuItemFlatIcons = viewMenu.findItem(R.id.menu_item_flat_icons);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -620,6 +641,10 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         } else if (itemId == R.id.menu_item_all_lines) {
             setMaxLines(0);
             return true;
+        } else if (itemId == R.id.menu_item_flat_icons) {
+            new Preferences(this).useFlatIcons(!menuItemFlatIcons.isChecked());
+            getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -632,13 +657,15 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     private void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
         if (menuItemList != null) {
+            Preferences preferences = new Preferences(this);
+
             (getThemeId() ==  R.style.AppTheme ? menuItemDark : menuItemLight).setChecked(true);
 
             boolean canChangeListLayout = JiveItemView.canChangeListLayout(windowStyle);
             viewMenu.setGroupVisible(R.id.menu_group_artwork, canChangeListLayout);
             (listLayout == ArtworkListLayout.list ? menuItemList : menuItemGrid).setChecked(true);
 
-            switch (new Preferences(this).getMaxLines(listLayout)) {
+            switch (preferences.getMaxLines(listLayout)) {
                 case 1:
                     menuItemOneLine.setChecked(true);
                     break;
@@ -649,6 +676,8 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                     menuItemAllInfo.setChecked(true);
                     break;
             }
+
+            menuItemFlatIcons.setChecked(preferences.useFlatIcons());
         }
     }
 
@@ -670,6 +699,14 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
      * @see #orderPage(ISqueezeService, int)
      */
     public static void show(Activity activity, JiveItem parent, Action action) {
+        if (activity instanceof JiveItemListActivity) {
+            JiveItemListActivity jiveItemListActivity = (JiveItemListActivity) activity;
+            Action parentAction = jiveItemListActivity.action;
+            if (parentAction != null && parentAction.isPlayerSpecific() && !action.isPlayerSpecific()) {
+                Player player = jiveItemListActivity.requireService().getActivePlayer();
+                action.action.players = (player != null ? new String[]{player.getId()} : parentAction.action.players);
+            }
+        }
         final Intent intent = getPluginListIntent(activity);
         intent.putExtra(JiveItem.class.getName(), parent);
         intent.putExtra(Action.class.getName(), action);

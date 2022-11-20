@@ -13,13 +13,12 @@
         tools:src="@drawable/pending"
         />
     <ImageView android:id="@+id/icon"
-        android:scaleType="center"
         style="@style/DisplayMessageIcon"
         app:layout_constraintTop_toBottomOf="@id/artwork"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/divider"
-        tools:src="@drawable/icon_popup_box_play"
+        tools:src="@drawable/ic_action_play"
         android:contentDescription="@string/app_name" />
     <include android:id="@+id/divider"
         layout="@layout/horizontal_divider"

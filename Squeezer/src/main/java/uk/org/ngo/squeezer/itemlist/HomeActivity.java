@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.preference.PreferenceManager;
@@ -36,6 +37,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeActivity extends HomeMenuActivity {
+    public static final String TAG = "HomeActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class HomeActivity extends HomeMenuActivity {
 
     @MainThread
     public void onEventMainThread(HandshakeComplete event) {
+        Log.d(TAG, "Handshake complete");
         super.onEventMainThread(event);
 
         // Show a tip about volume controls, if this is the first time this app
@@ -87,6 +90,9 @@ public class HomeActivity extends HomeMenuActivity {
             intent = intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
     }
 
 }

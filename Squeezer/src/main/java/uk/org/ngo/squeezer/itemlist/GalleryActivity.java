@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Map;
@@ -65,8 +69,10 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
 
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
-        getService().pluginItems(action, this);
+        Log.d("GalleryActivity", "Handshake complete");
+        requireService().pluginItems(action, this);
     }
 
     private class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {

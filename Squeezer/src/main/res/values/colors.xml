@@ -119,6 +119,7 @@
     <color name="volume_panel_back_circle_color_light">#EDEDED</color>
 
     <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
     <color name="line_dark">#808080</color>
 
     <color name="colorPrimaryDark">@color/lightBlueDark</color>

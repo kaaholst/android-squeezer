@@ -26,6 +26,7 @@
             <item android:id="@+id/in_45_minutes" android:title=""/>
             <item android:id="@+id/in_60_minutes" android:title=""/>
             <item android:id="@+id/in_90_minutes" android:title=""/>
+            <item android:id="@+id/in_x_minutes" android:title="@string/set_sleep_timer"/>
         </menu>
     </item>
     <item android:id="@+id/cancel_sleep" android:title="@string/SLEEP_CANCEL"/>

@@ -23,6 +23,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +55,6 @@ public class PlayerListActivity extends ItemListActivity implements
         SyncPowerDialog.SyncPowerDialogHost {
     private static final String CURRENT_PLAYER = "currentPlayer";
     private static final String CURRENT_SYNC_GROUP = "currentSyncGroup";
-    private static final String TAG = PlayerListActivity.class.getName();
     /**
      * Map from player IDs to Players synced to that player ID.
      */
@@ -84,8 +86,7 @@ public class PlayerListActivity extends ItemListActivity implements
         return false;
     }
 
-
-
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerVolume event) {
         if (mTrackingTouch != event.player) {
             adapter.notifyItemChanged(event.player);
@@ -140,7 +141,7 @@ public class PlayerListActivity extends ItemListActivity implements
      */
     @Override
     public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
-        getService().syncPlayerToPlayer(slave, masterId);
+        requireService().syncPlayerToPlayer(slave, masterId);
     }
 
     /**
@@ -150,7 +151,7 @@ public class PlayerListActivity extends ItemListActivity implements
      */
     @Override
     public void unsyncPlayer(@NonNull Player player) {
-        getService().unsyncPlayer(player);
+        requireService().unsyncPlayer(player);
     }
 
     @Override
@@ -160,7 +161,7 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Override
     public void setPlayTrackAlbum(@NonNull String option) {
-        getService().playerPref(currentPlayer, Player.Pref.PLAY_TRACK_ALBUM, option);
+        requireService().playerPref(currentPlayer, Player.Pref.PLAY_TRACK_ALBUM, option);
     }
 
     @Override
@@ -170,7 +171,7 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Override
     public void setDefeatDestructiveTTP(@NonNull String option) {
-        getService().playerPref(currentPlayer, Player.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
+        requireService().playerPref(currentPlayer, Player.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
     }
 
     @Override
@@ -181,7 +182,7 @@ public class PlayerListActivity extends ItemListActivity implements
     @Override
     public void setSyncVolume(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            getService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_VOLUME, option);
+            requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_VOLUME, option);
         }
     }
 
@@ -193,7 +194,7 @@ public class PlayerListActivity extends ItemListActivity implements
     @Override
     public void setSyncPower(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            getService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_POWER, option);
+            requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_POWER, option);
         }
     }
 
@@ -206,7 +207,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * expanded.
      */
     protected void updateAndExpandPlayerList() {
-        updateSyncGroups(getService().getPlayers());
+        updateSyncGroups(requireService().getPlayers());
         adapter.setSyncGroups(mPlayerSyncGroups);
     }
 
@@ -217,10 +218,12 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     public void onEventMainThread(HandshakeComplete event) {
+        Log.d("PlayerListActivity", "Handshake complete");
         super.onEventMainThread(event);
         updateAndExpandPlayerList();
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerStateChanged event) {
         if (mTrackingTouch == null) {
             updateAndExpandPlayerList();
@@ -254,7 +257,6 @@ public class PlayerListActivity extends ItemListActivity implements
             PlayerState playerState = player.getPlayerState();
             String syncMaster = playerState.getSyncMaster();
 
-            Log.d(TAG, "player discovered: id=" + playerId + ", syncMaster=" + syncMaster + ", name=" + name);
             if (syncMaster == null || playerId.equals(syncMaster)) {
                 // If a player doesn't have a sync master or the master is this player then add it as a
                 // slave with itself as master.

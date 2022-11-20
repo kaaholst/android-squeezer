@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
@@ -59,10 +60,12 @@ public class SliderView extends ItemViewHolder<JiveItem> {
         seekBar.addOnSliderTouchListener(new com.google.android.material.slider.Slider.OnSliderTouchListener() {
 
             @Override
+            @SuppressLint("RestrictedApi")
             public void onStartTrackingTouch(@NonNull com.google.android.material.slider.Slider seekBar) {
             }
 
             @Override
+            @SuppressLint("RestrictedApi")
             public void onStopTrackingTouch(@NonNull com.google.android.material.slider.Slider seekBar) {
                 if (item.goAction != null) {
                     item.inputValue = String.valueOf((int)seekBar.getValue());

@@ -42,12 +42,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.AlertWindow;
@@ -128,6 +132,9 @@ class CometClient extends BaseClient {
             = new ConcurrentHashMap<>();
 
     private final Map<String, BrowseRequest<?>> mPendingBrowseRequests = new ConcurrentHashMap<>();
+
+    private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
+    private boolean mCurrentCommand;
 
     private final PublishListener mPublishListener = new PublishListener();
 
@@ -269,17 +276,19 @@ class CometClient extends BaseClient {
                 } else {
                     Map<String, Object> failure = Util.getRecord(message, "failure");
                     Message failedMessage = (failure != null) ? (Message) failure.get("message") : message;
+                    // Advices are handled internally by the bayeux protocol, so skip these here
                     if (getAdviceAction(failedMessage.getAdvice()) == null) {
-                        // Advices are handled internally by the bayeux protocol, so skip these here
                         Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
                         int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
+                        Log.w(TAG, "Unsuccessful message on handshake channel: " + message.getJSON());
                         disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
                     }
                 }
             });
             mBayeuxClient.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
+                // Advices are handled internally by the bayeux protocol, so skip these here
                 if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
-                    // Advices are handled internally by the bayeux protocol, so skip these here
+                    Log.w(TAG, "Unsuccessful message on connect channel: " + message.getJSON());
                     disconnect(false);
                 }
             });
@@ -294,6 +303,7 @@ class CometClient extends BaseClient {
 
     private void onConnected(boolean isSqueezeNetwork) {
         Log.i(TAG, "Connected, start learning server capabilities");
+        mCurrentCommand = false;
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
         // If this is a rehandshake we may already have players.
         boolean rehandshake = !mConnectionState.getPlayers().isEmpty();
@@ -490,6 +500,7 @@ class CometClient extends BaseClient {
                     Log.w(TAG, channel + ": " + message.getJSON(), exception);
                 }
             }
+            mBackgroundHandler.sendEmptyMessage(MSG_PUBLISH_RESPONSE_RECIEVED);
         }
     }
 
@@ -590,6 +601,7 @@ class CometClient extends BaseClient {
         }
     }
 
+    @Subscribe
     public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
     }
@@ -644,14 +656,18 @@ class CometClient extends BaseClient {
 
     /** This may only be called from the handler thread */
     private void _publishMessage(Request request, String channel, String responseChannel, PublishListener publishListener) {
-        Map<String, Object> data = new HashMap<>();
-        if (request != null) {
-            data.put("request", request.slimRequest());
-            data.put("response", responseChannel);
-        } else {
-            data.put("unsubscribe", responseChannel);
-        }
-        mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
+        if (!mCurrentCommand) {
+            mCurrentCommand = true;
+            Map<String, Object> data = new HashMap<>();
+            if (request != null) {
+                data.put("request", request.slimRequest());
+                data.put("response", responseChannel);
+            } else {
+                data.put("unsubscribe", responseChannel);
+            }
+            mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
+        } else
+            mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
     }
 
     @Override
@@ -732,8 +748,9 @@ class CometClient extends BaseClient {
     private static final int MSG_DISCONNECT = 2;
     private static final int MSG_HANDSHAKE_TIMEOUT = 3;
     private static final int MSG_SERVER_STATUS_TIMEOUT = 4;
-    private static final int MSG_TIME_UPDATE = 5;
-    private static final int MSG_STATE_UPDATE = 6;
+    private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 5;
+    private static final int MSG_TIME_UPDATE = 6;
+    private static final int MSG_STATE_UPDATE = 7;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -758,6 +775,13 @@ class CometClient extends BaseClient {
                     Log.w(TAG, "Server status timeout: initiate a new handshake");
                     mBayeuxClient.rehandshake();
                     break;
+                case MSG_PUBLISH_RESPONSE_RECIEVED: {
+                    mCurrentCommand = false;
+                    PublishMessage message = mCommandQueue.poll();
+                    if (message != null)
+                        _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                    break;
+                }
                 case MSG_TIME_UPDATE: {
                     Player activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {

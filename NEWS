@@ -1,3 +1,31 @@
+2.3.0
+=====
+
+*   Support player specific LMS plugins.
+
+*   Ability to set own Sleep Timer
+
+*   Optionally continue music when a call ends, if it was stopped by Squeezer,
+    when the call started. To enable, select Settings from the 3-dot menu in
+    the top right.
+
+*   Use flat icons. Control this via View via the 3-dot menu in the top right.
+
+*   Implement keep screen on and screensaver. Select via 3-dot menu in the top
+    right / Settings
+
+*   Target Android 12
+
+*   Fix an issue which could cause the loading view to keep showing
+
+*   Fix playlist not updating after resume
+
+*   Fix a network issue, which enables Squeezer to connect to a server from
+    the internet via a VPN.
+
+*   Fix various potential crashes.
+
+
 2.2.9
 =====
 

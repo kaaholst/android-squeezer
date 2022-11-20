@@ -18,12 +18,10 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.InputType;
 
 import androidx.annotation.NonNull;
 
-import org.json.JSONObject;
-
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,9 +32,6 @@ import uk.org.ngo.squeezer.Util;
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cactions_fields.3E
  */
 public class Action implements Parcelable {
-
-    private static final String TAG = "Action";
-
     private static final String INPUT_PLACEHOLDER = "__INPUT__";
     private static final String TAGGEDINPUT_PLACEHOLDER = "__TAGGEDINPUT__";
 
@@ -47,7 +42,7 @@ public class Action implements Parcelable {
     public Action() {
     }
 
-    public static final Creator<Action> CREATOR = new Creator<Action>() {
+    public static final Creator<Action> CREATOR = new Creator<>() {
         @Override
         public Action[] newArray(int size) {
             return new Action[size];
@@ -123,6 +118,10 @@ public class Action implements Parcelable {
         return (action != null && "slideshow".equals(action.params.get("type")));
     }
 
+    public boolean isPlayerSpecific() {
+        return (action != null && action.players.length > 0);
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -132,11 +131,6 @@ public class Action implements Parcelable {
                 '}';
     }
 
-    public String toJSONString() {
-        return "{\"Action\": {\"urlCommand\":\"null\"," + action.toJSONString() +
-                "}}";
-    }
-
 
     /**
      * Action which can be sent to the server.
@@ -144,8 +138,11 @@ public class Action implements Parcelable {
      * It is either received from the server or constructed from the CLI specification
      */
     public static class JsonAction extends SlimCommand {
+        /** Player if the command requires it. The actual value is replaced by Jive. */
+        public String[] players;
+
         /** If a nextWindow param is given at the json command level, it takes precedence over a nextWindow param at the item level,
-         * which in turn takes precendence over a nextWindow param at the base level.
+         * which in turn takes precedence over a nextWindow param at the base level.
          * See <item_fields> section for more detail on this parameter. */
         public NextWindow nextWindow;
 
@@ -155,7 +152,7 @@ public class Action implements Parcelable {
         public JsonAction() {
         }
 
-        public static final Creator<JsonAction> CREATOR = new Creator<JsonAction>() {
+        public static final Creator<JsonAction> CREATOR = new Creator<>() {
             @Override
             public JsonAction[] newArray(int size) {
                 return new JsonAction[size];
@@ -169,6 +166,7 @@ public class Action implements Parcelable {
 
         protected JsonAction(Parcel in) {
             super(in);
+            players = in.createStringArray();
             nextWindow = NextWindow.fromString(in.readString());
             window = ActionWindow.fromString(in.readString());
         }
@@ -176,6 +174,7 @@ public class Action implements Parcelable {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
+            dest.writeStringArray(players);
             dest.writeString(nextWindow == null ? null : nextWindow.toString());
             dest.writeString(window == null ? null : window.isContextMenu ? "1" : "0");
         }
@@ -205,16 +204,11 @@ public class Action implements Parcelable {
         @Override
         public String toString() {
             return "JsonAction{" +
-                    "cmd=" + cmd +
+                    "player=" + Arrays.toString(players) +
+                    ", cmd=" + cmd +
                     ", params=" + params +
                     ", nextWindow=" + nextWindow +
                     '}';
-        }
-
-        public String toJSONString() {
-            return "\"JsonAction\": {\"cmd\": " + cmd + ", \"params\": "
-                    + (new JSONObject(params)).toString() + // TODO toJSONString - ok bis auf isContextMenu:1 ??
-                    ", \"nextWindow\":  \"null\"}";
         }
     }
 

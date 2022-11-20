@@ -29,6 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +42,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
@@ -108,6 +112,11 @@ public abstract class ItemListActivity extends BaseActivity {
     private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
 
     /**
+     * Tag for player id in mRetainFragment.
+     */
+    private static final String TAG_PLAYER_ID = "PlayerId";
+
+    /**
      * Fragment to retain information across the activity lifecycle.
      */
     private RetainFragment mRetainFragment;
@@ -158,6 +167,7 @@ public abstract class ItemListActivity extends BaseActivity {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T getRetainedValue(String key) {
         return (T) mRetainFragment.get(key);
     }
@@ -266,8 +276,11 @@ public abstract class ItemListActivity extends BaseActivity {
      * Update the UI with the player change
      */
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ActivePlayerChanged event) {
         Log.i(TAG, "ActivePlayerChanged: " + event.player);
+        String activePlayerId = (event.player != null ? event.player.getId() : "");
+        putRetainedValue(TAG_PLAYER_ID, activePlayerId);
         supportInvalidateOptionsMenu();
         if (needPlayer()) {
             if (event.player == null) {
@@ -282,10 +295,20 @@ public abstract class ItemListActivity extends BaseActivity {
      * Orders any pages requested before the handshake completed.
      */
     @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
-        // Order any pages that were requested before the handshake complete.
-        while (!mOrderedPagesBeforeHandshake.empty()) {
-            maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
+        Log.d(TAG, "Handshake complete");
+        String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
+        Player activePlayer = requireService().getActivePlayer();
+        String activePlayerId = (activePlayer != null ? activePlayer.getId() : "");
+        putRetainedValue(TAG_PLAYER_ID, activePlayerId);
+        if (oldPlayerId != null && !oldPlayerId.equals(activePlayerId)) {
+            onEventMainThread(new ActivePlayerChanged(activePlayer));
+        } else {
+            // Order any pages that were requested before the handshake complete.
+            while (!mOrderedPagesBeforeHandshake.empty()) {
+                maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
+            }
         }
     }
 
@@ -352,7 +375,7 @@ public abstract class ItemListActivity extends BaseActivity {
      * Empties the variables that track which pages have been requested, and orders page 0.
      */
     public void clearAndReOrderItems() {
-        if (!(needPlayer() && getService().getActivePlayer() == null)) {
+        if (!(needPlayer() && requireService().getActivePlayer() == null)) {
             showLoading();
             clearItems();
             maybeOrderPage(0);

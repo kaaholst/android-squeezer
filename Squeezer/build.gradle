@@ -26,10 +26,11 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.3.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.media:media:1.5.0'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    implementation 'de.greenrobot:eventbus:2.4.1'
+    implementation 'org.greenrobot:eventbus:3.1.0'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
@@ -63,8 +64,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 111
-        versionName "2.2.9"
+        versionCode 117
+        versionName "2.3.0"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -78,9 +79,6 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    lintOptions {
-        lintConfig file("lint.xml")
-    }
 
     signingConfigs {
         if (project.hasProperty("Squeezer.properties")
@@ -118,6 +116,9 @@ android {
             proguardFile "proguard-cometd.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
+    }
+    lint {
+        lintConfig file('lint.xml')
     }
 }
 

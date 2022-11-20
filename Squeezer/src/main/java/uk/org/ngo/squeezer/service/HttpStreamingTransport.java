@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.transport.HttpClientTransport;
 import org.cometd.client.transport.MessageClientTransport;
 import org.cometd.client.transport.TransportListener;
@@ -599,6 +600,13 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
                     Exchange exchange = deregisterMessage(message);
                     if (exchange != null) {
+                        // The cometd library expects the subscription field to be echoed by the server.
+                        // LMS doesn't always do that. E.g. seen for failing messages.
+                        // In this case we take if from the request.
+                        if (Channel.META_SUBSCRIBE.equals(message.getChannel()) && message.get(Message.SUBSCRIPTION_FIELD) == null) {
+                            message.put(Message.SUBSCRIPTION_FIELD, exchange.message.get(Message.SUBSCRIPTION_FIELD));
+                        }
+
                         exchange.listener.onMessages(Collections.singletonList(message));
                     } else if (message.containsKey("error")) {
                         fail(null, "Received error: " +  message);
@@ -682,17 +690,14 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                         String unprocessed = "";
                         while (!"0".equals(readLine())) {
                             String data = readLine();
-                            Log.v(TAG, "data = " + data);
                             unprocessed += data;
-                            Log.v(TAG, "unprocessed = " + unprocessed);
                             if (isValidJson(unprocessed)) {
-                                Log.v(TAG, "JSON is valid! Sending data to parser.");
                                 if (status == HttpStatus.OK_200) {
                                     delegate.onData(unprocessed);
                                 }
                                 unprocessed = "";
                             } else {
-                                Log.v(TAG, "JSON is not valid! Appending to next chunk.");
+                                Log.v(TAG, "JSON is not valid! Appending to next chunk: " + data);
                             }
                         }
                         readLine();//Read final/empty chunk
@@ -750,7 +755,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         private String read(int size) throws IOException {
             char[] buffer = new char[size];
-            int length = reader.read(buffer);
+            int length = 0, bytes;
+            while ((bytes = reader.read(buffer, length, size - length)) > 0) {
+                length += bytes;
+                if (length == size) break;
+                Log.v(TAG, "Partial read " + bytes + ", read so far " + length + ", still needs " + (size - length));
+            }
             if (length != size) {
                 throw new EOFException("Expected " + size + " characters, but got " + length);
             }

@@ -26,6 +26,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,6 +34,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,13 +49,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -64,8 +63,7 @@ import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.screensaver.Screensaver;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
@@ -75,6 +73,9 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 /**
  * Common base class for all activities in Squeezer.
  *
@@ -82,7 +83,6 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  */
 public abstract class BaseActivity extends AppCompatActivity implements DownloadDialog.DownloadDialogListener {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
-
 
     private static final String TAG = BaseActivity.class.getName();
 
@@ -108,11 +108,26 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     private VolumePanel mVolumePanel;
 
     /**
-     * @return The squeezeservice, or null if not bound
+     * @return The {@link ISqueezeService}, or null if not bound
      */
     @Nullable
     public ISqueezeService getService() {
         return mService;
+    }
+
+    /**
+     * Return the {@link ISqueezeService} this activity is currently bound to.
+     *
+     * @throws IllegalStateException if service is not bound.
+     * @see #getService()
+     */
+    @NonNull
+    public final ISqueezeService requireService() {
+        ISqueezeService service = getService();
+        if (service == null) {
+            throw new IllegalStateException(this + " service is not bound");
+        }
+        return service;
     }
 
     public int getThemeId() {
@@ -143,7 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     @Override
     @CallSuper
-    protected void onCreate(android.os.Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         mTheme.onCreate(this);
         super.onCreate(savedInstanceState);
 
@@ -153,8 +168,17 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
                 Context.BIND_AUTO_CREATE);
         Log.d(TAG, "did bindService; serviceStub = " + getService());
 
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
+        }
+
+        if (new Preferences(this).getScreensaverMode() != Preferences.ScreensaverMode.OFF) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (new Preferences(this).getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
+                inactivityHandler = new Handler();
+                inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
+            }
+        }
     }
 
     @Override
@@ -181,6 +205,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         mVolumePanel = new VolumePanel(this);
 
+        if (inactivityHandler != null) {
+            inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
+        }
+
         // If SqueezePlayer is installed, start it
         squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
 
@@ -197,6 +225,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         if (mVolumePanel != null) {
             mVolumePanel.dismiss();
             mVolumePanel = null;
+        }
+
+        if (inactivityHandler != null) {
+            inactivityHandler.removeCallbacks(inactivityAction);
         }
 
         if (squeezePlayer != null) {
@@ -293,7 +325,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
      */
     private void maybeRegisterOnEventBus(@NonNull ISqueezeService service) {
         if (!mRegisteredOnEventBus) {
-            service.getEventBus().registerSticky(this);
+            service.getEventBus().register(this);
             mRegisteredOnEventBus = true;
         }
     }
@@ -365,6 +397,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         return true;
     }
 
+    @Subscribe(sticky = true)
     public void onEvent(PlayerVolume event) {
         if (!mIgnoreVolumeChange && mService != null && event.player == mService.getActivePlayer()) {
             showVolumePanel();
@@ -384,6 +417,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         mIgnoreVolumeChange = ignoreVolumeChange;
     }
 
+    private static final int INACTIVITY_TIME = 5 * 60 * 1000;
+    Handler inactivityHandler;
+    Runnable inactivityAction;
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+
+        if (inactivityHandler != null) {
+            inactivityHandler.removeCallbacks(inactivityAction);
+            inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
+        }
+    }
+
     public void showDisplayMessage(@StringRes int resId) {
         showDisplayMessage(getString(resId));
     }
@@ -397,6 +444,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         showDisplayMessage(displayMessage);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DisplayEvent displayEvent) {
         showDisplayMessage(displayEvent.message);
     }
@@ -413,7 +461,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         text.setText(display.text);
 
         if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
-            if (display.isIcon() && new HashSet<String>(Arrays.asList("play", "pause", "stop", "fwd", "rew")).contains(display.style)) {
+            if (display.isIcon() && new HashSet<>(Arrays.asList("play", "pause", "stop", "fwd", "rew")).contains(display.style)) {
                 // Play status is updated in the NowPlayingFragment (either full-screen or mini)
                 showMe = false;
             } else {
@@ -446,6 +494,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(AlertEvent alert) {
         AlertEventDialog.show(getSupportFragmentManager(), alert.message.title, alert.message.text);
     }
@@ -497,20 +546,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         if (new Preferences(this).isDownloadConfirmation()) {
             DownloadDialog.show(item, this);
         } else {
-            if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
-                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                currentDownloadItem = item;
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            } else
-                mService.downloadItem(item);
+            doDownload(item);
         }
     }
 
     public void randomPlayFolder(JiveItem item) {
-        if (!mService.randomPlayFolder(item)) {
-            showDisplayMessage("Unable to start Random Play");
+        if (!requireService().randomPlayFolder(item)) {
+            showDisplayMessage(R.string.RANDOM_PLAY_UNABLE);
         } else {
-            showDisplayMessage("Random Play started");
+            showDisplayMessage(R.string.RANDOM_PLAY_STARTED);
         }
     }
 
@@ -521,7 +565,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             currentDownloadItem = item;
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else
-            mService.downloadItem(item);
+            requireService().downloadItem(item);
     }
 
     private JiveItem currentDownloadItem;
@@ -533,7 +577,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             case 1:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (currentDownloadItem != null) {
-                        mService.downloadItem(currentDownloadItem);
+                        requireService().downloadItem(currentDownloadItem);
                         currentDownloadItem = null;
                     } else
                         Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
