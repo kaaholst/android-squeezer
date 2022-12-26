@@ -27,10 +27,10 @@
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantDark</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
 
         <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color</item>
         <item name="currentTrackBackground">@drawable/current_track_background_dark</item>
-        <item name="thumb_drawable">@drawable/thumb_drawable_dark</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
@@ -42,10 +42,10 @@
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
 
         <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color_light</item>
         <item name="currentTrackBackground">@drawable/current_track_background_light</item>
-        <item name="thumb_drawable">@drawable/thumb_drawable_light</item>
     </style>
 
     <style name="OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
@@ -71,6 +71,10 @@
         <item name="colorOnSurface">?attr/colorSecondary</item>
     </style>
 
+    <style name="ThemeOverlay.Squeezer.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+    </style>
+
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
     <!-- Base styles that the rest of the app inherits from. -->
@@ -82,7 +86,6 @@
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
 
     <!-- List headers -->
-    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->
@@ -98,6 +101,11 @@
     <!-- Text in grid items -->
     <style name="SqueezerTextAppearance.GridItem.Primary" parent="SqueezerTextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.GridItem.Secondary" parent="SqueezerTextAppearance.Small"/>
+
+    <!-- Text in list popup -->
+    <style name="SqueezerTextAppearance.ItemList.Popup" parent="SqueezerTextAppearance.Medium">
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
 
     <!-- Anywhere we want to display information about a song in an activity (and not in a list). -->
     <style name="SqueezerTextAppearance.SongInfo.Primary" parent="SqueezerTextAppearance.Medium"/>
@@ -119,15 +127,6 @@
 
     <style name="SqueezerTextAppearance.NowPlayingMini.SongName" parent="SqueezerTextAppearance.NowPlayingMini.Primary"/>
     <style name="SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName" parent="SqueezerTextAppearance.NowPlayingMini.Secondary"/>
-
-    <style name="SqueezerNotificationTitle">
-        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="SqueezerNotificationText">
-        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-    </style>
 
     <!-- Text on the screensaver -->
     <style name="SqueezerTextAppearance.Screensaver" parent="@android:style/TextAppearance.Large">
@@ -187,6 +186,7 @@
     <!-- Media controller styles -->
     <style name="ImageButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
     </style>
 
     <!-- Media controller styles -->
@@ -388,4 +388,12 @@
         <item name="android:layout_height">48dp</item>
     </style>
 
+    <style name="ModalBottomSheetDialog" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="shapeAppearance">@style/ShapeAppearance.Squeezer.LargeComponent</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Squeezer.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerSize">8dp</item>
+    </style>
 </resources>

@@ -2,13 +2,17 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
+import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller;
+
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 
-class JiveItemAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
+class JiveItemAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> implements RecyclerViewFastScroller.OnPopupTextUpdate {
 
     public JiveItemAdapter(JiveItemListActivity activity) {
         super(activity);
@@ -38,5 +42,12 @@ class JiveItemAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
     @Override
     protected JiveItemListActivity getActivity() {
         return (JiveItemListActivity) super.getActivity();
+    }
+
+    @NonNull
+    @Override
+    public CharSequence onChange(int position) {
+        JiveItem item = getItem(position);
+        return (item != null ? item.textkey : "");
     }
 }

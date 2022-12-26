@@ -63,7 +63,6 @@
     <string name="connection_failed_text">La connexion a échoué.</string>
     <string name="login_failed_text">Échec de la connexion. Assurez-vous que le nom d\'utilisateur et le mot de passe corrects sont entrés.</string>
     <string name="disconnected_text">Débranché.</string>
-    <string name="notification_playing_text">%s joue</string>
     <string name="save_playlist_title">Enregistrer la playlist</string>
     <string name="save_playlist_hint">Entrez le nom de la playlist</string>
     <string name="rename_title">Renommer %s</string>

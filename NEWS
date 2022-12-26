@@ -1,3 +1,14 @@
+2.3.1
+=====
+
+*   Fix a regression in call handling.
+
+*   Show the alphabet position when using the scroll bar.
+
+*   Move the volume controls to a bottom sheet, which keeps open until it's
+    closed.
+
+
 2.3.0
 =====
 

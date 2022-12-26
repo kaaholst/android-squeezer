@@ -50,7 +50,6 @@
     <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
     <string name="disconnected_text">Contact verbroken.</string>
-    <string name="notification_playing_text">%s speelt af</string>
     <string name="save_playlist_title">Bewaar playlist</string>
     <string name="save_playlist_hint">Voer naam playlist in</string>
     <string name="rename_title">Hernoem %s</string>

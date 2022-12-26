@@ -16,14 +16,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:7.2.2'
     }
 }
 
 ext {
-    compileSdkVersion = 31
-    minSdkVersion = 19
-    targetSdkVersion = 31
+    compileSdkVersion = 33
+    minSdkVersion = 21
+    targetSdkVersion = 33
 
     assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
     assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"

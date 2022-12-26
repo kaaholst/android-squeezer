@@ -31,16 +31,11 @@
       to be visible. Wrap it in a LinearLayout so it can be hidden
       through the android:visibility attribute.
       -->
-    <LinearLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/now_playing_fragment"
         android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/now_playing_fragment"
-            android:name="uk.org.ngo.squeezer.NowPlayingFragment"
-            android:layout_width="fill_parent"
-            android:layout_height="48dp"
-            tools:layout="@layout/now_playing_fragment_mini"/>
-    </LinearLayout>
+        android:name="uk.org.ngo.squeezer.NowPlayingFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        tools:layout="@layout/now_playing_fragment_mini"/>
 </LinearLayout>

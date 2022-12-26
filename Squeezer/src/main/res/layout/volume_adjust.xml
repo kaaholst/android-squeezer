@@ -21,13 +21,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="8dp"
-    android:paddingVertical="16dp"
+    android:padding="8dp"
     >
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,8 +37,8 @@
     <Button
         android:id="@+id/settings"
         style="@style/ImageButton"
-        android:layout_width="32dp"
-        android:layout_height="24dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:icon="@drawable/ic_settings"/>
@@ -49,7 +48,6 @@
         android:layout_width="240dp"
         android:layout_height="240dp"
         android:layout_marginTop="8dp"
-        android:layout_marginHorizontal="24dp"
         app:layout_constraintTop_toBottomOf="@id/label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +55,6 @@
         app:indicator_color="?attr/colorPrimary"
         app:is_continuous="false"
         app:label=""
-        app:label_size="0"
         app:main_circle_color="?attr/colorSurface"
         app:min="0"
         app:max="100"
@@ -69,15 +66,17 @@
         android:id="@+id/label_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/level"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_volume_down"/>
+        <Button style="@style/ImageButton"
+            android:id="@+id/volume_down"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_volume_down"/>
 
         <CheckBox
             android:id="@+id/mute"
@@ -89,10 +88,11 @@
             android:textAppearance="@style/SqueezerTextAppearance.Small"
             android:text="@string/mute"/>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_volume_up"/>
+        <Button style="@style/ImageButton"
+            android:id="@+id/volume_up"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_volume_up"/>
     </LinearLayout>
 
 

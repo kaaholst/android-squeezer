@@ -1,14 +1,13 @@
 package uk.org.ngo.squeezer;
 
 
+import android.app.Application;
 import android.content.Context;
-
-import androidx.multidex.MultiDexApplication;
 
 // Trick to make the app context useful available everywhere.
 // See http://stackoverflow.com/questions/987072/using-application-context-everywhere
 
-public class Squeezer extends MultiDexApplication {
+public class Squeezer extends Application {
 
     private static Squeezer instance;
 

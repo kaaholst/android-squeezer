@@ -25,7 +25,6 @@
     <string name="connection_failed_text">Bağlantı başarız.</string>
   <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
   <string name="disconnected_text">Bağlantı kesildi.</string>
-  <string name="notification_playing_text">%s çalıyor</string>
   <string name="save_playlist_title">Çalma listesini kaydet</string>
   <string name="save_playlist_hint">Çalma listesi adı girin</string>
     <string name="rename_title">%s yeniden adlandır</string>

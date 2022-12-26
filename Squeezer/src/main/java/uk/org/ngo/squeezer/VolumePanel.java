@@ -19,35 +19,26 @@ package uk.org.ngo.squeezer;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import com.sdsmdg.harjot.crollerTest.Croller;
-import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
-
-import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.widget.VolumeController;
 
 
 /**
  * Implement a custom volume toast view
  */
-public class VolumePanel extends Handler implements OnCrollerChangeListener {
+public class VolumePanel extends Handler {
 
     private static final int TIMEOUT_DELAY = 3000;
 
@@ -62,81 +53,44 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
      */
     private final Dialog dialog;
 
-    /**
-     * View displaying volume sliders.
-     */
-    private final View view;
-
+    private final ImageView startIcon;
+    private final ProgressBar seekbar;
     private final TextView label;
-
-    private final CheckBox mute;
-    private final Croller seekbar;
-    private int currentProgress = 0;
-    private boolean trackingTouch = false;
 
     @SuppressLint({"InflateParams"}) // OK, as view is passed to Dialog.setView()
     public VolumePanel(BaseActivity activity) {
+        super(Looper.getMainLooper());
         this.activity = activity;
 
-        LayoutInflater inflater = (LayoutInflater) activity
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = inflater.inflate(R.layout.volume_adjust, null);
-        GradientDrawable background = (GradientDrawable) ContextCompat.getDrawable(view.getContext(), R.drawable.panel_background);
-        background.setColor(view.getResources().getColor(activity.getAttributeValue(R.attr.colorSurface)));
-        background.setStroke(
-                activity.getResources().getDimensionPixelSize(R.dimen.volume_panel_border_Width),
-                view.getResources().getColor(activity.getAttributeValue(R.attr.colorPrimary))
-        );
-        view.setBackground(background);
-        view.setOnTouchListener((v, event) -> {
-            resetTimeout();
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                v.performClick();
-            }
-            return false;
-        });
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        View view = inflater.inflate(R.layout.volume_panel, null);
 
+        view.setOnClickListener(v -> {
+            dismiss();
+            VolumeController.show(activity);
+        });
+        startIcon = view.findViewById(R.id.slider_down_icon);
+        seekbar = view.findViewById(R.id.slider);
         label = view.findViewById(R.id.label);
-        view.findViewById(R.id.settings).setOnClickListener(view1 -> new VolumeSettings().show(activity.getSupportFragmentManager(), VolumeSettings.class.getName()));
 
-        seekbar = view.findViewById(R.id.level);
-        seekbar.setOnCrollerChangeListener(this);
 
-        mute = view.findViewById(R.id.mute);
-        mute.setOnClickListener(v -> {
-            resetTimeout();
-            activity.getService().toggleMute();
-        });
-
-        dialog = new Dialog(view.getContext(), R.style.VolumePanel) { //android.R.style.Theme_Panel) {
-            @Override
-            public boolean onTouchEvent(@NonNull MotionEvent event) {
-                if (isShowing() && event.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                    forceTimeout();
-                    return true;
-                }
-                return false;
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        builder.setView(view);
+        builder.setOnDismissListener(dialogInterface -> removeMessages(MSG_TIMEOUT));
+        builder.setOnKeyListener((dialogInterface, keyCode, event) -> {
+            switch (event.getAction()) {
+                case KeyEvent.ACTION_DOWN:
+                    return activity.onKeyDown(keyCode, event);
+                case KeyEvent.ACTION_UP:
+                    return activity.onKeyUp(keyCode, event);
+                default:
+                    return false;
             }
-        };
-        dialog.setTitle("Volume Control");
-        dialog.setContentView(view);
-
-        // Set window properties to match other toasts/dialogs.
-        Window window = dialog.getWindow();
-        window.setGravity(Gravity.TOP);
-        WindowManager.LayoutParams lp = window.getAttributes();
-        lp.token = null;
-        lp.y = activity.getResources().getDimensionPixelSize(R.dimen.volume_panel_top_margin);
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setAttributes(lp);
-        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
+        });
+        dialog = builder.create();
     }
 
     public void dismiss() {
-        removeMessages(MSG_TIMEOUT);
         if (dialog.isShowing()) {
             dialog.dismiss();
         }
@@ -147,34 +101,6 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
     }
 
-    private void forceTimeout() {
-        removeMessages(MSG_TIMEOUT);
-        sendMessage(obtainMessage(MSG_TIMEOUT));
-    }
-
-    @Override
-    public void onProgressChanged(Croller croller, int progress) {
-        if (currentProgress != progress) {
-            currentProgress = progress;
-            ISqueezeService service = activity.getService();
-            if (service != null) {
-                service.setVolumeTo(progress);
-            }
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(Croller croller) {
-        trackingTouch = true;
-        removeMessages(MSG_TIMEOUT);
-    }
-
-    @Override
-    public void onStopTrackingTouch(Croller croller) {
-        trackingTouch = false;
-        resetTimeout();
-    }
-
     public void postVolumeChanged(boolean muted, int newVolume, String additionalMessage) {
         if (hasMessages(MSG_VOLUME_CHANGED)) {
             return;
@@ -183,23 +109,12 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     }
 
     private void onShowVolumeChanged(boolean muted, int newVolume, String additionalMessage) {
-        if (trackingTouch) {
-            return;
-        }
-
-        mute.setChecked(muted);
-        currentProgress = newVolume;
+       // TODO  mute.setChecked(muted);
+        startIcon.setImageResource(muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
         seekbar.setProgress(newVolume);
         label.setText(additionalMessage);
 
-        seekbar.setIndicatorColor(ColorUtils.setAlphaComponent(seekbar.getIndicatorColor(), muted ? 63 : 255));
-        seekbar.setProgressPrimaryColor(ColorUtils.setAlphaComponent(seekbar.getProgressPrimaryColor(), muted ? 63 : 255));
-        seekbar.setProgressSecondaryColor(ColorUtils.setAlphaComponent(seekbar.getProgressSecondaryColor(), muted ? 63 : 255));
-        seekbar.setOnCrollerChangeListener(muted ? null : this);
-        seekbar.setOnTouchListener(muted ? (view, motionEvent) -> true : null);
-
         if (!dialog.isShowing() && !activity.isFinishing()) {
-            dialog.setContentView(view);
             dialog.show();
         }
 
@@ -209,7 +124,6 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
-
             case MSG_VOLUME_CHANGED: {
                 onShowVolumeChanged(msg.arg1 != 0, msg.arg2, (String) msg.obj);
                 break;

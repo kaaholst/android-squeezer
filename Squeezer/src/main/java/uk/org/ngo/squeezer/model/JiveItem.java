@@ -108,9 +108,9 @@ public class JiveItem extends Item {
 
     private String record;
     private String id;
-    @NonNull
-    private String name;
+    @NonNull private String name = "";
     public String text2;
+    @NonNull public String textkey = "";
     @NonNull private final Uri icon;
     private String iconStyle;
     private String extid;
@@ -143,7 +143,6 @@ public class JiveItem extends Item {
     private SlimCommand randomPlayFolderCommand;
 
     public JiveItem() {
-        name = "";
         icon = Uri.EMPTY;
     }
 
@@ -342,6 +341,7 @@ public class JiveItem extends Item {
         this.record = json.toJSON(record);
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
         splitItemText(getStringOrEmpty(record, record.containsKey("name") ? "name" : "text"));
+        textkey = getStringOrEmpty(record, "textkey");
         icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
         iconStyle = getString(record, "iconStyle");
         extid = getString(record, "extid");
@@ -411,6 +411,7 @@ public class JiveItem extends Item {
         setId(source.readString());
         name = source.readString();
         text2 = source.readString();
+        textkey = source.readString();
         icon = Uri.parse(source.readString());
         iconStyle = source.readString();
         node = source.readString();
@@ -447,6 +448,7 @@ public class JiveItem extends Item {
         dest.writeString(getId());
         dest.writeString(name);
         dest.writeString(text2);
+        dest.writeString(textkey);
         dest.writeString(icon.toString());
         dest.writeString(iconStyle);
         dest.writeString(node);

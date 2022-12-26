@@ -135,9 +135,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             _shutdownScheduler = true;
             int threads = Math.max(1, Runtime.getRuntime().availableProcessors() / 4);
             ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(threads);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                scheduler.setRemoveOnCancelPolicy(true);
-            }
+            scheduler.setRemoveOnCancelPolicy(true);
             _scheduler = scheduler;
         }
 

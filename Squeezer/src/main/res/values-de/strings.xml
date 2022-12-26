@@ -94,7 +94,6 @@
     <string name="invalid_url_text">Geben Sie bitte eine gültige Adresse (URL) an.</string>
     <string name="disconnected_text">Verbindung getrennt</string>
 
-    <string name="notification_playing_text">Spiele %s</string>
     <string name="save_playlist_title">Wiedergabeliste speichern</string>
     <string name="save_playlist_hint">Name für die Wiedergabeliste eingeben</string>
     <string name="rename_title">%s umbenennen</string>

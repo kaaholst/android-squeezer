@@ -101,7 +101,7 @@ public class PlayerListActivity extends ItemListActivity implements
         adapter = new PlayerListAdapter(this);
         getListView().setAdapter(adapter);
 
-        setIgnoreVolumeChange(true);
+        setHandleVolumeKeys(false);
 
         if (savedInstanceState != null) {
             currentPlayer = savedInstanceState.getParcelable(PlayerListActivity.CURRENT_PLAYER);

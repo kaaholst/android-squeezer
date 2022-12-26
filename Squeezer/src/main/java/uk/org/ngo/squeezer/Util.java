@@ -374,12 +374,6 @@ public class Util {
         return drawableToBitmap(AppCompatResources.getDrawable(context, vectorResource));
     }
 
-    public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource, int alpha) {
-        Drawable drawable = AppCompatResources.getDrawable(context, vectorResource);
-        drawable.setAlpha(alpha);
-        return drawableToBitmap(drawable);
-    }
-
     public static Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;

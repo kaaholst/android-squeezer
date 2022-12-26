@@ -99,6 +99,7 @@ import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
+import uk.org.ngo.squeezer.widget.VolumeController;
 
 public class NowPlayingFragment extends Fragment implements CallStateDialog.CallStateDialogHost {
 
@@ -305,7 +306,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
         playPauseButton.setOnClickListener(view -> requireService().togglePausePlay());
 
-        volumeButton.setOnClickListener(view -> mActivity.showVolumePanel());
+        volumeButton.setOnClickListener(view -> VolumeController.show(mActivity));
         nextButton.setOnClickListener(view -> requireService().nextTrack());
         prevButton.setOnClickListener(view -> requireService().previousTrack());
 

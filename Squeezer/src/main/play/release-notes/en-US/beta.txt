@@ -1,19 +1,5 @@
-&bull; Support player specific LMS plugins.
+&bull; Fix a regression in call handling.
 
-&bull; Ability to set own Sleep Timer
+&bull; Show the alphabet position when using the scroll bar.
 
-&bull; Optionally continue music when a call ends.
-
-&bull; Use flat icons
-
-&bull; Implement keep screen on and screensaver
-
-&bull; Target Android 12
-
-&bull; Fix an issue which could cause the loading view to keep showing
-
-&bull; Fix playlist not updating after resume
-
-&bull; Fix a network issue, which enables Squeezer to connect to a server from the internet via a VPN.
-
-&bull; Fix various potential crashes.
+&bull; Move the volume controls to a bottom sheet, which keeps open until it's closed.

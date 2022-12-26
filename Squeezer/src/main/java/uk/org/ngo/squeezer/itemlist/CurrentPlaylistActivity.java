@@ -56,7 +56,6 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
  */
 public class CurrentPlaylistActivity extends JiveItemListActivity implements PlaylistClearDialog.PlaylistClearDialogListener {
     private int skipPlaylistChanged = 0;
-    private int draggedIndex = -1;
 
     /**
      * Called when the activity is first created.
@@ -153,21 +152,20 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_playlist_clear:
-                if (new Preferences(this).isClearPlaylistConfirmation()) {
-                    PlaylistClearDialog.show(this);
-                } else {
-                    clearPlaylist();
-                }
-                return true;
-            case R.id.menu_item_playlist_save:
-                PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
-                return true;
-            case R.id.menu_item_playlist_show_current_song:
-                getListView().smoothScrollToPosition(getSelectedIndex());
-                return true;
-
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_item_playlist_clear) {
+            if (new Preferences(this).isClearPlaylistConfirmation()) {
+                PlaylistClearDialog.show(this);
+            } else {
+                clearPlaylist();
+            }
+            return true;
+        } else if (itemId == R.id.menu_item_playlist_save) {
+            PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
+            return true;
+        } else if (itemId == R.id.menu_item_playlist_show_current_song) {
+            getListView().smoothScrollToPosition(getSelectedIndex());
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -225,15 +223,6 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
     public void skipPlaylistChanged() {
         skipPlaylistChanged++;
-    }
-
-    public int getDraggedIndex() {
-        return draggedIndex;
-    }
-
-    public void setDraggedIndex(int draggedIndex) {
-        this.draggedIndex = draggedIndex;
-        getItemAdapter().notifyDataSetChanged();
     }
 
     @Override

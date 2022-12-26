@@ -112,9 +112,6 @@
     <color name="blueGreyLight">#455A64</color> <!-- + -->
     <color name="blueGreyLightVariant">#263238</color>
 
-    <color name="notification_button_pressed">#444444</color>
-    <color name="notification_button_default">#00000000</color>
-
     <color name="volume_panel_back_circle_color">#222222</color>
     <color name="volume_panel_back_circle_color_light">#EDEDED</color>
 

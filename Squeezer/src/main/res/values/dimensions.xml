@@ -13,12 +13,6 @@
     <!-- Icons in display messages. -->
     <dimen name="display_message_icon_size">96dp</dimen>
 
-    <!-- Icons in normal notification -->
-    <dimen name="album_art_icon_normal_notification_size">64dp</dimen>
-
-    <!-- Icons in expanded notification -->
-    <dimen name="album_art_icon_expanded_notification_size">128dp</dimen>
-
     <!-- Volume panel -->
     <dimen name="volume_panel_top_margin">8dp</dimen>
     <dimen name="volume_panel_border_Width">1dp</dimen>

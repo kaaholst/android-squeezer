@@ -50,45 +50,43 @@ public class PlayerViewLogic {
      * If menu item is a known player action, perform it and return true.
      */
     public static boolean doPlayerAction(FragmentManager fragmentManager, ISqueezeService service, MenuItem menuItem, Player selectedItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.sleep:
-                // This is the start of a context menu.
-                // Just return, as we have set the current player.
-                return true;
-            case R.id.end_of_song: {
-                PlayerState playerState = selectedItem.getPlayerState();
-                if (playerState.isPlaying()) {
-                    SongTimeChanged trackElapsed = selectedItem.getTrackElapsed();
-                    int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
-                    if (sleep >= 0)
-                        service.sleep(selectedItem, sleep);
-                }
-                return true;
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.sleep) {// This is the start of a context menu.
+            // Just return, as we have set the current player.
+            return true;
+        } else if (itemId == R.id.end_of_song) {
+            PlayerState playerState = selectedItem.getPlayerState();
+            if (playerState.isPlaying()) {
+                SongTimeChanged trackElapsed = selectedItem.getTrackElapsed();
+                int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
+                if (sleep >= 0)
+                    service.sleep(selectedItem, sleep);
             }
-            case R.id.in_15_minutes:
-                service.sleep(selectedItem, 15*60);
-                return true;
-            case R.id.in_30_minutes:
-                service.sleep(selectedItem, 30*60);
-                return true;
-            case R.id.in_45_minutes:
-                service.sleep(selectedItem, 45*60);
-                return true;
-            case R.id.in_60_minutes:
-                service.sleep(selectedItem, 60*60);
-                return true;
-            case R.id.in_90_minutes:
-                service.sleep(selectedItem, 90*60);
-                return true;
-            case R.id.in_x_minutes:
-                new PlayerSleepDialog(selectedItem).show(fragmentManager, PlayerSleepDialog.class.getName());
-                return true;
-            case R.id.cancel_sleep:
-                service.sleep(selectedItem, 0);
-                return true;
-            case R.id.toggle_power:
-                service.togglePower(selectedItem);
-                return true;
+            return true;
+        } else if (itemId == R.id.in_15_minutes) {
+            service.sleep(selectedItem, 15 * 60);
+            return true;
+        } else if (itemId == R.id.in_30_minutes) {
+            service.sleep(selectedItem, 30 * 60);
+            return true;
+        } else if (itemId == R.id.in_45_minutes) {
+            service.sleep(selectedItem, 45 * 60);
+            return true;
+        } else if (itemId == R.id.in_60_minutes) {
+            service.sleep(selectedItem, 60 * 60);
+            return true;
+        } else if (itemId == R.id.in_90_minutes) {
+            service.sleep(selectedItem, 90 * 60);
+            return true;
+        } else if (itemId == R.id.in_x_minutes) {
+            new PlayerSleepDialog(selectedItem).show(fragmentManager, PlayerSleepDialog.class.getName());
+            return true;
+        } else if (itemId == R.id.cancel_sleep) {
+            service.sleep(selectedItem, 0);
+            return true;
+        } else if (itemId == R.id.toggle_power) {
+            service.togglePower(selectedItem);
+            return true;
         }
 
 

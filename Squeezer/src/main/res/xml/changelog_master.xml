@@ -2,6 +2,16 @@
 
 <changelog>
     <release
+        version="2.3.1"
+        versioncode="119">
+        <change>Fix a regression in call handling.</change>
+
+        <change>Show the alphabet position when using the scroll bar.</change>
+
+        <change>Move the volume controls to a bottom sheet, which keeps open until it's closed.</change>
+    </release>
+
+    <release
         version="2.3.0"
         versioncode="117">
         <change>Support player specific LMS plugins.</change>

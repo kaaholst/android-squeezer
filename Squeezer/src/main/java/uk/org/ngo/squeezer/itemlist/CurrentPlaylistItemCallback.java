@@ -1,9 +1,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.drawable.ColorDrawable;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +14,6 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback {
     private final CurrentPlaylistActivity activity;
-    private final ColorDrawable background;
     private int viewPosition = -1;
     private int itemPosition = -1;
 
@@ -25,7 +21,6 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
     public CurrentPlaylistItemCallback(@NonNull CurrentPlaylistActivity activity) {
         super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.activity = activity;
-        background = new ColorDrawable(activity.getAttributeValue(R.attr.selectableItemBackground));
     }
 
     @Override
@@ -95,19 +90,4 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
         });
     }
 
-    @Override
-    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-        View itemView = viewHolder.itemView;
-
-        if (dX > 0) { // Swiping to the right
-            background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX), itemView.getBottom());
-        } else if (dX < 0) { // Swiping to the left
-            background.setBounds(itemView.getRight() + ((int) dX), itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        } else { // view is unSwiped
-            background.setBounds(0, 0, 0, 0);
-        }
-
-        background.draw(c);
-    }}
+}

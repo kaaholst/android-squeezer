@@ -52,8 +52,6 @@ class CurrentPlaylistItemView extends JiveItemView {
             text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
             text2.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Secondary);
         }
-
-        itemView.setAlpha(getAdapterPosition() == activity.getDraggedIndex() ? 0 : 1);
     }
 
     @Override

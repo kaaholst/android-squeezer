@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,9 +61,6 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
-
-    private static final String TAG = "JiveItemViewLogic";
-
     void execGoAction(ViewParamItemView<JiveItem> viewHolder, JiveItem item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
@@ -135,19 +131,19 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
     }
 
     private boolean doStandardItemContext(MenuItem menuItem, JiveItem item) {
-        switch (menuItem.getItemId()) {
-            case R.id.play_now:
-                activity.action(item, item.playAction);
-                return true;
-            case R.id.add_to_playlist:
-                activity.action(item, item.addAction);
-                return true;
-            case R.id.play_next:
-                activity.action(item, item.insertAction);
-                return true;
-            case R.id.more:
-                JiveItemListActivity.show(activity, item, item.moreAction);
-                return true;
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.play_now) {
+            activity.action(item, item.playAction);
+            return true;
+        } else if (itemId == R.id.add_to_playlist) {
+            activity.action(item, item.addAction);
+            return true;
+        } else if (itemId == R.id.play_next) {
+            activity.action(item, item.insertAction);
+            return true;
+        } else if (itemId == R.id.more) {
+            JiveItemListActivity.show(activity, item, item.moreAction);
+            return true;
         }
         return false;
     }

@@ -20,9 +20,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fastscroller"
-    app:handleDrawable="?attr/thumb_drawable"
+    app:handleDrawable="@drawable/thumb_drawable"
     app:handleHeight="32dp"
     app:handleVisibilityDuration="1000"
+    app:popupDrawable="@drawable/popup_drawable"
+    app:popupTextStyle="@style/SqueezerTextAppearance.ItemList.Popup"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

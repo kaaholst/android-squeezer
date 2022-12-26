@@ -106,7 +106,6 @@
     <string name="login_failed_text">Login mislykkedes, kontrollér at brugernavn og adgangskode er korrekte.</string>
     <string name="invalid_url_text">Angiv venligst en gyldig adresse.</string>
     <string name="disconnected_text">Afbrudt.</string>
-    <string name="notification_playing_text">%s spiller</string>
     <string name="save_playlist_title">Gem afspilningsliste</string>
     <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>

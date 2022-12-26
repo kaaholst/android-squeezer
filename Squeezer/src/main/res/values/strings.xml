@@ -106,7 +106,6 @@
     <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
     <string name="invalid_url_text">Please enter a valid address.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="notification_playing_text">%s playing</string>
     <string name="save_playlist_title">Save playlist</string>
     <string name="save_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
