@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentManager;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseConfirmDialog;
 import uk.org.ngo.squeezer.model.JiveItem;
 
@@ -63,7 +64,7 @@ public class DownloadDialog extends BaseConfirmDialog {
     @Override
     protected void ok(boolean persist) {
         if (persist) {
-            new Preferences(getContext()).setDownloadConfirmation(false);
+            Squeezer.getPreferences().setDownloadConfirmation(false);
         }
         host.doDownload(getArguments().getParcelable(ITEM_KEY));
     }
@@ -71,7 +72,7 @@ public class DownloadDialog extends BaseConfirmDialog {
     @Override
     protected void cancel(boolean persist) {
         if (persist) {
-            new Preferences(getContext()).setDownloadEnabled(false);
+            Squeezer.getPreferences().setDownloadEnabled(false);
         }
     }
 

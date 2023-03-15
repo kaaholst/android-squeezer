@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.model.Action;
@@ -205,7 +206,7 @@ public class SqueezeService extends Service {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
 
-        cachePreferences();
+        Squeezer.getPreferences(preferences -> cachePreferences(preferences));
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
@@ -249,8 +250,7 @@ public class SqueezeService extends Service {
     /**
      * Cache the value of various preferences.
      */
-    private void cachePreferences() {
-        final Preferences preferences = new Preferences(this);
+    private void cachePreferences(Preferences preferences) {
         scrobblingEnabled = preferences.isScrobbleEnabled();
         mFadeInSecs = preferences.getFadeInSecs();
         mGroupVolume = preferences.isGroupVolume();
@@ -350,7 +350,7 @@ public class SqueezeService extends Service {
 
         updateAllPlayerSubscriptionStates();
         requestPlayerData();
-        new Preferences(this).setLastPlayer(newActivePlayer);
+        Squeezer.getPreferences().setLastPlayer(newActivePlayer);
     }
 
     class JiveItemServiceItemListCallback implements IServiceItemListCallback<JiveItem> {
@@ -361,7 +361,7 @@ public class SqueezeService extends Service {
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
             homeMenu.addAll(items);
             if (homeMenu.size() == count) {
-                Preferences preferences = new Preferences(SqueezeService.this);
+                Preferences preferences = Squeezer.getPreferences();
                 boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
                 List<String> archivedMenuItems = Collections.emptyList();
                 if ((useArchive) && (mDelegate.getActivePlayer() != null)) {
@@ -612,7 +612,7 @@ public class SqueezeService extends Service {
 
             mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-            if (new Preferences(this).isBackgroundVolume()) {
+            if (Squeezer.getPreferences().isBackgroundVolume()) {
                 mMediaSession.setPlaybackToRemote(mVolumeProvider);
             }
             mMediaSession.setActive(true);
@@ -703,7 +703,7 @@ public class SqueezeService extends Service {
             : null;
 
     private void onCallStateChanged(int state) {
-        Preferences preferences = new Preferences(this);
+        Preferences preferences = Squeezer.getPreferences();
         Preferences.IncomingCallAction incomingCallAction = preferences.getActionOnIncomingCall();
         if (incomingCallAction != Preferences.IncomingCallAction.NONE) {
             PerformAction action = null;
@@ -767,7 +767,7 @@ public class SqueezeService extends Service {
     private void handleRandomOnEvent(Player player) {
 
         RandomPlay randomPlay = mDelegate.getRandomPlay(player);
-        Preferences preferences = new Preferences(SqueezeService.this);
+        Preferences preferences = Squeezer.getPreferences();
         PlayerState playerState = player.getPlayerState();
 
         int number = playerState.getCurrentPlaylistTracksNum();
@@ -843,7 +843,7 @@ public class SqueezeService extends Service {
      *     connected players, or null if there are no connected players.
      */
     private @Nullable Player getPreferredPlayer(Collection<Player> players) {
-        final String lastConnectedPlayer = new Preferences(this).getLastPlayer();
+        final String lastConnectedPlayer = Squeezer.getPreferences().getLastPlayer();
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
         Log.i(TAG, "players empty?: " + players.isEmpty());
@@ -859,7 +859,7 @@ public class SqueezeService extends Service {
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
-            final Preferences preferences = new Preferences(SqueezeService.this);
+            final Preferences preferences = Squeezer.getPreferences();
             for (Song song : items) {
                 Log.i(TAG, "downloadSong(" + song + ")");
                 Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
@@ -1095,7 +1095,7 @@ public class SqueezeService extends Service {
             // create a new.
             // This way we can use server side logic and we don't have to store account credentials
             // locally.
-            String macId = new Preferences(SqueezeService.this).getMacId();
+            String macId = Squeezer.getPreferences().getMacId();
             mDelegate.command().cmd("playerRegister", null, macId, "Squeezer-" + Build.MODEL).exec();
             mDelegate.requestItems(callback).cmd("register").param("service", "SN").exec();
         }
@@ -1404,10 +1404,9 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void preferenceChanged(String key) {
+        public void preferenceChanged(Preferences preferences, String key) {
             Log.i(TAG, "Preference changed: " + key);
             if (Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE.equals(key)) {
-                Preferences preferences = new Preferences(SqueezeService.this);
                 boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
                 List<String> archivedMenuItems = Collections.emptyList();
                 if ((useArchive) && (getActivePlayer() != null)) {
@@ -1416,17 +1415,16 @@ public class SqueezeService extends Service {
                 Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
                 mDelegate.setHomeMenu(archivedMenuItems, customShortcuts);
             } else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
-                Preferences preferences = new Preferences(SqueezeService.this);
                 if (preferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.DISABLED) {
                     mDelegate.getHomeMenuHandling().removeAllShortcuts();
                     preferences.saveShortcuts(preferences.convertShortcuts(mDelegate.getHomeMenuHandling().customShortcuts)); // TODO check for simplification
                 }
             } else if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
-                if (new Preferences(SqueezeService.this).getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE) {
+                if (preferences.getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE) {
                     registerCallStateListener();
                 }
             } else {
-                cachePreferences();
+                cachePreferences(preferences);
             }
         }
 
@@ -1566,8 +1564,7 @@ public class SqueezeService extends Service {
                 Log.e(TAG, "randomPlayFolder: No folder_id");
                 return false;
             }
-            Set<String> played =
-                    new Preferences(SqueezeService.this).loadRandomPlayed(folderID);
+            Set<String> played = Squeezer.getPreferences().loadRandomPlayed(folderID);
             Player player = mDelegate.getActivePlayer();
             RandomPlay randomPlay = mDelegate.getRandomPlay(player);
             randomPlay.reset(player);
@@ -1582,7 +1579,7 @@ public class SqueezeService extends Service {
 
         public boolean toggleArchiveItem(JiveItem item) {
             List<String> menu = mDelegate.toggleArchiveItem(item);
-            new Preferences(SqueezeService.this).setArchivedMenuItems(menu, getActivePlayer());
+            Squeezer.getPreferences().setArchivedMenuItems(menu, getActivePlayer());
             return menu.isEmpty();
         }
 

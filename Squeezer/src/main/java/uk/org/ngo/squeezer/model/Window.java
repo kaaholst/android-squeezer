@@ -105,10 +105,10 @@ public class Window implements Parcelable {
      * http://wiki.slimdevices.com/index.php/HomeMenuItemsVersusSlimbrowseItems
      */
     public enum WindowStyle {
-        HOME_MENU("home_menu"),
-        ICON_LIST("icon_list"),
-        PLAY_LIST("play_list"),
-        TEXT_ONLY("text_list");
+        HOME_MENU("home_menu"), // Like ICON_LIST
+        ICON_LIST("icon_list"), // Item layout have an icon, text1, text2
+        PLAY_LIST("play_list"), // Like ICON_LIST but not in a grid.
+        TEXT_ONLY("text_list"); // Items have text1, text2,m i.e. no icon.
 
         private static Map<String, WindowStyle> ENUM_MAP = initEnumMap();
         private final String id;

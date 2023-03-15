@@ -8,6 +8,7 @@ import com.google.android.material.timepicker.TimeFormat;
 import java.util.Calendar;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.JiveItem;
 
@@ -26,7 +27,7 @@ public class InputTimeDialog {
             minute = c.get(Calendar.MINUTE);
         }
 
-        Preferences preferences = new Preferences(activity);
+        Preferences preferences = Squeezer.getPreferences();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour(hour)
                 .setMinute(minute)

@@ -140,7 +140,7 @@ public class RandomPlay {
                     .param("play_index", "1").param("track_id", first).exec();
             this.played.add(first);
             RandomPlay.this.firstFound = true;
-            new Preferences(Squeezer.getContext()).saveRandomPlayed(folderID, played);
+            Squeezer.getPreferences().saveRandomPlayed(folderID, played);
             Log.i(TAG, String.format("Saved first Random Play track to preferences for %s on %s", folderID, player.getName()));
         }
     }

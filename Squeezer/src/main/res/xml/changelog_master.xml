@@ -2,6 +2,22 @@
 
 <changelog>
     <release
+        version="2.3.2"
+        versioncode="123">
+        <change>Context menu in a bottom sheet</change>
+
+        <change>Display results for global and library search in an expandable list.</change>
+
+        <change>More space for Player names</change>
+
+        <change>Fix a bug in Wake on LAN.</change>
+
+        <change>Load preferences in the background and other changes to avoid Application Not Responding</change>
+
+        <change>Fix some reported crashes.</change>
+    </release>
+
+    <release
         version="2.3.1"
         versioncode="119">
         <change>Fix a regression in call handling.</change>

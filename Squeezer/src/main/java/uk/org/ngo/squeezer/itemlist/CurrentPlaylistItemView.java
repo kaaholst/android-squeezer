@@ -27,15 +27,20 @@ import androidx.palette.graphics.Palette;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 class CurrentPlaylistItemView extends JiveItemView {
-    private final CurrentPlaylistActivity activity;
 
     public CurrentPlaylistItemView(CurrentPlaylistActivity activity, @NonNull View view) {
-        super(activity, view);
-        this.activity = activity;
+        super(activity, Window.WindowStyle.PLAY_LIST, ArtworkListLayout.list, view);
+    }
+
+    @Override
+    public CurrentPlaylistActivity getActivity() {
+        return (CurrentPlaylistActivity) super.getActivity();
     }
 
     @Override
@@ -43,7 +48,7 @@ class CurrentPlaylistItemView extends JiveItemView {
         super.bindView(item);
         itemView.setOnLongClickListener(null);
 
-        if (getAdapterPosition() == activity.getSelectedIndex()) {
+        if (getAdapterPosition() == getActivity().getSelectedIndex()) {
             itemView.setBackgroundResource(getActivity().getAttributeValue(R.attr.currentTrackBackground));
             text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary_Highlight);
             text2.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Secondary_Highlight);
@@ -62,14 +67,14 @@ class CurrentPlaylistItemView extends JiveItemView {
     @Override
     public void onIcon() {
         super.onIcon();
-        if (getAdapterPosition() == activity.getSelectedIndex()) {
+        if (getAdapterPosition() == getActivity().getSelectedIndex()) {
             Drawable drawable = icon.getDrawable();
-            Drawable marker = DrawableCompat.wrap(AppCompatResources.getDrawable(activity, R.drawable.ic_action_nowplaying));
+            Drawable marker = DrawableCompat.wrap(AppCompatResources.getDrawable(getActivity(), R.drawable.ic_action_nowplaying));
             Palette colorPalette = Palette.from(Util.drawableToBitmap(drawable)).generate();
             DrawableCompat.setTint(marker, colorPalette.getDominantSwatch().getBodyTextColor());
 
             LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{drawable, marker});
-            int inset = activity.getResources().getDimensionPixelSize(R.dimen.now_playing_emblem_inset);
+            int inset = getActivity().getResources().getDimensionPixelSize(R.dimen.now_playing_emblem_inset);
             layerDrawable.setLayerInset(1, inset, inset, inset, inset);
 
             icon.setImageDrawable(layerDrawable);

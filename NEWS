@@ -1,3 +1,20 @@
+2.3.2
+=====
+
+*   Context menu in a bottom sheet
+
+*   Display results for global and library search in an expandable list.
+
+*   More space for Player names
+
+*   Fix a bug in Wake on LAN.
+
+*   Load preferences in the background and other changes to avoid Application
+    Not Responding
+
+*   Fix some reported crashes.
+
+
 2.3.1
 =====
 

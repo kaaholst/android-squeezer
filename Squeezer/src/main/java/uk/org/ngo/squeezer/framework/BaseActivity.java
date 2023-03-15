@@ -54,6 +54,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.dialog.DownloadDialog;
@@ -172,13 +173,16 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
         }
 
-        if (new Preferences(this).getScreensaverMode() != Preferences.ScreensaverMode.OFF) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            if (new Preferences(this).getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
-                inactivityHandler = new Handler();
-                inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
+        Squeezer.getPreferences(preferences -> {
+            if (preferences.getScreensaverMode() != Preferences.ScreensaverMode.OFF) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
+                    inactivityHandler = new Handler();
+                    inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
+                    setInactivityTimer();
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -204,7 +208,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
 
         if (inactivityHandler != null) {
-            inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
+            setInactivityTimer();
         }
 
         // If SqueezePlayer is installed, start it
@@ -212,6 +216,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
+    }
+
+    private void setInactivityTimer() {
+        inactivityHandler.removeCallbacks(inactivityAction);
+        inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
     }
 
     @Override
@@ -256,6 +265,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @CallSuper
     public void onDestroy() {
         super.onDestroy();
+
+        volumePanel.dismiss();
+
         if (boundService) {
             unbindService(serviceConnection);
         }
@@ -352,8 +364,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         super.onUserInteraction();
 
         if (inactivityHandler != null) {
-            inactivityHandler.removeCallbacks(inactivityAction);
-            inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
+            setInactivityTimer();
         }
     }
 
@@ -469,7 +480,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
      * @see ISqueezeService#downloadItem(JiveItem)
      */
     public void downloadItem(JiveItem item) {
-        if (new Preferences(this).isDownloadConfirmation()) {
+        if (Squeezer.getPreferences().isDownloadConfirmation()) {
             DownloadDialog.show(item, this);
         } else {
             doDownload(item);

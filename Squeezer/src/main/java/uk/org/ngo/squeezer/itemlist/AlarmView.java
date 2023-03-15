@@ -42,6 +42,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -188,7 +189,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     }
 
     public static void showTimePicker(BaseListActivity activity, Alarm alarm, boolean is24HourFormat) {
-        Preferences preferences = new Preferences(activity);
+        Preferences preferences = Squeezer.getPreferences();
         long tod = alarm.getTod();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour((int) (tod / 3600))

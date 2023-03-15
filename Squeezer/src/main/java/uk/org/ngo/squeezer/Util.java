@@ -355,11 +355,10 @@ public class Util {
     }
 
     public static byte[] toByteArray(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        copyStream(inputStream, outputStream);
-
-        return outputStream.toByteArray();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            copyStream(inputStream, outputStream);
+            return outputStream.toByteArray();
+        }
     }
 
     private static void copyStream(InputStream inputStream, OutputStream outputStream) throws IOException {

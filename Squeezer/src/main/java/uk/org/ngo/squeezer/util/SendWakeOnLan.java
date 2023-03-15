@@ -20,7 +20,7 @@ public class SendWakeOnLan {
      * UDP port to broadcast WOL message to.
      */
     private static final int WOL_PORT = 9;
-    public static final String BROADCAST_ADDRESS = "192.168.0.255";
+    public static final String BROADCAST_ADDRESS = "255.255.255.255";
 
     public static void sendWakeOnLan(byte[] mac) {
 

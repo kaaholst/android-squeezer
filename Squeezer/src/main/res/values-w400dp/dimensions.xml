@@ -3,4 +3,7 @@
     <!-- Icons in grid -->
     <dimen name="album_art_icon_grid_size">160dp</dimen>
     <dimen name="grid_column_width">176dp</dimen>
+
+    <!-- Width of player drop down -->
+    <dimen name="player_dropdown_width">@dimen/wrap_content</dimen>
 </resources>

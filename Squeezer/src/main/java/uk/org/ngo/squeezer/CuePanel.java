@@ -56,7 +56,7 @@ public class CuePanel extends Handler {
         super(Looper.getMainLooper());
         this.parent = parent;
         this.activity = activity;
-        Preferences preferences = new Preferences(activity);
+        Preferences preferences = Squeezer.getPreferences();
         int backwardSeconds = preferences.getBackwardSeconds();
         int forwardSeconds = preferences.getForwardSeconds();
 

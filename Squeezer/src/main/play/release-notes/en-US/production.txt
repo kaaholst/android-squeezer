@@ -1,5 +1,11 @@
-&bull; Fix a regression in call handling.
+&bull; Context menu in a bottom sheet
 
-&bull; Show the alphabet position when using the scroll bar.
+&bull; Display results for global and library search in an expandable list.
 
-&bull; Move the volume controls to a bottom sheet, which keeps open until it's closed.
+&bull; More space for Player names
+
+&bull; Fix a bug in Wake on LAN.
+
+&bull; Load preferences in the background and other changes to avoid Application Not Responding
+
+&bull; Fix some reported crashes.

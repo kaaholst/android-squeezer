@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.service;
 
 import android.os.SystemClock;
-import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -46,7 +44,7 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 
 abstract class BaseClient implements SlimClient {
-    final static int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
+    final static int mPageSize = Squeezer.getInstance().getResources().getInteger(R.integer.PageSize);
 
     final AtomicReference<String> username = new AtomicReference<>();
     final AtomicReference<String> password = new AtomicReference<>();

@@ -81,6 +81,8 @@ public final class Preferences {
     // Optional Squeezebox Server password
     private static final String KEY_MAC = "squeezer.mac";
 
+    private static final String KEY_LAST_RUN_VERSION_CODE = "lastRunVersionCode";
+
     // The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
     private static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
 
@@ -218,15 +220,15 @@ public final class Preferences {
     private final int defaultCliPort;
     private final int defaultHttpPort;
 
-    public Preferences(Context context) {
-        this(context, context.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE));
-    }
-
     public Preferences(Context context, SharedPreferences sharedPreferences) {
         this.context = context;
         this.sharedPreferences = sharedPreferences;
         defaultCliPort = context.getResources().getInteger(R.integer.DefaultCliPort);
         defaultHttpPort = context.getResources().getInteger(R.integer.DefaultHttpPort);
+    }
+
+    public SharedPreferences getSharedPreferences() {
+        return sharedPreferences;
     }
 
     private String getStringPreference(String preference) {
@@ -433,6 +435,14 @@ public final class Preferences {
         editor.putBoolean(prefix(serverAddress) + KEY_WOL, serverAddress.wakeOnLan);
         editor.putString(prefix(serverAddress) + KEY_MAC, Util.formatMac(serverAddress.mac));
         editor.apply();
+    }
+
+    public long getLastRunVersionCode() {
+        return sharedPreferences.getLong(KEY_LAST_RUN_VERSION_CODE, 0);
+    }
+
+    public void setLastRunVersionCode(long lastRunVersionCode) {
+        sharedPreferences.edit().putLong(KEY_LAST_RUN_VERSION_CODE, lastRunVersionCode).apply();
     }
 
     public String getLastPlayer() {

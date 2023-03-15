@@ -13,6 +13,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -23,7 +24,7 @@ public class VolumeSettings extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BaseActivity activity = (BaseActivity)requireActivity();
         ISqueezeService service = activity.getService();
-        Preferences preferences = new Preferences(requireActivity());
+        Preferences preferences = Squeezer.getPreferences();
 
         View view = requireActivity().getLayoutInflater().inflate(R.layout.volume_settings, null);
 
@@ -56,7 +57,7 @@ public class VolumeSettings extends DialogFragment {
                     preferences.setBackgroundVolume(backgroundVolume.isChecked());
                     preferences.setVolumeIncrements((int) volumeIncrements.getValue());
                     preferences.setGroupVolume(groupVolume.isChecked());
-                    service.preferenceChanged(null);
+                    service.preferenceChanged(preferences, null);
                     service.playerPref(Player.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
                 })
                 .setNegativeButton(android.R.string.cancel, null);

@@ -15,13 +15,13 @@ public class Scrobble {
 
     public static boolean haveScrobbleDroid() {
         return Intents.isBroadcastReceiverAvailable(
-                Squeezer.getContext(),
+                Squeezer.getInstance(),
                 "net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
     }
 
     public static boolean haveSls() {
         return Intents.isBroadcastReceiverAvailable(
-                Squeezer.getContext(),
+                Squeezer.getInstance(),
                 "com.adam.aslfms.notify.playstatechanged");
     }
 

@@ -283,20 +283,22 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
             return;
         }
 
+        Preferences preferences = new Preferences(getActivity(), sharedPreferences);
+
         if (key.equals(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
                 key.equals(Preferences.KEY_DOWNLOAD_ENABLED)
         ) {
-            updateDownloadPreferences(new Preferences(getActivity(), sharedPreferences));
+            updateDownloadPreferences(preferences);
         }
 
         if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
             ListPreference incomingCallPref = findPreference(Preferences.KEY_ACTION_ON_INCOMING_CALL);
             incomingCallPref.setValue(sharedPreferences.getString(Preferences.KEY_ACTION_ON_INCOMING_CALL, null));
-            updateIncomingCallPreferences(new Preferences(getActivity(), sharedPreferences));
+            updateIncomingCallPreferences(preferences);
         }
 
         if (service != null) {
-            service.preferenceChanged(key);
+            service.preferenceChanged(preferences, key);
         } else {
             Log.v(TAG, "service is null!");
         }

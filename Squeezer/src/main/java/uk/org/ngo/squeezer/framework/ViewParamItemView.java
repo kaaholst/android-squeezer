@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -78,7 +77,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
 
     public final View contextMenuButtonHolder;
     public Button contextMenuButton;
-    public ProgressBar contextMenuLoading;
     protected CheckBox contextMenuCheckbox;
     protected RadioButton contextMenuRadio;
 
@@ -92,7 +90,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
         contextMenuButtonHolder = view.findViewById(R.id.context_menu);
         if (contextMenuButtonHolder!= null) {
             contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            contextMenuLoading = contextMenuButtonHolder.findViewById(R.id.loading_progress);
             contextMenuCheckbox = contextMenuButtonHolder.findViewById(R.id.checkbox);
             contextMenuRadio = contextMenuButtonHolder.findViewById(R.id.radio);
         }

@@ -245,32 +245,20 @@ public class ImageCache {
             // Add to disk cache
             if (mDiskLruCache != null) {
                 final String key = hashKeyForDisk(data);
-                OutputStream out = null;
-                try {
-                    DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+                try (DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key)) {
                     if (snapshot == null) {
                         final DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                         if (editor != null) {
-                            out = editor.newOutputStream(DISK_CACHE_INDEX);
-                            bitmap.compress(
-                                    mCacheParams.compressFormat, mCacheParams.compressQuality, out);
-                            editor.commit();
-                            out.close();
+                            try (OutputStream out = editor.newOutputStream(DISK_CACHE_INDEX)) {
+                                bitmap.compress(mCacheParams.compressFormat, mCacheParams.compressQuality, out);
+                                editor.commit();
+                            }
                         }
-                    } else {
-                        snapshot.getInputStream(DISK_CACHE_INDEX).close();
                     }
                 } catch (final IOException e) {
                     Log.e(TAG, "addBitmapToCache - " + e);
                 } catch (Exception e) {
                     Log.e(TAG, "addBitmapToCache - " + e);
-                } finally {
-                    try {
-                        if (out != null) {
-                            out.close();
-                        }
-                    } catch (IOException e) {
-                    }
                 }
             }
         }
@@ -291,31 +279,20 @@ public class ImageCache {
             // Add to disk cache
             if (mDiskLruCache != null) {
                 final String key = hashKeyForDisk(data);
-                OutputStream out = null;
-                try {
-                    DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+                try (DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key)) {
                     if (snapshot == null) {
                         final DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                         if (editor != null) {
-                            out = editor.newOutputStream(DISK_CACHE_INDEX);
-                            out.write(bytes);
-                            editor.commit();
-                            out.close();
+                            try (OutputStream out = editor.newOutputStream(DISK_CACHE_INDEX)) {
+                                out.write(bytes);
+                                editor.commit();
+                            }
                         }
-                    } else {
-                        snapshot.getInputStream(DISK_CACHE_INDEX).close();
                     }
                 } catch (final IOException e) {
                     Log.e(TAG, "addBitmapToCache - " + e);
                 } catch (Exception e) {
                     Log.e(TAG, "addBitmapToCache - " + e);
-                } finally {
-                    try {
-                        if (out != null) {
-                            out.close();
-                        }
-                    } catch (IOException e) {
-                    }
                 }
             }
         }
@@ -368,27 +345,18 @@ public class ImageCache {
                 }
             }
             if (mDiskLruCache != null) {
-                InputStream inputStream = null;
-                try {
-                    final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+                try (DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key)) {
                     if (snapshot != null) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Disk cache hit");
                         }
-                        inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
+                        final InputStream inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
                         if (inputStream != null) {
                             return BitmapFactory.decodeStream(inputStream);
                         }
                     }
                 } catch (final IOException e) {
                     Log.e(TAG, "getBitmapFromDiskCache - " + e);
-                } finally {
-                    try {
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                    } catch (IOException e) {
-                    }
                 }
             }
             return null;
@@ -413,27 +381,18 @@ public class ImageCache {
                 }
             }
             if (mDiskLruCache != null) {
-                InputStream inputStream = null;
-                try {
-                    final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+                try (DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key)) {
                     if (snapshot != null) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Disk cache hit");
                         }
-                        inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
+                        InputStream inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
                         if (inputStream != null) {
                             return Util.toByteArray(inputStream);
                         }
                     }
                 } catch (final IOException e) {
                     Log.e(TAG, "getBitmapFromDiskCache - " + e);
-                } finally {
-                    try {
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                    } catch (IOException e) {
-                    }
                 }
             }
             return null;

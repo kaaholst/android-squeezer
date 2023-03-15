@@ -30,6 +30,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
@@ -39,15 +40,18 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class ArtworkDialog extends DialogFragment implements IServiceItemListCallback<JiveItem> {
     private static final String TAG = DialogFragment.class.getSimpleName();
+
     private ImageView artwork;
+    private JiveItem item;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        BaseActivity activity = (BaseActivity)getActivity();
-        Action action = getArguments().getParcelable(Action.class.getName());
+        BaseActivity activity = (BaseActivity)requireActivity();
+        item = requireArguments().getParcelable(JiveItem.class.getName());
+        Action action = requireArguments().getParcelable(Action.class.getName());
 
-        Dialog dialog = new Dialog(getContext());
+        Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.show_artwork);
         artwork = dialog.findViewById(R.id.artwork);
 
@@ -57,9 +61,13 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
         int size = Math.min(rect.width(), rect.height());
         window.setLayout(size, size);
 
-        // FIXME Image wont get fetched (and thus not displayed) after orientation change
-        if (activity.getService()!= null) {
-            activity.getService().pluginItems(action, this);
+        if (action != null) {
+            // FIXME Image wont get fetched (and thus not displayed) after orientation change
+            if (activity.getService() != null) {
+                activity.getService().pluginItems(action, this);
+            }
+        } else if (item != null) {
+            JiveItemViewLogic.icon(artwork, item, this::addLoge);
         }
 
         return dialog;
@@ -68,8 +76,14 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
         Uri artworkId = Util.getImageUrl(parameters, parameters.containsKey("artworkId") ? "artworkId" : "artworkUrl");
-        ImageFetcher.getInstance(getContext()).loadImage(artworkId, artwork);
+        requireActivity().runOnUiThread(() -> ImageFetcher.getInstance(getContext()).loadImage(artworkId, artwork));
     }
+
+    private void addLoge() {
+        JiveItemViewLogic.addLogo(artwork, item);
+    }
+
+
 
     @Override
     public Object getClient() {
@@ -91,6 +105,20 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
 
         Bundle args = new Bundle();
         args.putParcelable(Action.class.getName(), action);
+        dialog.setArguments(args);
+
+        dialog.show(activity.getSupportFragmentManager(), TAG);
+        return dialog;
+    }
+
+    /**
+     * Create a dialog to show artwork for the supplied item.
+     */
+    public static ArtworkDialog show(BaseActivity activity, JiveItem item) {
+        ArtworkDialog dialog = new ArtworkDialog();
+
+        Bundle args = new Bundle();
+        args.putParcelable(JiveItem.class.getName(), item);
         dialog.setArguments(args);
 
         dialog.show(activity.getSupportFragmentManager(), TAG);

@@ -18,12 +18,10 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class HomeMenuJiveItemView extends JiveItemView {
 
-    HomeMenuActivity mHomeMenuActivity;
     ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> mItemAdapter;
 
     public HomeMenuJiveItemView(HomeMenuActivity homeMenuActivity, View view, ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter) {
         super(homeMenuActivity, view);
-        mHomeMenuActivity = homeMenuActivity;
         mItemAdapter = adapter;
         if (mCustomJiveItemHandling == null) {
             mCustomJiveItemHandling = new CustomJiveItemHandling(getActivity());
@@ -33,8 +31,8 @@ public class HomeMenuJiveItemView extends JiveItemView {
     @Override
     public void bindView(JiveItem item) {
         super.bindView(item);
-        final boolean isArchiveActive = new Preferences(itemView.getContext()).getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
-        final boolean isShortcutsActive = new Preferences(itemView.getContext()).getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
+        final boolean isArchiveActive = Squeezer.getPreferences().getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
+        final boolean isShortcutsActive = Squeezer.getPreferences().getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
 
         if (isArchiveActive) {
             itemView.setOnLongClickListener(view -> setArchive(item, isShortcutsActive));
@@ -50,8 +48,8 @@ public class HomeMenuJiveItemView extends JiveItemView {
     private boolean setArchive(JiveItem item, boolean isShortcutsActive) {
         if (!item.getId().equals(JiveItem.ARCHIVE.getId())) {  // not the Archive node itself
             if (!item.getNode().equals(JiveItem.ARCHIVE.getId())) {  // not INSIDE archive node
-                if (mHomeMenuActivity.getService().isInArchive(item)) {
-                    mHomeMenuActivity.showDisplayMessage(R.string.MENU_IS_SUBMENU_IN_ARCHIVE);
+                if (getActivity().requireService().isInArchive(item)) {
+                    getActivity().showDisplayMessage(R.string.MENU_IS_SUBMENU_IN_ARCHIVE);
                     return true;
                 }
                 if (mCustomJiveItemHandling.isCustomShortcut(item)) {
@@ -68,11 +66,11 @@ public class HomeMenuJiveItemView extends JiveItemView {
                 mItemAdapter.removeItem(getAdapterPosition()); // remove an item inside the archive
             }
 
-            UndoBarController.show(mHomeMenuActivity, R.string.MENU_ITEM_MOVED, new UndoBarController.UndoListener() {
+            UndoBarController.show(getActivity(), R.string.MENU_ITEM_MOVED, new UndoBarController.UndoListener() {
                 @Override
                 public void onUndo() {
-                    mHomeMenuActivity.getService().toggleArchiveItem(item);
-                    mHomeMenuActivity.getService().triggerHomeMenuEvent();
+                    getActivity().requireService().toggleArchiveItem(item);
+                    getActivity().requireService().triggerHomeMenuEvent();
                 }
 
                 @Override
@@ -80,13 +78,13 @@ public class HomeMenuJiveItemView extends JiveItemView {
                 }
             });
 
-            if ((mHomeMenuActivity.getService().toggleArchiveItem(item))) {
+            if ((getActivity().requireService().toggleArchiveItem(item))) {
                 // TODO: Do not instantly show the next screen or put UndoBar onto next screen
-                HomeActivity.show(Squeezer.getContext());
-                mHomeMenuActivity.showDisplayMessage(R.string.ARCHIVE_NODE_REMOVED);
+                HomeActivity.show(getActivity());
+                getActivity().showDisplayMessage(R.string.ARCHIVE_NODE_REMOVED);
             }
         } else {
-            mHomeMenuActivity.showDisplayMessage(R.string.ARCHIVE_CANNOT_BE_ARCHIVED);
+            getActivity().showDisplayMessage(R.string.ARCHIVE_CANNOT_BE_ARCHIVED);
         }
         return true;
     }
@@ -100,8 +98,8 @@ public class HomeMenuJiveItemView extends JiveItemView {
 
     private boolean removeShortcuts(JiveItem item) {
         mItemAdapter.removeItem(getAdapterPosition());
-        mHomeMenuActivity.showDisplayMessage(R.string.CUSTOM_SHORTCUT_REMOVED);
-        mHomeMenuActivity.getService().removeCustomShortcut(item);
+        getActivity().showDisplayMessage(R.string.CUSTOM_SHORTCUT_REMOVED);
+        getActivity().requireService().removeCustomShortcut(item);
         mPreferences.saveShortcuts(mCustomJiveItemHandling.convertShortcuts());
         return true; // don't show UndoBar if Custom Shortcut
     }

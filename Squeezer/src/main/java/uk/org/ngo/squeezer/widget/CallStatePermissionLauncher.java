@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
 
 public class CallStatePermissionLauncher {
@@ -22,9 +23,9 @@ public class CallStatePermissionLauncher {
         requestPermissionLauncher =
                 fragment.registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                        new Preferences(fragment.requireContext()).setActionOnIncomingCall(requestedAction);
+                        Squeezer.getPreferences().setActionOnIncomingCall(requestedAction);
                     } else {
-                        new Preferences(fragment.requireContext()).setActionOnIncomingCall(Preferences.IncomingCallAction.NONE);
+                        Squeezer.getPreferences().setActionOnIncomingCall(Preferences.IncomingCallAction.NONE);
                     }
                 });
         this.fragment = fragment;
@@ -37,7 +38,7 @@ public class CallStatePermissionLauncher {
             this.requestedAction = requestedAction;
             new CallStateDialog().show(fragment.getChildFragmentManager(), "CallStatePermissionLauncher");
         } else
-            new Preferences(fragment.requireContext()).setActionOnIncomingCall(requestedAction);
+            Squeezer.getPreferences().setActionOnIncomingCall(requestedAction);
 
     }
 

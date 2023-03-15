@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.greenrobot.eventbus.EventBus;
+
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -49,7 +51,7 @@ public interface ISqueezeService {
     void register(IServiceItemListCallback<JiveItem> callback);
 
     // For the SettingsActivity to notify the Service that a setting changed.
-    void preferenceChanged(String key);
+    void preferenceChanged(Preferences preferences, String key);
 
     /**
      * Change the player that is controlled by Squeezer (the "active" player).

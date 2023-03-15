@@ -49,7 +49,8 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     /**
      * Activity which hosts this adapter
      */
-    private ItemListActivity activity;
+    private BaseActivity activity;
+    private PageOrderer orderer;
 
     /**
      * List of items, possibly headed with an empty item.
@@ -78,11 +79,19 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * @param activity The {@link ItemListActivity} which hosts this adapter
      * @param emptyItem If set the list of items shall start with an empty item
      */
-    public ItemAdapter(ItemListActivity activity, boolean emptyItem) {
+    public ItemAdapter(BaseActivity activity, PageOrderer orderer, boolean emptyItem) {
         this.activity = activity;
+        this.orderer = orderer;
         mEmptyItem = emptyItem;
         pageSize = getActivity().getResources().getInteger(R.integer.PageSize);
         pages.clear();
+    }
+
+    /**
+     * @see #ItemAdapter(BaseActivity, PageOrderer, boolean)
+     * */
+    public ItemAdapter(ItemListActivity activity, boolean emptyItem) {
+        this(activity, activity, emptyItem);
     }
 
     /**
@@ -127,12 +136,13 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     protected abstract int getItemViewType(T item);
 
-    protected ItemListActivity getActivity() {
+    protected BaseActivity getActivity() {
         return activity;
     }
 
     public void setActivity(ItemListActivity activity) {
         this.activity = activity;
+        this.orderer = activity;
     }
 
     @Override
@@ -168,7 +178,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
             if (mEmptyItem) {
                 position--;
             }
-            getActivity().maybeOrderPage(pageNumber(position) * pageSize);
+            orderer.maybeOrderPage(pageNumber(position) * pageSize);
         }
         return item;
     }
@@ -316,6 +326,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
             }
         }
         return _itemCreator;
+    }
+
+    public interface PageOrderer {
+        void maybeOrderPage(int pagePosition);
     }
 
 }

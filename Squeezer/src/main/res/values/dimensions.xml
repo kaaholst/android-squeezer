@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="match_parent" format="integer" type="dimen">-1</item>
+    <item name="wrap_content" format="integer" type="dimen">-2</item>
+
     <!-- Icons in list rows. -->
     <dimen name="album_art_icon_size">48dp</dimen>
 
@@ -27,4 +30,11 @@
 
     <!-- Inset for flat_icons as foreground when using legacy icons -->
     <dimen name="album_art_inset">2dp</dimen>
+
+    <!-- Emblem embedded in artwork -->
+    <dimen name="logo_inset">2dp</dimen>
+    <dimen name="logo_size">14dp</dimen>
+
+    <!-- Width of player drop down -->
+    <dimen name="player_dropdown_width">@dimen/match_parent</dimen>
 </resources>

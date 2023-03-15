@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
  *
@@ -57,12 +56,15 @@ import java.util.Objects;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.ContextMenu;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
@@ -71,7 +73,6 @@ import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.DividerItemDecoration;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
@@ -88,7 +89,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private static final String WINDOW = "WINDOW";
     public static final String WINDOW_EXTRA = "windowId";
 
-    private JiveItemViewLogic pluginViewDelegate;
     private boolean register;
     protected JiveItem parent;
     private Action action;
@@ -105,39 +105,40 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private MenuItem menuItemAllInfo;
     private MenuItem menuItemFlatIcons;
 
-    private ViewParamItemView<JiveItem> parentViewHolder;
+    protected ViewParamItemView<JiveItem> parentViewHolder;
     private DividerItemDecoration dividerItemDecoration;
     private RecyclerViewFastScroller fastScroller;
 
     @Override
     protected ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> createItemListAdapter() {
-        return new JiveItemAdapter(this);
+        return (isGrouped()) ? new GroupAdapter(this) : new JiveItemAdapter(this);
+    }
+
+    private boolean isPlaylist() {
+        return parent != null && "playlist".equals(parent.getType());
+    }
+
+    private boolean isGrouped() {
+        if (parent != null) {
+            if ("myMusicSearch".equals(parent.getId())) return true;
+            return "globalSearch".equals(parent.getId());
+        }
+        return false;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         Bundle extras = Objects.requireNonNull(getIntent().getExtras(), "intent did not contain extras");
         register = extras.getBoolean("register");
         parent = extras.getParcelable(JiveItem.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
-        pluginViewDelegate = new JiveItemViewLogic(this);
+        super.onCreate(savedInstanceState);
         setParentViewHolder();
 
         // If initial setup is performed, use it
-        if (savedInstanceState != null && savedInstanceState.containsKey("window")) {
-            applyWindow(savedInstanceState.getParcelable("window"));
-        } else {
-            if (parent != null && parent.window != null) {
-                applyWindow(parent.window);
-            } else if (parent != null && "playlist".equals(parent.getType())) {
-                // special case of playlist - override server based windowStyle to play_list
-                applyWindowStyle(Window.WindowStyle.PLAY_LIST);
-            } else
-                applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
-        }
+        Window window = (savedInstanceState != null ? savedInstanceState.getParcelable("window") : null);
+        updateHeader(window);
 
         findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
         if (hasInputField()) {
@@ -162,7 +163,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             }
             inputText.setInputType(inputType);
             inputButton.setIconResource(inputImage);
-            inputTextLayout.setHint(parent.input.title);
+            inputTextLayout.setHint(TextUtils.isEmpty(parent.input.title) ? this.window.text : parent.input.title);
             inputText.setText(parent.input.initialText);
             parent.inputValue = parent.input.initialText;
 
@@ -185,7 +186,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     private void setParentViewHolder() {
         parentViewHolder = new ViewParamItemView<>(this, findViewById(R.id.parent_container));
-        parentViewHolder.contextMenuButton.setOnClickListener(v -> pluginViewDelegate.showContextMenu(parentViewHolder, parent));
+        parentViewHolder.contextMenuButton.setOnClickListener(v -> ContextMenu.show(this, parent));
     }
 
     @Override
@@ -197,105 +198,119 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     @Override
     public void onResume() {
         super.onResume();
-        setupListView();
+        setupListView(getListView(), getListLayout());
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        pluginViewDelegate.resetContextMenu();
-        pluginViewDelegate.resetContextMenu();
     }
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         dividerItemDecoration = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
-        getListView().addItemDecoration(dividerItemDecoration);
-        fastScroller = findViewById(R.id.fastscroller);
-
-        setupListView();
-    }
-
-    private void setupListView() {
-        ArtworkListLayout listLayout = getListLayout();
-        RecyclerView.LayoutManager layoutManager = getListView().getLayoutManager();
-        if (listLayout == ArtworkListLayout.grid && !(layoutManager instanceof GridLayoutManager)) {
-            getListView().setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
-            getListView().removeItemDecoration(dividerItemDecoration);
-        }
-        if (listLayout == ArtworkListLayout.list && (layoutManager instanceof GridLayoutManager)) {
-            getListView().setLayoutManager(new LinearLayoutManager(this));
+        if (!isGrouped()) {
             getListView().addItemDecoration(dividerItemDecoration);
         }
+        fastScroller = findViewById(R.id.fastscroller);
+
+        setupListView(getListView(), getListLayout());
     }
 
-    void updateHeader(String windowTitle) {
-        window.text = windowTitle;
-
-        parentViewHolder.itemView.setVisibility(View.VISIBLE);
-        parentViewHolder.text1.setText(windowTitle);
-        parentViewHolder.icon.setVisibility(View.GONE);
-        parentViewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
+    public void addDividerItemDecoration(RecyclerView list) {
+        list.removeItemDecoration(dividerItemDecoration);
+        list.addItemDecoration(dividerItemDecoration);
     }
 
-    void updateHeader(JiveItem parent) {
-        updateHeader(parent.getName());
+    public void setupListView(RecyclerView list, ArtworkListLayout listLayout) {
+        RecyclerView.LayoutManager layoutManager = list.getLayoutManager();
+        if (listLayout == ArtworkListLayout.grid && !(layoutManager instanceof GridLayoutManager)) {
+            list.setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
+            list.removeItemDecoration(dividerItemDecoration);
+        }
+        if (listLayout == ArtworkListLayout.list && (layoutManager instanceof GridLayoutManager)) {
+            list.setLayoutManager(new LinearLayoutManager(this));
+            list.addItemDecoration(dividerItemDecoration);
+        }
+    }
 
-        if (!TextUtils.isEmpty(parent.text2)) {
+    protected Window.WindowStyle defaultWindowStyle() {
+        return Window.WindowStyle.TEXT_ONLY;
+    }
+
+    void updateHeader(Window win) {
+        if (win == null && parent != null) win = parent.window;
+
+        if (win != null) {
+            updateWindowStyle(win.windowStyle);
+        } else if (isGrouped() || isPlaylist()) {
+            updateWindowStyle(Window.WindowStyle.PLAY_LIST);
+        } else {
+            updateWindowStyle(defaultWindowStyle());
+        }
+
+        window.text = null;
+        if (win != null && !TextUtils.isEmpty(win.text)) {
+            window.text = win.text;
+        } else if (parent != null && !TextUtils.isEmpty(parent.getName())) {
+            window.text = parent.getName();
+        }
+
+        if (hasInputField()) {
+            return;
+        }
+
+        if (window.text != null) {
+            parentViewHolder.itemView.setVisibility(View.VISIBLE);
+            parentViewHolder.text1.setText(window.text);
+        }
+
+        if (parent != null && !TextUtils.isEmpty(parent.text2)) {
             parentViewHolder.text2.setVisibility(View.VISIBLE);
             parentViewHolder.text2.setText(parent.text2);
         }
 
-        if (parent.hasIcon() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+        if (parent != null && parent.hasIcon() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
             parentViewHolder.icon.setVisibility(View.VISIBLE);
-            if (parent.useIcon()) {
-                ImageFetcher.getInstance(this).loadImage(parent.getIcon(), parentViewHolder.icon);
-            } else {
-                parentViewHolder.icon.setImageDrawable(parent.getIconDrawable(this));
-            }
+            JiveItemViewLogic.icon(parentViewHolder.icon, parent, this::updateHeaderIcon);
+            parentViewHolder.icon.setOnClickListener(view -> ArtworkDialog.show(this, parent));
+        } else {
+            parentViewHolder.icon.setVisibility(View.GONE);
         }
 
-        if (parent.hasContextMenu()) {
-            parentViewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
-        }
+        parentViewHolder.contextMenuButtonHolder.setVisibility((parent != null && parent.hasContextMenu()) ? View.VISIBLE : View.GONE);
 
-    }
-
-    private void updateHeader(@NonNull Window window) {
-        if (!TextUtils.isEmpty(window.text)) {
-            updateHeader(window.text);
-        }
-        if (!TextUtils.isEmpty(window.textarea)) {
+        if (win != null && !TextUtils.isEmpty(win.textarea)) {
             TextView header = findViewById(R.id.sub_header);
-            header.setText(window.textarea);
+            header.setText(win.textarea);
             findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.sub_header_container).setVisibility(View.GONE);
         }
     }
 
-    private void applyWindow(@NonNull Window window) {
-        applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle);
-        updateHeader(window);
-
-        window.titleStyle = this.window.titleStyle;
-        window.text = this.window.text;
-        this.window = window;
+    private void updateHeaderIcon() {
+        JiveItemViewLogic.addLogo(parentViewHolder.icon, parent);
     }
 
 
-    void applyWindowStyle(Window.WindowStyle windowStyle) {
-        applyWindowStyle(windowStyle, getListLayout());
+    void updateWindowStyle(Window.WindowStyle windowStyle) {
+        updateWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : windowStyle, getListLayout());
     }
 
-    void applyWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
-        ArtworkListLayout listLayout = JiveItemView.listLayout(this, windowStyle);
+    void updateWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
+        ArtworkListLayout listLayout = JiveItemView.listLayout(getPreferredListLayout(), windowStyle);
         updateViewMenuItems(listLayout, windowStyle);
         if (windowStyle != window.windowStyle || listLayout != prevListLayout) {
             window.windowStyle = windowStyle;
+            if (windowStyle != Window.WindowStyle.TEXT_ONLY) {
+                parentViewHolder.icon.setVisibility(View.GONE);
+            }
             getItemAdapter().notifyDataSetChanged();
         }
         if (listLayout != prevListLayout) {
-            setupListView();
+            setupListView(getListView(), listLayout);
         }
     }
 
@@ -334,7 +349,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         Log.d("JiveItemListActivity", "Handshake complete");
         super.onEventMainThread(event);
         if (parent != null && parent.hasSubItems()) {
-            updateHeader(parent);
             getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
     }
@@ -375,15 +389,11 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
         final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
         if (window != null) {
-            // override server based icon_list style for playlist
-            if (window.windowStyle == Window.WindowStyle.ICON_LIST && parent != null && "playlist".equals(parent.getType())) {
+            // override server based icon_list style for playlist and search results
+            if ((window.windowStyle == Window.WindowStyle.ICON_LIST && isPlaylist()) || isGrouped()) {
                 window.windowStyle = Window.WindowStyle.PLAY_LIST;
             }
-            runOnUiThread(() -> applyWindow(window));
-        }
-
-        if (this.window.text == null && parent != null) {
-            runOnUiThread(() -> updateHeader(parent));
+            runOnUiThread(() -> updateHeader(window));
         }
 
         // The documentation says "Returned with value 1 if there was a network error accessing
@@ -521,7 +531,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
      */
     private void setTheme(ThemeManager.Theme theme) {
         if (getThemeId() != theme.mThemeId) {
-            new Preferences(this).setTheme(theme);
+            Squeezer.getPreferences().setTheme(theme);
 
             Intent intent = getIntent();
             finish();
@@ -534,15 +544,15 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     public void setPreferredListLayout(ArtworkListLayout listLayout) {
         ArtworkListLayout prevListLayout = getListLayout();
         saveListLayout(listLayout);
-        applyWindowStyle(window.windowStyle, prevListLayout);
+        updateWindowStyle(window.windowStyle, prevListLayout);
     }
 
     ArtworkListLayout getListLayout() {
-        return JiveItemView.listLayout(this, window.windowStyle);
+        return JiveItemView.listLayout(getPreferredListLayout(), window.windowStyle);
     }
 
     protected void saveListLayout(ArtworkListLayout listLayout) {
-        new Preferences(this).setAlbumListLayout(listLayout);
+        Squeezer.getPreferences().setAlbumListLayout(listLayout);
     }
 
     public int getSelectedIndex() {
@@ -648,7 +658,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             setMaxLines(0);
             return true;
         } else if (itemId == R.id.menu_item_flat_icons) {
-            new Preferences(this).useFlatIcons(!menuItemFlatIcons.isChecked());
+            Squeezer.getPreferences().useFlatIcons(!menuItemFlatIcons.isChecked());
             getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
             return true;
         }
@@ -656,14 +666,14 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
     private void setMaxLines(int maxLines) {
-        new Preferences(this).setMaxLines(getListLayout(), maxLines);
+        Squeezer.getPreferences().setMaxLines(getListLayout(), maxLines);
         updateViewMenuItems(getListLayout(), window.windowStyle);
         getListView().setAdapter(getListView().getAdapter());
     }
 
     private void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
         if (menuItemList != null) {
-            Preferences preferences = new Preferences(this);
+            Preferences preferences = Squeezer.getPreferences();
 
             (getThemeId() ==  R.style.AppTheme ? menuItemDark : menuItemLight).setChecked(true);
 

@@ -13,7 +13,6 @@ apply plugin: 'uk.org.ngo.gradle.whatsnew'
 apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: '*.jar')
     implementation 'androidx.palette:palette:1.0.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
@@ -63,8 +62,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 119
-        versionName "2.3.1"
+        versionCode 123
+        versionName "2.3.2"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

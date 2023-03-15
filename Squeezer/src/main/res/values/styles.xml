@@ -248,12 +248,12 @@
     <style name="SqueezerWidget.List.Item">
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:descendantFocusability">blocksDescendants</item>
         <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">32dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
         <item name="android:paddingBottom">4dp</item>
         <item name="android:orientation">horizontal</item>
     </style>
@@ -269,7 +269,7 @@
     <style name="SqueezerWidget.Grid.Item">
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:padding">8dp</item>
         <item name="android:descendantFocusability">blocksDescendants</item>
     </style>
@@ -294,12 +294,10 @@
     </style>
 
     <!-- Context menu button -->
-    <style name="SqueezerContextMenuButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+    <style name="SqueezerContextMenuButton" parent="ImageButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:contentDescription">""@string/app_name</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
         <item name="icon">@drawable/ic_menu_overflow</item>
     </style>
 

@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseConfirmDialog;
 
 public class PlaylistClearDialog extends BaseConfirmDialog {
@@ -48,7 +49,7 @@ public class PlaylistClearDialog extends BaseConfirmDialog {
     @Override
     protected void ok(boolean persist) {
         if (persist) {
-            new Preferences(getContext()).setClearPlaylistConfirmation(false);
+            Squeezer.getPreferences().setClearPlaylistConfirmation(false);
         }
         host.clearPlaylist();
     }

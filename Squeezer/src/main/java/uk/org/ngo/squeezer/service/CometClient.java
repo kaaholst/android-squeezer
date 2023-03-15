@@ -53,6 +53,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.AlertWindow;
 import uk.org.ngo.squeezer.model.DisplayMessage;
@@ -203,7 +204,7 @@ class CometClient extends BaseClient {
         Log.i(TAG, "startConnect()");
         // Start the background connect
         mBackgroundHandler.post(() -> {
-            final Preferences preferences = new Preferences(service);
+            final Preferences preferences = Squeezer.getPreferences();
             final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
             final String username = serverAddress.userName;
             final String password = serverAddress.password;
@@ -625,6 +626,7 @@ class CometClient extends BaseClient {
     public void cancelClientRequests(Object client) {
         for (Map.Entry<String, BrowseRequest<?>> entry : mPendingBrowseRequests.entrySet()) {
             if (entry.getValue().getCallback().getClient() == client) {
+                Log.d(TAG, "Cancel: " + entry.getValue().cmd);
                 mPendingBrowseRequests.remove(entry.getKey());
             }
         }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
 
 public class SqueezePlayer extends Handler {
     private static final int MSG_STOP = 0;
@@ -47,7 +48,7 @@ public class SqueezePlayer extends Handler {
     }
 
     public static SqueezePlayer maybeStartControllingSqueezePlayer(AppCompatActivity context) {
-        Preferences preferences = new Preferences(context);
+        Preferences preferences = Squeezer.getPreferences();
         Preferences.ServerAddress serverAddress = preferences.getServerAddress();
 
         if (hasSqueezePlayer(context) && preferences.controlSqueezePlayer(serverAddress)) {

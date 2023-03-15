@@ -26,6 +26,7 @@ import androidx.annotation.StyleRes;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 
 /**
@@ -109,8 +110,7 @@ public class ThemeManager {
      */
     private int getThemePreference(Activity activity) {
         try {
-            Theme theme = Theme
-                    .valueOf(new Preferences(activity).getTheme());
+            Theme theme = Theme.valueOf(Squeezer.getPreferences().getTheme());
             return theme.mThemeId;
         } catch (Exception e) {
             return getDefaultTheme().mThemeId;

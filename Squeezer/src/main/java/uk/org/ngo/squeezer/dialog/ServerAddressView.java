@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.util.ScanNetworkTask;
 
@@ -91,75 +92,77 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private void initialize() {
         inflate(getContext(), R.layout.server_address_view, this);
         if (!isInEditMode()) {
-            preferences = new Preferences(getContext());
-            serverAddress = preferences.getServerAddress();
-            if (serverAddress.localAddress() == null) {
-                Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
-                if (cliServerAddress.localAddress() != null) {
-                    serverAddress.setAddress(cliServerAddress.localHost());
-                }
-            }
-
-            squeezeNetworkButton = findViewById(R.id.squeezeNetwork);
-            localServerButton = findViewById(R.id.squeezeServer);
-
-            serverAddressEditText = findViewById(R.id.server_address);
-            userNameEditText = findViewById(R.id.username);
-            passwordEditText = findViewById(R.id.password);
-
-            wakeOnLan = findViewById(R.id.wol);
-            wakeOnLan.setOnCheckedChangeListener((compoundButton, b) -> macLayout.setVisibility(b ? VISIBLE : GONE));
-            macLayout = findViewById(R.id.mac_til);
-            macEditText = findViewById(R.id.mac);
-            macLayout.setEndIconOnClickListener(view -> {
-                FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
-                InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
-            });
-            macLayout.setErrorIconOnClickListener(view -> {
-                FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
-                InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
-            });
-            macEditText.setOnFocusChangeListener((view, b) -> {
-                if (!b) {
-                    checkMac();
-                }
-            });
-            macEditText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    if (macDirty) {
-                        macLayout.setError(Util.validateMac(editable.toString()) ? null : getResources().getString(R.string.settings_invalid_MAC));
+            Squeezer.getPreferences(prefs -> {
+                preferences = prefs;
+                serverAddress = preferences.getServerAddress();
+                if (serverAddress.localAddress() == null) {
+                    Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
+                    if (cliServerAddress.localAddress() != null) {
+                        serverAddress.setAddress(cliServerAddress.localHost());
                     }
                 }
+
+                squeezeNetworkButton = findViewById(R.id.squeezeNetwork);
+                localServerButton = findViewById(R.id.squeezeServer);
+
+                serverAddressEditText = findViewById(R.id.server_address);
+                userNameEditText = findViewById(R.id.username);
+                passwordEditText = findViewById(R.id.password);
+
+                wakeOnLan = findViewById(R.id.wol);
+                wakeOnLan.setOnCheckedChangeListener((compoundButton, b) -> macLayout.setVisibility(b ? VISIBLE : GONE));
+                macLayout = findViewById(R.id.mac_til);
+                macEditText = findViewById(R.id.mac);
+                macLayout.setEndIconOnClickListener(view -> {
+                    FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
+                    InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
+                });
+                macLayout.setErrorIconOnClickListener(view -> {
+                    FragmentManager fragmentManager = ((AppCompatActivity) getContext()).getSupportFragmentManager();
+                    InfoDialog.show(fragmentManager, R.string.settings_MAC_label, R.string.settings_MAC_info);
+                });
+                macEditText.setOnFocusChangeListener((view, b) -> {
+                    if (!b) {
+                        checkMac();
+                    }
+                });
+                macEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (macDirty) {
+                            macLayout.setError(Util.validateMac(editable.toString()) ? null : getResources().getString(R.string.settings_invalid_MAC));
+                        }
+                    }
+                });
+
+                final OnClickListener onNetworkSelected = view -> setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
+                squeezeNetworkButton.setOnClickListener(onNetworkSelected);
+                localServerButton.setOnClickListener(onNetworkSelected);
+
+                scanProgress = findViewById(R.id.scan_progress);
+                serverName_til = findViewById(R.id.server_name_til);
+                serverName = findViewById(R.id.server_name);
+
+                // Set up the servers spinner.
+                serversSpinner_til = findViewById(R.id.found_servers_til);
+                serversSpinner = findViewById(R.id.found_servers);
+                serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item));
+
+                setSqueezeNetwork(serverAddress.squeezeNetwork);
+                setServerAddress(serverAddress.localAddress());
+
+                startNetworkScan();
+                startNetWorkScan = v -> startNetworkScan();
+                serversSpinner_til.setStartIconOnClickListener(startNetWorkScan);
             });
-
-            final OnClickListener onNetworkSelected = view -> setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
-            squeezeNetworkButton.setOnClickListener(onNetworkSelected);
-            localServerButton.setOnClickListener(onNetworkSelected);
-
-            scanProgress = findViewById(R.id.scan_progress);
-            serverName_til = findViewById(R.id.server_name_til);
-            serverName = findViewById(R.id.server_name);
-
-            // Set up the servers spinner.
-            serversSpinner_til = findViewById(R.id.found_servers_til);
-            serversSpinner = findViewById(R.id.found_servers);
-            serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item));
-
-            setSqueezeNetwork(serverAddress.squeezeNetwork);
-            setServerAddress(serverAddress.localAddress());
-
-            startNetworkScan();
-            startNetWorkScan = v -> startNetworkScan();
-            serversSpinner_til.setStartIconOnClickListener(startNetWorkScan);
         }
     }
 

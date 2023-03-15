@@ -40,6 +40,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistClearDialog;
@@ -154,7 +155,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_item_playlist_clear) {
-            if (new Preferences(this).isClearPlaylistConfirmation()) {
+            if (Squeezer.getPreferences().isClearPlaylistConfirmation()) {
                 PlaylistClearDialog.show(this);
             } else {
                 clearPlaylist();

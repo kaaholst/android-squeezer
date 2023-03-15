@@ -32,6 +32,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 
 public class AboutDialog extends DialogFragment {
     @NonNull
@@ -61,7 +62,7 @@ public class AboutDialog extends DialogFragment {
         builder.setNeutralButton(R.string.changelog_full_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ChangeLogDialog changeLog = new ChangeLogDialog(getActivity());
+                ChangeLogDialog changeLog = new ChangeLogDialog(getActivity(), Squeezer.getPreferences().getSharedPreferences());
                 changeLog.getThemedFullLogDialog().show();
             }
         });

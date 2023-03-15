@@ -12,13 +12,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 
 public class CuePanelSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Preferences preferences = new Preferences(requireActivity());
+        Preferences preferences = Squeezer.getPreferences();
         View view = requireActivity().getLayoutInflater().inflate(R.layout.cue_panel_settings, null);
         TextView backward = (TextView) view.findViewById(R.id.backward_jump);
         TextView forward = (TextView) view.findViewById(R.id.forward_jump);

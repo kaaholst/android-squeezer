@@ -68,15 +68,16 @@ import java.util.Map;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.framework.ContextMenu;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
-import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -106,7 +107,6 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
     private static final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
-    private JiveItemViewLogic pluginViewDelegate;
 
     @Nullable
     private ISqueezeService mService = null;
@@ -132,7 +132,9 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
     private MenuItem menuItemDisconnect;
 
+    private JiveItem topBarSearch;
     private JiveItem globalSearch;
+    private JiveItem myMusicSearch;
     private MenuItem menuItemSearch;
 
     private MenuItem menuItemPlaylist;
@@ -202,17 +204,18 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
     @UiThread
     private void showConnectingDialog() {
         if (connectingDialog == null || !connectingDialog.isShowing()) {
-            Preferences preferences = new Preferences(mActivity);
-            Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+            Squeezer.getPreferences(preferences -> {
+                Preferences.ServerAddress serverAddress = preferences.getServerAddress();
 
-            final View view = LayoutInflater.from(mActivity).inflate(R.layout.connecting, null);
-            final TextView connectingTo = view.findViewById(R.id.connecting_to);
-            connectingTo.setText(getString(R.string.connecting_to_text, serverAddress.serverName()));
+                final View view = LayoutInflater.from(mActivity).inflate(R.layout.connecting, null);
+                final TextView connectingTo = view.findViewById(R.id.connecting_to);
+                connectingTo.setText(getString(R.string.connecting_to_text, serverAddress.serverName()));
 
-            connectingDialog = new MaterialAlertDialogBuilder(mActivity)
-                    .setView(view)
-                    .setCancelable(false)
-                    .show();
+                connectingDialog = new MaterialAlertDialogBuilder(mActivity)
+                        .setView(view)
+                        .setCancelable(false)
+                        .show();
+            });
         }
     }
 
@@ -247,7 +250,6 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mActivity = (BaseActivity) context;
-        pluginViewDelegate = new JiveItemViewLogic(mActivity);
     }
 
     @Override
@@ -273,7 +275,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             repeatButton = v.findViewById(R.id.repeat);
             currentTime = v.findViewById(R.id.currenttime);
             totalTime = v.findViewById(R.id.totaltime);
-            showRemainingTime = new Preferences(mActivity).isShowRemainingTime();
+            showRemainingTime = Squeezer.getPreferences().isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
             playlistButton = v.findViewById(R.id.playlist);
 
@@ -282,7 +284,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
                 CurrentPlaylistItem currentSong = getCurrentSong();
                 // This extra check is if user pressed the button before visibility is set to GONE
                 if (currentSong != null) {
-                    pluginViewDelegate.showContextMenu(viewHolder, currentSong);
+                    ContextMenu.show(mActivity, currentSong);
                 }
             });
             btnContextMenu = viewHolder.contextMenuButtonHolder;
@@ -325,9 +327,9 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
             trackText.setOnClickListener(v13 -> {
                 CurrentPlaylistItem song = getCurrentSong();
-                if (song != null) {
-                    globalSearch.input.initialText = song.getName();
-                    JiveItemListActivity.show(mActivity, globalSearch, globalSearch.goAction);
+                if (song != null && topBarSearch != null) {
+                    topBarSearch.input.initialText = song.getName();
+                    JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
                 }
             });
 
@@ -363,7 +365,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
             totalTime.setOnClickListener(view -> {
                 showRemainingTime = !showRemainingTime;
-                new Preferences(mActivity).setShowRemainingTime(showRemainingTime);
+                Squeezer.getPreferences().setShowRemainingTime(showRemainingTime);
                 PlayerState playerState = getPlayerState();
                 if (playerState != null) {
                     updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
@@ -754,8 +756,6 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             mRegisteredCallbacks = false;
         }
 
-        pluginViewDelegate.resetContextMenu();
-
         super.onPause();
     }
 
@@ -804,7 +804,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
         // These are all set at the same time, so one check is sufficient
         if (menuItemDisconnect != null) {
             // Set visibility and enabled state of menu items that are not player-specific.
-            menuItemSearch.setVisible(globalSearch != null);
+            menuItemSearch.setVisible(topBarSearch != null);
             menuItemDisconnect.setVisible(connected);
 
             // Set visibility and enabled state of menu items that are player-specific and
@@ -844,8 +844,8 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
         int itemId = item.getItemId();
         if (itemId == R.id.menu_item_search) {
-            globalSearch.input.initialText = "";
-            JiveItemListActivity.show(mActivity, globalSearch, globalSearch.goAction);
+            topBarSearch.input.initialText = "";
+            JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
             return true;
         } else if (itemId == R.id.menu_item_playlist) {
             CurrentPlaylistActivity.show(mActivity);
@@ -878,19 +878,19 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             return;
         }
 
-        Preferences preferences = new Preferences(mActivity);
+        Squeezer.getPreferences(preferences -> {
+            if (!preferences.hasServerConfig()) {
+                // Set up a server connection, if it is not present
+                ConnectActivity.show(mActivity);
+                return;
+            }
 
-        if (!preferences.hasServerConfig()) {
-            // Set up a server connection, if it is not present
-            ConnectActivity.show(mActivity);
-            return;
-        }
-
-        if (isConnectInProgress()) {
-            Log.v(TAG, "Connection is already in progress, connecting aborted");
-            return;
-        }
-        mService.startConnect(autoConnect);
+            if (isConnectInProgress()) {
+                Log.v(TAG, "Connection is already in progress, connecting aborted");
+                return;
+            }
+            mService.startConnect(autoConnect);
+        });
     }
 
     private final CallStatePermissionLauncher requestCallStateLauncher = new CallStatePermissionLauncher(this);
@@ -975,7 +975,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
         updateUiFromPlayerState(playerState);
 
-        requestCallStateLauncher.trySetAction(new Preferences(mActivity).getActionOnIncomingCall());
+        requestCallStateLauncher.trySetAction(Squeezer.getPreferences().getActionOnIncomingCall());
     }
 
     @MainThread
@@ -1018,15 +1018,19 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HomeMenuEvent event) {
-        globalSearch = null;
+        topBarSearch = globalSearch = myMusicSearch = null;
         for (JiveItem menuItem : event.menuItems) {
             if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
                 globalSearch = menuItem;
-                break;
+            }
+            if ("myMusicSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
+                myMusicSearch = menuItem;
+                myMusicSearch.input = new Input();
             }
         }
+        topBarSearch = globalSearch;
         if (menuItemSearch != null) {
-            menuItemSearch.setVisible(globalSearch != null);
+            menuItemSearch.setVisible(topBarSearch != null);
         }
     }
 

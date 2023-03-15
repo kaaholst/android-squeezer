@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.model;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
@@ -43,19 +42,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.util.FluentHashMap;
 
 
 public class JiveItem extends Item {
-    public static final JiveItem HOME = new JiveItem("home", null, R.string.HOME, 1, Window.WindowStyle.HOME_MENU);
-    public static final JiveItem CURRENT_PLAYLIST = new JiveItem("status", null, R.string.menu_item_playlist, 1, Window.WindowStyle.PLAY_LIST);
-    public static final JiveItem EXTRAS = new JiveItem("extras", "home", R.string.EXTRAS, 50, Window.WindowStyle.HOME_MENU);
-    public static final JiveItem SETTINGS = new JiveItem("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.HOME_MENU);
-    public static final JiveItem ADVANCED_SETTINGS = new JiveItem("advancedSettings", "settings", R.string.ADVANCED_SETTINGS, 105, Window.WindowStyle.TEXT_ONLY);
-    public static final JiveItem ARCHIVE = new JiveItem("archiveNode", "home", R.string.ARCHIVE_NODE, 10, Window.WindowStyle.HOME_MENU);
+    public static final JiveItem HOME = new JiveItem(record("home", null, Squeezer.getInstance().getString(R.string.HOME), 1), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem CURRENT_PLAYLIST = new JiveItem(record("status", null, Squeezer.getInstance().getString(R.string.menu_item_playlist), 1), Window.WindowStyle.PLAY_LIST);
+    public static final JiveItem EXTRAS = new JiveItem(record("extras", "home", Squeezer.getInstance().getString(R.string.EXTRAS), 50), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem SETTINGS = new JiveItem(record("settings", "home", Squeezer.getInstance().getString(R.string.SETTINGS), 1005), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem ADVANCED_SETTINGS = new JiveItem(record("advancedSettings", "settings", Squeezer.getInstance().getString(R.string.ADVANCED_SETTINGS), 105), Window.WindowStyle.TEXT_ONLY);
+    public static final JiveItem ARCHIVE = new JiveItem(record("archiveNode", "home", Squeezer.getInstance().getString(R.string.ARCHIVE_NODE), 10), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem DOWNLOAD = new JiveItem(record("downloadItem", R.string.DOWNLOAD));
+    public static final JiveItem RANDOM_PLAY = new JiveItem(record("randomPlay",  R.string.PLAY_RANDOM_FOLDER));
+    public static final JiveItem PLAY_NOW = new JiveItem(record("playNow",  R.string.PLAY_NOW));
+    public static final JiveItem ADD_TO_END = new JiveItem(record("playAdd",  R.string.ADD_TO_END));
+    public static final JiveItem PLAY_NEXT = new JiveItem(record("playNext",  R.string.PLAY_NEXT));
+    public static final JiveItem MORE = new JiveItem(record("more",  R.string.MORE));
 
     /**
      * Information that will be requested about songs.
@@ -72,7 +77,7 @@ public class JiveItem extends Item {
      */
     private static final String SONG_TAGS = "aCjJKltux";
 
-    public static final Creator<JiveItem> CREATOR = new Creator<JiveItem>() {
+    public static final Creator<JiveItem> CREATOR = new Creator<>() {
         @Override
         public JiveItem[] newArray(int size) {
             return new JiveItem[size];
@@ -84,25 +89,25 @@ public class JiveItem extends Item {
         }
     };
 
-    private JiveItem(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
-        this(record(id, node, Squeezer.getContext().getString(text), weight));
+    private JiveItem(Map<String, Object> record, Window.WindowStyle windowStyle) {
+        this(record);
         window = new Window();
         window.windowStyle = windowStyle;
     }
 
-    public JiveItem(String id, String node, String text, int weight, Window.WindowStyle windowStyle) {
-        this(record(id, node, text, weight));
-        window = new Window();
-        window.windowStyle = windowStyle;
+    private static Map<String, Object> record(String id, @StringRes int text) {
+        return new FluentHashMap<String, Object>()
+                .with("id", id)
+                .with("node", id)
+                .with("name", Squeezer.getInstance().getString(text));
     }
 
     private static Map<String, Object> record(String id, String node, String text, int weight) {
-        Map<String, Object> record = new HashMap<>();
-        record.put("id", id);
-        record.put("node", node);
-        record.put("name", text);
-        record.put("weight", weight);
-        return record;
+        return new FluentHashMap<String, Object>()
+                .with("id", id)
+                .with("node", node)
+                .with("name", text)
+                .with("weight", weight);
     }
 
 
@@ -199,7 +204,7 @@ public class JiveItem extends Item {
         @DrawableRes Integer itemIcon = getItemIcon();
         Drawable icon = AppCompatResources.getDrawable(context, itemIcon != null ? itemIcon : defaultIcon);
 
-        if (new Preferences(context).useFlatIcons()) {
+        if (Squeezer.getPreferences().useFlatIcons()) {
             return icon;
         }
 
@@ -414,6 +419,7 @@ public class JiveItem extends Item {
         textkey = source.readString();
         icon = Uri.parse(source.readString());
         iconStyle = source.readString();
+        extid = source.readString();
         node = source.readString();
         weight = source.readInt();
         type = source.readString();
@@ -451,6 +457,7 @@ public class JiveItem extends Item {
         dest.writeString(textkey);
         dest.writeString(icon.toString());
         dest.writeString(iconStyle);
+        dest.writeString(extid);
         dest.writeString(node);
         dest.writeInt(weight);
         dest.writeString(type);

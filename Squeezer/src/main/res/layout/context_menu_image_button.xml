@@ -29,15 +29,6 @@ limitations under the License.
         android:id="@+id/context_menu_button"
         />
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loading_progress"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_centerInParent="true"
-        style="@style/Widget.MaterialComponents.CircularProgressIndicator.Small"
-        android:indeterminate="true"
-        android:visibility="gone"/>
-
     <CheckBox
         android:id="@+id/checkbox"
         android:layout_width="wrap_content"
@@ -49,6 +40,7 @@ limitations under the License.
         android:id="@+id/radio"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_margin="8dp"
         android:clickable="false"
         android:visibility="gone"/>
 

@@ -3,16 +3,16 @@ package uk.org.ngo.squeezer.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.service.HomeMenuHandling;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class CustomJiveItemHandling {
 
     public int ADJUSTED_CUSTOM_SHORTCUT_WEIGHT = 2000;
-    final JiveItemListActivity mActivity;
+    final ItemListActivity mActivity;
 
-    public CustomJiveItemHandling(JiveItemListActivity activity) {
+    public CustomJiveItemHandling(ItemListActivity activity) {
         mActivity = activity;
     }
 

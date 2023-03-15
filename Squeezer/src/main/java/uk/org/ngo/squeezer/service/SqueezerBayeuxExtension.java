@@ -22,8 +22,8 @@ class SqueezerBayeuxExtension extends ClientSession.Extension.Adapter {
 
     private Map<String, String> initExt() {
         Map<String, String> ext = new HashMap<>();
-        Context context = Squeezer.getContext();
-        Preferences preferences = new Preferences(context);
+        Context context = Squeezer.getInstance();
+        Preferences preferences = Squeezer.getPreferences();
         ext.put("mac", getMacId(preferences));
         ext.put("rev", getRevision(context));
         ext.put("uuid", getUuid(preferences));
@@ -40,11 +40,11 @@ class SqueezerBayeuxExtension extends ClientSession.Extension.Adapter {
     }
 
     public static String getRevision() {
-        return getRevision(Squeezer.getContext());
+        return getRevision(Squeezer.getInstance());
     }
 
     private static String getRevision(Context context) {
-        PackageManager pm = Squeezer.getContext().getPackageManager();
+        PackageManager pm = Squeezer.getInstance().getPackageManager();
         String rev;
         try {
             PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), 0);

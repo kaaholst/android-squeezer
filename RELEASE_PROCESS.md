@@ -4,7 +4,7 @@
 
 The name of the branch is release-x.y.z, according to the release number.
 
-    git checkout -b release-x.y.z develop
+    git switch -c release-x.y.z develop
 
 ## Make 1-n releases from the branch
 
