@@ -4,6 +4,9 @@
     android:viewportHeight="200"
     android:viewportWidth="200"
     xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:fillColor="#000"
+        android:pathData="M100,100m-100,0a100,100 0,1 1,200 0a100,100 0,1 1,-200 0z" />
     <group
         android:scaleX="0.65"
         android:scaleY="0.7"
