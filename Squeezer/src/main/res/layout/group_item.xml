@@ -44,7 +44,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/icon"
-        android:layout_marginStart="8dp"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
         tools:text="text1"/>
 
@@ -55,7 +54,6 @@
         app:layout_constraintTop_toBottomOf="@id/text1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/icon"
-        android:layout_marginStart="8dp"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
         tools:text="text2"/>
 

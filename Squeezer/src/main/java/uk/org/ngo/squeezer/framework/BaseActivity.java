@@ -99,6 +99,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     /** Whether volume keys shall be handled. */
     private boolean handleVolumeKeys = true;
 
+    /** If we handle volume keys, whether to notify to volume panel. */
+    private boolean notifyVolumePanel = true;
+
     /** True if bindService() completed. */
     private boolean boundService = false;
 
@@ -336,8 +339,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @CallSuper
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, getService())) {
-            ISqueezeService.VolumeInfo volume = requireService().getVolume();
-            volumePanel.postVolumeChanged(volume.muted, volume.volume, volume.name);
+            if (notifyVolumePanel) {
+                ISqueezeService.VolumeInfo volume = requireService().getVolume();
+                volumePanel.postVolumeChanged(volume.muted, volume.volume, volume.name);
+            }
 
             return true;
         }
@@ -353,6 +358,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     public void setHandleVolumeKeys(boolean handleVolumeKeys) {
         this.handleVolumeKeys = handleVolumeKeys;
+    }
+
+    public void setNotifyVolumePanel(boolean notifyVolumePanel) {
+        this.notifyVolumePanel = notifyVolumePanel;
     }
 
     private static final int INACTIVITY_TIME = 5 * 60 * 1000;

@@ -136,6 +136,9 @@ public final class Preferences {
     private static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
 
     // Preferred album list layout.
+    private static final String KEY_LARGE_ARTWORK = "squeezer.large_artwork";
+
+    // Preferred album list layout.
     private static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
 
     // Preferred home menu layout.
@@ -461,6 +464,14 @@ public final class Preferences {
         }
 
         editor.apply();
+    }
+
+    public boolean isLargeArtwork() {
+        return sharedPreferences.getBoolean(KEY_LARGE_ARTWORK, true);
+    }
+
+    public void setLargeArtwork(boolean largeArtwork) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_LARGE_ARTWORK, largeArtwork).apply();
     }
 
     public boolean isBackgroundVolume() {

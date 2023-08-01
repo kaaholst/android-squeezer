@@ -136,8 +136,6 @@
     <!-- Widget appearance. Apply these using the "style" attribute. -->
     <style name="SqueezerWidget"/>
 
-    <style name="SqueezerWidget.NowPlaying"/>
-
     <style name="SqueezerWidget.SingleLine">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
@@ -165,8 +163,10 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ArtistName</item>
     </style>
 
+    <style name="SqueezerWidget.NowPlaying"/>
+
     <style name="SqueezerWidget.NowPlaying.Timestamp">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:text">0:00</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.Tertiary</item>
@@ -216,29 +216,8 @@
         <item name="icon">@drawable/ic_repeat_white</item>
     </style>
 
-    <style name="SqueezerWidget.MediaButton.Volume" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="icon">@drawable/ic_volume_up</item>
-        <item name="android:textAppearance">?android:textAppearanceSmall</item>
-        <item name="android:text">@string/menu_item_volume</item>
-        <item name="android:textAlignment">textStart</item>
-    </style>
-
-    <style name="SqueezerWidget.MediaButton.Playlist" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="icon">@drawable/ic_action_playlist</item>
-        <item name="iconGravity">end</item>
-        <item name="android:textAppearance">?android:textAppearanceSmall</item>
-        <item name="android:text">@string/menu_item_playlist</item>
-        <item name="android:textAlignment">textEnd</item>
-    </style>
-
     <!-- Cover art on the Now Playing widget -->
-    <style name="SqueezerWidget.CoverArt">
+    <style name="SqueezerWidget.NowPlaying.CoverArt">
         <item name="android:layout_marginStart">40dp</item>
         <item name="android:layout_marginEnd">40dp</item>
     </style>
