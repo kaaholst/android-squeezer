@@ -77,8 +77,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/albumname"
-            app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintStart_toStartOf="@id/albumname"
+            app:layout_constraintEnd_toStartOf="@+id/context_menu"
             style="@style/SqueezerWidget.NowPlaying.ArtistName" />
 
         <include
