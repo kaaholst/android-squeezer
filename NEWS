@@ -1,3 +1,21 @@
+2.3.3
+=====
+
+*   Always on volume control on "Now Playing" screen.
+
+*   Move the button for the current playlist on the "Now Playing" screen to
+    the top bar, so it's always the same place.
+
+*   Search results are populated when expanded. This fixes an issue where a
+    new Pandora station would be created.
+
+*   Support rich content (images, links, etc) from LMS
+
+*   Support weblinks (display eg. a PDF booklet)
+
+*   Don't show context menu in a destroyed activity
+
+
 2.3.2
 =====
 
