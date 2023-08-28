@@ -32,7 +32,6 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.widget.VolumeController;
 
 
 /**
@@ -67,7 +66,7 @@ public class VolumePanel extends Handler {
 
         view.setOnClickListener(v -> {
             dismiss();
-            VolumeController.show(activity);
+            NowPlayingActivity.show(activity);
         });
         startIcon = view.findViewById(R.id.slider_down_icon);
         seekbar = view.findViewById(R.id.slider);

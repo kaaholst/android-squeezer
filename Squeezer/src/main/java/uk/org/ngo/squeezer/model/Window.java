@@ -38,6 +38,7 @@ public class Window implements Parcelable {
     public String titleStyle;
     public WindowStyle windowStyle;
     public String help;
+    public String html;
     public String windowId;
 
     public Window() {
@@ -51,6 +52,7 @@ public class Window implements Parcelable {
         titleStyle = in.readString();
         windowStyle = WindowStyle.valueOf(in.readString());
         help = in.readString();
+        html = in.readString();
         windowId = in.readString();
     }
 
@@ -63,6 +65,7 @@ public class Window implements Parcelable {
         dest.writeString(titleStyle);
         dest.writeString(windowStyle.name());
         dest.writeString(help);
+        dest.writeString(html);
         dest.writeString(windowId);
     }
 

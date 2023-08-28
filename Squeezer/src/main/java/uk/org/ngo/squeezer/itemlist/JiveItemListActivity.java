@@ -26,12 +26,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -43,6 +45,8 @@ import androidx.core.view.MenuCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.webkit.WebSettingsCompat;
+import androidx.webkit.WebViewFeature;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -281,12 +285,20 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
         parentViewHolder.contextMenuButtonHolder.setVisibility((parent != null && parent.hasContextMenu()) ? View.VISIBLE : View.GONE);
 
-        if (win != null && !TextUtils.isEmpty(win.textarea)) {
+        findViewById(R.id.sub_header_container).setVisibility(View.GONE);
+        findViewById(R.id.content).setVisibility(View.GONE);
+        if (win != null && !TextUtils.isEmpty(win.html)) {
+            WebView header = findViewById(R.id.content);
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(header.getSettings(), true);
+            }
+            String encoded = Base64.encodeToString(win.html.getBytes(), Base64.NO_PADDING);
+            header.loadData(encoded, "text/html", "base64");
+            findViewById(R.id.content).setVisibility(View.VISIBLE);
+        } else if (win != null && !TextUtils.isEmpty(win.textarea)) {
             TextView header = findViewById(R.id.sub_header);
             header.setText(win.textarea);
             findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.sub_header_container).setVisibility(View.GONE);
         }
     }
 

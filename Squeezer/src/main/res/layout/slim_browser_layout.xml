@@ -88,6 +88,17 @@
             android:textAppearance="@style/SqueezerTextAppearance.ItemList.SubHeader"/>
     </ScrollView>
 
+    <WebView
+        android:id="@+id/content"
+        android:visibility="gone"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="4dp"/>
+
     <LinearLayout
         android:id="@+id/input_view"
         android:layout_width="fill_parent"

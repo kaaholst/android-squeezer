@@ -14,23 +14,38 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/volume_controller"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="2dp"
+    app:contentPadding="4dp">
 
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
     >
 
+    <Button
+        android:id="@+id/down"
+        style="@style/ImageButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:icon="@drawable/ic_action_down"/>
+
     <TextView
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/label"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
         tools:text="Player"/>
 
@@ -40,21 +55,23 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:icon="@drawable/ic_settings"/>
 
     <uk.org.ngo.squeezer.widget.Croller
         android:id="@+id/level"
-        android:layout_width="240dp"
-        android:layout_height="240dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/label"
+        app:layout_constraintBottom_toTopOf="@id/muteToggle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:back_circle_color="?attr/volume_panel_back_circle_color"
         app:indicator_color="?attr/colorPrimary"
         app:is_continuous="false"
         app:label=""
+        tools:label="50"
         app:main_circle_color="?attr/colorSurface"
         app:min="0"
         app:max="100"
@@ -62,29 +79,28 @@
         app:progress_secondary_color="?attr/colorOnSurface"
         app:start_offset="45" />
 
-    <LinearLayout
-        android:id="@+id/label_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/level"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal">
 
         <Button style="@style/ImageButton"
             android:id="@+id/volume_down"
             android:layout_width="36dp"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/muteToggle"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:icon="@drawable/ic_volume_down"/>
 
         <CheckBox
-            android:id="@+id/mute"
+            android:id="@+id/muteToggle"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:paddingLeft="0dp"
+            app:layout_constraintTop_toBottomOf="@id/level"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/volume_down"
+            app:layout_constraintEnd_toStartOf="@id/volume_up"
+            android:layout_marginHorizontal="8dp"
+            android:paddingStart="0dp"
             android:textAppearance="@style/SqueezerTextAppearance.Small"
             android:text="@string/mute"/>
 
@@ -92,8 +108,10 @@
             android:id="@+id/volume_up"
             android:layout_width="36dp"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/muteToggle"
+            app:layout_constraintEnd_toEndOf="parent"
             app:icon="@drawable/ic_volume_up"/>
-    </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

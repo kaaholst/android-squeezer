@@ -32,7 +32,7 @@ public class PlaylistChanged {
 
     @Override
     public String toString() {
-        return "PlayStatusChanged{" +
+        return "PlaylistChanged{" +
                 "player=" + player +
                 '}';
     }

@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -50,12 +51,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
+import com.sdsmdg.harjot.crollerTest.Croller;
+import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -67,6 +72,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
+import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ContextMenu;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
@@ -91,6 +97,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
@@ -100,9 +107,8 @@ import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
-import uk.org.ngo.squeezer.widget.VolumeController;
 
-public class NowPlayingFragment extends Fragment implements CallStateDialog.CallStateDialogHost {
+public class NowPlayingFragment extends Fragment  implements OnCrollerChangeListener, CallStateDialog.CallStateDialogHost {
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -171,9 +177,15 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
     // Updating the seekbar
     private boolean updateSeekBar = true;
 
-    private Button volumeButton;
+    // For the large artwork layout
+    private MaterialButton muteButton;
+    private Slider volumeBar;
 
-    private Button playlistButton;
+    // For the small artwork layout
+    private CheckBox muteToggle;
+    private Croller volumeWheel;
+    private int currentProgress = 0;
+    private boolean trackingTouch;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -266,8 +278,10 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
         View v;
 
         mFullHeightLayout = (container.getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT);
+        Preferences preferences = Squeezer.getPreferences();
+        boolean largeArtwork = preferences.isLargeArtwork();
         if (mFullHeightLayout) {
-            v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
+            v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
 
             artistText = v.findViewById(R.id.artistname);
             albumText = v.findViewById(R.id.albumname);
@@ -275,9 +289,18 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             repeatButton = v.findViewById(R.id.repeat);
             currentTime = v.findViewById(R.id.currenttime);
             totalTime = v.findViewById(R.id.totaltime);
-            showRemainingTime = Squeezer.getPreferences().isShowRemainingTime();
+            showRemainingTime = preferences.isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
-            playlistButton = v.findViewById(R.id.playlist);
+            if (largeArtwork) {
+                albumArt = v.findViewById(R.id.album);
+                v.findViewById(R.id.icon).setVisibility(View.GONE);
+                muteButton = v.findViewById(R.id.muteButton);
+                volumeBar = v.findViewById(R.id.volume_slider);
+            } else {
+                albumArt = v.findViewById(R.id.icon);
+                volumeWheel = v.findViewById(R.id.level);
+                muteToggle = v.findViewById(R.id.muteToggle);
+            }
 
             final ViewParamItemView<JiveItem> viewHolder = new ViewParamItemView<>(mActivity, v);
             viewHolder.contextMenuButton.setOnClickListener(view -> {
@@ -291,24 +314,22 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
+            albumArt = v.findViewById(R.id.album);
             mProgressBar = v.findViewById(R.id.progressbar);
             artistAlbumText = v.findViewById(R.id.artistalbumname);
         }
 
-        albumArt = v.findViewById(R.id.album);
         trackText = v.findViewById(R.id.trackname);
         playPauseButton = v.findViewById(R.id.pause);
 
         nextButton = v.findViewById(R.id.next);
         prevButton = v.findViewById(R.id.prev);
-        volumeButton = v.findViewById(R.id.volume);
 
         // Marquee effect on TextViews only works if they're focused.
         trackText.requestFocus();
 
         playPauseButton.setOnClickListener(view -> requireService().togglePausePlay());
 
-        volumeButton.setOnClickListener(view -> VolumeController.show(mActivity));
         nextButton.setOnClickListener(view -> requireService().nextTrack());
         prevButton.setOnClickListener(view -> requireService().previousTrack());
 
@@ -342,7 +363,8 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
-                    if (mService != null) new CuePanel(requireActivity(), albumArt, mService);
+                    View cueParent = (largeArtwork ? albumArt : v);
+                    if (mService != null) new CuePanel(requireActivity(), cueParent, mService);
                     return true;
                 }
             });
@@ -354,7 +376,54 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
 
             repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
 
-            playlistButton.setOnClickListener(view -> CurrentPlaylistActivity.show(mActivity));
+            mActivity.setNotifyVolumePanel(false);
+            if (largeArtwork) {
+                v.findViewById(R.id.volume).setOnClickListener(view -> {
+                    preferences.setLargeArtwork(false);
+                    mActivity.recreate();
+
+                });
+
+                muteButton.setOnClickListener(view -> requireService().toggleMute());
+                volumeBar.clearOnSliderTouchListeners();
+                volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                    @Override
+                    @SuppressLint("RestrictedApi")
+                    public void onStartTrackingTouch(@NonNull Slider slider) {
+                        trackingTouch = true;
+                    }
+
+                    @Override
+                    @SuppressLint("RestrictedApi")
+                    public void onStopTrackingTouch(@NonNull Slider slider) {
+                        trackingTouch = false;
+                    }
+                });
+                volumeBar.clearOnChangeListeners();
+                volumeBar.addOnChangeListener((slider, value, fromUser) -> {
+                    if (fromUser) {
+                        requireService().setVolumeTo((int) value);
+                    }
+                });
+            } else {
+                v.findViewById(R.id.down).setOnClickListener(view -> {
+                    preferences.setLargeArtwork(true);
+                    mActivity.recreate();
+                });
+
+                volumeWheel.setOnCrollerChangeListener(this);
+                muteToggle.setOnClickListener(view -> requireService().toggleMute());
+
+                v.findViewById(R.id.settings).setOnClickListener(view1 -> {
+                    if (requireService().getActivePlayer() != null) {
+                        FragmentManager fragmentManager = getParentFragmentManager();
+                        new VolumeSettings().show(fragmentManager, VolumeSettings.class.getName());
+                    }
+                });
+
+                v.findViewById(R.id.volume_down).setOnClickListener(view -> requireService().adjustVolume(-1));
+                v.findViewById(R.id.volume_up).setOnClickListener(view -> requireService().adjustVolume(1));
+            }
 
             // Update the time indicator to reflect the dragged thumb position.
             slider.addOnChangeListener((s, value, fromUser) -> {
@@ -403,10 +472,6 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             if (screenWidthDp < 456) {
                 nextButton.setVisibility(View.GONE);
                 prevButton.setVisibility(View.GONE);
-            }
-
-            if (screenWidthDp < 408 || (456 < screenWidthDp && screenWidthDp < 504)) {
-                volumeButton.setVisibility(View.GONE);
             }
 
             final GestureDetectorCompat detector = new GestureDetectorCompat(mActivity, new OnSwipeListener() {
@@ -627,6 +692,8 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
         updateShuffleStatus(playerState.getShuffleStatus());
         updateRepeatStatus(playerState.getRepeatStatus());
         updatePlayerMenuItems();
+
+        updateVolumeInfo();
     }
 
     /**
@@ -690,6 +757,29 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
+        }
+    }
+
+    private void updateVolumeInfo() {
+        if (mFullHeightLayout) {
+            ISqueezeService.VolumeInfo volumeInfo = requireService().getVolume();
+            if (Squeezer.getPreferences().isLargeArtwork()) {
+                muteButton.setIconResource(volumeInfo.muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
+                volumeBar.setEnabled(!volumeInfo.muted);
+                volumeBar.setValue(volumeInfo.volume);
+            } else {
+                muteToggle.setChecked(volumeInfo.muted);
+                currentProgress = volumeInfo.volume;
+                volumeWheel.setProgress(volumeInfo.volume);
+                volumeWheel.setLabel(String.valueOf(volumeInfo.volume));
+                // label.setText(volumeInfo.name);
+
+                volumeWheel.setIndicatorColor(ColorUtils.setAlphaComponent(volumeWheel.getIndicatorColor(), volumeInfo.muted ? 63 : 255));
+                volumeWheel.setProgressPrimaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressPrimaryColor(), volumeInfo.muted ? 63 : 255));
+                volumeWheel.setProgressSecondaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressSecondaryColor(), volumeInfo.muted ? 63 : 255));
+                volumeWheel.setOnCrollerChangeListener(volumeInfo.muted ? null : this);
+                volumeWheel.setOnTouchListener(volumeInfo.muted ? (view, motionEvent) -> true : null);
+            }
         }
     }
 
@@ -817,8 +907,8 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             menuItemAlarm.setVisible(haveConnectedPlayers);
             menuItemSleep.setVisible(haveConnectedPlayers);
 
-            // Don't show the item to go to current playlist if in NowPlayingActivity or CurrentPlaylistActivity.
-            if (mActivity instanceof NowPlayingActivity || mActivity instanceof CurrentPlaylistActivity) {
+            // Don't show the item to go to current playlist if in CurrentPlaylistActivity.
+            if (mActivity instanceof CurrentPlaylistActivity) {
                 menuItemPlaylist.setVisible(false);
             }
 
@@ -889,7 +979,7 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
                 Log.v(TAG, "Connection is already in progress, connecting aborted");
                 return;
             }
-            mService.startConnect(autoConnect);
+            requireService().startConnect(autoConnect);
         });
     }
 
@@ -954,17 +1044,6 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
         Log.d(TAG, "Handshake complete");
 
         dismissConnectingDialog();
-
-        nextButton.setEnabled(true);
-        prevButton.setEnabled(true);
-        volumeButton.setEnabled(true);
-        if (mFullHeightLayout) {
-            shuffleButton.setEnabled(true);
-            repeatButton.setEnabled(true);
-            playlistButton.setEnabled(true);
-        } else {
-            mProgressBar.setEnabled(true);
-        }
 
         PlayerState playerState = getPlayerState();
 
@@ -1057,4 +1136,33 @@ public class NowPlayingFragment extends Fragment implements CallStateDialog.Call
             updateTimeDisplayTo(event.currentPosition, event.duration);
         }
     }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEvent(PlayerVolume event) {
+        if (!trackingTouch) {
+            if (event.player == requireService().getActivePlayer()) {
+                updateVolumeInfo();
+            }
+        }
+    }
+
+    @Override
+    public void onProgressChanged(Croller croller, int progress) {
+        if (currentProgress != progress) {
+            currentProgress = progress;
+            volumeWheel.setLabel(String.valueOf(progress));
+            requireService().setVolumeTo(progress);
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(Croller croller) {
+        trackingTouch = true;
+    }
+
+    @Override
+    public void onStopTrackingTouch(Croller croller) {
+        trackingTouch = false;
+    }
+
 }

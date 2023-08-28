@@ -57,7 +57,6 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             ChildAdapterHolder childAdapterHolder = new ChildAdapterHolder(getActivity(), this, i, childAdapter);
             childAdapterHolders.add(childAdapterHolder);
             item.inputValue = getActivity().parent.inputValue;
-            getActivity().requireService().pluginItems(0, item, item.goAction, childAdapterHolder);
         }
     }
 
@@ -68,6 +67,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
     }
 
     static class ChildAdapterHolder implements IServiceItemListCallback<JiveItem> {
+        boolean ordered = false;
         boolean visible = false;
         private final JiveItemListActivity activity;
         private final GroupAdapter parent;
@@ -137,6 +137,11 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             }
             getActivity().setupListView(subList, listLayout);
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
+            if (childAdapterHolder.visible && !childAdapterHolder.ordered) {
+                childAdapterHolder.ordered = true;
+                getActivity().requireService().pluginItems(0, item, item.goAction, childAdapterHolder);
+            }
+            text2.setVisibility(childAdapterHolder.ordered ? View.VISIBLE : View.GONE);
         }
 
         @Override

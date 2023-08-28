@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -106,14 +107,17 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
     }
 
     public static void show(BaseActivity activity, JiveItem item, Action action) {
-        ContextMenu contextMenu = new ContextMenu();
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (!fragmentManager.isDestroyed()) {
+            ContextMenu contextMenu = new ContextMenu();
 
-        Bundle args = new Bundle();
-        args.putParcelable(JiveItem.class.getName(), item);
-        args.putParcelable(Action.class.getName(), action);
-        contextMenu.setArguments(args);
+            Bundle args = new Bundle();
+            args.putParcelable(JiveItem.class.getName(), item);
+            args.putParcelable(Action.class.getName(), action);
+            contextMenu.setArguments(args);
 
-        contextMenu.show(activity.getSupportFragmentManager(), TAG);
+            contextMenu.show(fragmentManager, TAG);
+        }
     }
 
     private void doItemContext(JiveItem item) {

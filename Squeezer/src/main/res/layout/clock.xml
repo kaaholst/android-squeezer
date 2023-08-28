@@ -12,28 +12,16 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">
 
-        <TextView
+        <TextClock
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textAppearance="@style/SqueezerTextAppearance.Screensaver"
-            tools:text="07:45" />
+            tools:text="07:45 PM" />
 
-        <TextView
-            android:id="@+id/am_pm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBaseline_toBaselineOf="@id/time"
-            app:layout_constraintStart_toEndOf="@id/time"
-            android:layout_alignBaseline="@+id/time"
-            android:paddingStart="@dimen/ampm_left_padding"
-            android:paddingEnd="@dimen/ampm_left_padding"
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
-            tools:text="AM" />
-
-        <TextView
+        <TextClock
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

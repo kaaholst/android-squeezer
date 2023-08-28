@@ -14,6 +14,7 @@ apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
     implementation 'androidx.palette:palette:1.0.0'
+    implementation 'androidx.webkit:webkit:1.7.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
@@ -62,8 +63,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 123
-        versionName "2.3.2"
+        versionCode 125
+        versionName "2.3.3"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

@@ -18,18 +18,13 @@ package uk.org.ngo.squeezer.model;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Parcel;
 import android.text.TextUtils;
-import android.view.Gravity;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import org.eclipse.jetty.util.ajax.JSON;
 
@@ -112,12 +107,11 @@ public class JiveItem extends Item {
 
 
     private String record;
-    private String id;
     @NonNull private String name = "";
     public String text2;
     @NonNull public String textkey = "";
-    @NonNull private final Uri icon;
-    private String iconStyle;
+    @NonNull private Uri icon = Uri.EMPTY;
+    public String iconStyle;
     private String extid;
 
     private String node;
@@ -144,11 +138,12 @@ public class JiveItem extends Item {
     public Boolean radio;
     public Slider slider;
 
+    @NonNull public Uri webLink = Uri.EMPTY;
+
     private SlimCommand downloadCommand;
     private SlimCommand randomPlayFolderCommand;
 
     public JiveItem() {
-        icon = Uri.EMPTY;
     }
 
     @NonNull
@@ -180,14 +175,14 @@ public class JiveItem extends Item {
      * @return Whether we should download icon or use embedded drawable
      */
     public boolean useIcon() {
-        return hasIconUri() && (getItemIcon() == null);
+        return hasIconUri() && (ItemIconUtils.getItemIcon(this) == null);
     }
 
     /**
      * @return Whether the song has an icon associated with it.
      */
     public boolean hasIcon() {
-        return hasIconUri() || (getItemIcon() != null);
+        return hasIconUri() || (ItemIconUtils.getItemIcon(this) != null);
     }
 
     /**
@@ -201,111 +196,11 @@ public class JiveItem extends Item {
      * @return Icon resource for this item if it is embedded in the Squeezer app, or the supplied default icon.
      */
     public Drawable getIconDrawable(Context context, @DrawableRes int defaultIcon) {
-        @DrawableRes Integer itemIcon = getItemIcon();
-        Drawable icon = AppCompatResources.getDrawable(context, itemIcon != null ? itemIcon : defaultIcon);
-
-        if (Squeezer.getPreferences().useFlatIcons()) {
-            return icon;
-        }
-
-        // If the preference is to use legacy icons, add a background the item icon
-        int inset = context.getResources().getDimensionPixelSize(R.dimen.album_art_inset);
-        Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
-        Drawable wrappedIcon = DrawableCompat.wrap(icon.mutate());
-        DrawableCompat.setTint(wrappedIcon, context.getResources().getColor(R.color.black));
-        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background, wrappedIcon});
-        layerDrawable.setLayerInset(1, inset, inset, inset, inset);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            layerDrawable.setLayerGravity(1, Gravity.CENTER);
-        }
-        return layerDrawable;
-    }
-
-    private String iconStyle() {
-        return TextUtils.isEmpty(iconStyle) ? "hm_" + getId() : iconStyle;
-    }
-
-    @DrawableRes private Integer getItemIcon() {
-        if ((id != null) && (this.id.contains("customShortcut"))) {
-            return R.drawable.library_music;
-        }
-        return itemIcons.get(iconStyle());
-    }
-
-    private static final Map<String, Integer> itemIcons = initializeItemIcons();
-
-    private static Map<String, Integer> initializeItemIcons() {
-        Map<String, Integer> result = new HashMap<>();
-
-        result.put("hm_myMusic", R.drawable.library_music);
-        result.put("hm_extras", R.drawable.settings_advanced);
-        result.put("hm_settings", R.drawable.settings);
-        result.put("hm_opmlmyapps", R.drawable.apps);
-        result.put("hm_opmlappgallery", R.drawable.apps_settings);
-        result.put("hm_settingsAlarm", R.drawable.alarm_clock);
-        result.put("hm_appletCustomizeHome", R.drawable.settings_home);
-        result.put("hm_settingsPlayerNameChange", R.drawable.rename);
-        result.put("hm_advancedSettings", R.drawable.settings_advanced);
-
-        result.put("hm_archiveNode", R.drawable.ic_archive);
-        result.put("hm_radio", R.drawable.internet_radio);
-        result.put("hm_radios", R.drawable.internet_radio);
-        result.put("hm_favorites", R.drawable.favorites);
-        result.put("hm_globalSearch", R.drawable.search);
-        result.put("hm_homeSearchRecent", R.drawable.search);
-        result.put("hm_playerpower", R.drawable.power);
-        result.put("hm_myMusicSearch", R.drawable.search);
-        result.put("hm_myMusicSearchArtists", R.drawable.search);
-        result.put("hm_myMusicSearchAlbums", R.drawable.search);
-        result.put("hm_myMusicSearchSongs", R.drawable.search);
-        result.put("hm_myMusicSearchPlaylists", R.drawable.search);
-        result.put("hm_myMusicSearchRecent", R.drawable.search);
-        result.put("hm_myMusicArtists", R.drawable.ml_artists);
-        result.put("hm_myMusicArtistsAlbumArtists", R.drawable.ml_artists_album);
-        result.put("hm_myMusicArtistsAllArtists", R.drawable.ml_artists);
-        result.put("hm_myMusicArtistsComposers", R.drawable.ml_artists_composer);
-        result.put("hm_myMusicAlbums", R.drawable.ml_albums);
-        result.put("hm_myMusicAlbumsVariousArtists", R.drawable.ml_albums);
-        result.put("hm_myMusicGenres", R.drawable.ml_genres);
-        result.put("hm_myMusicYears", R.drawable.ml_years);
-        result.put("hm_myMusicMusicFolder", R.drawable.ml_folder);
-        result.put("hm_myMusicPlaylists", R.drawable.ml_playlist);
-        result.put("hm_myMusicNewMusic", R.drawable.ml_new_music);
-        result.put("hm_randomplay", R.drawable.ml_random);
-        result.put("hm_opmlselectVirtualLibrary", R.drawable.ml_library_views);
-        result.put("hm_opmlselectRemoteLibrary", R.drawable.library_music);
-        result.put("hm_settingsShuffle", R.drawable.shuffle);
-        result.put("hm_settingsRepeat", R.drawable.settings_repeat);
-        result.put("hm_settingsAudio", R.drawable.settings_audio);
-        result.put("hm_settingsSleep", R.drawable.settings_sleep);
-        result.put("hm_settingsSync", R.drawable.settings_sync);
-        result.put("hm_settingsBrightness", R.drawable.settings_brightness);
-        result.put("hm_settingsLineInLevel", R.drawable.icon_line_in);
-        result.put("hm_settingsLineInAlwaysOn", R.drawable.icon_line_in);
-        result.put("hm_settingsDontStopTheMusic", R.drawable.setting_dont_stop_the_music);
-//      TODO: Make unique icon for custom shortcut, or load icon from original slim item or its parents
-
-        return result;
-    }
-
-    private static final Map<String, Integer> serviceLogos = initializeServiceLogos();
-
-    private static Map<String, Integer> initializeServiceLogos() {
-        Map<String, Integer> result = new HashMap<>();
-
-        result.put("spotify", R.drawable.spotify);
-        result.put("qobuz", R.drawable.qobuz);
-        result.put("wimp", R.drawable.tidal);
-        result.put("deezer", R.drawable.deezer);
-        result.put("bandcamp", R.drawable.bandcamp);
-
-        return result;
+        return ItemIconUtils.getIconDrawable(context, this, defaultIcon);
     }
 
     public Drawable getLogo(Context context) {
-        @DrawableRes Integer logo = (extid != null ? serviceLogos.get(extid.split(":")[0]) : null);
-        return logo != null ? AppCompatResources.getDrawable(context, logo) : null;
+        return ServiceLogoUtils.getLogo(context, extid);
     }
 
     public String getNode() {
@@ -322,7 +217,7 @@ public class JiveItem extends Item {
 
 
     public boolean isSelectable() {
-        return (goAction != null || nextWindow != null || hasSubItems()|| node != null || checkbox != null);
+        return (goAction != null || nextWindow != null || hasSubItems()|| node != null || checkbox != null || !webLink.equals(Uri.EMPTY));
     }
 
     public boolean hasContextMenu() {
@@ -410,6 +305,8 @@ public class JiveItem extends Item {
             slider.sliderIcons = getString(record, "sliderIcons");
             slider.help = getString(record, "help");
         }
+
+        webLink = Uri.parse(getStringOrEmpty(record, "weblink"));
     }
 
     public JiveItem(Parcel source) {
@@ -445,6 +342,7 @@ public class JiveItem extends Item {
         radio = (Boolean) source.readValue(getClass().getClassLoader());
         slider = source.readParcelable(getClass().getClassLoader());
         downloadCommand = source.readParcelable(getClass().getClassLoader());
+        webLink = Uri.parse(source.readString());
 //      TODO
 //        randomPlayFolderCommand = source.readParcelable(getClass().getClassLoader());
     }
@@ -482,6 +380,7 @@ public class JiveItem extends Item {
         dest.writeValue(radio);
         dest.writeParcelable(slider, flags);
         dest.writeParcelable(downloadCommand, flags);
+        dest.writeString(webLink.toString());
     }
 
     public void setWeight(int weight) {
@@ -580,6 +479,7 @@ public class JiveItem extends Item {
         window.textarea = getStringOrEmpty(params, "textarea").replaceAll("\\\\n", "\n");
         window.textareaToken = getString(params, "textAreaToken");
         window.help = getString(params, "help");
+        window.html = getString(params, "html");
         window.icon = getImageUrl(params, params.containsKey("icon-id") ? "icon-id" : "icon");
         window.titleStyle = getString(params, "titleStyle");
 

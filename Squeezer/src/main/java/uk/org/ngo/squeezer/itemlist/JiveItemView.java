@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -193,9 +195,10 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
                 JiveItemViewLogic.execGoAction(getActivity(), item);
             else if (item.hasSubItems())
                 JiveItemListActivity.show(getActivity(), item);
-            else if (item.getNode() != null) {
+            else if (item.getNode() != null)
                 HomeMenuActivity.show(getActivity(), item);
-            }
+            else if (!item.webLink.equals(Uri.EMPTY))
+                getActivity().startActivity(new Intent(Intent.ACTION_VIEW, item.webLink));
         }
 
         if (item.radio != null) {

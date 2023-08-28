@@ -1,11 +1,11 @@
-&bull; Context menu in a bottom sheet
+&bull; Always on volume control on "Now Playing" screen.
 
-&bull; Display results for global and library search in an expandable list.
+&bull; Move the button for the current playlist on the "Now Playing" screen to the top bar, so it's always the same place.
 
-&bull; More space for Player names
+&bull; Search results are populated when expanded. This fixes an issue where a new Pandora station would be created.
 
-&bull; Fix a bug in Wake on LAN.
+&bull; Support rich content (images, links, etc) from LMS
 
-&bull; Load preferences in the background and other changes to avoid Application Not Responding
+&bull; Support weblinks (display eg. a PDF booklet)
 
-&bull; Fix some reported crashes.
+&bull; Don't show context menu in a destroyed activity
