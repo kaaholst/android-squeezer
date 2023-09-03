@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.Intents;
 
 
 /**
@@ -215,7 +216,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                     context,
                     0,
                     new Intent(),  //Dummy Intent do nothing
-                    0);
+                    Intents.immutablePendingIntent());
 
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SqueezeService.NOTIFICATION_CHANNEL_ID);
             builder.setContentIntent(emptyPendingIntent);
