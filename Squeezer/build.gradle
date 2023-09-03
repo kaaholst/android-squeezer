@@ -119,6 +119,7 @@ android {
     lint {
         lintConfig file('lint.xml')
     }
+    namespace 'uk.org.ngo.squeezer'
 }
 
 def publishTrack() {
