@@ -16,17 +16,12 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.webkit:webkit:1.7.0'
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
-    // Android support libraries
-    // Note: these libraries require the "Google Repository" and "Android
-    //       Support Repository" to be installed via the SDK manager.
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.media:media:1.6.0'
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
 
     // EventBus, https://github.com/greenrobot/EventBus.
     implementation 'org.greenrobot:eventbus:3.2.0'

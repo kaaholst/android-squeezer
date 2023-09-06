@@ -21,7 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.app.Activity;
-import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,18 +35,15 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.RemoteViews;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -258,50 +254,6 @@ public abstract class ImageWorker {
     }
 
     /**
-     * Loads the requested image in to an {@link ImageView} in the given {@link RemoteViews}
-     * and updates the notification when done.
-     *
-     * @param context system context
-     * @param data The URL of the image to download
-     * @param remoteViews The {@link RemoteViews} that contains the {@link ImageView}
-     * @param viewId The identifier for the {@link ImageView}
-     * @param width Resize the image to this width (and save it in the memory cache as such)
-     * @param height Resize the image to this height (and save it in the memory cache as such)
-     * @param nm The notification manager
-     * @param notificationId Identifier of the notification to update
-     * @param notification The notification to post
-     */
-    public void loadImage(Context context, final Object data, final RemoteViews remoteViews,
-                          @IdRes int viewId, int width, int height,
-                          NotificationManagerCompat nm, int notificationId, Notification notification) {
-        Bitmap bitmap = null;
-        String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
-        if (mImageCache != null) {
-            bitmap = mImageCache.getBitmapFromMemCache(memCacheKey);
-        }
-
-        if (bitmap != null) {
-            // Bitmap found in memory cache
-            if (BuildConfig.DEBUG) {
-                addDebugSwatch(new Canvas(bitmap), mCacheDebugColorMemory);
-            }
-            remoteViews.setImageViewBitmap(viewId, bitmap);
-            nm.notify(notificationId, notification);
-        } else {
-            final RemoteViewBitmapWorkerTask task = new RemoteViewBitmapWorkerTask(
-                    remoteViews, viewId, nm, notificationId, notification);
-            final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, mLoadingBitmap, task);
-            remoteViews.setImageViewBitmap(viewId, asyncDrawable.getBitmap());
-
-            // NOTE: This uses a custom version of AsyncTask that has been pulled from the
-            // framework and slightly modified. Refer to the docs at the top of the class
-            // for more info on what was changed.
-            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,
-                    new BitmapWorkerTaskParams(width, height, data, memCacheKey));
-        }
-    }
-
-    /**
      * Generates a hash key for the memory cache. The key includes the target width and height,
      * so that multiple copies of the image may exist in the cache at different sizes.
      *
@@ -479,7 +431,7 @@ public abstract class ImageWorker {
         return null;
     }
 
-    protected class BitmapWorkerTaskParams {
+    protected static class BitmapWorkerTaskParams {
         /** Desired bitmap width. */
         public final int width;
 
@@ -510,23 +462,6 @@ public abstract class ImageWorker {
                     ", data=" + data +
                     ", memCacheKey='" + memCacheKey + '\'' +
                     '}';
-        }
-    }
-
-    protected class RemoteViewBitmapWorkerTaskParams extends BitmapWorkerTaskParams {
-        NotificationManagerCompat mNotificationManagerCompat;
-        int mNotificationId;
-        Notification mNotification;
-
-        public RemoteViewBitmapWorkerTaskParams(int width, int height,
-                                                @NonNull Object data, @NonNull String memCacheKey,
-                                                @NonNull NotificationManagerCompat notificationManagerCompat,
-                                                int notificationId,
-                                                @NonNull Notification notification) {
-            super(width, height, data, memCacheKey);
-            mNotificationManagerCompat = notificationManagerCompat;
-            mNotificationId = notificationId;
-            mNotification = notification;
         }
     }
 
@@ -769,51 +704,6 @@ public abstract class ImageWorker {
 
         /**
          * @return Always returns false, the processing is not aborted before the callback is called.
-         */
-        @Override
-        protected boolean shouldCancel() {
-            return false;
-        }
-    }
-
-    /**
-     * A specialisation of {@link BitmapWorkerTask} that sets the loaded bitmap in to an
-     * {@link ImageView} in a {@link RemoteViews} and posts a {@link Notification}.
-     */
-    private class RemoteViewBitmapWorkerTask extends BitmapWorkerTask {
-        private RemoteViews mRemoteViews;
-        private int mViewId;
-        NotificationManagerCompat mNotificationManagerCompat;
-        int mNotificationId;
-        Notification mNotification;
-
-        public RemoteViewBitmapWorkerTask(RemoteViews remoteViews, int viewId,
-                                          NotificationManagerCompat notificationManagerCompat,
-                                          int notificationId, Notification notification) {
-            super();
-            mRemoteViews = remoteViews;
-            mViewId = viewId;
-            mNotificationManagerCompat = notificationManagerCompat;
-            mNotificationId = notificationId;
-            mNotification = notification;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap != null) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "onPostExecute - setting bitmap");
-                }
-                Log.d(TAG, "Setting notification bitmap");
-                mRemoteViews.setImageViewBitmap(mViewId, bitmap);
-            }
-
-            // Always post the notification.
-            mNotificationManagerCompat.notify(mNotificationId, mNotification);
-        }
-
-        /**
-         * @return Always returns false, the processing is not to ensure the notification is posted.
          */
         @Override
         protected boolean shouldCancel() {

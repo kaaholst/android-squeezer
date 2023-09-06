@@ -443,37 +443,39 @@ public class SqueezeService extends Service {
             Scrobble.scrobbleFromPlayerState(this, activePlayerState);
         }
 
-        NotificationState notificationState = notificationState();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationState notificationState = notificationState();
 
-        // Compare the current state with the state when the notification was last updated.
-        // If there are no changes (same song, same playing state) then there's nothing to do.
-        if (notificationState.equals(ongoingNotification)) {
-            return;
+            // Compare the current state with the state when the notification was last updated.
+            // If there are no changes (same song, same playing state) then there's nothing to do.
+            if (notificationState.equals(ongoingNotification)) {
+                return;
+            }
+            ongoingNotification = notificationState;
+
+            final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+            final NotificationData notificationData = new NotificationData(notificationState);
+            final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
+            mMediaSession.setMetadata(metaBuilder.build());
+
+            ImageFetcher.getInstance(this).loadImage(notificationState.artworkUrl,
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
+                    (data, bitmap) -> {
+                        if (bitmap == null) {
+                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_no_artwork);
+                        }
+
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+                        mMediaSession.setMetadata(metaBuilder.build());
+                        notificationData.builder.setLargeIcon(bitmap);
+                        nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+                    });
         }
-        ongoingNotification = notificationState;
-
-        final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        final NotificationData notificationData = new NotificationData(notificationState);
-        final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
-        mMediaSession.setMetadata(metaBuilder.build());
-
-        ImageFetcher.getInstance(this).loadImage(notificationState.artworkUrl,
-                getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
-                getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
-                (data, bitmap) -> {
-                    if (bitmap == null) {
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_no_artwork);
-                    }
-
-                    metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
-                    metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
-                    mMediaSession.setMetadata(metaBuilder.build());
-                    notificationData.builder.setLargeIcon(bitmap);
-                    nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
-                });
     }
 
     private class NotificationData {
