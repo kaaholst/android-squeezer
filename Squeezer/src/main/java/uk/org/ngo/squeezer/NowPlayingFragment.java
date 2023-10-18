@@ -43,6 +43,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -179,7 +180,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
     // For the large artwork layout
     private MaterialButton muteButton;
-    private Slider volumeBar;
+    private SeekBar volumeBar;
 
     // For the small artwork layout
     private CheckBox muteToggle;
@@ -378,31 +379,38 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
             mActivity.setNotifyVolumePanel(false);
             if (largeArtwork) {
-                v.findViewById(R.id.volume).setOnClickListener(view -> {
+                View volumeButton = v.findViewById(R.id.volume);
+                TextView volumeLabel = v.findViewById(R.id.label);
+
+                volumeButton.setOnClickListener(view -> {
                     preferences.setLargeArtwork(false);
                     mActivity.recreate();
 
                 });
 
                 muteButton.setOnClickListener(view -> requireService().toggleMute());
-                volumeBar.clearOnSliderTouchListeners();
-                volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
-                    @SuppressLint("RestrictedApi")
-                    public void onStartTrackingTouch(@NonNull Slider slider) {
+                    public void onStartTrackingTouch(SeekBar seekBar) {
                         trackingTouch = true;
+                        volumeButton.setVisibility(View.INVISIBLE);
+                        volumeLabel.setVisibility(View.VISIBLE);
+                        volumeLabel.setText(String.valueOf(seekBar.getProgress()));
                     }
 
                     @Override
-                    @SuppressLint("RestrictedApi")
-                    public void onStopTrackingTouch(@NonNull Slider slider) {
+                    public void onStopTrackingTouch(SeekBar seekBar) {
                         trackingTouch = false;
+                        volumeButton.setVisibility(View.VISIBLE);
+                        volumeLabel.setVisibility(View.INVISIBLE);
                     }
-                });
-                volumeBar.clearOnChangeListeners();
-                volumeBar.addOnChangeListener((slider, value, fromUser) -> {
-                    if (fromUser) {
-                        requireService().setVolumeTo((int) value);
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if (fromUser) {
+                            volumeLabel.setText(String.valueOf(progress));
+                            requireService().setVolumeTo(progress);
+                        }
                     }
                 });
             } else {
@@ -766,7 +774,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             if (Squeezer.getPreferences().isLargeArtwork()) {
                 muteButton.setIconResource(volumeInfo.muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
                 volumeBar.setEnabled(!volumeInfo.muted);
-                volumeBar.setValue(volumeInfo.volume);
+                volumeBar.setProgress(volumeInfo.volume);
             } else {
                 muteToggle.setChecked(volumeInfo.muted);
                 currentProgress = volumeInfo.volume;

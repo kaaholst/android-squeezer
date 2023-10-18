@@ -32,26 +32,35 @@
         android:layout_height="48dp"
         app:icon="@drawable/ic_volume_down"/>
 
-    <com.google.android.material.slider.Slider
+    <uk.org.ngo.squeezer.widget.ContinuousSlider
         android:id="@+id/volume_slider"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/muteButton"
         app:layout_constraintEnd_toStartOf="@id/volume"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:value="50"
-        android:valueFrom="0"
-        android:valueTo="100"
-        android:stepSize="1"
+        tools:progress="50"
+        android:min="0"
+        android:max="100"
         />
 
     <Button style="@style/ImageButton"
         android:id="@+id/volume"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="12dp"
         android:layout_width="48dp"
         android:layout_height="48dp"
         app:icon="@drawable/ic_keyboard_arrow_up"/>
+
+    <TextView style="@style/SqueezerTextAppearance.Medium"
+        android:id="@+id/label"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:visibility="invisible"
+        tools:text="25"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
