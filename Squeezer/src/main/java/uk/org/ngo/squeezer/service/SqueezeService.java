@@ -547,8 +547,8 @@ public class SqueezeService extends Service {
             notificationState.hasSong = (currentSong != null);
             if (currentSong != null) {
                 notificationState.songName = currentSong.getName();
-                notificationState.albumName = currentSong.getAlbum();
-                notificationState.artistName = currentSong.getArtist();
+                notificationState.albumName = currentSong.songInfo.album;
+                notificationState.artistName = currentSong.songInfo.artist;
                 notificationState.artworkUrl = currentSong.getIcon();
                 notificationState.playerName = activePlayer.getName();
             }

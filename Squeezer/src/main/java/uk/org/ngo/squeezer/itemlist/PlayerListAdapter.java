@@ -194,8 +194,8 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
         if (groupSong != null) {
-            holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.getArtist(),
-                    groupSong.getAlbum()));
+            holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.songInfo.artist,
+                    groupSong.songInfo.album));
         }
 
         holder.contextMenuButton.setVisibility(syncGroup.getItemCount() > 1 ? View.VISIBLE : View.GONE);

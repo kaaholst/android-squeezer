@@ -143,7 +143,7 @@ abstract class BaseClient implements SlimClient {
 
         // Current song
         if (changedSong) {
-            mEventBus.postSticky(new MusicChanged(player, playerState));
+            handleChangedSong(player);
         }
 
         // Shuffle status.
@@ -161,6 +161,8 @@ abstract class BaseClient implements SlimClient {
             postSongTimeChanged(player);
         }
     }
+
+    protected abstract void handleChangedSong(Player player);
 
     protected void postSongTimeChanged(Player player) {
         mEventBus.post(player.getTrackElapsed());
@@ -191,8 +193,8 @@ abstract class BaseClient implements SlimClient {
         BrowseRequest(Player player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
             this.player = player;
             this.cmd(cmd);
-            this.fullList = (start < 0);
-            this.start = (fullList ? 0 : start);
+            this.fullList = (start == ALL_ITEMS);
+            this.start = start;
             this.itemsPerResponse = itemsPerResponse;
             this.callback = callback;
             if (params != null) this.params(params);
@@ -212,8 +214,12 @@ abstract class BaseClient implements SlimClient {
             return (fullList);
         }
 
+        boolean isCurrent() {
+            return (start == CURRENT);
+        }
+
         public int getStart() {
-            return start;
+            return (start < 0 ? 0 : start);
         }
 
         int getItemsPerResponse() {

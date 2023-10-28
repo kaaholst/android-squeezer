@@ -26,6 +26,8 @@ import uk.org.ngo.squeezer.model.PlayerState;
  * Interface implemented by all network clients of the server.
  */
 interface SlimClient {
+    static final int ALL_ITEMS = -1;
+    static final int CURRENT = -2;
 
     /**
      * Start a connection LMS. Connection progress/status will be reported via
@@ -72,7 +74,9 @@ interface SlimClient {
      * @param player if non null this command is for a specific player
      * @param cmd Array of command terms, f.e. ['playlist', 'jump']
      * @param params Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'.
-     * @param start index of the first item to fetch. -1 means to fetch all items in chunks of pageSize
+     * @param start index of the first item to fetch.
+     *          {@link SlimClient#ALL_ITEMS} means to fetch all items in chunks of pageSize
+     *          {@link SlimClient#CURRENT} means "current" mode (for the status request)
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
      */

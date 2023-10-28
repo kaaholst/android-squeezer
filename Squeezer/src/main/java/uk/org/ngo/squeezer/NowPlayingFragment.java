@@ -721,8 +721,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         // TODO handle button remapping (buttons in status response)
-        if (!song.getTrack().isEmpty()) {
-            trackText.setText(song.getTrack());
+        if (!song.getName().isEmpty()) {
+            trackText.setText(song.getName());
 
             // don't remove rew and fwd for remote tracks, because a single track playlist
             // is not an indication that fwd and rwd are invalid actions
@@ -732,8 +732,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                artistText.setText(song.getArtist());
-                albumText.setText(song.getAlbum());
+                artistText.setText(song.songInfo.artist);
+                albumText.setText(song.songInfo.album);
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
@@ -748,7 +748,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.getArtist(), song.getAlbum()));
+                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.artist, song.songInfo.album));
             }
         } else {
             trackText.setText("");

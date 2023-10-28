@@ -23,34 +23,12 @@ import java.util.Map;
 
 
 public class CurrentPlaylistItem extends JiveItem {
-
-    @NonNull private final String track;
-
-    @NonNull
-    public String getTrack() {
-        return track.isEmpty() ? getName() : track;
-    }
-
-    @NonNull private final String artist;
-
-    @NonNull
-    public String getArtist() {
-        return artist;
-    }
-
-    @NonNull
-    private final String album;
-
-    @NonNull
-    public String getAlbum() {
-        return album;
-    }
+    @NonNull public Song songInfo;
 
     public CurrentPlaylistItem(Map<String, Object> record) {
         super(record);
-        track = getStringOrEmpty(record, "track");
-        artist = getStringOrEmpty(record, "artist");
-        album = getStringOrEmpty(record, "album");
+        songInfo = new Song(record);
+        songInfo.title = getStringOrEmpty(record, "track");
     }
 
     public static final Creator<CurrentPlaylistItem> CREATOR = new Creator<CurrentPlaylistItem>() {
@@ -67,49 +45,20 @@ public class CurrentPlaylistItem extends JiveItem {
 
     private CurrentPlaylistItem(Parcel source) {
         super(source);
-        track = source.readString();
-        artist = source.readString();
-        album = source.readString();
+        songInfo = source.readParcelable(getClass().getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(track);
-        dest.writeString(artist);
-        dest.writeString(album);
+        dest.writeParcelable(songInfo, flags);
+
     }
-    /**
-     * Extend the equality test by looking at additional track information.
-     *
-     * @param o The object to test.
-     * @return
-     */
+
     @Override
-    public boolean equals(Object o) {
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        // super.equals() has already checked that o is not null and is of the same class.
-        CurrentPlaylistItem s = (CurrentPlaylistItem)o;
-
-        if (! s.getTrack().equals(track)) {
-            return false;
-        }
-
-        if (! s.getAlbum().equals(album)) {
-            return false;
-        }
-
-        if (! s.getArtist().equals(artist)) {
-            return false;
-        }
-
-        if (! s.getIcon().equals(getIcon())) {
-            return false;
-        }
-
-        return true;
+    public String toString() {
+        return "CurrentPlaylistItem{" +
+                "song=" + songInfo +
+                "} " + super.toString();
     }
 }
