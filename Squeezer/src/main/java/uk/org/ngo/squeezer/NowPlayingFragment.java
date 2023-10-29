@@ -732,7 +732,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                artistText.setText(song.songInfo.artist);
+                artistText.setText(song.songInfo.getArtist());
                 albumText.setText(song.songInfo.album);
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
@@ -748,7 +748,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.artist, song.songInfo.album));
+                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.album));
             }
         } else {
             trackText.setText("");

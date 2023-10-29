@@ -548,7 +548,7 @@ public class SqueezeService extends Service {
             if (currentSong != null) {
                 notificationState.songName = currentSong.getName();
                 notificationState.albumName = currentSong.songInfo.album;
-                notificationState.artistName = currentSong.songInfo.artist;
+                notificationState.artistName = currentSong.songInfo.getArtist();
                 notificationState.artworkUrl = currentSong.getIcon();
                 notificationState.playerName = activePlayer.getName();
             }
@@ -866,12 +866,12 @@ public class SqueezeService extends Service {
                 Log.i(TAG, "downloadSong(" + song + ")");
                 Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
                 if (preferences.isDownloadUseServerPath()) {
-                    downloadSong(downloadUrl, song.title, song.album, song.artist, getLocalFile(song.url));
+                    downloadSong(downloadUrl, song.title, song.album, song.getArtist(), getLocalFile(song.url));
                 } else {
                     final String lastPathSegment = song.url.getLastPathSegment();
                     final String fileExtension = Util.getFileExtension(lastPathSegment);
                     final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
-                    downloadSong(downloadUrl, song.title, song.album, song.artist, localPath + "." + fileExtension);
+                    downloadSong(downloadUrl, song.title, song.album, song.getArtist(), localPath + "." + fileExtension);
                 }
             }
         }

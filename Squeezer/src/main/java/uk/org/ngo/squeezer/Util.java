@@ -52,6 +52,11 @@ public class Util {
      */
     private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
+    /**
+     * {@link java.util.regex.Pattern} that splits strings on comma.
+     */
+    private static final Pattern mCommaSplitPattern = Pattern.compile(",");
+
     private Util() {
     }
 
@@ -190,6 +195,11 @@ public class Util {
     public static String getString(Object value, String defaultValue) {
         if (value == null) return defaultValue;
         return (value instanceof String) ? (String) value : value.toString();
+    }
+
+    public static String[] getCommaSeparatedStringArray(Map<String, Object> record, String fieldName) {
+        String value = getStringOrEmpty(record, fieldName);
+        return value.isEmpty() ? new String[]{} : mCommaSplitPattern.split(value);
     }
 
     public static String[] getStringArray(Map<String, Object> record, String fieldName) {

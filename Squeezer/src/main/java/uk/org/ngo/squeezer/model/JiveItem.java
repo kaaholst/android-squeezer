@@ -77,7 +77,7 @@ public class JiveItem extends Item {
      u 	url 	Song file url.
      x 	remote 	If 1, this is a remote track.
      */
-    public static final String SONG_TAGS = "AABdejJKlrStTux";
+    public static final String SONG_TAGS = "ABdejJKlrStTux";
 
     public static final Creator<JiveItem> CREATOR = new Creator<>() {
         @Override
