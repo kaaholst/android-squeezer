@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Util;
+
 
 public class CurrentPlaylistItem extends JiveItem {
     @NonNull public Song songInfo;
@@ -46,6 +48,10 @@ public class CurrentPlaylistItem extends JiveItem {
     private CurrentPlaylistItem(Parcel source) {
         super(source);
         songInfo = source.readParcelable(getClass().getClassLoader());
+    }
+
+    public String artistAlbum() {
+        return Util.joinSkipEmpty(" - ", songInfo.getArtist(), songInfo.album);
     }
 
     @Override

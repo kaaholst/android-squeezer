@@ -13,6 +13,7 @@ apply plugin: 'uk.org.ngo.gradle.whatsnew'
 apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
+    implementation 'androidx.core:core:1.12.0'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.webkit:webkit:1.8.0'
 

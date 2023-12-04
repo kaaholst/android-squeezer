@@ -93,6 +93,7 @@ import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -595,7 +596,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem);
-                    updateUiFromPlayerState(requireService().getActivePlayerState());
                 }
             });
         } else {
@@ -748,7 +748,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.album));
+                artistAlbumText.setText(song.artistAlbum());
             }
         } else {
             trackText.setText("");
@@ -1070,6 +1070,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
         // We're connected but the controller needs to register with the server
         JiveItemListActivity.register(mActivity);
+    }
+
+    @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(ActivePlayerChanged event) {
+        updateUiFromPlayerState(event.player.getPlayerState());
     }
 
     @MainThread

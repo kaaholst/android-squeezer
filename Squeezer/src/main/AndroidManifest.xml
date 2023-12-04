@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.REORDER_TASKS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" android:minSdkVersion="31"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
@@ -127,6 +128,7 @@
         </activity>
 
         <service android:exported="false" android:label="Squeezer Service"
+            android:foregroundServiceType="mediaPlayback"
             android:name=".service.SqueezeService">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

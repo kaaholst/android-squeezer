@@ -299,10 +299,20 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
+    /** Get number of seconds in */
     public int getTrackElapsed() {
+        return  (int) calcPosition();
+    }
+
+    /* Get position in ms */
+    public long getPosition() {
+        return (long) (calcPosition()*1000);
+    }
+
+    private double calcPosition() {
         double now = SystemClock.elapsedRealtime() / 1000.0;
         double trackCorrection = rate * (now - statusSeen);
-        return  (int) (trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection);
+        return trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection;
     }
 
     public int getCurrentSongDuration() {
