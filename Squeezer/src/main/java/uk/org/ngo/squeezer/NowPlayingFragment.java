@@ -1075,7 +1075,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ActivePlayerChanged event) {
-        updateUiFromPlayerState(event.player.getPlayerState());
+        updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
     }
 
     @MainThread

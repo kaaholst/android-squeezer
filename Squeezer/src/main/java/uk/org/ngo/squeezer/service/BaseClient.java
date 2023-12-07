@@ -41,6 +41,7 @@ import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
+import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 
 abstract class BaseClient implements SlimClient {
     final static int mPageSize = Squeezer.getInstance().getResources().getInteger(R.integer.PageSize);
@@ -159,12 +160,21 @@ abstract class BaseClient implements SlimClient {
         if (changedSongDuration || changedSongTime || changedPlayStatus) {
             postSongTimeChanged(player);
         }
+
+        // Sleep times
+        if (changedSleep || changedSleepDuration) {
+            postSleepTimeChanged(player);
+        }
     }
 
     protected abstract void handleChangedSong(Player player);
 
     protected void postSongTimeChanged(Player player) {
         mEventBus.post(player.getTrackElapsed());
+    }
+
+    protected void postSleepTimeChanged(Player player) {
+        mEventBus.post(new SleepTimeChanged(player));
     }
 
     protected void postPlayerStateChanged(Player player) {

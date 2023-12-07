@@ -114,8 +114,7 @@ public class PlayerState implements Parcelable {
 
     private CurrentPlaylistItem currentSong;
 
-    /** The name of the current playlist, which may be the empty string. */
-    @NonNull
+    /** The name of the current playlist if any. */
     private String currentPlaylist;
 
     private long currentPlaylistTimestamp;
@@ -241,8 +240,7 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
-    /** @return the name of the current playlist, may be the empty string. */
-    @NonNull
+    /** @return the name of the current playlist, if any. */
     public String getCurrentPlaylist() {
         return currentPlaylist;
     }

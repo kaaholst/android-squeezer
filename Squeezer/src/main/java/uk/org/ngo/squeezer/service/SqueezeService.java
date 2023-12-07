@@ -88,6 +88,7 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -176,7 +177,7 @@ public class SqueezeService extends Service {
         }
     };
 
-    private MyVolumeProvider mVolumeProvider;
+    private SqueezerVolumeProvider mVolumeProvider;
 
     /**
      * Thrown when the service is asked to send a command to the server before the server
@@ -256,7 +257,7 @@ public class SqueezeService extends Service {
         scrobblingEnabled = preferences.isScrobbleEnabled();
         mFadeInSecs = preferences.getFadeInSecs();
         mGroupVolume = preferences.isGroupVolume();
-        mVolumeProvider = new MyVolumeProvider(preferences.getVolumeIncrements());
+        mVolumeProvider = new SqueezerVolumeProvider(preferences.getVolumeIncrements());
         if (squeezeService.isConnected()) {
             if (preferences.isBackgroundVolume()) {
                 mMediaSession.setPlaybackToRemote(mVolumeProvider);
@@ -342,7 +343,7 @@ public class SqueezeService extends Service {
         Squeezer.getPreferences().setLastPlayer(newActivePlayer);
     }
 
-    class JiveItemServiceItemListCallback implements IServiceItemListCallback<JiveItem> {
+    class HomeMenuReceiver implements IServiceItemListCallback<JiveItem> {
 
         private final List<JiveItem> homeMenu = new ArrayList<>();
 
@@ -377,7 +378,7 @@ public class SqueezeService extends Service {
             mDelegate.requestPlayerStatus(activePlayer);
             // Start an asynchronous fetch of the squeezeservers "home menu" items
             // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
-            mDelegate.requestItems(activePlayer, 0, new JiveItemServiceItemListCallback())
+            mDelegate.requestItems(activePlayer, 0, new HomeMenuReceiver())
                     .cmd("menu").param("direct", "1").exec();
         }
     }
@@ -445,7 +446,8 @@ public class SqueezeService extends Service {
                         PlaybackStateCompat.ACTION_PLAY |
                                 PlaybackStateCompat.ACTION_PAUSE |
                                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                PlaybackStateCompat.ACTION_SEEK_TO
                 )
                 .addCustomAction(ACTION_DISCONNECT, getString(R.string.menu_item_disconnect), R.drawable.ic_action_disconnect)
                 .build();
@@ -553,36 +555,7 @@ public class SqueezeService extends Service {
                 wifiLock.acquire();
             }
 
-            mMediaSession.setCallback(new MediaSessionCompat.Callback() {
-
-                @Override
-                public void onPlay() {
-                    squeezeService.play();
-                }
-
-                @Override
-                public void onPause() {
-                    squeezeService.pause();
-                }
-
-                @Override
-                public void onSkipToNext() {
-                    squeezeService.nextTrack();
-                }
-
-                @Override
-                public void onSkipToPrevious() {
-                    squeezeService.previousTrack();
-                }
-
-                @Override
-                public void onCustomAction(String action, Bundle extras) {
-                    if (ACTION_DISCONNECT.equals(action)) {
-                        disconnect(true);
-                    }
-                }
-            });
-
+            mMediaSession.setCallback(new SqueezerMediaSessionCallback());
             if (Squeezer.getPreferences().isBackgroundVolume()) {
                 mMediaSession.setPlaybackToRemote(mVolumeProvider);
             }
@@ -746,6 +719,13 @@ public class SqueezeService extends Service {
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateMediaSession();
             if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) musicPaused = false;
+        }
+    }
+
+    @Subscribe(priority = 1)
+    public void onEvent(PlayerStateChanged event) {
+        if (event.player.equals(mDelegate.getActivePlayer())) {
+            updateMediaSession();
         }
     }
 
@@ -1578,10 +1558,45 @@ public class SqueezeService extends Service {
         }
     }
 
-    private class MyVolumeProvider extends VolumeProviderCompat {
+    private class SqueezerMediaSessionCallback extends MediaSessionCompat.Callback {
+
+        @Override
+        public void onPlay() {
+            squeezeService.play();
+        }
+
+        @Override
+        public void onPause() {
+            squeezeService.pause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            squeezeService.nextTrack();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            squeezeService.previousTrack();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            squeezeService.setSecondsElapsed((int) (pos/1000));
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            if (ACTION_DISCONNECT.equals(action)) {
+                disconnect(true);
+            }
+        }
+    }
+
+    private class SqueezerVolumeProvider extends VolumeProviderCompat {
         private final int step;
 
-        public MyVolumeProvider(int step) {
+        public SqueezerVolumeProvider(int step) {
             super(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 100 / step, 1);
             this.step = step;
         }

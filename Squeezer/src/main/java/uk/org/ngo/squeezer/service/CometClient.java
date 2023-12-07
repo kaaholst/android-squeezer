@@ -453,11 +453,11 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected void postPlayerStateChanged(Player player) {
-        super.postPlayerStateChanged(player);
+    protected void postSleepTimeChanged(Player player) {
+        super.postSleepTimeChanged(player);
         if (player.getPlayerState().getSleepDuration() > 0) {
-            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_STATE_UPDATE, player);
-            mBackgroundHandler.removeMessages(MSG_STATE_UPDATE);
+            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_SLEEP_UPDATE, player);
+            mBackgroundHandler.removeMessages(MSG_SLEEP_UPDATE);
             mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
     }
@@ -777,7 +777,7 @@ class CometClient extends BaseClient {
     private static final int MSG_SERVER_STATUS_TIMEOUT = 4;
     private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 5;
     private static final int MSG_TIME_UPDATE = 6;
-    private static final int MSG_STATE_UPDATE = 7;
+    private static final int MSG_SLEEP_UPDATE = 7;
     private static final int MSG_MUSIC_CHANGED = 8;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
@@ -817,9 +817,9 @@ class CometClient extends BaseClient {
                     }
                     break;
                 }
-                case MSG_STATE_UPDATE: {
+                case MSG_SLEEP_UPDATE: {
                     Player player = (Player) msg.obj;
-                    postPlayerStateChanged(player);
+                    postSleepTimeChanged(player);
                     break;
                 }
                 case MSG_MUSIC_CHANGED: {
