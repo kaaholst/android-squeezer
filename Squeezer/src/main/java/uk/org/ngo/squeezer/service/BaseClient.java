@@ -113,7 +113,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(tokenMap, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
-        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getString(tokenMap, "mode"));
+        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getStringOrEmpty(tokenMap, "mode"));
 
         // Playing status
         if (changedPlayStatus) {
