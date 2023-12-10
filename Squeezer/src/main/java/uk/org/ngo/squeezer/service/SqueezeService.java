@@ -156,6 +156,7 @@ public class SqueezeService extends Service {
     private static final String ACTION_PLAY = "uk.org.ngo.squeezer.service.ACTION_PLAY";
     private static final String ACTION_PAUSE = "uk.org.ngo.squeezer.service.ACTION_PAUSE";
     private static final String ACTION_CLOSE = "uk.org.ngo.squeezer.service.ACTION_CLOSE";
+    private static final String ACTION_POWER = "power";
     private static final String ACTION_DISCONNECT = "disconnect";
 
     private final BroadcastReceiver deviceIdleModeReceiver = new BroadcastReceiver() {
@@ -449,6 +450,7 @@ public class SqueezeService extends Service {
                                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
                                 PlaybackStateCompat.ACTION_SEEK_TO
                 )
+                .addCustomAction(ACTION_POWER, getString(playerState.isPoweredOn() ? R.string.menu_item_power_off :  R.string.menu_item_power_on), R.drawable.power)
                 .addCustomAction(ACTION_DISCONNECT, getString(R.string.menu_item_disconnect), R.drawable.ic_action_disconnect)
                 .build();
         mMediaSession.setPlaybackState(playbackState);
@@ -1589,6 +1591,9 @@ public class SqueezeService extends Service {
         public void onCustomAction(String action, Bundle extras) {
             if (ACTION_DISCONNECT.equals(action)) {
                 disconnect(true);
+            } else
+            if (ACTION_POWER.equals(action)) {
+                squeezeService.togglePower(mDelegate.getActivePlayer());
             }
         }
     }
