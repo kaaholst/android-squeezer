@@ -3,6 +3,8 @@
     <item name="match_parent" format="integer" type="dimen">-1</item>
     <item name="wrap_content" format="integer" type="dimen">-2</item>
 
+    <item name="peek_height_auto" format="integer" type="dimen">-1</item>
+
     <!-- Icons in list rows. -->
     <dimen name="album_art_icon_size">48dp</dimen>
 
@@ -37,4 +39,7 @@
 
     <!-- Width of player drop down -->
     <dimen name="player_dropdown_width">@dimen/match_parent</dimen>
+
+    <!-- The height of the bottom sheet when it is collapsed -->
+    <dimen name="bottom_sheet_peek_height">@dimen/peek_height_auto</dimen>
 </resources>
