@@ -19,6 +19,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Toujours demander une confirmation avant de lancer le titre sélectionné</string>
   <string name='ALARM_SHORT_DAY_5'>Ve</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Continuer la liste de lecture en cours</string>
+  <string name='DISABLE'>Désactiver</string>
   <string name='SETUP_SYNCPOWER_DESC'>Vous pouvez spécifier que cette platine s\'allume et s\'éteigne indépendamment ou simultanément avec un groupe d\'autres platines. Effectuez votre sélection ci-dessous et cliquez sur Modifier.</string>
   <string name='SWITCH_TO_GALLERY'>Grandes pochettes</string>
   <string name='ADVANCED_SETTINGS'>Avancé</string>
