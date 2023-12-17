@@ -6,17 +6,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingTop="8dp"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/item"
-        layout="@layout/list_item"
-        />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp">
+
+        <include
+            android:id="@+id/item"
+            layout="@layout/list_item"
+            />
+
+    </FrameLayout>
 
     <View android:id="@+id/divider"
         android:background="?attr/currentTrackBackground"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:layout_width="match_parent"
+        android:layout_marginTop="8dp"
         />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -31,6 +40,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:paddingHorizontal="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/context_menu_item"
         />
