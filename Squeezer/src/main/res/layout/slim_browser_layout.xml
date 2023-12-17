@@ -27,10 +27,7 @@
         android:id="@+id/parent_container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="32dp"
-        android:paddingTop="8dp"
+        android:padding="8dp"
         android:visibility="gone"
         tools:visibility="visible">
 
