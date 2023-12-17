@@ -34,6 +34,7 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginVertical="8dp"
         android:scaleType="fitCenter"
         tools:src="@drawable/icon_album"/>
 
