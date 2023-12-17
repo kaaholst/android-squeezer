@@ -19,7 +19,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -33,49 +33,51 @@
 
     <ImageView
         android:id="@+id/album"
+        style="@style/SqueezerWidget.List.CoverArt"
         android:layout_width="@dimen/album_art_icon_size"
         android:layout_height="@dimen/album_art_icon_size"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/trackname"
         tools:src="@drawable/pending"/>
 
     <TextView
         android:id="@+id/trackname"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintBottom_toTopOf="@id/artistalbumname"
         app:layout_constraintStart_toEndOf="@id/album"
-        app:layout_constraintEnd_toStartOf="@id/media_buttons"
-        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toStartOf="@id/prev"
         style="@style/SqueezerWidget.NowPlayingMini.SongName"/>
 
     <TextView
         android:id="@+id/artistalbumname"
         app:layout_constraintTop_toBottomOf="@id/trackname"
-        app:layout_constraintStart_toEndOf="@id/album"
-        app:layout_constraintEnd_toStartOf="@id/media_buttons"
-        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/trackname"
+        app:layout_constraintEnd_toStartOf="@id/prev"
         style="@style/SqueezerWidget.NowPlayingMini.ArtistAlbumName"/>
 
-    <LinearLayout
-        android:id="@+id/media_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/prev"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/pause"
+        app:icon="@drawable/ic_action_previous"
+        style="@style/BottomBar.MediaButton"/>
+
+    <Button
+        android:id="@+id/pause"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/next"
+        style="@style/BottomBar.MediaButton"
+        tools:icon="@drawable/ic_action_pause"/>
+
+    <Button
+        android:id="@+id/next"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/prev"
-            app:icon="@drawable/ic_action_previous"
-            style="@style/BottomBar.MediaButton"/>
-
-        <Button
-            android:id="@+id/pause"
-            style="@style/BottomBar.MediaButton"
-            tools:icon="@drawable/ic_action_pause"/>
-
-        <Button
-            android:id="@+id/next"
-            app:icon="@drawable/ic_action_next"
-            style="@style/BottomBar.MediaButton"/>
-    </LinearLayout>
+        app:icon="@drawable/ic_action_next"
+        style="@style/BottomBar.MediaButton"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
