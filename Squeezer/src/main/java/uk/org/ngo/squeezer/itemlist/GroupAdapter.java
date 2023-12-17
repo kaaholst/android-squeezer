@@ -128,13 +128,10 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             text1.setText(item.getName());
             text2.setText(String.valueOf(childAdapterHolder.adapter.getItemCount()));
 
-            @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_down : R.drawable.ic_keyboard_arrow_up);
+            @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_up : R.drawable.ic_keyboard_arrow_down);
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), drawableRes));
             subList.setAdapter(childAdapterHolder.adapter);
             ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof ChildAdapter) ? ((ChildAdapter) childAdapterHolder.adapter).listLayout : ArtworkListLayout.list;
-            if (listLayout == ArtworkListLayout.list) {
-                getActivity().addDividerItemDecoration(subList);
-            }
             getActivity().setupListView(subList, listLayout);
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
             if (childAdapterHolder.visible && !childAdapterHolder.ordered) {
