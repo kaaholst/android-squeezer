@@ -84,6 +84,7 @@
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
+    <style name="SqueezerTextAppearance.ContextMenu" parent="@style/TextAppearance.AppCompat.Menu"/>
 
     <!-- List headers -->
     <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
