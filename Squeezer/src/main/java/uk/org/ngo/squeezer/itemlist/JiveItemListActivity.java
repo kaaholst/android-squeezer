@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -174,7 +175,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             inputText.setOnKeyListener((v, keyCode, event) -> {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN)
                         && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    clearAndReOrderItems(inputText.getText().toString());
+                    clearAndReOrderItems(inputText.getText().toString(), inputButton);
                     return true;
                 }
                 return false;
@@ -182,7 +183,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
             inputButton.setOnClickListener(v -> {
                 if (getService() != null) {
-                    clearAndReOrderItems(inputText.getText().toString());
+                    clearAndReOrderItems(inputText.getText().toString(), inputButton);
                 }
             });
         }
@@ -327,10 +328,14 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
 
-    private void clearAndReOrderItems(String inputString) {
+    private void clearAndReOrderItems(String inputString, View focusView) {
         if (getService() != null && !TextUtils.isEmpty(inputString)) {
             parent.inputValue = inputString;
             clearAndReOrderItems();
+
+            focusView.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
         }
     }
 

@@ -103,7 +103,7 @@
         android:id="@+id/input_view"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:padding="8dp"
         android:visibility="gone"
         tools:visibility="visible"
         android:orientation="horizontal">
@@ -123,6 +123,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/input_button"
+            android:layout_marginStart="8dp"
             app:icon="@drawable/keyboard_return"
             app:iconSize="24dp"
             android:layout_width="48dp"
