@@ -262,7 +262,6 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             volumeBar = itemView.findViewById(R.id.group_volume_slider);
             contextMenuButton = itemView.findViewById(R.id.context_menu_button);
             players = itemView.findViewById(R.id.players_container);
-            players.addItemDecoration(new DividerItemDecoration(players.getContext(), LinearLayoutManager.VERTICAL));
             players.setLayoutManager(new LinearLayoutManager(players.getContext()));
         }
 
