@@ -79,7 +79,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ThemeManager;
-import uk.org.ngo.squeezer.widget.DividerItemDecoration;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
 
 /*
@@ -111,7 +110,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private MenuItem menuItemFlatIcons;
 
     protected ViewParamItemView<JiveItem> parentViewHolder;
-    private DividerItemDecoration dividerItemDecoration;
     private RecyclerViewFastScroller fastScroller;
 
     @Override
@@ -214,29 +212,18 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-        dividerItemDecoration = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
-        if (!isGrouped()) {
-            getListView().addItemDecoration(dividerItemDecoration);
-        }
         fastScroller = findViewById(R.id.fastscroller);
 
         setupListView(getListView(), getListLayout());
-    }
-
-    public void addDividerItemDecoration(RecyclerView list) {
-        list.removeItemDecoration(dividerItemDecoration);
-        list.addItemDecoration(dividerItemDecoration);
     }
 
     public void setupListView(RecyclerView list, ArtworkListLayout listLayout) {
         RecyclerView.LayoutManager layoutManager = list.getLayoutManager();
         if (listLayout == ArtworkListLayout.grid && !(layoutManager instanceof GridLayoutManager)) {
             list.setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
-            list.removeItemDecoration(dividerItemDecoration);
         }
         if (listLayout == ArtworkListLayout.list && (layoutManager instanceof GridLayoutManager)) {
             list.setLayoutManager(new LinearLayoutManager(this));
-            list.addItemDecoration(dividerItemDecoration);
         }
     }
 

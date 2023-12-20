@@ -29,7 +29,6 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
-import uk.org.ngo.squeezer.widget.DividerItemDecoration;
 
 /**
  * The configuration screen for the {@link SqueezerRemoteControl SqueezerRemoteControl} AppWidget.
@@ -77,7 +76,6 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         RecyclerView listView = findViewById(R.id.item_list);
         listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(this));
-        listView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     @Override
