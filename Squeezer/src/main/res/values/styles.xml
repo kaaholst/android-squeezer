@@ -78,6 +78,7 @@
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
     <!-- Base styles that the rest of the app inherits from. -->
+    <style name="SqueezerTextAppearance" parent="@android:style/TextAppearance" />
     <style name="SqueezerTextAppearance.XLarge" parent="@android:style/TextAppearance.Large">
         <item name="android:textSize">44sp</item>
     </style>
@@ -90,7 +91,7 @@
     <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->
-    <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance" />
     <style name="SqueezerTextAppearance.ListItem.Primary.Highlight" parent="SqueezerTextAppearance.ListItem.Primary">
         <item name="android:textStyle">bold</item>
     </style>
@@ -123,9 +124,10 @@
     <style name="SqueezerTextAppearance.NowPlaying.ArtistName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
 
     <!-- Text on the NowPlayingFragment mini player. -->
-    <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary">
+        <item name="android:textSize">14sp</item>
+    </style>
     <style name="SqueezerTextAppearance.NowPlayingMini.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
-
     <style name="SqueezerTextAppearance.NowPlayingMini.SongName" parent="SqueezerTextAppearance.NowPlayingMini.Primary"/>
     <style name="SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName" parent="SqueezerTextAppearance.NowPlayingMini.Secondary"/>
 
@@ -241,6 +243,7 @@
     <style name="SqueezerWidget.List.CoverArt">
         <item name="android:layout_height">@dimen/album_art_icon_size</item>
         <item name="android:layout_width">@dimen/album_art_icon_size</item>
+        <item name="android:padding">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
     </style>
 
