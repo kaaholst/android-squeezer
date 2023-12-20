@@ -19,72 +19,119 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="24dp"
-        android:paddingHorizontal="24dp"
-        android:orientation="vertical">
+        android:padding="16dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/bg_volume_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/SqueezerTextAppearance.Medium"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/background_volume"
+            style="@style/SqueezerTextAppearance.Preference.Title"
             android:text="@string/settings_background_volume_title"/>
+        <TextView
+            android:id="@+id/bg_volume_hint"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/bg_volume_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/background_volume"
+            android:text="@string/settings_background_volume_on" />
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/background_volume"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
-            tools:text="@string/settings_background_volume_on"/>
-
+            app:layout_constraintTop_toTopOf="@id/bg_volume_title"
+            app:layout_constraintBottom_toBottomOf="@id/bg_volume_hint"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
+            android:id="@+id/volume_inc_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SqueezerTextAppearance.Medium"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bg_volume_hint"
+            style="@style/SqueezerTextAppearance.Preference.Title"
             android:text="@string/settings_volume_increment_title"/>
         <TextView
+            android:id="@+id/volume_inc_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SqueezerTextAppearance.Small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/volume_inc_title"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
             android:text="@string/settings_volume_increment_summary"/>
         <com.google.android.material.slider.Slider
             android:id="@+id/volume_increments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/volume_inc_hint"
             android:valueFrom="1"
             android:valueTo="10"
             android:stepSize="1" />
 
         <TextView
-            android:id="@+id/group_volume_label"
-            android:layout_width="match_parent"
+            android:id="@+id/group_volume_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/SqueezerTextAppearance.Medium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/volume_increments"
+            app:layout_constraintEnd_toStartOf="@id/group_volume"
+            android:layout_marginTop="16dp"
+            style="@style/SqueezerTextAppearance.Preference.Title"
             android:text="@string/player_group_volume"/>
+        <TextView
+            android:id="@+id/group_volume_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_volume_title"
+            app:layout_constraintEnd_toStartOf="@id/group_volume"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
+            android:text="@string/player_group_volume_off"/>
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/group_volume"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
-            android:text="@string/player_group_volume_off" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/group_volume_title"
+            app:layout_constraintBottom_toBottomOf="@id/group_volume_hint" />
 
         <TextView
-            android:id="@+id/fixed_volume_label"
-            android:layout_width="match_parent"
+            android:id="@+id/fixed_volume_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/SqueezerTextAppearance.Medium"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_volume_hint"
+            app:layout_constraintEnd_toStartOf="@id/fixed_volume"
+            style="@style/SqueezerTextAppearance.ListItem.Primary"
             android:text="@string/SETUP_DIGITALVOLUMECONTROL"/>
+        <TextView
+            android:id="@+id/fixed_volume_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fixed_volume_title"
+            app:layout_constraintEnd_toStartOf="@id/fixed_volume"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
+            android:text="@string/SETUP_DIGITALVOLUMECONTROL_OFF"/>
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/fixed_volume"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
-            android:text="@string/SETUP_DIGITALVOLUMECONTROL_OFF" />
-    </LinearLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fixed_volume_title"
+            app:layout_constraintBottom_toBottomOf="@id/fixed_volume_hint" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

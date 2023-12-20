@@ -100,6 +100,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="SqueezerTextAppearance.Preference.Title" parent="SqueezerTextAppearance.ListItem.Primary" />
+    <style name="SqueezerTextAppearance.Preference.Subtext" parent="SqueezerTextAppearance.ListItem.Secondary" />
+
     <!-- Text in grid items -->
     <style name="SqueezerTextAppearance.GridItem.Primary" parent="SqueezerTextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.GridItem.Secondary" parent="SqueezerTextAppearance.Small"/>

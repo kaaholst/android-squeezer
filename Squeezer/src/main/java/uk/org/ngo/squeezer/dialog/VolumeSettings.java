@@ -3,6 +3,7 @@ package uk.org.ngo.squeezer.dialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -29,7 +30,8 @@ public class VolumeSettings extends DialogFragment {
         View view = requireActivity().getLayoutInflater().inflate(R.layout.volume_settings, null);
 
         SwitchMaterial backgroundVolume = view.findViewById(R.id.background_volume);
-        backgroundVolume.setOnCheckedChangeListener((buttonView, isChecked) -> backgroundVolume.setText(isChecked ? R.string.settings_background_volume_on : R.string.settings_background_volume_off));
+        TextView backgroundVolumeHint = view.findViewById(R.id.bg_volume_hint);
+        backgroundVolume.setOnCheckedChangeListener((buttonView, isChecked) -> backgroundVolumeHint.setText(isChecked ? R.string.settings_background_volume_on : R.string.settings_background_volume_off));
         backgroundVolume.setChecked(preferences.isBackgroundVolume());
 
         Slider volumeIncrements = view.findViewById(R.id.volume_increments);
@@ -37,17 +39,21 @@ public class VolumeSettings extends DialogFragment {
 
         boolean canAdjustVolumeForSyncGroup = service.canAdjustVolumeForSyncGroup();
         SwitchMaterial groupVolume = view.findViewById(R.id.group_volume);
-        view.findViewById(R.id.group_volume_label).setVisibility(canAdjustVolumeForSyncGroup ? View.VISIBLE : View.GONE);
+        TextView groupVolumeHint = view.findViewById(R.id.group_volume_hint);
+        view.findViewById(R.id.group_volume_title).setVisibility(canAdjustVolumeForSyncGroup ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.group_volume_hint).setVisibility(canAdjustVolumeForSyncGroup ? View.VISIBLE : View.GONE);
         groupVolume.setVisibility(canAdjustVolumeForSyncGroup ? View.VISIBLE : View.GONE);
-        groupVolume.setOnCheckedChangeListener((buttonView, isChecked) -> groupVolume.setText(isChecked ? R.string.player_group_volume_on : R.string.player_group_volume_off));
+        groupVolume.setOnCheckedChangeListener((buttonView, isChecked) -> groupVolumeHint.setText(isChecked ? R.string.player_group_volume_on : R.string.player_group_volume_off));
         groupVolume.setChecked(preferences.isGroupVolume());
 
         String digitalVolumeControl = service.getActivePlayerState().prefs.get(Player.Pref.DIGITAL_VOLUME_CONTROL);
         boolean canFixedVolume = digitalVolumeControl != null; // TODO check for hasDigitalOut
         SwitchMaterial fixedVolume = view.findViewById(R.id.fixed_volume);
-        view.findViewById(R.id.fixed_volume_label).setVisibility(canFixedVolume ? View.VISIBLE : View.GONE);
+        TextView fixedVolumeHint = view.findViewById(R.id.fixed_volume_hint);
+        view.findViewById(R.id.fixed_volume_title).setVisibility(canFixedVolume ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.fixed_volume_hint).setVisibility(canFixedVolume ? View.VISIBLE : View.GONE);
         fixedVolume.setVisibility(canFixedVolume ? View.VISIBLE : View.GONE);
-        fixedVolume.setOnCheckedChangeListener((buttonView, isChecked) -> fixedVolume.setText(isChecked ? R.string.SETUP_DIGITALVOLUMECONTROL_ON : R.string.SETUP_DIGITALVOLUMECONTROL_OFF));
+        fixedVolume.setOnCheckedChangeListener((buttonView, isChecked) -> fixedVolumeHint.setText(isChecked ? R.string.SETUP_DIGITALVOLUMECONTROL_ON : R.string.SETUP_DIGITALVOLUMECONTROL_OFF));
         fixedVolume.setChecked("1".equals(digitalVolumeControl));
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
