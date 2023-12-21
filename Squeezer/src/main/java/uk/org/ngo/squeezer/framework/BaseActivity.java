@@ -427,11 +427,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
 
         if (showMe) {
-            if (!(icon.getVisibility() == View.VISIBLE &&text.getVisibility() == View.VISIBLE)) {
-                layout.findViewById(R.id.divider).setVisibility(View.GONE);
-            }
             int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-            Toast toast = new Toast(getApplicationContext());
+            Toast toast = new Toast(this);
             //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
             // once we have material design and BaseTransientBottomBar
             toast.setDuration(duration);
