@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -34,10 +35,10 @@ public abstract class BaseChoicesDialog extends DialogFragment {
 
     Dialog createDialog(String title, String message, int selectedIndex, String[] choiceStrings) {
         final Activity activity = getActivity();
+        final LayoutInflater inflater = activity.getLayoutInflater();
 
         @SuppressLint({"InflateParams"})
-        View content = activity.getLayoutInflater().inflate(R.layout.choices_layout, null);
-
+        View content = inflater.inflate(R.layout.choices_layout, null);
 
         if (message != null) {
             content.<TextView>findViewById(R.id.message).setVisibility(View.VISIBLE);
@@ -46,19 +47,16 @@ public abstract class BaseChoicesDialog extends DialogFragment {
 
         RadioGroup radioGroup = content.findViewById(R.id.choices);
         for (int i = 0; i < choiceStrings.length; i++) {
-            RadioButton radioButton = new RadioButton(activity);
+            RadioButton radioButton = (RadioButton) inflater.inflate(R.layout.choices_item, radioGroup, false);
             radioButton.setText(choiceStrings[i]);
             radioButton.setId(i);
             radioGroup.addView(radioButton);
         }
         radioGroup.check(selectedIndex);
 
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                onSelectOption(checkedId);
-                dismiss();
-            }
+        radioGroup.setOnCheckedChangeListener((RadioGroup, checkedId) -> {
+            onSelectOption(checkedId);
+            dismiss();
         });
 
         return new MaterialAlertDialogBuilder(getContext())
