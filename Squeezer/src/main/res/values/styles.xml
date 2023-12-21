@@ -88,6 +88,9 @@
     <style name="SqueezerTextAppearance.ContextMenu" parent="@style/TextAppearance.AppCompat.Menu"/>
 
     <!-- List headers -->
+    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium">
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->

@@ -263,7 +263,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             parentViewHolder.text2.setText(parent.text2);
         }
 
-        if (parent != null && parent.hasIcon() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+        if (parent != null && parent.hasIcon()) {
             parentViewHolder.icon.setVisibility(View.VISIBLE);
             JiveItemViewLogic.icon(parentViewHolder.icon, parent, this::updateHeaderIcon);
             parentViewHolder.icon.setOnClickListener(view -> ArtworkDialog.show(this, parent));
