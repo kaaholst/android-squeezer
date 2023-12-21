@@ -43,17 +43,17 @@
     <string name="settings_MAC_help">Beispiel: 01:23:45:67:89:AB</string>
     <string name="settings_MAC_info"><![CDATA[Wenn ausgewählt, wird eine Wake-on-LAN (WoL) Nachricht
     vor der Verbindungsaufnahme zum Server versendet.
-        <p>Wake-on-LAN ist ein Netzwerkstandard, der es erlaubt Computer durch eine Nachricht
+        <p>Wake-on-LAN ist ein Netzwerkstandard, der es erlaubt, Computer durch eine Nachricht
         einzuschalten bzw. aufzuwecken.</p>
-        <p>Dazu muss der Computer, auf dem der Squeezebox Server läuft Wake-on-LAN unterstützen.</p>]]>
+        <p>Dazu muss der Computer, auf dem der Squeezebox Server läuft, Wake-on-LAN unterstützen.</p>]]>
     </string>
 
     <string name="settings_server_scan_progress">Suche nach Servern…</string>
-    <string name="settings_background_volume_title">Lautstärkenkontrolle im Hintergrund</string>
+    <string name="settings_background_volume_title">Lautstärkeregelung im Hintergrund</string>
     <string name="settings_background_volume_off">Die Lautstärke nur regeln, wenn die App sichtbar ist.</string>
-    <string name="settings_background_volume_on">Die Lautstärke auch regeln, wenn die App nicht sichtbar ist.</string>
-    <string name="settings_volume_increment_title">Intervall der Lautstärkenänderung</string>
-    <string name="settings_volume_increment_summary">Intervalle für die Telefontasten festlegen</string>
+    <string name="settings_background_volume_on">Die Lautstärke auch dann regeln, wenn die App nicht sichtbar ist.</string>
+    <string name="settings_volume_increment_title">Intervall der Lautstärkeänderung</string>
+    <string name="settings_volume_increment_summary">Intervall für die Lautstärketasten des Telefons festlegen</string>
     <string name="settings_fadeinsecs_title">Einblenddauer für Titel</string>
     <string name="settings_fadeinsecs_summary">Geben Sie die Einblenddauer in Sekunden an. Ein Wert
         von 0 deaktivert das Einblenden.
@@ -65,9 +65,9 @@
     <string name="settings_scrobble_on">Lied-Informationen werden an Last.fm gesendet.</string>
     <string name="settings_scrobble_off">Lied-Informationen werden nicht an Last.fm gesendet.</string>
     <string name="settings_scrobble_noapp">Keine Scrobble-Anwendung installiert</string>
-    <string name="settings_market_not_found">Konnte Google Play nicht starten. Is es installiert?</string>
+    <string name="settings_market_not_found">Konnte Google Play nicht starten. Ist es installiert?</string>
 
-    <string name="settings_squeezeplayer_title">Starte SqueezePlayer</string>
+    <string name="settings_squeezeplayer_title">SqueezePlayer starten</string>
     <string name="settings_squeezeplayer_summary">Auswählen, um sicherzustellen, dass SqueezePlayer
         läuft, wenn Squeezer verwendet wird.</string>
     <string name="settings_category_ui">Shortcuts, Archivfunktion, etc.</string>
@@ -79,7 +79,7 @@
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
-    <string name="menu_item_poweron">" %s einschalten"</string>
+    <string name="menu_item_poweron">%s einschalten</string>
     <string name="menu_item_poweroff">%s ausschalten</string>
     <string name="menu_item_rename">Umbenennen</string>
     <string name="menu_item_playlist">Wiedergabeliste</string>
@@ -97,12 +97,12 @@
     <string name="save_playlist_title">Wiedergabeliste speichern</string>
     <string name="save_playlist_hint">Name für die Wiedergabeliste eingeben</string>
     <string name="rename_title">%s umbenennen</string>
-    <string name="sync_title">Synchronisiere %s…</string>
+    <string name="sync_title">%s synchronisieren…</string>
 
     <string name="player_group_header">Gruppe: %s</string>
     <string name="player_group_volume">Gruppenlautstärke</string>
-    <string name="menu_item_player_sync">Synchronisiere…</string>
-    <string name="menu_item_player_unsync">Nichts synchronisiert</string>
+    <string name="menu_item_player_sync">Synchronisieren…</string>
+    <string name="menu_item_player_unsync">Nicht synchronisieren</string>
 
     <string name="no_players_connected">Keine Player verbunden</string>
     <string name="player_list_changed">Die Liste der verbundenen Player wurde verändert, während
@@ -114,30 +114,30 @@
     <string name="unknown_artistalbum">Unbekannter Künstler/Album</string>
 
     <!-- Alarm management -->
-    <string name="all_alarms_on_hint">Individuelle Alarme können aktiviert werden.</string>
-    <string name="all_alarms_off_hint">Alle Alarme wurden daktiviert</string>
+    <string name="all_alarms_on_hint">Individuelle Alarme können aktiviert werden</string>
+    <string name="all_alarms_off_hint">Alle Alarme wurden deaktiviert</string>
 
     <string name="alarm_music_prompt">Musik für Alarm</string>
 
-    <string name="alarms_settings_dialog_title">%s Alarm-Einstellungen</string>
+    <string name="alarms_settings_dialog_title">Alarm-Einstellungen für %s</string>
     <string name="alarm_volume_text">Alarm-Lautstärke</string>
 
     <string name="alarm_snooze_duration_text">Snooze-Dauer</string>
     <plurals name="alarm_snooze_hint_text">
-        <item quantity="one">Alarme snoozen für eine Minute.</item>
-        <item quantity="other">Alarme snoozen für %d Minuten.</item>
+        <item quantity="one">Alarme snoozen für eine Minute</item>
+        <item quantity="other">Alarme snoozen für %d Minuten</item>
     </plurals>
 
     <string name="alarm_timeout_text">Alarm-Dauer</string>
-    <string name="alarm_timeout_hint_text_zero">Alarme werden nicht automatisch beendet.</string>
+    <string name="alarm_timeout_hint_text_zero">Alarme werden nicht automatisch beendet</string>
     <plurals name="alarm_timeout_hint_text">
-        <item quantity="one">Alarme stoppen nach einer Minute.</item>
-        <item quantity="other">Alarme stoppen nach %d Minuten.</item>
+        <item quantity="one">Alarme stoppen nach einer Minute</item>
+        <item quantity="other">Alarme stoppen nach %d Minuten</item>
     </plurals>
 
     <string name="alarm_fade_text">Alarme langsam einblenden</string>
-    <string name="alarm_fade_on_text">Alarme werden langsam eingeblendet.</string>
-    <string name="alarm_fade_off_text">Alarme werden nicht langsam eingeblendet.</string>
+    <string name="alarm_fade_on_text">Alarme werden langsam eingeblendet</string>
+    <string name="alarm_fade_off_text">Alarme werden nicht langsam eingeblendet</string>
 
     <string name="tips_title">Tipps</string>
     <string name="tip_volume">Sie können die Musiklautstärke mit den Lautstärketasten des Geräts
