@@ -23,11 +23,12 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/parent_container"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginBottom="8dp"
+        android:minHeight="?listPreferredItemHeight"
         android:visibility="gone"
         tools:visibility="visible">
 
@@ -35,38 +36,50 @@
             android:id="@+id/icon"
             android:layout_width="@dimen/album_art_large_icon_size"
             android:layout_height="@dimen/album_art_large_icon_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/text1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:padding="4dp"
             android:contentDescription="@string/app_name"
-            android:layout_marginEnd="8dp"
             tools:src="@drawable/pending"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/text1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:minHeight="48dp"
-            android:orientation="vertical"
-            android:paddingEnd="8dp">
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            app:layout_constraintEnd_toStartOf="@id/context_menu"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/text2"
+            app:layout_constraintVertical_chainStyle="packed"
+            android:textAppearance="@style/SqueezerTextAppearance.ItemList.Header"
+            tools:text="text1"/>
 
-            <TextView
-                android:id="@+id/text1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
-                tools:text="text1"/>
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/text1"
+            app:layout_constraintEnd_toStartOf="@id/context_menu"
+            app:layout_constraintTop_toBottomOf="@id/text1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="text2"/>
 
-            <TextView
-                android:id="@+id/text2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
-                android:visibility="gone"
-                tools:visibility="visible"
-                tools:text="text2"/>
-        </LinearLayout>
+        <include
+            layout="@layout/context_menu_image_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <include layout="@layout/context_menu_image_button"/>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
         android:id="@+id/sub_header_container"
