@@ -109,6 +109,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @Nullable
     private VolumePanel volumePanel;
 
+    private Toast lastShownToast;
+
     /**
      * @return The {@link ISqueezeService}, or null if not bound
      */
@@ -426,15 +428,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             showMe = false;
         }
 
-        if (showMe) {
-            int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-            Toast toast = new Toast(this);
-            //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
-            // once we have material design and BaseTransientBottomBar
-            toast.setDuration(duration);
-            toast.setView(layout);
-            toast.show();
+        if (!showMe) {
+            return;
         }
+        if (lastShownToast != null) {
+            lastShownToast.cancel();
+        }
+        int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+        lastShownToast = new Toast(this);
+        //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
+        // once we have material design and BaseTransientBottomBar
+        lastShownToast.setDuration(duration);
+        lastShownToast.setView(layout);
+        lastShownToast.show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
