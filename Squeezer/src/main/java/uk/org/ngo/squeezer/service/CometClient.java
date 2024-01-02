@@ -824,7 +824,9 @@ class CometClient extends BaseClient {
                 }
                 case MSG_MUSIC_CHANGED: {
                     Player activePlayer = mConnectionState.getActivePlayer();
-                    mEventBus.postSticky(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+                    if (activePlayer != null) {
+                        mEventBus.postSticky(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+                    }
                     break;
                 }
             }
