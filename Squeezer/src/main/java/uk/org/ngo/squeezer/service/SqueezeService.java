@@ -45,6 +45,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.VolumeProviderCompat;
+import androidx.media.app.NotificationCompat.MediaStyle;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -308,12 +309,8 @@ public class SqueezeService extends Service {
         mDelegate.disconnect(fromUser);
     }
 
-    @Nullable private PlayerState getActivePlayerState() {
-        return squeezeService.getActivePlayerState();
-    }
-
     private boolean isPlaying() {
-        PlayerState playerState = getActivePlayerState();
+        PlayerState playerState = squeezeService.getActivePlayerState();
         return playerState != null && playerState.isPlaying();
     }
 
@@ -411,8 +408,8 @@ public class SqueezeService extends Service {
      * Manages the state of any ongoing notification based on the player and connection state.
      */
     private void updateMediaSession() {
-        PlayerState playerState = getActivePlayerState();
-        if (playerState == null) {
+        Player player = mDelegate.getActivePlayer();
+        if (player == null) {
             mMediaSession.setMetadata(null);
             mMediaSession.setPlaybackState(null);
             notify(null);
@@ -424,25 +421,25 @@ public class SqueezeService extends Service {
         // user went in to settings to disable scrobbling).
         if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
             scrobblingPreviouslyEnabled = scrobblingEnabled;
-            Scrobble.scrobbleFromPlayerState(this, playerState);
+            Scrobble.scrobbleFromPlayerState(this, player.getPlayerState());
         }
 
         final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-        CurrentPlaylistItem song = playerState.getCurrentSong();
+        CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
         if (song != null) {
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, notificationSubtext(mDelegate.getActivePlayer()));
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, notificationSubtext(player));
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, song.songInfo.getArtist());
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, song.songInfo.album);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, song.songInfo.title);
-            metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, playerState.getCurrentSongDuration()*1000L);
-            metaBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, playerState.getCurrentPlaylistIndex() + 1);
-            metaBuilder.putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, playerState.getCurrentPlaylistTracksNum());
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, player.getPlayerState().getCurrentSongDuration()*1000L);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, player.getPlayerState().getCurrentPlaylistIndex() + 1);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, player.getPlayerState().getCurrentPlaylistTracksNum());
             mMediaSession.setMetadata(metaBuilder.build());
         }
 
         int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
         PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
-                .setState(playState, playerState.getPosition(), isPlaying() ? 1.0f : 0)
+                .setState(playState, player.getPlayerState().getPosition(), isPlaying() ? 1.0f : 0)
                 .setActions(
                         PlaybackStateCompat.ACTION_PLAY |
                                 PlaybackStateCompat.ACTION_PAUSE |
@@ -450,7 +447,7 @@ public class SqueezeService extends Service {
                                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
                                 PlaybackStateCompat.ACTION_SEEK_TO
                 )
-                .addCustomAction(ACTION_POWER, getString(playerState.isPoweredOn() ? R.string.menu_item_power_off :  R.string.menu_item_power_on), R.drawable.power)
+                .addCustomAction(ACTION_POWER, getString(player.getPlayerState().isPoweredOn() ? R.string.menu_item_power_off :  R.string.menu_item_power_on), R.drawable.power)
                 .addCustomAction(ACTION_DISCONNECT, getString(R.string.menu_item_disconnect), R.drawable.ic_action_disconnect)
                 .build();
         mMediaSession.setPlaybackState(playbackState);
@@ -485,30 +482,28 @@ public class SqueezeService extends Service {
     private NotificationCompat.Builder notificationData() {
         Intent showNowPlaying = new Intent(SqueezeService.this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent showNowPlayingIOntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, Intents.immutablePendingIntent());
+        PendingIntent showNowPlayingIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, Intents.immutablePendingIntent());
 
         NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
                 "Squeezer ongoing notification",
                 "Notifications of player and connection state",
                 NotificationManagerCompat.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
-        builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(2, 3)
-                .setMediaSession(mMediaSession.getSessionToken()));
-        builder.setContentIntent(showNowPlayingIOntent);
+        builder.setStyle(getMediaStyle());
+        builder.setContentIntent(showNowPlayingIntent);
         builder.setSmallIcon(R.drawable.squeezer_notification);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setShowWhen(false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            PlayerState playerState = getActivePlayerState();
-            if (playerState != null) {
-                CurrentPlaylistItem song = playerState.getCurrentSong();
+            Player player = mDelegate.getActivePlayer();
+            if (player != null) {
+                CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
                 if (song != null) {
                     builder.setContentTitle(song.getName());
                     builder.setContentText(song.artistAlbum());
                 }
-                builder.setSubText(notificationSubtext(mDelegate.getActivePlayer()));
+                builder.setSubText(notificationSubtext(player));
             }
 
             PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
@@ -528,6 +523,13 @@ public class SqueezeService extends Service {
         }
 
         return builder;
+    }
+
+    private MediaStyle getMediaStyle() {
+        MediaStyle mediaStyle = new MediaStyle();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) mediaStyle.setShowActionsInCompactView(2, 3);
+        mediaStyle.setMediaSession(mMediaSession.getSessionToken());
+        return mediaStyle;
     }
 
     public String notificationSubtext(Player player) {
