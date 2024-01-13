@@ -93,7 +93,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().setSelectedIndex(getAdapterPosition());
         }
 
-        setItemViewParams((viewParamIcon() | VIEW_PARAM_TWO_LINE | viewParamContext(item)));
+        setItemViewParams((viewParamIcon() | viewParamTwoLine(item) | viewParamContext(item)));
         super.bindView(item);
 
         text2.setText(item.text2);
@@ -168,6 +168,10 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     private int viewParamIcon() {
         return windowStyle == Window.WindowStyle.TEXT_ONLY ? 0 : VIEW_PARAM_ICON;
+    }
+
+    private int viewParamTwoLine(JiveItem item) {
+        return TextUtils.isEmpty(item.text2) ? 0 : VIEW_PARAM_TWO_LINE;
     }
 
     private int viewParamContext(JiveItem item) {

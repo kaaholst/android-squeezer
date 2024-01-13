@@ -46,19 +46,22 @@ for the implementation.
     <ImageView
         style="@style/SqueezerWidget.List.CoverArt"
         android:id="@+id/icon"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/text1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="@string/app_name"
-        tools:src="@drawable/pending"/>
+        tools:src="@drawable/pending" />
 
     <TextView
         android:id="@+id/text1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintEnd_toStartOf="@+id/context_menu"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/text2"
+        app:layout_constraintVertical_chainStyle="packed"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
         tools:text="text1"/>
 
@@ -66,16 +69,18 @@ for the implementation.
         android:id="@+id/text2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/text1"
+        app:layout_constraintEnd_toStartOf="@id/context_menu"
         app:layout_constraintTop_toBottomOf="@id/text1"
-        app:layout_constraintStart_toStartOf="@+id/text1"
-        app:layout_constraintEnd_toStartOf="@+id/context_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
         tools:text="text2"/>
 
     <include layout="@layout/context_menu_image_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
