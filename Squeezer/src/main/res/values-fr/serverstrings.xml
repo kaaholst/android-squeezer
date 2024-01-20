@@ -33,6 +33,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Réglage du volume</string>
   <string name='SETUP_SYNCPOWER_ON'>Allumer/éteindre avec groupe</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Suppression de\n%s\nde la liste de lecture…</string>
+  <string name='ALARM_DELETE'>Supprimer le réveil</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Lorsque vous choisissez un morceau et que vous appuyez sur le bouton PLAY de la télécommande, la platine peut lire uniquement ce morceau ou tous les morceaux de l\'album ou du dossier en commençant par le morceau choisi.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Petites pochettes</string>
   <string name='SETUP_SYNCPOWER'>Synchroniser la mise en marche</string>

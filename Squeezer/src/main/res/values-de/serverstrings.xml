@@ -27,12 +27,13 @@ Automatically generated file. DO NOT MODIFY
   <string name='CLEARING_PLAYLIST'>Wiedergabeliste wird geleert …</string>
   <string name='SETUP_DIGITALVOLUMECONTROL_ON'>Lautstärkeregelung regelt Ausgabepegel</string>
   <string name='ALARM_SET_TIME'>Zeit einrichten</string>
-  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC'>Durch das Berühren/Auswählen eines Musikstückes auf der Squeezebox kann versehentlich eine aktuelle Wiedergabeliste ersetzt werden. Dieses destruktive Verhalten kann mit dieser Einstellung verändert weren.</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC'>Durch das Berühren/auswählen eines Musikstückes auf der Squeezebox kann versehentlich eine aktuelle Wiedergabeliste ersetzt werden. Dieses destruktive Verhalten kann mit dieser Einstellunge kontrolliert weren.</string>
   <string name='ALARM_ALL_ALARMS'>Alle Wecker</string>
   <string name='SLEEPING_IN'>Schlafmodus in</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Lautstärkeregelung</string>
   <string name='SETUP_SYNCPOWER_ON'>In Gruppe ein-/ausschalten</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>\n%s\nwird aus Wiedergabeliste entfernt…</string>
+  <string name='ALARM_DELETE'>Wecker entfernen</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Wenn Sie einen Titel auswählen und PLAY drücken, können Sie hier festlegen, ob nur dieses eine oder alle Titel aus diesem Album oder Ordner wiedergegeben werden soll.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Kleine Plattenhüllen</string>
   <string name='SETUP_SYNCPOWER'>Ein-/Ausschalten synchronisieren</string>
