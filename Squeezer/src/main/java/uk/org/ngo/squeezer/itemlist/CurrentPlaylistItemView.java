@@ -71,7 +71,10 @@ class CurrentPlaylistItemView extends JiveItemView {
             Drawable drawable = icon.getDrawable();
             Drawable marker = DrawableCompat.wrap(AppCompatResources.getDrawable(getActivity(), R.drawable.ic_action_nowplaying));
             Palette colorPalette = Palette.from(Util.drawableToBitmap(drawable)).generate();
-            DrawableCompat.setTint(marker, colorPalette.getDominantSwatch().getBodyTextColor());
+            Palette.Swatch dominantSwatch = colorPalette.getDominantSwatch();
+            if (dominantSwatch != null) {
+                DrawableCompat.setTint(marker, dominantSwatch.getBodyTextColor());
+            }
 
             LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{drawable, marker});
             int inset = getActivity().getResources().getDimensionPixelSize(R.dimen.now_playing_emblem_inset);
