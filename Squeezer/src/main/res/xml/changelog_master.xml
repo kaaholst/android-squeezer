@@ -2,6 +2,13 @@
 
 <changelog>
     <release
+        version="2.3.5"
+        versioncode="129">
+
+        <change>Fix current playlist when showing QR code</change>
+    </release>
+
+    <release
         version="2.3.4"
         versioncode="128">
 

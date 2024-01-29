@@ -1,15 +1,1 @@
-&bull; Bring back notification controls.
-
-&bull; Smooth volume slider on Now Playing screen.
-
-&bull; Possibility to seek current song from notification
-
-&bull; Power on/off now possible from notification
-
-&bull; Fix context menu initially hidden in landscape
-
-&bull; Remove obsolete volume button on Now Playing mini layout
-
-&bull; Minor improvements when the app is sideloaded on Google TV
-
-&bull; Workaround an Android issue https://issuetracker.google.com/issues/160946170
+&bull; Fix current playlist when showing QR code
