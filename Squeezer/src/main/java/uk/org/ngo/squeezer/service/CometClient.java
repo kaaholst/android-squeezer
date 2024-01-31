@@ -71,6 +71,7 @@ import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
+import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.FluentHashMap;
@@ -404,7 +405,6 @@ class CometClient extends BaseClient {
             return;
 
         Map<String, Object> messageData = message.getDataAsMap();
-
         CurrentPlaylistItem currentSong = null;
         Object[] item_data = (Object[]) messageData.get("item_loop");
         if (item_data != null && item_data.length > 0) {
@@ -419,6 +419,31 @@ class CometClient extends BaseClient {
     }
 
     @Override
+    protected void handleChangedSong(Player player) {
+        mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
+        mBackgroundHandler.sendEmptyMessageDelayed(MSG_MUSIC_CHANGED, 100);
+
+        String[] cmd = new String[]{"status"};
+        Map<String, Object> params = new FluentHashMap<String, Object>().with("tags", JiveItem.SONG_TAGS);
+        final BaseClient.BrowseRequest<Song> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new IServiceItemListCallback<>() {
+            @Override
+            public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
+                if (items.size() > 0) {
+                    player.getPlayerState().getCurrentSong().songInfo = items.get(0);
+                    mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
+                    mEventBus.postSticky(new MusicChanged(player, player.getPlayerState()));
+                }
+            }
+
+            @Override
+            public Object getClient() {
+                return null;
+            }
+        });
+        internalRequestItems(browseRequest);
+    }
+
+    @Override
     protected void postSongTimeChanged(Player player) {
         super.postSongTimeChanged(player);
         if (player.getPlayerState().isPlaying()) {
@@ -428,11 +453,11 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected void postPlayerStateChanged(Player player) {
-        super.postPlayerStateChanged(player);
+    protected void postSleepTimeChanged(Player player) {
+        super.postSleepTimeChanged(player);
         if (player.getPlayerState().getSleepDuration() > 0) {
-            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_STATE_UPDATE, player);
-            mBackgroundHandler.removeMessages(MSG_STATE_UPDATE);
+            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_SLEEP_UPDATE, player);
+            mBackgroundHandler.removeMessages(MSG_SLEEP_UPDATE);
             mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
     }
@@ -544,7 +569,7 @@ class CometClient extends BaseClient {
             }
 
             // Check if we need to order more items
-            if ((fullList || end % mPageSize != 0) && end < max) {
+            if ((fullList || end % mPageSize != 0) && end < max && !browseRequest.isCurrent()) {
                 int itemsPerResponse = (end + mPageSize > max ? max - end : fullList ? mPageSize : mPageSize - browseRequest.getItemsPerResponse());
                 //XXX support prefix
                 internalRequestItems(browseRequest.update(end, itemsPerResponse));
@@ -681,7 +706,7 @@ class CometClient extends BaseClient {
         }
 
         Request request = request(browseRequest.getPlayer(), listener, browseRequest.cmd())
-                .page(browseRequest.getStart(), browseRequest.getItemsPerResponse())
+                .page(browseRequest.isCurrent() ? "-" : String.valueOf(browseRequest.getStart()), browseRequest.getItemsPerResponse())
                 .params(browseRequest.params);
         mPendingBrowseRequests.put(exec(request), browseRequest);
     }
@@ -752,7 +777,8 @@ class CometClient extends BaseClient {
     private static final int MSG_SERVER_STATUS_TIMEOUT = 4;
     private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 5;
     private static final int MSG_TIME_UPDATE = 6;
-    private static final int MSG_STATE_UPDATE = 7;
+    private static final int MSG_SLEEP_UPDATE = 7;
+    private static final int MSG_MUSIC_CHANGED = 8;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -791,9 +817,16 @@ class CometClient extends BaseClient {
                     }
                     break;
                 }
-                case MSG_STATE_UPDATE: {
+                case MSG_SLEEP_UPDATE: {
                     Player player = (Player) msg.obj;
-                    postPlayerStateChanged(player);
+                    postSleepTimeChanged(player);
+                    break;
+                }
+                case MSG_MUSIC_CHANGED: {
+                    Player activePlayer = mConnectionState.getActivePlayer();
+                    if (activePlayer != null) {
+                        mEventBus.postSticky(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+                    }
                     break;
                 }
             }
@@ -858,8 +891,8 @@ class CometClient extends BaseClient {
             return this;
         }
 
-        private Request page(int start, int page) {
-            this.page = new PagingParams(String.valueOf(start), String.valueOf(page));
+        private Request page(String start, int page) {
+            this.page = new PagingParams(start, String.valueOf(page));
             return this;
         }
 

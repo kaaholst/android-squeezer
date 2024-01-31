@@ -76,6 +76,13 @@ public abstract class Item implements Parcelable {
     }
 
     @Override
+    public String toString() {
+        return "Item{" +
+                "id='" + id + '\'' +
+                '}';
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

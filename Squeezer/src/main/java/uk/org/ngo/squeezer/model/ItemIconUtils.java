@@ -72,7 +72,7 @@ public class ItemIconUtils {
         Integer itemIcon = itemIcons.get(iconStyle(item));
         if (itemIcon == null && Squeezer.getPreferences().useFlatIcons()) {
             String path = item.getIcon().getPath();
-            Log.i("GetIcon", "path: " + path);
+            Log.d("GetIcon", "path: " + path);
             if (path != null) {
                 if (path.startsWith("/imageproxy/") && path.endsWith("/image.png")) {
                     path = path.substring(0, path.length() - "/image.png".length());

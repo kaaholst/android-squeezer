@@ -66,17 +66,17 @@ Take new screenshots for market/screenshots.
 Carry out the following steps when the production release has been posted,
 and the release branch is no longer necessary.
 
-### Merge the changes back to the master branch and tag the release.
+### Merge the changes back to the develop branch and tag the release.
 
-    git checkout master
-    git merge --no-ff release-x.y.z
+    git switch develop
+    git merge release-x.y.z
     git tag -a x.y.z -m "Code for the x.y.z release."
     git push origin x.y.z
 
-### Merge the changes back to the develop branch.
+### Update the master branch.
 
-    git checkout develop
-    git merge --no-ff release-x.y.z
+    git switch master
+    git merge develop
 
 ### Delete the release branch
 

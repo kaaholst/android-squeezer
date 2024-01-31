@@ -55,8 +55,8 @@ public class Scrobble {
             i.putExtra("app-name", context.getText(R.string.app_name));
             i.putExtra("app-package", "uk.org.ngo.squeezer");
             i.putExtra("track", currentSong.getName());
-            i.putExtra("album", currentSong.getAlbum());
-            i.putExtra("artist", currentSong.getArtist());
+            i.putExtra("album", currentSong.songInfo.album);
+            i.putExtra("artist", currentSong.songInfo.getArtist());
             i.putExtra("duration", playerState.getCurrentSongDuration());
             i.putExtra("source", "P");
         } else if (Scrobble.haveScrobbleDroid()) {
@@ -64,8 +64,8 @@ public class Scrobble {
             i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
             i.putExtra("playing", PlayerState.PLAY_STATE_PLAY.equals(playStatus));
             i.putExtra("track", currentSong.getName());
-            i.putExtra("album", currentSong.getAlbum());
-            i.putExtra("artist", currentSong.getArtist());
+            i.putExtra("album", currentSong.songInfo.album);
+            i.putExtra("artist", currentSong.songInfo.getArtist());
             i.putExtra("secs", playerState.getCurrentSongDuration());
             i.putExtra("source", "P");
         }

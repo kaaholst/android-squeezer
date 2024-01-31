@@ -45,6 +45,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 
 
 public class PlayerListActivity extends ItemListActivity implements
@@ -225,6 +226,15 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerStateChanged event) {
+        maybeUpdateAndExpandPlayerList();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(SleepTimeChanged event) {
+        maybeUpdateAndExpandPlayerList();
+    }
+
+    private void maybeUpdateAndExpandPlayerList() {
         if (mTrackingTouch == null) {
             updateAndExpandPlayerList();
         } else {

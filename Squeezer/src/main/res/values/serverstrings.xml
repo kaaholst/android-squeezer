@@ -19,6 +19,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Always ask before playing your selection</string>
   <string name='ALARM_SHORT_DAY_5'>Fr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Do not defeat</string>
+  <string name='DISABLE'>Disable</string>
   <string name='SETUP_SYNCPOWER_DESC'>You can choose to have this player turn off on its own, or turn off as a group with all other players in the group. Make a selection below and click Change.</string>
   <string name='SWITCH_TO_GALLERY'>Large Artwork</string>
   <string name='ADVANCED_SETTINGS'>Advanced</string>

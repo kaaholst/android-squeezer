@@ -368,6 +368,7 @@
     <style name="ModalBottomSheetDialog" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="shapeAppearance">@style/ShapeAppearance.Squeezer.LargeComponent</item>
         <item name="android:elevation">0dp</item>
+        <item name="behavior_peekHeight">@dimen/bottom_sheet_peek_height</item>
     </style>
 
     <style name="ShapeAppearance.Squeezer.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">

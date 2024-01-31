@@ -25,13 +25,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
+import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -40,8 +42,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.VolumeProviderCompat;
+import androidx.media.app.NotificationCompat.MediaStyle;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -80,10 +84,12 @@ import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -96,7 +102,7 @@ import uk.org.ngo.squeezer.util.Scrobble;
  * <p>
  * The interface is documented here {@link ISqueezeService}
  * <p>
- * The service lifecycle is managed as both a bound and a started servic. as follows.
+ * The service lifecycle is managed as both a bound and a started service. as follows.
  * <ul>
  *     <li>On connect to LMS call Context.start[Foreground]Service and Service.startForeground</li>
  *     <li>On disconnect from LMS call Service.stopForeground and Service.stopSelf</li>
@@ -129,9 +135,6 @@ public class SqueezeService extends Service {
     /** Are the service currently in the foregrund */
     private volatile boolean foreGround;
 
-    /** The most recent notifcation. */
-    private NotificationState ongoingNotification;
-
     private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
 
     private final RandomPlayDelegate randomPlayDelegate = new RandomPlayDelegate(mDelegate);
@@ -154,6 +157,8 @@ public class SqueezeService extends Service {
     private static final String ACTION_PLAY = "uk.org.ngo.squeezer.service.ACTION_PLAY";
     private static final String ACTION_PAUSE = "uk.org.ngo.squeezer.service.ACTION_PAUSE";
     private static final String ACTION_CLOSE = "uk.org.ngo.squeezer.service.ACTION_CLOSE";
+    private static final String ACTION_POWER = "power";
+    private static final String ACTION_DISCONNECT = "disconnect";
 
     private final BroadcastReceiver deviceIdleModeReceiver = new BroadcastReceiver() {
         @Override
@@ -174,7 +179,7 @@ public class SqueezeService extends Service {
         }
     };
 
-    private MyVolumeProvider mVolumeProvider;
+    private SqueezerVolumeProvider mVolumeProvider;
 
     /**
      * Thrown when the service is asked to send a command to the server before the server
@@ -206,7 +211,7 @@ public class SqueezeService extends Service {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
 
-        Squeezer.getPreferences(preferences -> cachePreferences(preferences));
+        Squeezer.getPreferences(this::cachePreferences);
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
@@ -237,7 +242,7 @@ public class SqueezeService extends Service {
                         squeezeService.pause();
                         break;
                     case ACTION_CLOSE:
-                        squeezeService.disconnect();
+                        disconnect(true);
                         break;
                 }
             }
@@ -254,7 +259,7 @@ public class SqueezeService extends Service {
         scrobblingEnabled = preferences.isScrobbleEnabled();
         mFadeInSecs = preferences.getFadeInSecs();
         mGroupVolume = preferences.isGroupVolume();
-        mVolumeProvider = new MyVolumeProvider(preferences.getVolumeIncrements());
+        mVolumeProvider = new SqueezerVolumeProvider(preferences.getVolumeIncrements());
         if (squeezeService.isConnected()) {
             if (preferences.isBackgroundVolume()) {
                 mMediaSession.setPlaybackToRemote(mVolumeProvider);
@@ -300,30 +305,13 @@ public class SqueezeService extends Service {
         super.onTaskRemoved(rootIntent);
     }
 
-    void disconnect(boolean fromUser) {
+    private void disconnect(boolean fromUser) {
         mDelegate.disconnect(fromUser);
     }
 
-    @Nullable public PlayerState getActivePlayerState() {
-        Player activePlayer = mDelegate.getActivePlayer();
-        return activePlayer == null ? null : activePlayer.getPlayerState();
-
-    }
-
-    /**
-     * Updates the playing status of the current player.
-     * <p>
-     * Updates the Wi-Fi lock and ongoing status notification as necessary.
-     */
-
-    @Subscribe(priority = 1)
-    public void onEvent(PlayStatusChanged event) {
-        if (event.player.equals(mDelegate.getActivePlayer())) {
-            int state = PlayerState.PLAY_STATE_PLAY.equals(event.playStatus) ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
-            mMediaSession.setPlaybackState(new PlaybackStateCompat.Builder().setState(state, 0, 0).build());
-            updateOngoingNotification();
-            if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) musicPaused = false;
-        }
+    private boolean isPlaying() {
+        PlayerState playerState = squeezeService.getActivePlayerState();
+        return playerState != null && playerState.isPlaying();
     }
 
     /**
@@ -353,7 +341,7 @@ public class SqueezeService extends Service {
         Squeezer.getPreferences().setLastPlayer(newActivePlayer);
     }
 
-    class JiveItemServiceItemListCallback implements IServiceItemListCallback<JiveItem> {
+    class HomeMenuReceiver implements IServiceItemListCallback<JiveItem> {
 
         private final List<JiveItem> homeMenu = new ArrayList<>();
 
@@ -388,7 +376,7 @@ public class SqueezeService extends Service {
             mDelegate.requestPlayerStatus(activePlayer);
             // Start an asynchronous fetch of the squeezeservers "home menu" items
             // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
-            mDelegate.requestItems(activePlayer, 0, new JiveItemServiceItemListCallback())
+            mDelegate.requestItems(activePlayer, 0, new HomeMenuReceiver())
                     .cmd("menu").param("direct", "1").exec();
         }
     }
@@ -398,161 +386,155 @@ public class SqueezeService extends Service {
      */
     private void updateAllPlayerSubscriptionStates() {
         for (Player player : mDelegate.getPlayers().values()) {
-            updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
+            updatePlayerSubscription(player);
         }
-    }
-
-    /**
-     * Determine the correct status subscription type for the given player, based on
-     * how frequently we need to know its status.
-     */
-    private PlayerState.PlayerSubscriptionType calculateSubscriptionTypeFor(Player player) {
-        return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
     }
 
     /**
      * Manage subscription to a player's status updates.
      *
      * @param player player to manage.
-     * @param playerSubscriptionType the new subscription type
      */
-    private void updatePlayerSubscription(
-            Player player,
-            @NonNull PlayerState.PlayerSubscriptionType playerSubscriptionType) {
-        PlayerState playerState = player.getPlayerState();
-
+    private void updatePlayerSubscription(Player player) {
         // Do nothing if the player subscription type hasn't changed.
-        if (playerState.getSubscriptionType().equals(playerSubscriptionType)) {
+        if (player.getPlayerState().getSubscriptionType().equals(PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE)) {
             return;
         }
 
-        mDelegate.subscribePlayerStatus(player, playerSubscriptionType);
+        mDelegate.subscribePlayerStatus(player, PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE);
     }
 
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
-    private void updateOngoingNotification() {
-        PlayerState activePlayerState = getActivePlayerState();
+    private void updateMediaSession() {
+        Player player = mDelegate.getActivePlayer();
+        if (player == null) {
+            mMediaSession.setMetadata(null);
+            mMediaSession.setPlaybackState(null);
+            notify(null);
+            return;
+        }
 
         // Update scrobble state, if either we're currently scrobbling, or we
         // were (to catch the case where we started scrobbling a song, and the
         // user went in to settings to disable scrobbling).
         if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
             scrobblingPreviouslyEnabled = scrobblingEnabled;
-            Scrobble.scrobbleFromPlayerState(this, activePlayerState);
+            Scrobble.scrobbleFromPlayerState(this, player.getPlayerState());
         }
 
-        NotificationState notificationState = notificationState();
-
-        // Compare the current state with the state when the notification was last updated.
-        // If there are no changes (same song, same playing state) then there's nothing to do.
-        if (notificationState.equals(ongoingNotification)) {
-            return;
-        }
-        ongoingNotification = notificationState;
-
-        final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        final NotificationData notificationData = new NotificationData(notificationState);
         final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
-        metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
-        mMediaSession.setMetadata(metaBuilder.build());
+        CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
+        if (song != null) {
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, notificationSubtext(player));
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, song.songInfo.getArtist());
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, song.songInfo.album);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, song.songInfo.title);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, player.getPlayerState().getCurrentSongDuration()*1000L);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, player.getPlayerState().getCurrentPlaylistIndex() + 1);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, player.getPlayerState().getCurrentPlaylistTracksNum());
+            mMediaSession.setMetadata(metaBuilder.build());
+        }
 
-        ImageFetcher.getInstance(this).loadImage(notificationState.artworkUrl,
+        int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
+        PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
+                .setState(playState, player.getPlayerState().getPosition(), isPlaying() ? 1.0f : 0)
+                .setActions(
+                        PlaybackStateCompat.ACTION_PLAY |
+                                PlaybackStateCompat.ACTION_PAUSE |
+                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                PlaybackStateCompat.ACTION_SEEK_TO
+                )
+                .addCustomAction(ACTION_POWER, getString(player.getPlayerState().isPoweredOn() ? R.string.menu_item_power_off :  R.string.menu_item_power_on), R.drawable.power)
+                .addCustomAction(ACTION_DISCONNECT, getString(R.string.menu_item_disconnect), R.drawable.ic_action_disconnect)
+                .build();
+        mMediaSession.setPlaybackState(playbackState);
+
+        ImageFetcher.getInstance(this).loadImage(song != null ? song.getIcon() : null,
                 getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                 getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
                 (data, bitmap) -> {
-                    if (bitmap == null) {
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_no_artwork);
+                    if (bitmap != null) {
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+                        mMediaSession.setMetadata(metaBuilder.build());
                     }
-
-                    metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
-                    metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
-                    mMediaSession.setMetadata(metaBuilder.build());
-                    notificationData.builder.setLargeIcon(bitmap);
-                    nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+                    notify(bitmap);
                 });
     }
 
-    private class NotificationData {
-        private final NotificationCompat.Builder builder;
+    private void notify(Bitmap bitmap) {
+        final NotificationCompat.Builder notificationData = notificationData();
+        notificationData.setLargeIcon(bitmap);
+        final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+        try {
+            nm.notify(PLAYBACKSERVICE_STATUS, notificationData.build());
+        } catch (SecurityException e) {
+            Log.w(TAG, "Can't update notification:", e);
+        }
+    }
 
-        /**
-         * Prepare a notification builder from the supplied notification state.
-         */
-        private NotificationData(NotificationState notificationState) {
+    /**
+     * Prepare a notification builder from the supplied notification state.
+     */
+    private NotificationCompat.Builder notificationData() {
+        Intent showNowPlaying = new Intent(SqueezeService.this, NowPlayingActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent showNowPlayingIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, Intents.immutablePendingIntent());
+
+        NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
+                "Squeezer ongoing notification",
+                "Notifications of player and connection state",
+                NotificationManagerCompat.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
+        builder.setStyle(getMediaStyle());
+        builder.setContentIntent(showNowPlayingIntent);
+        builder.setSmallIcon(R.drawable.squeezer_notification);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        builder.setShowWhen(false);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Player player = mDelegate.getActivePlayer();
+            if (player != null) {
+                CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
+                if (song != null) {
+                    builder.setContentTitle(song.getName());
+                    builder.setContentText(song.artistAlbum());
+                }
+                builder.setSubText(notificationSubtext(player));
+            }
+
             PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
             PendingIntent prevPendingIntent = getPendingIntent(ACTION_PREV_TRACK);
             PendingIntent playPendingIntent = getPendingIntent(ACTION_PLAY);
             PendingIntent pausePendingIntent = getPendingIntent(ACTION_PAUSE);
             PendingIntent closePendingIntent = getPendingIntent(ACTION_CLOSE);
-
-            Intent showNowPlaying = new Intent(SqueezeService.this, NowPlayingActivity.class)
-                    .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            PendingIntent pIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, Intents.immutablePendingIntent());
-
-
-            NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
-                    "Squeezer ongoing notification",
-                    "Notifications of player and connection state",
-                    NotificationManagerCompat.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
-            builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
-
-            builder.setContentIntent(pIntent);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
-            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-            builder.setShowWhen(false);
-            builder.setContentTitle(notificationState.songName);
-            builder.setContentText(notificationState.artistAlbum());
-            builder.setSubText(notificationState.player());
-            builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                    .setShowActionsInCompactView(2, 3)
-                    .setMediaSession(mMediaSession.getSessionToken()));
-
-            // Don't set an ongoing notification, otherwise wearable's won't show it.
-            builder.setOngoing(false);
-
             builder.setDeleteIntent(closePendingIntent);
             builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_disconnect, "Disconnect", closePendingIntent));
             builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent));
-            if (notificationState.playing) {
+            if (isPlaying()) {
                 builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent));
             } else {
                 builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent));
             }
             builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
         }
+
+        return builder;
     }
 
-    /**
-     * Build current notification state based on the player and connection state.
-     */
-    private NotificationState notificationState() {
-        NotificationState notificationState = new NotificationState();
+    private MediaStyle getMediaStyle() {
+        MediaStyle mediaStyle = new MediaStyle();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) mediaStyle.setShowActionsInCompactView(2, 3);
+        mediaStyle.setMediaSession(mMediaSession.getSessionToken());
+        return mediaStyle;
+    }
 
-        final Player activePlayer = mDelegate.getActivePlayer();
-        notificationState.hasPlayer = (activePlayer != null);
-        if (notificationState.hasPlayer) {
-            final PlayerState activePlayerState = activePlayer.getPlayerState();
-
-            notificationState.playing = activePlayerState.isPlaying();
-            notificationState.currentTrack = activePlayerState.getCurrentPlaylistIndex()+1;
-            notificationState.numTracks = activePlayerState.getCurrentPlaylistTracksNum();
-
-            final CurrentPlaylistItem currentSong = activePlayerState.getCurrentSong();
-            notificationState.hasSong = (currentSong != null);
-            if (currentSong != null) {
-                notificationState.songName = currentSong.getName();
-                notificationState.albumName = currentSong.getAlbum();
-                notificationState.artistName = currentSong.getArtist();
-                notificationState.artworkUrl = currentSong.getIcon();
-                notificationState.playerName = activePlayer.getName();
-            }
-        }
-
-        return notificationState;
+    public String notificationSubtext(Player player) {
+        PlayerState playerState = player.getPlayerState();
+        return player.getName() + " " + (playerState.getCurrentPlaylistIndex()+1) + "/" + playerState.getCurrentPlaylistTracksNum();
     }
 
     /**
@@ -577,45 +559,13 @@ public class SqueezeService extends Service {
                 wifiLock.acquire();
             }
 
-            NotificationState notificationState = notificationState();
-            NotificationData notificationData = new NotificationData(notificationState);
-            Notification notification = notificationData.builder.build();
-
-            mMediaSession.setCallback(new MediaSessionCompat.Callback() {
-
-                @Override
-                public void onPlay() {
-                    squeezeService.play();
-                }
-
-                @Override
-                public void onPause() {
-                    squeezeService.pause();
-                }
-
-                @Override
-                public void onSkipToNext() {
-                    squeezeService.nextTrack();
-                }
-
-                @Override
-                public void onSkipToPrevious() {
-                    squeezeService.previousTrack();
-                }
-            });
-
-            final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
-            mMediaSession.setMetadata(metaBuilder.build());
-
-            mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
+            mMediaSession.setCallback(new SqueezerMediaSessionCallback());
             if (Squeezer.getPreferences().isBackgroundVolume()) {
                 mMediaSession.setPlaybackToRemote(mVolumeProvider);
             }
             mMediaSession.setActive(true);
+
+            Notification notification = notificationData().build();
 
             // Start it and have it run forever (until it shuts itself down).
             // This is required so swapping out the activity (and unbinding the
@@ -628,14 +578,13 @@ public class SqueezeService extends Service {
             }
 
             // Call startForeground immediately after startForegroundService
-            startForeground(PLAYBACKSERVICE_STATUS, notification);
+            ServiceCompat.startForeground(this, PLAYBACKSERVICE_STATUS, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         }
     }
 
     private void stopForeground() {
         Log.i(TAG, "stopForeground");
         foreGround = false;
-        ongoingNotification = null;
 
         if (wifiLock.isHeld()) {
             wifiLock.release();
@@ -684,7 +633,7 @@ public class SqueezeService extends Service {
     private boolean callStateListenerRegistered = false;
     private boolean musicPaused = false;
 
-    private CallStateListener callStateListener = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
+    private final CallStateListener callStateListener = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
             new CallStateListener() {
                 @Override
                 public void onCallStateChanged(int state) {
@@ -693,7 +642,7 @@ public class SqueezeService extends Service {
             }
             : null;
 
-    private PhoneStateListener phoneStateListener = (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) ?
+    private final PhoneStateListener phoneStateListener = (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) ?
             new PhoneStateListener() {
                 @Override
                 public void onCallStateChanged(int state, String phoneNumber) {
@@ -707,7 +656,7 @@ public class SqueezeService extends Service {
         Preferences.IncomingCallAction incomingCallAction = preferences.getActionOnIncomingCall();
         if (incomingCallAction != Preferences.IncomingCallAction.NONE) {
             PerformAction action = null;
-            boolean isPlaying = (getActivePlayerState() != null && getActivePlayerState().isPlaying());
+            boolean isPlaying = isPlaying();
             if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 if (isPlaying) {
                     action = incomingCallAction == Preferences.IncomingCallAction.PAUSE ? squeezeService::pause : squeezeService::mute;
@@ -754,13 +703,33 @@ public class SqueezeService extends Service {
         mHandshakeComplete = true;
     }
 
+    @Subscribe(priority = 1)
+    public void onEvent(ActivePlayerChanged event) {
+        updateMediaSession();
+    }
+
     @Subscribe(sticky = true, priority = 1)
     public void onEvent(MusicChanged event) {
         if (event.player.equals(mDelegate.getActivePlayer())) {
-            updateOngoingNotification();
+            updateMediaSession();
         }
         if (event.player.getPlayerState().isRandomPlaying()) {
             handleRandomOnEvent(event.player);
+        }
+    }
+
+    @Subscribe(priority = 1)
+    public void onEvent(PlayStatusChanged event) {
+        if (event.player.equals(mDelegate.getActivePlayer())) {
+            updateMediaSession();
+            if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) musicPaused = false;
+        }
+    }
+
+    @Subscribe(priority = 1)
+    public void onEvent(PlayerStateChanged event) {
+        if (event.player.equals(mDelegate.getActivePlayer())) {
+            updateMediaSession();
         }
     }
 
@@ -779,7 +748,6 @@ public class SqueezeService extends Service {
             randomPlay.reset(player);
         } else if (firstTwoTracksLoaded(number, index)) {
             Log.i(TAG, String.format("Ignore event after Random Play initialization for player '%s'.", player.getName()));
-            return;
         } else {
             Log.i(TAG, String.format("Handle Random Play after event for player '%s'.", player.getName()));
             String folderID = randomPlay.getActiveFolderID();
@@ -856,7 +824,7 @@ public class SqueezeService extends Service {
     }
 
     /** A download request will be passed to the download manager for each song called back to this */
-    private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
+    private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<>() {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
             final Preferences preferences = Squeezer.getPreferences();
@@ -864,12 +832,12 @@ public class SqueezeService extends Service {
                 Log.i(TAG, "downloadSong(" + song + ")");
                 Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
                 if (preferences.isDownloadUseServerPath()) {
-                    downloadSong(downloadUrl, song.title, song.album, song.artist, getLocalFile(song.url));
+                    downloadSong(downloadUrl, song.title, song.album, song.getArtist(), getLocalFile(song.url));
                 } else {
                     final String lastPathSegment = song.url.getLastPathSegment();
                     final String fileExtension = Util.getFileExtension(lastPathSegment);
                     final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
-                    downloadSong(downloadUrl, song.title, song.album, song.artist, localPath + "." + fileExtension);
+                    downloadSong(downloadUrl, song.title, song.album, song.getArtist(), localPath + "." + fileExtension);
                 }
             }
         }
@@ -885,7 +853,7 @@ public class SqueezeService extends Service {
      * If it is a folder: recursive lookup items in the folder
      * If is is a track: Enqueue a download request to the download manager
      */
-    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
+    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<>() {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
             for (MusicFolderItem item : items) {
@@ -931,7 +899,7 @@ public class SqueezeService extends Service {
         String mediaDir = null;
         String path;
         for (String dir : mDelegate.getMediaDirs()) {
-            if (serverPath.startsWith(dir)) {
+            if (serverPath != null && serverPath.startsWith(dir)) {
                 mediaDir = dir;
                 break;
             }
@@ -1131,11 +1099,7 @@ public class SqueezeService extends Service {
         @Nullable
         public PlayerState getActivePlayerState() {
             Player activePlayer = getActivePlayer();
-            if (activePlayer == null) {
-                return null;
-            }
-
-            return activePlayer.getPlayerState();
+            return activePlayer == null ? null : activePlayer.getPlayerState();
         }
 
         @Override
@@ -1337,11 +1301,6 @@ public class SqueezeService extends Service {
             }
             mDelegate.command(player).cmd("button", button.getFunction()).exec();
             return true;
-        }
-
-        private boolean isPlaying() {
-            PlayerState playerState = getActivePlayerState();
-            return playerState != null && playerState.isPlaying();
         }
 
         @Override
@@ -1603,10 +1562,48 @@ public class SqueezeService extends Service {
         }
     }
 
-    private class MyVolumeProvider extends VolumeProviderCompat {
+    private class SqueezerMediaSessionCallback extends MediaSessionCompat.Callback {
+
+        @Override
+        public void onPlay() {
+            squeezeService.play();
+        }
+
+        @Override
+        public void onPause() {
+            squeezeService.pause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            squeezeService.nextTrack();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            squeezeService.previousTrack();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            squeezeService.setSecondsElapsed((int) (pos/1000));
+        }
+
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            if (ACTION_DISCONNECT.equals(action)) {
+                disconnect(true);
+            } else
+            if (ACTION_POWER.equals(action)) {
+                squeezeService.togglePower(mDelegate.getActivePlayer());
+            }
+        }
+    }
+
+    private class SqueezerVolumeProvider extends VolumeProviderCompat {
         private final int step;
 
-        public MyVolumeProvider(int step) {
+        public SqueezerVolumeProvider(int step) {
             super(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 100 / step, 1);
             this.step = step;
         }

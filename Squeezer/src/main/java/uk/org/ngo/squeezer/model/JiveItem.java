@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
@@ -60,17 +61,23 @@ public class JiveItem extends Item {
     /**
      * Information that will be requested about songs.
      * <p>
-     * a:artist artist name<br/>
-     * C:compilation (1 if true, missing otherwise)<br/>
-     * j:coverart (1 if available, missing otherwise)<br/>
-     * J:artwork_track_id (if available, missing otherwise)<br/>
-     * K:artwork_url URL to remote artwork<br/>
-     * l:album album name<br/>
-     * t:tracknum, if known<br/>
-     * u:url Song file url<br/>
-     * x:remote 1, if this is a remote track<br/>
+     A 	<role> 	For every artist role (one of "artist", "composer", "conductor", "band", "albumartist" or "trackartist"), a comma and space (', ') separated list of names.
+     AA 	<role> 	This is like "A", but without the space after the comma. This should simplify parsing/splitting when required.
+     B 	buttons 	A hash with button definitions. Only available for certain plugins such as Pandora.
+     d 	duration 	Song duration in seconds.
+     e 	album_id 	Album ID. Only if known.
+     j 	coverart 	1 if coverart is available for this song. Not listed otherwise.
+     J 	artwork_track_id 	Identifier of the album track used by the server to display the album's artwork. Not listed if artwork is not available for this album.
+     K 	artwork_url 	A full URL to remote artwork. Only available for certain online music services.
+     l 	album 	Album name. Only if known.
+     r 	bitrate 	Song bitrate. Only if known.
+     S 	<role>_ids 	For each role as defined above, the list of ids (comma separated).
+     t 	tracknum 	Track number. Only if known.
+     T 	samplerate 	Song sample rate (in KHz)
+     u 	url 	Song file url.
+     x 	remote 	If 1, this is a remote track.
      */
-    private static final String SONG_TAGS = "aCjJKltux";
+    public static final String SONG_TAGS = "ABdejJKlrStTux";
 
     public static final Creator<JiveItem> CREATOR = new Creator<>() {
         @Override
@@ -433,25 +440,50 @@ public class JiveItem extends Item {
         return (getId() != null ? getId().hashCode() : 0);
     }
 
-    private String toStringOpen() {
-        return getClass().getSimpleName() + " { id: " + getId()
-                + ", name: " + getName()
-                + ", node: " + node
-                + ", weight: " + getWeight()
-                + ", go: " + goAction
-                + ", play: " + playAction
-                + ", add: " + addAction
-                + ", insert: " + insertAction
-                + ", more: " + moreAction
-                + ", window: " + window
-                + ", originalNode: " + originalNode;
-
-    }
-
-    @NonNull
     @Override
     public String toString() {
-        return toStringOpen() + " }";
+        return "JiveItem{" +
+                "name='" + name + '\'' +
+                ", text2='" + text2 + '\'' +
+                ", textkey='" + textkey + '\'' +
+                ", icon=" + icon +
+                ", iconStyle='" + iconStyle + '\'' +
+                ", extid='" + extid + '\'' +
+                ", node='" + node + '\'' +
+                ", originalNode='" + originalNode + '\'' +
+                ", weight=" + weight +
+                ", type='" + type + '\'' +
+                ", nextWindow=" + nextWindow +
+                ", input=" + input +
+                ", inputValue='" + inputValue + '\'' +
+                ", window=" + window +
+                ", doAction=" + doAction +
+                ", goAction=" + goAction +
+                ", playAction=" + playAction +
+                ", addAction=" + addAction +
+                ", insertAction=" + insertAction +
+                ", moreAction=" + moreAction +
+                ", subItems=" + subItems +
+                ", showBigArtwork=" + showBigArtwork +
+                ", selectedIndex=" + selectedIndex +
+                ", choiceStrings=" + Arrays.toString(choiceStrings) +
+                ", checkbox=" + checkbox +
+                ", checkboxActions=" + checkboxActions +
+                ", radio=" + radio +
+                ", slider=" + slider +
+                ", webLink=" + webLink +
+                ", downloadCommand=" + downloadCommand +
+                ", randomPlayFolderCommand=" + randomPlayFolderCommand +
+                "} " + super.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        JiveItem jiveItem = (JiveItem) o;
+        return name.equals(jiveItem.name) && Objects.equals(text2, jiveItem.text2) && icon.equals(jiveItem.icon);
     }
 
     private void splitItemText(String text) {

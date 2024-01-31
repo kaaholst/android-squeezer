@@ -43,6 +43,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -92,6 +93,7 @@ import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -179,7 +181,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
     // For the large artwork layout
     private MaterialButton muteButton;
-    private Slider volumeBar;
+    private SeekBar volumeBar;
 
     // For the small artwork layout
     private CheckBox muteToggle;
@@ -378,31 +380,38 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
             mActivity.setNotifyVolumePanel(false);
             if (largeArtwork) {
-                v.findViewById(R.id.volume).setOnClickListener(view -> {
+                View volumeButton = v.findViewById(R.id.volume);
+                TextView volumeLabel = v.findViewById(R.id.label);
+
+                volumeButton.setOnClickListener(view -> {
                     preferences.setLargeArtwork(false);
                     mActivity.recreate();
 
                 });
 
                 muteButton.setOnClickListener(view -> requireService().toggleMute());
-                volumeBar.clearOnSliderTouchListeners();
-                volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
-                    @SuppressLint("RestrictedApi")
-                    public void onStartTrackingTouch(@NonNull Slider slider) {
+                    public void onStartTrackingTouch(SeekBar seekBar) {
                         trackingTouch = true;
+                        volumeButton.setVisibility(View.INVISIBLE);
+                        volumeLabel.setVisibility(View.VISIBLE);
+                        volumeLabel.setText(String.valueOf(seekBar.getProgress()));
                     }
 
                     @Override
-                    @SuppressLint("RestrictedApi")
-                    public void onStopTrackingTouch(@NonNull Slider slider) {
+                    public void onStopTrackingTouch(SeekBar seekBar) {
                         trackingTouch = false;
+                        volumeButton.setVisibility(View.VISIBLE);
+                        volumeLabel.setVisibility(View.INVISIBLE);
                     }
-                });
-                volumeBar.clearOnChangeListeners();
-                volumeBar.addOnChangeListener((slider, value, fromUser) -> {
-                    if (fromUser) {
-                        requireService().setVolumeTo((int) value);
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if (fromUser) {
+                            volumeLabel.setText(String.valueOf(progress));
+                            requireService().setVolumeTo(progress);
+                        }
                     }
                 });
             } else {
@@ -587,7 +596,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem);
-                    updateUiFromPlayerState(requireService().getActivePlayerState());
                 }
             });
         } else {
@@ -713,8 +721,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         // TODO handle button remapping (buttons in status response)
-        if (!song.getTrack().isEmpty()) {
-            trackText.setText(song.getTrack());
+        if (!song.getName().isEmpty()) {
+            trackText.setText(song.getName());
 
             // don't remove rew and fwd for remote tracks, because a single track playlist
             // is not an indication that fwd and rwd are invalid actions
@@ -724,8 +732,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                artistText.setText(song.getArtist());
-                albumText.setText(song.getAlbum());
+                artistText.setText(song.songInfo.getArtist());
+                albumText.setText(song.songInfo.album);
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
@@ -740,7 +748,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.getArtist(), song.getAlbum()));
+                artistAlbumText.setText(song.artistAlbum());
             }
         } else {
             trackText.setText("");
@@ -766,7 +774,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             if (Squeezer.getPreferences().isLargeArtwork()) {
                 muteButton.setIconResource(volumeInfo.muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
                 volumeBar.setEnabled(!volumeInfo.muted);
-                volumeBar.setValue(volumeInfo.volume);
+                volumeBar.setProgress(volumeInfo.volume);
             } else {
                 muteToggle.setChecked(volumeInfo.muted);
                 currentProgress = volumeInfo.volume;
@@ -1062,6 +1070,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
         // We're connected but the controller needs to register with the server
         JiveItemListActivity.register(mActivity);
+    }
+
+    @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(ActivePlayerChanged event) {
+        updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
     }
 
     @MainThread

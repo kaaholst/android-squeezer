@@ -1,11 +1,15 @@
-&bull; Always on volume control on "Now Playing" screen.
+&bull; Bring back notification controls.
 
-&bull; Move the button for the current playlist on the "Now Playing" screen to the top bar, so it's always the same place.
+&bull; Smooth volume slider on Now Playing screen.
 
-&bull; Search results are populated when expanded. This fixes an issue where a new Pandora station would be created.
+&bull; Possibility to seek current song from notification
 
-&bull; Support rich content (images, links, etc) from LMS
+&bull; Power on/off now possible from notification
 
-&bull; Support weblinks (display eg. a PDF booklet)
+&bull; Fix context menu initially hidden in landscape
 
-&bull; Don't show context menu in a destroyed activity
+&bull; Remove obsolete volume button on Now Playing mini layout
+
+&bull; Minor improvements when the app is sideloaded on Google TV
+
+&bull; Workaround an Android issue https://issuetracker.google.com/issues/160946170

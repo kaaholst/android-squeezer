@@ -13,20 +13,16 @@ apply plugin: 'uk.org.ngo.gradle.whatsnew'
 apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
+    implementation 'androidx.core:core:1.12.0'
     implementation 'androidx.palette:palette:1.0.0'
-    implementation 'androidx.webkit:webkit:1.7.0'
+    implementation 'androidx.webkit:webkit:1.8.0'
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
-    // Android support libraries
-    // Note: these libraries require the "Google Repository" and "Android
-    //       Support Repository" to be installed via the SDK manager.
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.media:media:1.6.0'
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
 
     // EventBus, https://github.com/greenrobot/EventBus.
     implementation 'org.greenrobot:eventbus:3.2.0'
@@ -49,7 +45,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdk rootProject.compileSdkVersion
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -63,8 +59,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 125
-        versionName "2.3.3"
+        versionCode 129
+        versionName "2.3.5"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -119,6 +115,7 @@ android {
     lint {
         lintConfig file('lint.xml')
     }
+    namespace 'uk.org.ngo.squeezer'
 }
 
 def publishTrack() {
@@ -158,6 +155,7 @@ slimstrings {
             'HOME',
             'SWITCH_TO_EXTENDED_LIST',
             'SWITCH_TO_GALLERY',
+            'DISABLE',
             'SLEEP',
             'SLEEP_CANCEL',
             'X_MINUTES',

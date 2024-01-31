@@ -17,7 +17,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="uk.org.ngo.squeezer">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -29,7 +29,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.REORDER_TASKS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" android:minSdkVersion="31"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -38,7 +40,8 @@
         android:name=".Squeezer"
         android:usesCleartextTraffic="true"
         android:resizeableActivity="true"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:supportsRtl="true">
 
         <receiver android:exported="false"
@@ -125,6 +128,7 @@
         </activity>
 
         <service android:exported="false" android:label="Squeezer Service"
+            android:foregroundServiceType="mediaPlayback"
             android:name=".service.SqueezeService">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

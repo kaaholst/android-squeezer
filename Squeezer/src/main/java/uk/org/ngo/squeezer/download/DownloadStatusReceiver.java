@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.download;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -24,6 +25,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -35,6 +37,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +46,7 @@ import java.nio.file.Files;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.Intents;
 
 
 /**
@@ -206,29 +210,31 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
         }
 
         private void notifyFailedMediaScan(String fileName) {
-            String name = Util.getBaseName(fileName);
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                String name = Util.getBaseName(fileName);
 
-            // Content intent is required on some API levels even if
-            // https://developer.android.com/guide/topics/ui/notifiers/notifications.html
-            // says it's optional
-            PendingIntent emptyPendingIntent = PendingIntent.getService(
-                    context,
-                    0,
-                    new Intent(),  //Dummy Intent do nothing
-                    0);
+                // Content intent is required on some API levels even if
+                // https://developer.android.com/guide/topics/ui/notifiers/notifications.html
+                // says it's optional
+                PendingIntent emptyPendingIntent = PendingIntent.getService(
+                        context,
+                        0,
+                        new Intent(),  //Dummy Intent do nothing
+                        Intents.immutablePendingIntent());
 
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SqueezeService.NOTIFICATION_CHANNEL_ID);
-            builder.setContentIntent(emptyPendingIntent);
-            builder.setOngoing(false);
-            builder.setOnlyAlertOnce(true);
-            builder.setAutoCancel(true);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
-            builder.setTicker(name + " " + context.getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
-            builder.setContentTitle(name);
-            builder.setContentText(context.getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SqueezeService.NOTIFICATION_CHANNEL_ID);
+                builder.setContentIntent(emptyPendingIntent);
+                builder.setOngoing(false);
+                builder.setOnlyAlertOnce(true);
+                builder.setAutoCancel(true);
+                builder.setSmallIcon(R.drawable.squeezer_notification);
+                builder.setTicker(name + " " + context.getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
+                builder.setContentTitle(name);
+                builder.setContentText(context.getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
 
-            final NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-            nm.notify(SqueezeService.DOWNLOAD_ERROR, builder.build());
+                final NotificationManagerCompat nm = NotificationManagerCompat.from(context);
+                nm.notify(SqueezeService.DOWNLOAD_ERROR, builder.build());
+            }
         }
     }
 

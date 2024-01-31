@@ -107,7 +107,7 @@ public class SlimDelegate {
     }
 
     <T> Request<T> requestAllItems(IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, null, -1, BaseClient.mPageSize, callback);
+        return new Request<>(mClient, null, BaseClient.ALL_ITEMS, BaseClient.mPageSize, callback);
     }
 
     <T> Request<T> requestItems(IServiceItemListCallback<T> callback) {

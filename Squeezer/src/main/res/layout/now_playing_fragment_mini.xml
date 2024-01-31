@@ -64,11 +64,6 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/volume"
-            app:icon="@drawable/ic_volume_up"
-            style="@style/BottomBar.MediaButton"/>
-
-        <Button
             android:id="@+id/prev"
             app:icon="@drawable/ic_action_previous"
             style="@style/BottomBar.MediaButton"/>
