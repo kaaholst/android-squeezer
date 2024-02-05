@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
@@ -176,8 +177,8 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    public String getSyncVolume() {
-        return currentSyncGroup.getItem(0).getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME);
+    public int getSyncVolume() {
+        return getGroupPref(Player.Pref.SYNC_VOLUME);
     }
 
     @Override
@@ -188,8 +189,8 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    public String getSyncPower() {
-        return currentSyncGroup.getItem(0).getPlayerState().prefs.get(Player.Pref.SYNC_POWER);
+    public int getSyncPower() {
+        return getGroupPref(Player.Pref.SYNC_POWER);
     }
 
     @Override
@@ -197,6 +198,14 @@ public class PlayerListActivity extends ItemListActivity implements
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
             requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_POWER, option);
         }
+    }
+
+    private int getGroupPref(Player.Pref pref) {
+        for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
+            int prefValue = Util.getInt(currentSyncGroup.getItem(i).getPlayerState().prefs.get(pref), -1);
+            if (prefValue != -1) return prefValue;
+        }
+        return 0;
     }
 
     @Override
