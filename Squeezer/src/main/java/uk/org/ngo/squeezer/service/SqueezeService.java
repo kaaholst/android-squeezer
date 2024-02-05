@@ -1518,7 +1518,7 @@ public class SqueezeService extends Service {
 
         public Boolean randomPlayFolder(JiveItem item) {
             SlimCommand command = item.randomPlayFolderCommand();
-            String folderID = (String) command.params.get("folder_id");
+            String folderID = Util.getString(command.params, "folder_id");
             if (folderID == null) {
                 Log.e(TAG, "randomPlayFolder: No folder_id");
                 return false;
