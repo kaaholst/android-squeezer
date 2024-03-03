@@ -21,32 +21,22 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
 
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
-import java.util.List;
-
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
@@ -59,7 +49,6 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             R.id.day_sunday, R.id.day_monday, R.id.day_tuesday, R.id.day_wednesday,
             R.id.day_thursday, R.id.day_friday, R.id.day_saturday
     };
-    private final AlarmsActivity mActivity;
     private final Resources mResources;
     private final int mColorSelected;
     private final float mDensity;
@@ -68,12 +57,11 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     private final TextView amPm;
     private final CompoundButtonWrapper enabled;
     private final AppCompatCheckedTextView repeat;
-    private final Spinner playlist;
+    private final TextView playlist;
     private final TextView[] dowTexts = new TextView[DAY_TEXT_IDS.length];
 
     public AlarmView(@NonNull AlarmsActivity activity, @NonNull View view) {
         super(activity, view);
-        mActivity = activity;
         mResources = activity.getResources();
         mColorSelected = mResources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
         mDensity = mResources.getDisplayMetrics().density;
@@ -89,6 +77,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 getActivity().getService().alarmEnable(item.getId(), b);
             }
         });
+
         repeat = view.findViewById(R.id.repeat);
         repeat.setOnClickListener(v -> {
             boolean nowChecked = !repeat.isChecked();
@@ -99,7 +88,10 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 activity.getItemAdapter().notifyItemChanged(getAbsoluteAdapterPosition());
             }
         });
+
         playlist = view.findViewById(R.id.playlist);
+        playlist.setOnClickListener(v -> activity.selectAlarmPlaylist(getAbsoluteAdapterPosition()));
+
         for (int day = 0; day < DAY_TEXT_IDS.length; day++) {
             dowTexts[day] = view.findViewById(DAY_TEXT_IDS[day]);
             final int finalDay = day;
@@ -117,26 +109,17 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 }
             });
         }
+
         View delete = view.findViewById(R.id.delete);
         delete.setOnClickListener(v -> {
             UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(getAbsoluteAdapterPosition(), item));
-            mActivity.getItemAdapter().removeItem(getAbsoluteAdapterPosition());
+            activity.getItemAdapter().removeItem(getAbsoluteAdapterPosition());
         });
-        playlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                final AlarmPlaylist selectedAlarmPlaylist = mActivity.getAlarmPlaylists().get(position);
-                if (getActivity().getService() != null &&
-                        !TextUtils.equals(selectedAlarmPlaylist.getId(), item.getPlayListId())) {
-                    item.setPlayListId(selectedAlarmPlaylist.getId());
-                    getActivity().getService().alarmSetPlaylist(item.getId(), selectedAlarmPlaylist);
-                }
-            }
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+    @Override
+    public AlarmsActivity getActivity() {
+        return (AlarmsActivity) super.getActivity();
     }
 
     @Override
@@ -147,21 +130,15 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         int minute = (int) ((tod / 60) % 60);
 
         time.setText(TimeUtil.timeFormat(hour, minute, is24HourFormat));
-        BaseListActivity activity = (BaseListActivity) getActivity();
-        time.setOnClickListener(view -> showTimePicker(activity, item, is24HourFormat));
+        time.setOnClickListener(view -> showTimePicker(getActivity(), item, getAbsoluteAdapterPosition(), is24HourFormat));
         amPm.setText(TimeUtil.formatAmPm(hour));
         enabled.setChecked(item.isEnabled());
         repeat.setChecked(item.isRepeat());
 
-        List<AlarmPlaylist> alarmPlaylists = mActivity.getAlarmPlaylists();
-        if (!alarmPlaylists.isEmpty()) {
-            playlist.setAdapter(new AlarmPlaylistSpinnerAdapter(alarmPlaylists));
-            for (int i = 0; i < alarmPlaylists.size(); i++) {
-                AlarmPlaylist alarmPlaylist = alarmPlaylists.get(i);
-                if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getPlayListId())) {
-                    playlist.setSelection(i);
-                    break;
-                }
+        for (AlarmPlaylist alarmPlaylist : getActivity().getAlarmPlaylists()) {
+            if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getPlayListId())) {
+                playlist.setText(alarmPlaylist.getName());
+                break;
             }
         }
 
@@ -190,7 +167,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         dowTexts[day].setText(text);
     }
 
-    public static void showTimePicker(BaseListActivity activity, Alarm alarm, boolean is24HourFormat) {
+    public static void showTimePicker(AlarmsActivity activity, Alarm alarm, int position, boolean is24HourFormat) {
         Preferences preferences = Squeezer.getPreferences();
         long tod = alarm.getTod();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
@@ -210,56 +187,11 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                     alarm.setEnabled(true);
                     activity.getService().alarmEnable(alarm.getId(), true);
                 }
-                activity.getItemAdapter().notifyDataSetChanged();
+                activity.getItemAdapter().notifyItemChanged(position);
             }
         });
         picker.show(activity.getSupportFragmentManager(), AlarmView.class.getSimpleName());
 
-    }
-
-    private class AlarmPlaylistSpinnerAdapter extends ArrayAdapter<AlarmPlaylistAdapterWrapper> {
-        public AlarmPlaylistSpinnerAdapter(List<AlarmPlaylist> alarmPlaylists) {
-            super(getActivity(), R.layout.alarm_playlist_item, R.id.label);
-            setDropDownViewResource(R.layout.alarm_playlist_dropdown_item);
-            for (AlarmPlaylist p : alarmPlaylists) {
-                add(new AlarmPlaylistAdapterWrapper(p));
-            }
-        }
-
-        @Override
-        public boolean areAllItemsEnabled() {
-            return false;
-        }
-
-        @Override
-        public boolean isEnabled(int position) {
-            return getItem(position).playlist.getId() != null;
-        }
-
-        @Override
-        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            boolean isSelectable = isEnabled(position);
-            View view = super.getDropDownView(position, convertView, parent);
-            view.findViewById(R.id.indent).setVisibility(isSelectable ? View.VISIBLE : View.GONE);
-            final TextView label = view.findViewById(R.id.label);
-            if (!isSelectable) {
-                SpannableStringBuilder spannable = new SpannableStringBuilder(label.getText());
-                spannable.setSpan(new StyleSpan(Typeface.BOLD), 0, spannable.length(), 0);
-                label.setText(spannable);
-            }
-            return view;
-        }
-    }
-
-    private static class AlarmPlaylistAdapterWrapper {
-        final AlarmPlaylist playlist;
-        AlarmPlaylistAdapterWrapper(AlarmPlaylist p) {
-            playlist = p;
-        }
-        @Override
-        public String toString() {
-            return playlist.getId() != null ? playlist.getName() : playlist.getCategory();
-        }
     }
 
     private class UndoListener implements UndoBarController.UndoListener {
@@ -273,13 +205,13 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         @Override
         public void onUndo() {
-            mActivity.getItemAdapter().insertItem(position, alarm);
+            getActivity().getItemAdapter().insertItem(position, alarm);
         }
 
         @Override
         public void onDone() {
-            if (mActivity.getService() != null) {
-                mActivity.getService().alarmDelete(alarm.getId());
+            if (getActivity().getService() != null) {
+                getActivity().getService().alarmDelete(alarm.getId());
             }
         }
     }

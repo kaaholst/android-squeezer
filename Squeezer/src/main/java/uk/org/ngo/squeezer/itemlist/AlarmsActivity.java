@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.text.format.DateFormat;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -35,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -60,10 +60,8 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     /** View that contains all_alarms_{on,off}_hint text. */
     private TextView mAllAlarmsHintView;
 
-    /** Settings button. */
-    private Button mSettingsButton;
-
     private final List<AlarmPlaylist> alarmPlaylists = new ArrayList<>();
+    private int currentAlarm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,8 +73,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         mAlarmsEnabledButton = new CompoundButtonWrapper(findViewById(R.id.alarms_enabled));
         findViewById(R.id.add_alarm).setOnClickListener(v -> showTimePicker(this, DateFormat.is24HourFormat(AlarmsActivity.this)));
 
-        mSettingsButton = findViewById(R.id.settings);
-        mSettingsButton.setOnClickListener(view -> new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog"));
+        findViewById(R.id.settings).setOnClickListener(view -> new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog"));
 
         if (savedInstanceState != null) {
             mActivePlayer = savedInstanceState.getParcelable("activePlayer");
@@ -94,6 +91,23 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
                 getService().playerPref(Player.Pref.ALARMS_ENABLED, isChecked ? "1" : "0");
             }
         });
+    }
+
+    void selectAlarmPlaylist(int position) {
+        currentAlarm = position;
+        AlarmPlaylistActivity.show(this, getItemAdapter().getItem(position), getAlarmPlaylists());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AlarmPlaylistActivity.GET_ALARM_PLAYLIST && resultCode == Activity.RESULT_OK) {
+            Alarm item = getItemAdapter().getItem(currentAlarm);
+            AlarmPlaylist alarmPlaylist = Objects.requireNonNull(data.getParcelableExtra(AlarmPlaylistActivity.ALARM_PLAYLIST));
+            item.setPlayListId(alarmPlaylist.getId());
+            requireService().alarmSetPlaylist(item.getId(), alarmPlaylist);
+            getItemAdapter().notifyItemChanged(currentAlarm);
+        }
     }
 
     @Override
@@ -169,8 +183,6 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
                 alarmPlaylists.addAll(items);
                 if (start + items.size() >= count) {
                     setAlarmPlaylists(alarmPlaylists);
-                    getItemAdapter().notifyDataSetChanged();
-
                 }
             });
         }
@@ -182,18 +194,9 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     };
 
     public void setAlarmPlaylists(List<AlarmPlaylist> alarmPlaylists) {
-        String currentCategory = null;
-
         this.alarmPlaylists.clear();
-        for (AlarmPlaylist alarmPlaylist : alarmPlaylists) {
-            if (!alarmPlaylist.getCategory().equals(currentCategory)) {
-                AlarmPlaylist categoryAlarmPlaylist = new AlarmPlaylist();
-                categoryAlarmPlaylist.setCategory(alarmPlaylist.getCategory());
-                this.alarmPlaylists.add(categoryAlarmPlaylist);
-            }
-            this.alarmPlaylists.add(alarmPlaylist);
-            currentCategory = alarmPlaylist.getCategory();
-        }
+        this.alarmPlaylists.addAll(alarmPlaylists);
+        getItemAdapter().notifyDataSetChanged();
     }
 
     private void bindPreferences() {

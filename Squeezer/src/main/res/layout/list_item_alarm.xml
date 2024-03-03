@@ -126,24 +126,20 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="day_sunday,day_monday,day_tuesday,day_wednesday,day_thursday,day_friday,day_sunday" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/playlist_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:layout_constraintTop_toBottomOf="@id/day_bottom"
-            app:layout_constraintStart_toStartOf="parent"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/alarm_clock"
-            app:tint="?colorPrimary" />
-
-        <androidx.appcompat.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/playlist"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/day_bottom"
-            app:layout_constraintBottom_toBottomOf="@id/playlist_icon"
-            app:layout_constraintStart_toEndOf="@id/playlist_icon"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:gravity="center_vertical"
+            android:text="@string/alarm_music_prompt"
+            android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
+            android:background="?attr/selectableItemBackground"
+            android:drawableStart="@drawable/alarm_clock"
+            app:drawableTint="?colorPrimary"
+            android:padding="8dp"
+            android:drawablePadding="8dp" />
 
         <androidx.appcompat.widget.AppCompatCheckedTextView
             android:id="@+id/repeat"
@@ -154,7 +150,7 @@
             android:drawableStart="@drawable/ic_repeat_24dp"
             android:drawableEnd="@drawable/selector_checkbox_material"
             android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
-            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
             app:drawableTint="?colorPrimary"
             android:padding="8dp"
             android:drawablePadding="8dp"
@@ -170,10 +166,11 @@
             android:gravity="center_vertical"
             android:text="@string/ALARM_DELETE"
             android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
+            android:background="?attr/selectableItemBackground"
             android:drawableStart="@drawable/ic_delete"
             app:drawableTint="?colorPrimary"
             android:padding="8dp"
             android:drawablePadding="8dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
