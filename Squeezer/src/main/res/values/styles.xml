@@ -54,6 +54,12 @@
 
     <style name="Widget.Squeezer.ToolBar.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxStrokeColor">@android:color/transparent</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">0dp</item>
     </style>
 
     <style name="Widget.App.Slider" parent="Widget.MaterialComponents.Slider">
