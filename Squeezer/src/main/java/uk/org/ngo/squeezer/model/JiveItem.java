@@ -288,9 +288,6 @@ public class JiveItem extends Item {
 
         selectedIndex = getInt(record, "selectedIndex");
         choiceStrings = Util.getStringArray(record, "choiceStrings");
-        if (goAction != null && goAction.action != null && goAction.action.cmd.size() == 0) {
-            doAction = true;
-        }
 
         if (record.containsKey("checkbox")) {
             checkbox = (getInt(record, "checkbox") != 0);
