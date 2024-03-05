@@ -60,10 +60,10 @@ public class HomeMenuJiveItemView extends JiveItemView {
                     }
                 } else {
 //                  is not a shortcut, remove the item and bring up UndoBar
-                    mItemAdapter.removeItem(getAdapterPosition());
+                    mItemAdapter.removeItem(getBindingAdapterPosition());
                 }
             } else {
-                mItemAdapter.removeItem(getAdapterPosition()); // remove an item inside the archive
+                mItemAdapter.removeItem(getBindingAdapterPosition()); // remove an item inside the archive
             }
 
             UndoBarController.show(getActivity(), R.string.MENU_ITEM_MOVED, new UndoBarController.UndoListener() {
@@ -97,7 +97,7 @@ public class HomeMenuJiveItemView extends JiveItemView {
     }
 
     private boolean removeShortcuts(JiveItem item) {
-        mItemAdapter.removeItem(getAdapterPosition());
+        mItemAdapter.removeItem(getBindingAdapterPosition());
         getActivity().showDisplayMessage(R.string.CUSTOM_SHORTCUT_REMOVED);
         getActivity().requireService().removeCustomShortcut(item);
         mPreferences.saveShortcuts(mCustomJiveItemHandling.convertShortcuts());

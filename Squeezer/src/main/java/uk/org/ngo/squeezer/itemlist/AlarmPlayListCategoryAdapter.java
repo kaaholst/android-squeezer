@@ -71,7 +71,7 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
             icon = view.findViewById(R.id.icon);
             subList = view.findViewById(R.id.list);
             itemView.setOnClickListener(v -> {
-                int position = getAbsoluteAdapterPosition();
+                int position = getBindingAdapterPosition();
 
                 ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(position);
                 childAdapterHolder.visible = !childAdapterHolder.visible;
@@ -83,7 +83,7 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
         @Override
         public void bindView(PlayListCategory item) {
             super.bindView(item);
-            ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getAbsoluteAdapterPosition());
+            ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getBindingAdapterPosition());
 
             text1.setText(item.category);
 

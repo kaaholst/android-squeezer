@@ -112,7 +112,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             text2 = view.findViewById(R.id.text2);
             subList = view.findViewById(R.id.list);
             itemView.setOnClickListener(v -> {
-                int position = getAbsoluteAdapterPosition();
+                int position = getBindingAdapterPosition();
                 ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(position);
                 childAdapterHolder.visible = !childAdapterHolder.visible;
 
@@ -123,7 +123,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         @Override
         public void bindView(JiveItem item) {
             super.bindView(item);
-            ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getAbsoluteAdapterPosition());
+            ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getBindingAdapterPosition());
 
             text1.setText(item.getName());
             text2.setText(String.valueOf(childAdapterHolder.adapter.getItemCount()));

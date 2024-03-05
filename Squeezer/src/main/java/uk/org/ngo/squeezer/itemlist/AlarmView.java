@@ -85,12 +85,12 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 item.setRepeat(nowChecked);
                 repeat.setChecked(nowChecked);
                 getActivity().getService().alarmRepeat(item.getId(), nowChecked);
-                activity.getItemAdapter().notifyItemChanged(getAbsoluteAdapterPosition());
+                activity.getItemAdapter().notifyItemChanged(getBindingAdapterPosition());
             }
         });
 
         playlist = view.findViewById(R.id.playlist);
-        playlist.setOnClickListener(v -> activity.selectAlarmPlaylist(getAbsoluteAdapterPosition()));
+        playlist.setOnClickListener(v -> activity.selectAlarmPlaylist(getBindingAdapterPosition()));
 
         for (int day = 0; day < DAY_TEXT_IDS.length; day++) {
             dowTexts[day] = view.findViewById(DAY_TEXT_IDS[day]);
@@ -112,8 +112,8 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         View delete = view.findViewById(R.id.delete);
         delete.setOnClickListener(v -> {
-            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(getAbsoluteAdapterPosition(), item));
-            activity.getItemAdapter().removeItem(getAbsoluteAdapterPosition());
+            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(getBindingAdapterPosition(), item));
+            activity.getItemAdapter().removeItem(getBindingAdapterPosition());
         });
     }
 
@@ -130,7 +130,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         int minute = (int) ((tod / 60) % 60);
 
         time.setText(TimeUtil.timeFormat(hour, minute, is24HourFormat));
-        time.setOnClickListener(view -> showTimePicker(getActivity(), item, getAbsoluteAdapterPosition(), is24HourFormat));
+        time.setOnClickListener(view -> showTimePicker(getActivity(), item, getBindingAdapterPosition(), is24HourFormat));
         amPm.setText(TimeUtil.formatAmPm(hour));
         enabled.setChecked(item.isEnabled());
         repeat.setChecked(item.isRepeat());
