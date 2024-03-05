@@ -90,13 +90,13 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     public void bindView(JiveItem item) {
         super.bindView(item);
         if (item.radio != null && item.radio) {
-            getActivity().setSelectedIndex(getAdapterPosition());
+            getActivity().setSelectedIndex(getBindingAdapterPosition());
         }
 
         setItemViewParams((viewParamIcon() | viewParamTwoLine(item) | viewParamContext(item)));
         super.bindView(item);
 
-        text2.setText(item.text2);
+        text2.setText(item.text2());
 
         // If the item has an image, then fetch and display it
         JiveItemViewLogic.icon(icon, item, this::onIcon);
@@ -171,7 +171,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     }
 
     private int viewParamTwoLine(JiveItem item) {
-        return TextUtils.isEmpty(item.text2) ? 0 : VIEW_PARAM_TWO_LINE;
+        return TextUtils.isEmpty(item.text2()) ? 0 : VIEW_PARAM_TWO_LINE;
     }
 
     private int viewParamContext(JiveItem item) {
@@ -196,7 +196,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().action(item, item.goAction);
         } else {
             if (item.goAction != null)
-                JiveItemViewLogic.execGoAction(getActivity(), item);
+                JiveItemViewLogic.execGoAction(getActivity(), item, getBindingAdapterPosition());
             else if (item.hasSubItems())
                 JiveItemListActivity.show(getActivity(), item);
             else if (item.getNode() != null)
@@ -217,8 +217,8 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             }
 
             item.radio = true;
-            getActivity().setSelectedIndex(getAdapterPosition());
-            itemAdapter.notifyItemChanged(getAdapterPosition());
+            getActivity().setSelectedIndex(getBindingAdapterPosition());
+            itemAdapter.notifyItemChanged(getBindingAdapterPosition());
         }
     }
 

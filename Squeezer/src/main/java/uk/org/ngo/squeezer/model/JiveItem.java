@@ -422,6 +422,14 @@ public class JiveItem extends Item {
         return downloadCommand != null;
     }
 
+    public String selectedChoice() {
+        return (selectedIndex > 0 && selectedIndex <= choiceStrings.length) ? choiceStrings[selectedIndex - 1] : "";
+    }
+
+    public String text2() {
+        return (hasChoices() && TextUtils.isEmpty(text2)) ? selectedChoice() : text2;
+    }
+
     public SlimCommand downloadCommand() {
         return downloadCommand;
     }

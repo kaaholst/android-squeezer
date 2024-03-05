@@ -122,7 +122,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         }
     }
 
-    private void doItemContext(JiveItem item) {
+    private void doItemContext(JiveItem item, int position) {
         Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
         JiveItem contextItem = contextStack.peek().first;
         if (JiveItem.PLAY_NOW.equals(item)) {
@@ -140,7 +140,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         } else if (nextWindow != null) {
             activity().action(item, item.goAction, contextStack.size());
         } else {
-            JiveItemViewLogic.execGoAction(activity(), this, item, contextStack.size());
+            JiveItemViewLogic.execGoAction(activity(), this, item, position, contextStack.size());
             return;
         }
         dismiss();
@@ -244,7 +244,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
             text.setAlpha(getAlpha(item));
             text.setText(item.getName());
             itemView.setEnabled(item.isSelectable());
-            itemView.setOnClickListener(view -> doItemContext(item));
+            itemView.setOnClickListener(view -> doItemContext(item, getBindingAdapterPosition()));
         }
     }
 }

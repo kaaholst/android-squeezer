@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.model.JiveItem;
 
 public class ChoicesDialog extends BaseChoicesDialog {
@@ -29,6 +30,7 @@ public class ChoicesDialog extends BaseChoicesDialog {
     private BaseActivity activity;
     private JiveItem item;
     private int alreadyPopped;
+    private int position;
 
     @NonNull
     @Override
@@ -36,6 +38,7 @@ public class ChoicesDialog extends BaseChoicesDialog {
         activity = (BaseActivity)getActivity();
         item = getArguments().getParcelable(JiveItem.class.getName());
         alreadyPopped = getArguments().getInt("alreadyPopped", 0);
+        position = getArguments().getInt("position", 0);
         return createDialog(item.getName(), null, item.selectedIndex-1, item.choiceStrings);
     }
 
@@ -43,6 +46,10 @@ public class ChoicesDialog extends BaseChoicesDialog {
     protected void onSelectOption(int checkedId) {
         activity.action(item.goAction.choices[checkedId], alreadyPopped);
         item.selectedIndex = checkedId+1;
+        if (activity instanceof JiveItemListActivity) {
+            JiveItemListActivity a = (JiveItemListActivity) activity;
+            a.getItemAdapter().notifyItemChanged(position);
+        }
     }
 
     /**
@@ -52,13 +59,14 @@ public class ChoicesDialog extends BaseChoicesDialog {
      * and choiceStrings of
      * http://wiki.slimdevices.com/index.php/SBS_SqueezePlay_interface#.3Citem_fields.3E
      */
-    public static ChoicesDialog show(BaseActivity activity, JiveItem item, int alreadyPopped) {
+    public static ChoicesDialog show(BaseActivity activity, JiveItem item, int position, int alreadyPopped) {
         // Create and show the dialog
         ChoicesDialog dialog = new ChoicesDialog();
 
         Bundle args = new Bundle();
         args.putParcelable(JiveItem.class.getName(), item);
         args.putInt("alreadyPopped", alreadyPopped);
+        args.putInt("position", position);
         dialog.setArguments(args);
 
         dialog.show(activity.getSupportFragmentManager(), ChoicesDialog.class.getSimpleName());
