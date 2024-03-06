@@ -30,6 +30,9 @@ import android.widget.TextView;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -47,6 +50,7 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -210,6 +214,13 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     public void onEventMainThread(ActivePlayerChanged event) {
         super.onEventMainThread(event);
         mActivePlayer = event.player;
+    }
+
+    @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PlayerStateChanged event) {
+        mActivePlayer = event.player;
+        bindPreferences();
     }
 
     @Override
