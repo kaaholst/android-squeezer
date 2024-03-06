@@ -88,6 +88,8 @@ interface SlimClient {
      */
     void cancelClientRequests(Object client);
 
+    void requestServerStatus();
+
     void requestPlayerStatus(Player player);
 
     void subscribePlayerStatus(Player newActivePlayer, PlayerState.PlayerSubscriptionType subscriptionType);

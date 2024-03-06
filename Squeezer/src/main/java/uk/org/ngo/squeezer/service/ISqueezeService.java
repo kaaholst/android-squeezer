@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
-import java.util.Set;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,6 +45,9 @@ public interface ISqueezeService {
     boolean isConnected();
     boolean isConnectInProgress();
     boolean canAutoConnect();
+
+    /** Request a manual (i.e. besides the subscription) status about the server */
+    void requestServerStatus();
 
     /** Initiate the flow to register the controller with the server */
     void register(IServiceItemListCallback<JiveItem> callback);

@@ -324,7 +324,7 @@ class CometClient extends BaseClient {
         mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(this::parseMenuStatus);
 
         // Request server status
-        publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+        requestServerStatus();
 
         // Subscribe to server changes
         {
@@ -715,6 +715,11 @@ class CometClient extends BaseClient {
     public void command(Player player, String[] cmd, Map<String, Object> params) {
         ResponseHandler callback = mRequestMap.get(cmd[0]);
         exec(request(player, callback, cmd).params(params));
+    }
+
+    @Override
+    public void requestServerStatus() {
+        publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, mBayeuxClient.getId()), null);
     }
 
     @Override

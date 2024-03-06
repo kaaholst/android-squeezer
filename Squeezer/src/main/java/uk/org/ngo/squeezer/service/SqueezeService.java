@@ -1050,6 +1050,11 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void requestServerStatus() {
+            mDelegate.requestServerStatus();
+        }
+
+        @Override
         public void register(IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");

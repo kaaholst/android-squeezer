@@ -170,6 +170,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         if (start == 0) {
             mActivePlayer = service.getActivePlayer();
             service.alarmPlaylists(alarmPlaylistsCallback);
+            service.requestServerStatus();
             bindPreferences();
         }
     }
