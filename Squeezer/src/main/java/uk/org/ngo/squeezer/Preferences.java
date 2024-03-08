@@ -35,6 +35,7 @@ import org.eclipse.jetty.util.ajax.JSON;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.HashSet;
@@ -795,8 +796,10 @@ public final class Preferences {
 
     public enum IncomingCallAction implements EnumWithText {
         NONE(R.string.settings_no_action_on_incoming_call),
-        PAUSE(R.string.pause),
-        MUTE(R.string.mute);
+        PAUSE(R.string.pause_active),
+        PAUSE_ALL(R.string.pause_all),
+        MUTE(R.string.mute_active),
+        MUTE_ALL(R.string.mute_all);
 
         private final int labelId;
 
@@ -807,6 +810,14 @@ public final class Preferences {
         @Override
         public String getText(Context context) {
             return context.getString(labelId);
+        }
+
+        public boolean isPause() {
+            return EnumSet.of(PAUSE, PAUSE_ALL).contains(this);
+        }
+
+        public boolean isAll() {
+            return EnumSet.of(PAUSE_ALL, MUTE_ALL).contains(this);
         }
     }
 

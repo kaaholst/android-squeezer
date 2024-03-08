@@ -631,7 +631,7 @@ public class SqueezeService extends Service {
     }
 
     private boolean callStateListenerRegistered = false;
-    private boolean musicPaused = false;
+    private final Set<String> mutedPlayers = new HashSet<>();
 
     private final CallStateListener callStateListener = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
             new CallStateListener() {
@@ -655,25 +655,32 @@ public class SqueezeService extends Service {
         Preferences preferences = Squeezer.getPreferences();
         Preferences.IncomingCallAction incomingCallAction = preferences.getActionOnIncomingCall();
         if (incomingCallAction != Preferences.IncomingCallAction.NONE) {
-            PerformAction action = null;
-            boolean isPlaying = isPlaying();
+            PerformAction action = incomingCallAction.isPause() ? squeezeService::pause : squeezeService::mute;
             if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                if (isPlaying) {
-                    action = incomingCallAction == Preferences.IncomingCallAction.PAUSE ? squeezeService::pause : squeezeService::mute;
-                    musicPaused = true;
+                boolean restoreMusic = preferences.restoreMusicAfterCall();
+                if (incomingCallAction.isAll()) {
+                    squeezeService.getPlayers().stream().filter(player -> player.getPlayerState().isPlaying()).forEach(player -> mutePlayer(player, action, restoreMusic));
+                } else {
+                    Player player = squeezeService.getActivePlayer();
+                    if (player != null && player.getPlayerState().isPlaying()) mutePlayer(player, action, restoreMusic);
                 }
             } else {
-                if (musicPaused && preferences.restoreMusicAfterCall()) {
-                    action = incomingCallAction == Preferences.IncomingCallAction.PAUSE ? squeezeService::play : squeezeService::unmute;
-                }
-                musicPaused = false;
+                mutedPlayers.forEach(mutedPlayer -> {
+                    Player player = mDelegate.getPlayer(mutedPlayer);
+                    if (player != null) action.exec(player, false);
+                });
+                mutedPlayers.clear();
             }
-            if (action != null) action.exec();
         }
     }
 
+    private void mutePlayer(Player player, PerformAction action, boolean restoreMusic) {
+        if (restoreMusic) mutedPlayers.add(player.getId());
+        action.exec(player, true);
+    }
+
     private interface PerformAction {
-        void exec();
+        void exec(Player player, boolean flag);
     }
 
     @Subscribe(sticky = true, priority = 1)
@@ -687,7 +694,7 @@ public class SqueezeService extends Service {
             mHandshakeComplete = false;
             stopForeground();
         }
-        musicPaused = false;
+        mutedPlayers.clear();
     }
 
     @Subscribe(sticky = true, priority = 1)
@@ -720,9 +727,9 @@ public class SqueezeService extends Service {
 
     @Subscribe(priority = 1)
     public void onEvent(PlayStatusChanged event) {
+        if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) mutedPlayers.remove(event.player.getId());
         if (event.player.equals(mDelegate.getActivePlayer())) {
             updateMediaSession();
-            if (PlayerState.PLAY_STATE_PLAY.equals(event.playStatus)) musicPaused = false;
         }
     }
 
@@ -927,16 +934,6 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void mute() {
-            mute(getActivePlayer(), true);
-        }
-
-        @Override
-        public void unmute() {
-            mute(getActivePlayer(), false);
-        }
-
-        @Override
         public void toggleMute() {
             toggleMute(getActivePlayer());
         }
@@ -948,7 +945,8 @@ public class SqueezeService extends Service {
             }
         }
 
-        private void mute(Player player, boolean mute) {
+        @Override
+        public void mute(Player player, boolean mute) {
             if (player != null) {
                 mDelegate.command(player).cmd("mixer", "muting", mute ? "1" : "0").exec();
             }
@@ -1191,8 +1189,13 @@ public class SqueezeService extends Service {
             if(!isConnected()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("pause", "1", fadeInSecs()).exec();
+            pause(getActivePlayer(), true);
             return true;
+        }
+
+        @Override
+        public void pause(Player player, boolean pause) {
+            mDelegate.command(player).cmd("pause", pause ? "1" : "0", fadeInSecs()).exec();
         }
 
         @Override

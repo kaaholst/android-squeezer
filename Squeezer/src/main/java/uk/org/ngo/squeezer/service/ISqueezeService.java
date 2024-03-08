@@ -109,6 +109,7 @@ public interface ISqueezeService {
     boolean play();
     boolean pause();
     boolean stop();
+    void pause(Player player, boolean pause);
     boolean nextTrack();
     boolean nextTrack(Player player);
     boolean previousTrack();
@@ -127,13 +128,8 @@ public interface ISqueezeService {
 
     String getCurrentPlaylist();
 
-    /**
-     * Sets the volume to the absolute volume in newVolume, which will be clamped to the
-     * interval [0, 100].
-     */
-    void mute();
-    void unmute();
     void toggleMute();
+    void mute(Player player, boolean mute);
     void setVolumeTo(Player player, int newVolume);
     void toggleMute(Player player);
     void setVolumeTo(int newVolume);

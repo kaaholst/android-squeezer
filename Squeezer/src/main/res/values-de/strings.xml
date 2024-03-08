@@ -16,10 +16,7 @@
 <resources>
 
     <string name="undo">Rückgängig</string>
-    <string name="on">An</string>
-    <string name="off">Aus</string>
     <string name="disabled">Deaktiviert</string>
-    <string name="pause">Wiedergabe pausieren</string>
     <string name="mute">Lautlos</string>
     <string name="menu_item_players">Abspielgeräte</string>
     <string name="menu_item_settings_label">Einstellungen</string>

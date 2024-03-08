@@ -18,11 +18,12 @@
     tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">Squeezer</string>
     <string name="undo">Undo</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
-    <string name="pause">Pause</string>
     <string name="mute">Mute</string>
+    <string name="pause_active">Pause selected player</string>
+    <string name="pause_all">Pause all players</string>
+    <string name="mute_active">Mute selected player</string>
+    <string name="mute_all">Mute all players</string>
     <string name="minutes">minutes</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_settings_label">Settings</string>
