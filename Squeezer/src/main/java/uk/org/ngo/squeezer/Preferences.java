@@ -163,7 +163,10 @@ public final class Preferences {
     // Screensaver
     public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
-    // Download confirmation
+    // Which top bar search to use
+    static final String KEY_TOP_BAR_SEARCH = "squeezer.top_bar.search";
+
+    // Clear playlist confirmation
     static final String KEY_CLEAR_PLAYLIST_CONFIRMATION = "squeezer.clear.current_playlist.confirmation";
 
     // Download enabled
@@ -520,6 +523,11 @@ public final class Preferences {
         return sharedPreferences.getBoolean(KEY_SCROBBLE_ENABLED, false);
     }
 
+    public TopBarSearch getTopBarSearch() {
+        String string = sharedPreferences.getString(KEY_TOP_BAR_SEARCH, null);
+        return string == null ? TopBarSearch.GLOBAL : TopBarSearch.valueOf(string);
+    }
+
     public boolean isClearPlaylistConfirmation() {
         return sharedPreferences.getBoolean(KEY_CLEAR_PLAYLIST_CONFIRMATION, true);
     }
@@ -792,6 +800,22 @@ public final class Preferences {
 
     public void setSleepMinutes(int minutes) {
         sharedPreferences.edit().putInt(KEY_SLEEP_MINUTES, minutes).apply();
+    }
+
+    public enum TopBarSearch implements EnumWithText {
+        GLOBAL(R.string.settings_top_bar_search_global),
+        MY_MUSIC(R.string.settings_top_bar_search_my_music);
+
+        private final int labelId;
+
+        TopBarSearch(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
     }
 
     public enum IncomingCallAction implements EnumWithText {

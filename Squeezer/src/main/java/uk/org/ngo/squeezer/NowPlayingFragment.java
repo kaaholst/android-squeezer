@@ -141,8 +141,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private MenuItem menuItemDisconnect;
 
     private JiveItem topBarSearch;
-    private JiveItem globalSearch;
-    private JiveItem myMusicSearch;
     private MenuItem menuItemSearch;
 
     private MenuItem menuItemPlaylist;
@@ -1111,17 +1109,15 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HomeMenuEvent event) {
-        topBarSearch = globalSearch = myMusicSearch = null;
+        boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
+        String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
+        topBarSearch = null;
         for (JiveItem menuItem : event.menuItems) {
-            if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                globalSearch = menuItem;
-            }
-            if ("myMusicSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                myMusicSearch = menuItem;
-                myMusicSearch.input = new Input();
+            if (searchKey.equals(menuItem.getId()) && menuItem.goAction != null) {
+                topBarSearch = menuItem;
+                if (topBarSearch.input == null) topBarSearch.input = new Input();
             }
         }
-        topBarSearch = globalSearch;
         if (menuItemSearch != null) {
             menuItemSearch.setVisible(topBarSearch != null);
         }

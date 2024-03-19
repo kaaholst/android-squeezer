@@ -42,6 +42,9 @@
     <string name="settings_screensaver_on">Yes</string>
     <string name="settings_screensaver_clock">Show clock when idle</string>
     <string name="settings_use_flat_icons">Flat icons</string>
+    <string name="settings_top_bar_search">Top bar search</string>
+    <string name="settings_top_bar_search_global">All places</string>
+    <string name="settings_top_bar_search_my_music">My music</string>
     <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
     <string name="settings_clear_current_playlist_confirmation_off">do not ask for confirmation</string>
     <string name="settings_clear_current_playlist_confirmation_on">ask for confirmation</string>

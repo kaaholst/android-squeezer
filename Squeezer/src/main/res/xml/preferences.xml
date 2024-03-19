@@ -49,6 +49,11 @@
     <PreferenceCategory
         android:title="@string/settings_category_ui">
 
+        <ListPreference
+            android:key="squeezer.top_bar.search"
+            android:title="@string/settings_top_bar_search"
+            android:summary="%s"/>
+
         <SwitchPreferenceCompat
             android:key="squeezer.clear.current_playlist.confirmation"
             android:summaryOff="@string/settings_clear_current_playlist_confirmation_off"
