@@ -33,7 +33,7 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
             AlarmPlaylist alarmPlaylist = alarmPlaylists.get(position);
             if (currentCategory == null || !alarmPlaylist.getCategory().equals(currentCategory.category)) {
                 categories.add(currentCategory = new PlayListCategory(alarmPlaylist.getCategory()));
-                childAdapterHolders.add(new ChildAdapterHolder(activity));
+                childAdapterHolders.add(new ChildAdapterHolder(activity, alarm));
             }
             currentCategory.playlists.add(alarmPlaylist);
             if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(alarm.getPlayListId())) {
@@ -99,8 +99,8 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
         boolean visible = false;
         private final AlarmPlaylistAdapter adapter;
 
-        public ChildAdapterHolder(ItemListActivity activity) {
-            adapter = new AlarmPlaylistAdapter(activity);
+        public ChildAdapterHolder(ItemListActivity activity, Alarm alarm) {
+            adapter = new AlarmPlaylistAdapter(activity, alarm);
         }
     }
 
