@@ -82,6 +82,9 @@ public final class Preferences {
     // Optional Squeezebox Server password
     private static final String KEY_MAC = "squeezer.mac";
 
+    // Timestamp when the last scan finished per server
+    private static final String KEY_LAST_SCAN = "lastScan";
+
     private static final String KEY_LAST_RUN_VERSION_CODE = "lastRunVersionCode";
 
     // The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
@@ -291,6 +294,7 @@ public final class Preferences {
         serverAddress.password = getStringPreference(prefix(serverAddress) + KEY_PASSWORD);
         serverAddress.wakeOnLan = sharedPreferences.getBoolean(prefix(serverAddress) + KEY_WOL, false);
         serverAddress.mac = Util.parseMac(getStringPreference(prefix(serverAddress) + KEY_MAC));
+        serverAddress.lastScan = sharedPreferences.getLong(prefix(serverAddress) + KEY_LAST_SCAN, 0);
     }
 
     private String getBssId() {
@@ -341,6 +345,8 @@ public final class Preferences {
 
         public boolean wakeOnLan;
         public byte[] mac;
+
+        public long lastScan;
 
         private ServerAddress(String bssId, int defaultPort) {
             this.defaultPort = defaultPort;
@@ -441,6 +447,13 @@ public final class Preferences {
         editor.putString(prefix(serverAddress) + KEY_PASSWORD, serverAddress.password);
         editor.putBoolean(prefix(serverAddress) + KEY_WOL, serverAddress.wakeOnLan);
         editor.putString(prefix(serverAddress) + KEY_MAC, Util.formatMac(serverAddress.mac));
+        editor.apply();
+    }
+
+    public void saveLastScan(ServerAddress serverAddress, long lastScan) {
+        serverAddress.lastScan = lastScan;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(prefix(serverAddress) + KEY_LAST_SCAN, lastScan);
         editor.apply();
     }
 

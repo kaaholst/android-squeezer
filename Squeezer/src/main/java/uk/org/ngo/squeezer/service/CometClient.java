@@ -75,6 +75,7 @@ import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.FluentHashMap;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
 
@@ -359,6 +360,14 @@ class CometClient extends BaseClient {
         // We can't distinguish between no connected players and players not received
         // so we check the server version which is also set from server status
         boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
+
+        final Preferences preferences = Squeezer.getPreferences();
+        final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+        long lastScan = Util.getLong(data, "lastscan");
+        if (lastScan > 0 && lastScan != serverAddress.lastScan) {
+            preferences.saveLastScan(serverAddress, lastScan);
+            ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
+        }
 
         getConnectionState().setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
         getConnectionState().setServerVersion((String) data.get("version"));
