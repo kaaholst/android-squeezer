@@ -1112,15 +1112,11 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
         String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
         topBarSearch = null;
-        for (JiveItem menuItem : event.menuItems) {
-            if (searchKey.equals(menuItem.getId()) && menuItem.goAction != null) {
-                topBarSearch = menuItem;
-                if (topBarSearch.input == null) topBarSearch.input = new Input();
-            }
+        for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {
+            if (searchKey.equals(menuItem.getId())) topBarSearch = menuItem;
+            if ("myMusicSearch".equals(menuItem.getId())) menuItem.input = new Input();
         }
-        if (menuItemSearch != null) {
-            menuItemSearch.setVisible(topBarSearch != null);
-        }
+        if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
     }
 
     @MainThread
