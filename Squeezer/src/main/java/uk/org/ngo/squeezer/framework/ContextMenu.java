@@ -28,6 +28,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
+import uk.org.ngo.squeezer.itemlist.JiveItemViewPending;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -212,17 +213,17 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
 
     private class ContextMenuAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         public ContextMenuAdapter(BaseActivity activity) {
-            super(activity, ContextMenu.this, false);
+            super(activity, ContextMenu.this);
         }
 
         @Override
         public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {
-            return new ContextItemViewHolder(getActivity(), view);
+            return (viewType == R.layout.list_item_pending) ? new JiveItemViewPending(getActivity(), view, false) : new ContextItemViewHolder(getActivity(), view);
         }
 
         @Override
         protected int getItemViewType(JiveItem item) {
-            return R.layout.context_menu_item;
+            return item == null ? R.layout.list_item_pending : R.layout.context_menu_item;
         }
     }
 

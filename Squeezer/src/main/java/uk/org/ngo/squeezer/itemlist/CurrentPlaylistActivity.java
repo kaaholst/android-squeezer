@@ -122,7 +122,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
             @Override
             protected int getItemViewType(JiveItem item) {
-                return (item != null) ? R.layout.list_item : R.layout.list_item_pending;
+                return item == null ? R.layout.list_item_pending : R.layout.list_item;
             }
         };
     }

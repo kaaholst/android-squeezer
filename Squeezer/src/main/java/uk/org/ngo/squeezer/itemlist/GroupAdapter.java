@@ -37,10 +37,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
 
     @Override
     protected int getItemViewType(JiveItem item) {
-        if (item == null) {
-            return R.layout.list_item_pending;
-        }
-        return R.layout.group_item;
+        return item == null ? R.layout.list_item_pending : R.layout.group_item;
     }
 
     @Override

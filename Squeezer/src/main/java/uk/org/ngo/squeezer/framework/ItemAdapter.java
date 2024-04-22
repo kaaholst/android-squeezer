@@ -62,11 +62,6 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     private final SparseArray<T[]> pages = new SparseArray<>();
 
     /**
-     * This is set if the list shall start with an empty item.
-     */
-    private final boolean mEmptyItem;
-
-    /**
      * Number of elements to be fetched at a time
      */
     private final int pageSize;
@@ -77,28 +72,19 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * SqueezeServer.
      *
      * @param activity The {@link ItemListActivity} which hosts this adapter
-     * @param emptyItem If set the list of items shall start with an empty item
      */
-    public ItemAdapter(BaseActivity activity, PageOrderer orderer, boolean emptyItem) {
+    public ItemAdapter(BaseActivity activity, PageOrderer orderer) {
         this.activity = activity;
         this.orderer = orderer;
-        mEmptyItem = emptyItem;
         pageSize = getActivity().getResources().getInteger(R.integer.PageSize);
         pages.clear();
     }
 
     /**
-     * @see #ItemAdapter(BaseActivity, PageOrderer, boolean)
+     * @see #ItemAdapter(BaseActivity, PageOrderer)
      * */
-    public ItemAdapter(ItemListActivity activity, boolean emptyItem) {
-        this(activity, activity, emptyItem);
-    }
-
-    /**
-     * Calls {@link #(ItemListActivity, boolean)}, with emptyItem = false
-     */
     public ItemAdapter(ItemListActivity activity) {
-        this(activity, false);
+        this(activity, activity);
     }
 
     private int pageNumber(int position) {
@@ -109,7 +95,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * Removes all items from this adapter leaving it empty.
      */
     public void clear() {
-        count = (mEmptyItem ? 1 : 0);
+        count = 0;
         pages.clear();
         notifyDataSetChanged();
     }
@@ -175,9 +161,6 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     public T getItem(int position) {
         T item = getPage(position)[position % pageSize];
         if (item == null) {
-            if (mEmptyItem) {
-                position--;
-            }
             orderer.maybeOrderPage(pageNumber(position) * pageSize);
         }
         return item;
@@ -205,9 +188,6 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * @param items New items to insert in the main list
      */
     public void update(int count, int start, List<T> items) {
-        int offset = (mEmptyItem ? 1 : 0);
-        count += offset;
-        start += offset;
         boolean countUpdated = (count == 0 || count != getItemCount());
 
         setItems(start, items);
