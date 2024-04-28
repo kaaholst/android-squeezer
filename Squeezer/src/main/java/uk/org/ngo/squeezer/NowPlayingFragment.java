@@ -1008,15 +1008,15 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         switch (event.connectionState) {
-            case ConnectionState.MANUAL_DISCONNECT:
-            case ConnectionState.DISCONNECTED:
+            case MANUAL_DISCONNECT:
+            case DISCONNECTED:
                 dismissConnectingDialog();
                 ConnectActivity.show(mActivity);
                 break;
-            case ConnectionState.CONNECTION_STARTED:
+            case CONNECTION_STARTED:
                 showConnectingDialog();
                 break;
-            case ConnectionState.CONNECTION_FAILED:
+            case CONNECTION_FAILED:
                 dismissConnectingDialog();
                 switch (event.connectionError) {
                     case LOGIN_FALIED:
@@ -1031,7 +1031,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                         break;
                 }
                 break;
-            case ConnectionState.CONNECTION_COMPLETED:
+            case CONNECTION_COMPLETED:
+            case REHANDSHAKING:
                 break;
         }
      }

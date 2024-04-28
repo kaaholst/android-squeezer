@@ -685,8 +685,10 @@ public class SqueezeService extends Service {
 
     @Subscribe(sticky = true, priority = 1)
     public void onEvent(ConnectionChanged event) {
-        if (ConnectionState.isConnected(event.connectionState) ||
-                ConnectionState.isConnectInProgress(event.connectionState)) {
+        if (event.connectionState.isConnected() ||
+            event.connectionState.isConnectInProgress() ||
+            event.connectionState.isRehandshaking()
+        ) {
             startForeground();
             registerCallStateListener();
         } else {

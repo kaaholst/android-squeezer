@@ -83,7 +83,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public abstract class BaseActivity extends AppCompatActivity implements DownloadDialog.DownloadDialogListener {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
-    private static final String TAG = BaseActivity.class.getName();
+    private static final String TAG = BaseActivity.class.getSimpleName();
 
     @Nullable
     private ISqueezeService mService = null;
