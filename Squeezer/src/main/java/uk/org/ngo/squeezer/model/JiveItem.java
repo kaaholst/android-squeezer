@@ -310,7 +310,7 @@ public class JiveItem extends Item {
             slider.help = getString(record, "help");
         }
 
-        webLink = Uri.parse(getStringOrEmpty(record, "weblink"));
+        webLink = Util.getAbsoluteUrl(record, "weblink");
     }
 
     public JiveItem(Parcel source) {

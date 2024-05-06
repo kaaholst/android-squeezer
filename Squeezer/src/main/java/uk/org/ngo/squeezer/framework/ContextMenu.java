@@ -1,5 +1,7 @@
 package uk.org.ngo.squeezer.framework;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -141,7 +143,10 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         } else if (nextWindow != null) {
             activity().action(item, item.goAction, contextStack.size());
         } else {
-            JiveItemViewLogic.execGoAction(activity(), this, item, position, contextStack.size());
+            if (item.goAction != null)
+                JiveItemViewLogic.execGoAction(activity(), this, item, position, contextStack.size());
+            else if (!item.webLink.equals(Uri.EMPTY))
+                getActivity().startActivity(new Intent(Intent.ACTION_VIEW, item.webLink));
             return;
         }
         dismiss();
