@@ -1182,7 +1182,16 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("play", fadeInSecs()).exec();
+
+            Player player = getActivePlayer();
+            if (player != null) {
+                String playStatus = player.getPlayerState().getPlayStatus();
+                mDelegate
+                        .command(player)
+                        .cmd(PlayerState.PLAY_STATE_PAUSE.equals(playStatus) ? List.of("pause", "0") : List.of("play"))
+                        .cmd(fadeInSecs()).exec();
+            }
+
             return true;
         }
 
