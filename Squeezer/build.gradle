@@ -60,7 +60,7 @@ android {
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
         versionCode 129
-        versionName "2.3.5"
+        versionName "2.3.6-beta-0"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -171,6 +171,7 @@ slimstrings {
             'ALARM_SHORT_DAY_4',
             'ALARM_SHORT_DAY_5',
             'ALARM_SHORT_DAY_6',
+            'ALARM_DELETE',
             'ALARM_DELETING',
             'ALARM_ALL_ALARMS',
             'MORE',

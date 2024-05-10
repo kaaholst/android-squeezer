@@ -46,7 +46,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.widget.DividerItemDecoration;
 
 public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerGroupViewHolder> {
     private final PlayerListActivity mActivity;
@@ -262,7 +261,6 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             volumeBar = itemView.findViewById(R.id.group_volume_slider);
             contextMenuButton = itemView.findViewById(R.id.context_menu_button);
             players = itemView.findViewById(R.id.players_container);
-            players.addItemDecoration(new DividerItemDecoration(players.getContext(), LinearLayoutManager.VERTICAL));
             players.setLayoutManager(new LinearLayoutManager(players.getContext()));
         }
 

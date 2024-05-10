@@ -54,6 +54,12 @@
 
     <style name="Widget.Squeezer.ToolBar.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxStrokeColor">@android:color/transparent</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">0dp</item>
     </style>
 
     <style name="Widget.App.Slider" parent="Widget.MaterialComponents.Slider">
@@ -78,18 +84,23 @@
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
     <!-- Base styles that the rest of the app inherits from. -->
+    <style name="SqueezerTextAppearance" parent="@android:style/TextAppearance" />
     <style name="SqueezerTextAppearance.XLarge" parent="@android:style/TextAppearance.Large">
         <item name="android:textSize">44sp</item>
     </style>
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
+    <style name="SqueezerTextAppearance.ContextMenu" parent="@style/TextAppearance.AppCompat.Menu"/>
 
     <!-- List headers -->
+    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium">
+        <item name="android:textStyle">bold</item>
+    </style>
     <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->
-    <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance" />
     <style name="SqueezerTextAppearance.ListItem.Primary.Highlight" parent="SqueezerTextAppearance.ListItem.Primary">
         <item name="android:textStyle">bold</item>
     </style>
@@ -97,6 +108,9 @@
     <style name="SqueezerTextAppearance.ListItem.Secondary.Highlight" parent="SqueezerTextAppearance.ListItem.Secondary">
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="SqueezerTextAppearance.Preference.Title" parent="SqueezerTextAppearance.ListItem.Primary" />
+    <style name="SqueezerTextAppearance.Preference.Subtext" parent="SqueezerTextAppearance.ListItem.Secondary" />
 
     <!-- Text in grid items -->
     <style name="SqueezerTextAppearance.GridItem.Primary" parent="SqueezerTextAppearance.Medium"/>
@@ -122,9 +136,10 @@
     <style name="SqueezerTextAppearance.NowPlaying.ArtistName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
 
     <!-- Text on the NowPlayingFragment mini player. -->
-    <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary">
+        <item name="android:textSize">14sp</item>
+    </style>
     <style name="SqueezerTextAppearance.NowPlayingMini.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
-
     <style name="SqueezerTextAppearance.NowPlayingMini.SongName" parent="SqueezerTextAppearance.NowPlayingMini.Primary"/>
     <style name="SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName" parent="SqueezerTextAppearance.NowPlayingMini.Secondary"/>
 
@@ -240,6 +255,7 @@
     <style name="SqueezerWidget.List.CoverArt">
         <item name="android:layout_height">@dimen/album_art_icon_size</item>
         <item name="android:layout_width">@dimen/album_art_icon_size</item>
+        <item name="android:padding">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
     </style>
 
@@ -280,72 +296,24 @@
         <item name="icon">@drawable/ic_menu_overflow</item>
     </style>
 
-    <!-- UndoBar -->
-    <style name="UndoBar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">bottom</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
-        <item name="android:layout_marginBottom">16dp</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:background">@drawable/toast_background</item>
-        <item name="android:clickable">true</item>
-    </style>
-
-    <style name="UndoBarMessage">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginRight">12dp</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
-        <item name="android:textColor">#fff</item>
-    </style>
-
-    <style name="UndoBarButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginRight">12dp</item>
-        <item name="drawableLeftCompat">@drawable/ic_undobar_undo</item>
-        <item name="android:drawablePadding">8dp</item>
-        <item name="android:textAppearance">?android:textAppearanceSmall</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">#fff</item>
-        <item name="android:text">@string/undo</item>
-    </style>
-
     <!-- Toast -->
-    <style name="DisplayMessage">
-        <item name="android:layout_width">wrap_content</item>
+    <style name="ToastMessageText" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="ToastMessageButton" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textColor">#fff</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="AlarmDayOfWeek">
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">8dp</item>
         <item name="android:paddingBottom">8dp</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:background">@drawable/toast_background</item>
-    </style>
-
-    <style name="DisplayMessageArtwork">
-        <item name="android:layout_width">@dimen/display_message_icon_size</item>
-        <item name="android:layout_height">@dimen/display_message_icon_size</item>
-    </style>
-
-    <style name="DisplayMessageIcon">
-        <item name="android:layout_width">@dimen/album_art_icon_size</item>
-        <item name="android:layout_height">@dimen/album_art_icon_size</item>
-    </style>
-
-    <style name="DisplayMessageText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#fff</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.Small</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="CueText" parent="Widget.MaterialComponents.Button.TextButton.Dialog">

@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
-import java.util.Set;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,6 +45,9 @@ public interface ISqueezeService {
     boolean isConnected();
     boolean isConnectInProgress();
     boolean canAutoConnect();
+
+    /** Request a manual (i.e. besides the subscription) status about the server */
+    void requestServerStatus();
 
     /** Initiate the flow to register the controller with the server */
     void register(IServiceItemListCallback<JiveItem> callback);
@@ -107,6 +109,7 @@ public interface ISqueezeService {
     boolean play();
     boolean pause();
     boolean stop();
+    void pause(Player player, boolean pause);
     boolean nextTrack();
     boolean nextTrack(Player player);
     boolean previousTrack();
@@ -125,13 +128,8 @@ public interface ISqueezeService {
 
     String getCurrentPlaylist();
 
-    /**
-     * Sets the volume to the absolute volume in newVolume, which will be clamped to the
-     * interval [0, 100].
-     */
-    void mute();
-    void unmute();
     void toggleMute();
+    void mute(Player player, boolean mute);
     void setVolumeTo(Player player, int newVolume);
     void toggleMute(Player player);
     void setVolumeTo(int newVolume);

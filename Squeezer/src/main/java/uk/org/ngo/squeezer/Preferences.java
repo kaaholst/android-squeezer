@@ -35,6 +35,7 @@ import org.eclipse.jetty.util.ajax.JSON;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.HashSet;
@@ -80,6 +81,9 @@ public final class Preferences {
 
     // Optional Squeezebox Server password
     private static final String KEY_MAC = "squeezer.mac";
+
+    // Timestamp when the last scan finished per server
+    private static final String KEY_LAST_SCAN = "lastScan";
 
     private static final String KEY_LAST_RUN_VERSION_CODE = "lastRunVersionCode";
 
@@ -162,7 +166,10 @@ public final class Preferences {
     // Screensaver
     public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
-    // Download confirmation
+    // Which top bar search to use
+    static final String KEY_TOP_BAR_SEARCH = "squeezer.top_bar.search";
+
+    // Clear playlist confirmation
     static final String KEY_CLEAR_PLAYLIST_CONFIRMATION = "squeezer.clear.current_playlist.confirmation";
 
     // Download enabled
@@ -287,6 +294,7 @@ public final class Preferences {
         serverAddress.password = getStringPreference(prefix(serverAddress) + KEY_PASSWORD);
         serverAddress.wakeOnLan = sharedPreferences.getBoolean(prefix(serverAddress) + KEY_WOL, false);
         serverAddress.mac = Util.parseMac(getStringPreference(prefix(serverAddress) + KEY_MAC));
+        serverAddress.lastScan = sharedPreferences.getLong(prefix(serverAddress) + KEY_LAST_SCAN, 0);
     }
 
     private String getBssId() {
@@ -337,6 +345,8 @@ public final class Preferences {
 
         public boolean wakeOnLan;
         public byte[] mac;
+
+        public long lastScan;
 
         private ServerAddress(String bssId, int defaultPort) {
             this.defaultPort = defaultPort;
@@ -440,6 +450,13 @@ public final class Preferences {
         editor.apply();
     }
 
+    public void saveLastScan(ServerAddress serverAddress, long lastScan) {
+        serverAddress.lastScan = lastScan;
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(prefix(serverAddress) + KEY_LAST_SCAN, lastScan);
+        editor.apply();
+    }
+
     public long getLastRunVersionCode() {
         return sharedPreferences.getLong(KEY_LAST_RUN_VERSION_CODE, 0);
     }
@@ -517,6 +534,11 @@ public final class Preferences {
 
     public boolean isScrobbleEnabled() {
         return sharedPreferences.getBoolean(KEY_SCROBBLE_ENABLED, false);
+    }
+
+    public TopBarSearch getTopBarSearch() {
+        String string = sharedPreferences.getString(KEY_TOP_BAR_SEARCH, null);
+        return string == null ? TopBarSearch.GLOBAL : TopBarSearch.valueOf(string);
     }
 
     public boolean isClearPlaylistConfirmation() {
@@ -793,10 +815,28 @@ public final class Preferences {
         sharedPreferences.edit().putInt(KEY_SLEEP_MINUTES, minutes).apply();
     }
 
+    public enum TopBarSearch implements EnumWithText {
+        GLOBAL(R.string.settings_top_bar_search_global),
+        MY_MUSIC(R.string.settings_top_bar_search_my_music);
+
+        private final int labelId;
+
+        TopBarSearch(int labelId) {
+            this.labelId = labelId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
+
     public enum IncomingCallAction implements EnumWithText {
         NONE(R.string.settings_no_action_on_incoming_call),
-        PAUSE(R.string.pause),
-        MUTE(R.string.mute);
+        PAUSE(R.string.pause_active),
+        PAUSE_ALL(R.string.pause_all),
+        MUTE(R.string.mute_active),
+        MUTE_ALL(R.string.mute_all);
 
         private final int labelId;
 
@@ -807,6 +847,14 @@ public final class Preferences {
         @Override
         public String getText(Context context) {
             return context.getString(labelId);
+        }
+
+        public boolean isPause() {
+            return EnumSet.of(PAUSE, PAUSE_ALL).contains(this);
+        }
+
+        public boolean isAll() {
+            return EnumSet.of(PAUSE_ALL, MUTE_ALL).contains(this);
         }
     }
 

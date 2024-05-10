@@ -56,7 +56,7 @@ public class JiveItemViewLogic {
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
-    public static void execGoAction(BaseActivity activity, ContextMenu contextMenu, JiveItem item, int alreadyPopped) {
+    public static void execGoAction(BaseActivity activity, ContextMenu contextMenu, JiveItem item, int position, int alreadyPopped) {
         boolean dismissContextMenu = (contextMenu != null);
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
@@ -74,7 +74,7 @@ public class JiveItemViewLogic {
         } else if (item.doAction) {
             if (item.hasInput()) {
                 if (item.hasChoices()) {
-                    ChoicesDialog.show(activity, item, alreadyPopped);
+                    ChoicesDialog.show(activity, item, position, alreadyPopped);
                 } else if ("time".equals(item.input.inputStyle)) {
                     InputTimeDialog.show(activity, item, alreadyPopped);
                 } else {
@@ -89,8 +89,8 @@ public class JiveItemViewLogic {
         if (dismissContextMenu) contextMenu.dismiss();
     }
 
-    public static void execGoAction(BaseActivity activity, JiveItem item) {
-        execGoAction(activity, null, item, 0);
+    public static void execGoAction(BaseActivity activity, JiveItem item, int position) {
+        execGoAction(activity, null, item, position, 0);
     }
 
     /** Fetch and show album art or use embedded icon */

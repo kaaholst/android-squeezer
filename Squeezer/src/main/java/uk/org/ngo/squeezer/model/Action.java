@@ -60,9 +60,7 @@ public class Action implements Parcelable {
             int choiceCount = source.readInt();
             if (choiceCount > 0) {
                 choices = new JsonAction[choiceCount];
-                for (int i = 0; i < choiceCount; i++) {
-                    choices[i] = source.readParcelable(getClass().getClassLoader());
-                }
+                source.readTypedArray(choices, JsonAction.CREATOR);
             } else {
                 action = source.readParcelable(getClass().getClassLoader());
             }
@@ -75,9 +73,7 @@ public class Action implements Parcelable {
         if (urlCommand == null) {
             dest.writeInt(choices != null ? choices.length : 0);
             if (choices != null) {
-                for (JsonAction action : choices) {
-                    dest.writeParcelable(action, flags);
-                }
+                dest.writeTypedArray(choices, flags);
             } else {
                 dest.writeParcelable(action, flags);
             }

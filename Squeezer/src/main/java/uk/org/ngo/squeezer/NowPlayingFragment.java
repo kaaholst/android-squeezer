@@ -141,8 +141,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private MenuItem menuItemDisconnect;
 
     private JiveItem topBarSearch;
-    private JiveItem globalSearch;
-    private JiveItem myMusicSearch;
     private MenuItem menuItemSearch;
 
     private MenuItem menuItemPlaylist;
@@ -1010,15 +1008,15 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         switch (event.connectionState) {
-            case ConnectionState.MANUAL_DISCONNECT:
-            case ConnectionState.DISCONNECTED:
+            case MANUAL_DISCONNECT:
+            case DISCONNECTED:
                 dismissConnectingDialog();
                 ConnectActivity.show(mActivity);
                 break;
-            case ConnectionState.CONNECTION_STARTED:
+            case CONNECTION_STARTED:
                 showConnectingDialog();
                 break;
-            case ConnectionState.CONNECTION_FAILED:
+            case CONNECTION_FAILED:
                 dismissConnectingDialog();
                 switch (event.connectionError) {
                     case LOGIN_FALIED:
@@ -1033,7 +1031,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                         break;
                 }
                 break;
-            case ConnectionState.CONNECTION_COMPLETED:
+            case CONNECTION_COMPLETED:
+            case REHANDSHAKING:
                 break;
         }
      }
@@ -1111,20 +1110,14 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HomeMenuEvent event) {
-        topBarSearch = globalSearch = myMusicSearch = null;
-        for (JiveItem menuItem : event.menuItems) {
-            if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                globalSearch = menuItem;
-            }
-            if ("myMusicSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                myMusicSearch = menuItem;
-                myMusicSearch.input = new Input();
-            }
+        boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
+        String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
+        topBarSearch = null;
+        for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {
+            if (searchKey.equals(menuItem.getId())) topBarSearch = menuItem;
+            if ("myMusicSearch".equals(menuItem.getId())) menuItem.input = new Input();
         }
-        topBarSearch = globalSearch;
-        if (menuItemSearch != null) {
-            menuItemSearch.setVisible(topBarSearch != null);
-        }
+        if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
     }
 
     @MainThread

@@ -107,6 +107,11 @@
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>
 
+        <activity
+            android:name=".itemlist.AlarmPlaylistActivity"
+            android:parentActivityName=".itemlist.AlarmsActivity">
+        </activity>
+
         <activity android:exported="true"
             android:name=".itemlist.CurrentPlaylistActivity"
             android:parentActivityName=".NowPlayingActivity">

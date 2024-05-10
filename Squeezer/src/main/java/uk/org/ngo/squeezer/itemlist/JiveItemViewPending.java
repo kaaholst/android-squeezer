@@ -21,6 +21,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
@@ -31,9 +32,13 @@ public class JiveItemViewPending extends ItemViewHolder<JiveItem> {
     private final View icon;
 
     JiveItemViewPending(@NonNull JiveItemListActivity activity, @NonNull View view) {
+        this(activity, view, activity.window.windowStyle != Window.WindowStyle.TEXT_ONLY);
+    }
+
+    public JiveItemViewPending(@NonNull BaseActivity activity, @NonNull View view, boolean showIcon) {
         super(activity, view);
         icon = view.findViewById(R.id.icon);
-        showIcon = activity.window.windowStyle != Window.WindowStyle.TEXT_ONLY;
+        this.showIcon = showIcon;
     }
 
     @Override

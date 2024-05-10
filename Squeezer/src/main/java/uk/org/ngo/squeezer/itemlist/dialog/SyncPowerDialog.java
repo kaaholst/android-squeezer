@@ -31,7 +31,7 @@ public class SyncPowerDialog extends BaseChoicesDialog {
      */
     public interface SyncPowerDialogHost {
         FragmentManager getSupportFragmentManager();
-        String getSyncPower();
+        int getSyncPower();
         void setSyncPower(@NonNull String option);
     }
 
@@ -53,7 +53,7 @@ public class SyncPowerDialog extends BaseChoicesDialog {
         return createDialog(
                 getString(R.string.SETUP_SYNCPOWER),
                 getString(R.string.SETUP_SYNCPOWER_DESC),
-                Integer.parseInt(host.getSyncPower()),
+                host.getSyncPower(),
                 options
         );
     }

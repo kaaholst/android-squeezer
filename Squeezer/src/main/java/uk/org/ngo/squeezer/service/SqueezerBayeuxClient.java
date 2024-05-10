@@ -38,9 +38,11 @@ import uk.org.ngo.squeezer.BuildConfig;
 class SqueezerBayeuxClient extends BayeuxClient {
     private static final String TAG = SqueezerBayeuxClient.class.getSimpleName();
     private static final boolean LOG_JSON_PRETTY_PRINT = false;
+    private final ConnectionState connectionState;
 
-    SqueezerBayeuxClient(String url, ClientTransport transport, ClientTransport... transports) {
+    SqueezerBayeuxClient(ConnectionState connectionState, String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
+        this.connectionState = connectionState;
     }
 
     @Override
@@ -71,12 +73,14 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 Log.v(TAG, "FAIL: " + message.getJSON(), failure);
             }
         }
-        if (failure instanceof IOException) {
+        if (failure instanceof IOException && connectionState.isConnected()) {
             rehandshake();
         }
     }
 
     public void rehandshake() {
+        Log.i(TAG, "rehandshake()");
+        connectionState.setConnectionState(ConnectionState.State.REHANDSHAKING);
         HashMapMessage message = new HashMapMessage();
         message.setId(newMessageId());
         message.setSuccessful(false);

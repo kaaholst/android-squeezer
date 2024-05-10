@@ -191,6 +191,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         final SwitchPreferenceCompat clearPlaylistConfirmation = findPreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION);
         clearPlaylistConfirmation.setChecked(preferences.isClearPlaylistConfirmation());
 
+        ListPreference topBarSearchPref = findPreference(Preferences.KEY_TOP_BAR_SEARCH);
+        fillEnumPreference(topBarSearchPref, Preferences.TopBarSearch.class, preferences.getTopBarSearch());
+
         ListPreference customizeHomePref = findPreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE);
         fillEnumPreference(customizeHomePref, Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
 

@@ -26,14 +26,12 @@
     app:popupDrawable="@drawable/popup_drawable"
     app:popupTextStyle="@style/SqueezerTextAppearance.ItemList.Popup"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:layout_height="match_parent">
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/item_list"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:listitem="@layout/list_item"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/item_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        tools:listitem="@layout/list_item"/>
 
 </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>

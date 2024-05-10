@@ -9,7 +9,7 @@
     <dimen name="album_art_icon_size">48dp</dimen>
 
     <!-- Icons in list headers. -->
-    <dimen name="album_art_large_icon_size">96dp</dimen>
+    <dimen name="album_art_large_icon_size">64dp</dimen>
 
     <!-- Icons in grid -->
     <dimen name="album_art_icon_grid_size">144dp</dimen>

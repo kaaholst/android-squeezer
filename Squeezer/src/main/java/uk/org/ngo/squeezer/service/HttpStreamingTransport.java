@@ -211,6 +211,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 int port = url.getPort();
                 _delegate.connect(host, port);
             } catch (IOException e) {
+                Log.i(TAG, "Error connecting delegate");
                 listener.onFailure(e, messages);
                 return;
             }

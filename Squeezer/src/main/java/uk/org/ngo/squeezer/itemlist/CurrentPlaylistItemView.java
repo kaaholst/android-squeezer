@@ -48,7 +48,7 @@ class CurrentPlaylistItemView extends JiveItemView {
         super.bindView(item);
         itemView.setOnLongClickListener(null);
 
-        if (getAdapterPosition() == getActivity().getSelectedIndex()) {
+        if (getBindingAdapterPosition() == getActivity().getSelectedIndex()) {
             itemView.setBackgroundResource(getActivity().getAttributeValue(R.attr.currentTrackBackground));
             text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary_Highlight);
             text2.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Secondary_Highlight);
@@ -67,7 +67,7 @@ class CurrentPlaylistItemView extends JiveItemView {
     @Override
     public void onIcon() {
         super.onIcon();
-        if (getAdapterPosition() == getActivity().getSelectedIndex()) {
+        if (getBindingAdapterPosition() == getActivity().getSelectedIndex()) {
             Drawable drawable = icon.getDrawable();
             Drawable marker = DrawableCompat.wrap(AppCompatResources.getDrawable(getActivity(), R.drawable.ic_action_nowplaying));
             Palette colorPalette = Palette.from(Util.drawableToBitmap(drawable)).generate();
@@ -91,7 +91,7 @@ class CurrentPlaylistItemView extends JiveItemView {
     public void onItemSelected() {
         ISqueezeService service = getActivity().getService();
         if (service != null) {
-            getActivity().getService().playlistIndex(getAdapterPosition());
+            getActivity().getService().playlistIndex(getBindingAdapterPosition());
         }
     }
 }

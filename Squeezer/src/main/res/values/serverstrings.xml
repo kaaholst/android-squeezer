@@ -33,6 +33,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Volume Control</string>
   <string name='SETUP_SYNCPOWER_ON'>Power off/on with group</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Removing\n%s\nfrom Playlist…</string>
+  <string name='ALARM_DELETE'>Remove Alarm</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>When you select a single song and press PLAY on the remote, while browsing albums or folders, you can choose to play just that song or all the songs in that album or directory, starting with that song.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Small Artwork</string>
   <string name='SETUP_SYNCPOWER'>Synchronize Power</string>

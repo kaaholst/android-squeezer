@@ -24,101 +24,153 @@
     android:layout_height="wrap_content"
     android:minHeight="48dp"
     android:layout_margin="4dp"
-    app:cardCornerRadius="2dp"
-    app:contentPadding="4dp">
+    app:cardCornerRadius="4dp"
+    app:contentPadding="8dp">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:animateLayoutChanges="true"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants">
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textAppearance="@style/SqueezerTextAppearance.XLarge"
-        tools:text="07:45" />
-
-    <TextView
-        android:id="@+id/am_pm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBaseline_toBaselineOf="@id/time"
-        app:layout_constraintStart_toEndOf="@id/time"
-        android:layout_alignBaseline="@+id/time"
-        android:layout_toStartOf="@+id/enabled"
-        android:paddingStart="@dimen/ampm_left_padding"
-        android:paddingEnd="@dimen/ampm_left_padding"
-        android:textAppearance="@style/SqueezerTextAppearance.Small"
-        tools:text="AM" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/enabled"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <CheckBox
-        android:id="@+id/repeat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/time"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:text="@string/ALARM_ALARM_REPEAT" />
-
-    <Button style="@style/ImageButton"
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBaseline_toBaselineOf="@id/repeat"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-        app:icon="@drawable/ic_delete" />
-
-    <LinearLayout
-        android:id="@+id/dow"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/repeat"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-
-        <include layout="@layout/day_of_week_button" />
-    </LinearLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/dow"
-        app:layout_constraintStart_toStartOf="parent"
-        android:labelFor="@id/playlist"
-        android:hint="@string/alarm_music_prompt"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
-        <AutoCompleteTextView
+        android:descendantFocusability="blocksDescendants">
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textAppearance="@style/SqueezerTextAppearance.XLarge"
+            tools:text="07:45" />
+
+        <TextView
+            android:id="@+id/am_pm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBaseline_toBaselineOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/time"
+            android:layout_alignBaseline="@+id/time"
+            android:layout_toStartOf="@+id/enabled"
+            android:paddingStart="@dimen/ampm_left_padding"
+            android:paddingEnd="@dimen/ampm_left_padding"
+            android:textAppearance="@style/SqueezerTextAppearance.Small"
+            tools:text="AM" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/time"
+            app:layout_constraintBottom_toBottomOf="@id/time"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/day_sunday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/day_monday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_0" />
+
+        <TextView
+            android:id="@+id/day_monday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_sunday"
+            app:layout_constraintEnd_toStartOf="@id/day_tuesday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_1" />
+
+        <TextView
+            android:id="@+id/day_tuesday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_monday"
+            app:layout_constraintEnd_toStartOf="@id/day_wednesday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_2" />
+
+        <TextView
+            android:id="@+id/day_wednesday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_tuesday"
+            app:layout_constraintEnd_toStartOf="@id/day_thursday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_3" />
+
+        <TextView
+            android:id="@+id/day_thursday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_wednesday"
+            app:layout_constraintEnd_toStartOf="@id/day_friday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_4" />
+
+        <TextView
+            android:id="@+id/day_friday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_thursday"
+            app:layout_constraintEnd_toStartOf="@id/day_saturday"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_5" />
+
+        <TextView
+            android:id="@+id/day_saturday"
+            app:layout_constraintTop_toBottomOf="@id/time"
+            app:layout_constraintStart_toEndOf="@id/day_friday"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/AlarmDayOfWeek"
+            android:text="@string/ALARM_SHORT_DAY_6" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/day_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="day_sunday,day_monday,day_tuesday,day_wednesday,day_thursday,day_friday,day_sunday" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toBottomOf="@id/day_bottom"
+            app:layout_constraintStart_toStartOf="parent"
+            android:gravity="center_vertical"
+            android:text="@string/alarm_music_prompt"
+            android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
+            android:background="?attr/selectableItemBackground"
+            android:drawableStart="@drawable/alarm_clock"
+            app:drawableTint="?colorPrimary"
+            android:padding="8dp"
+            android:drawablePadding="8dp" />
+
+        <androidx.appcompat.widget.AppCompatCheckedTextView
+            android:id="@+id/repeat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/playlist"
+            app:layout_constraintStart_toStartOf="parent"
+            android:drawableStart="@drawable/ic_repeat_24dp"
+            android:drawableEnd="@drawable/selector_checkbox_material"
+            android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
+            android:background="?attr/selectableItemBackground"
+            app:drawableTint="?colorPrimary"
+            android:padding="8dp"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="@string/ALARM_ALARM_REPEAT" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/repeat"
+            app:layout_constraintStart_toStartOf="parent"
+            android:gravity="center_vertical"
+            android:text="@string/ALARM_DELETE"
+            android:textAppearance="@style/SqueezerTextAppearance.Preference.Title"
+            android:background="?attr/selectableItemBackground"
+            android:drawableStart="@drawable/ic_delete"
+            app:drawableTint="?colorPrimary"
+            android:padding="8dp"
+            android:drawablePadding="8dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -47,14 +47,14 @@ public class PlayerView extends PlayerBaseView {
         super(activity, view);
         this.activity = activity;
 
-        setItemViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
-
         mute = view.findViewById(R.id.mute);
         volumeBar = view.findViewById(R.id.volume_slider);
     }
 
     @Override
     public void bindView(Player player) {
+        setItemViewParams(VIEW_PARAM_ICON | viewParamTwoLine(player) | VIEW_PARAM_CONTEXT_BUTTON);
+
         super.bindView(player);
 
         PlayerState playerState = player.getPlayerState();
@@ -96,11 +96,14 @@ public class PlayerView extends PlayerBaseView {
         });
         volumeBar.setValue(playerState.getCurrentVolume());
 
-        text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.INVISIBLE);
         if (playerState.getSleepDuration() > 0) {
             text2.setText(activity.getString(R.string.SLEEPING_IN)
                     + " " + Util.formatElapsedTime(player.getSleepingIn()));
         }
+    }
+
+    private int viewParamTwoLine(Player player) {
+        return player.getPlayerState().getSleepDuration() > 0 ? VIEW_PARAM_TWO_LINE : 0;
     }
 
     @Override

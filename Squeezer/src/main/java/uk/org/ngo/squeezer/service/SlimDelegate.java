@@ -52,6 +52,10 @@ public class SlimDelegate {
     }
 
 
+    void requestServerStatus() {
+        mClient.requestServerStatus();
+    }
+
     void requestPlayerStatus(Player player) {
         mClient.requestPlayerStatus(player);
     }
