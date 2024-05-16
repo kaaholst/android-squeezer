@@ -97,7 +97,7 @@ for the implementation.
         app:barrierDirection="top"
         app:constraint_referenced_ids="mute,volume_slider" />
 
-    <Button style="@style/ImageButton"
+    <com.google.android.material.button.MaterialButton style="@style/ImageButton"
         android:id="@+id/mute"
         android:layout_width="48dp"
         android:layout_height="48dp"

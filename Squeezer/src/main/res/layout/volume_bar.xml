@@ -24,7 +24,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
-    <Button style="@style/ImageButton"
+    <com.google.android.material.button.MaterialButton style="@style/ImageButton"
         android:id="@+id/muteButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

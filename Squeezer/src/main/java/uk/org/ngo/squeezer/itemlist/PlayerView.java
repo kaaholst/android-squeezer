@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.annotation.SuppressLint;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +39,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerView extends PlayerBaseView {
     private final PlayerListActivity activity;
-    private MaterialButton mute;
+    private final MaterialButton mute;
     private final Slider volumeBar;
 
     public PlayerView(PlayerListActivity activity, View view) {
@@ -48,7 +47,36 @@ public class PlayerView extends PlayerBaseView {
         this.activity = activity;
 
         mute = view.findViewById(R.id.mute);
+        mute.setOnClickListener(v -> {
+            ISqueezeService service = activity.getService();
+            if (service == null) {
+                return;
+            }
+            service.toggleMute(item);
+        });
+
         volumeBar = view.findViewById(R.id.volume_slider);
+        volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                activity.setTrackingTouch(item);
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                activity.setTrackingTouch(null);
+                activity.adapter.notifyGroupVolumeChanged(item);
+            }
+        });
+        volumeBar.addOnChangeListener((slider, value, fromUser) -> {
+            if (fromUser) {
+                ISqueezeService service = activity.getService();
+                if (service == null) {
+                    return;
+                }
+                service.setVolumeTo(item, (int)value);
+            }
+        });
     }
 
     @Override
@@ -62,44 +90,16 @@ public class PlayerView extends PlayerBaseView {
         mute.setIconResource(playerState.isMuted() ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
         volumeBar.setEnabled(!playerState.isMuted());
 
-        mute.setOnClickListener(view -> {
-            ISqueezeService service = activity.getService();
-            if (service == null) {
-                return;
-            }
-            service.toggleMute(player);
-        });
-        volumeBar.clearOnSliderTouchListeners();
-        volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-            @Override
-            @SuppressLint("RestrictedApi")
-            public void onStartTrackingTouch(@NonNull Slider slider) {
-                activity.setTrackingTouch(player);
-            }
-
-            @Override
-            @SuppressLint("RestrictedApi")
-            public void onStopTrackingTouch(@NonNull Slider slider) {
-                activity.setTrackingTouch(null);
-                activity.adapter.notifyGroupChanged(player);
-            }
-        });
-        volumeBar.clearOnChangeListeners();
-        volumeBar.addOnChangeListener((slider, value, fromUser) -> {
-            if (fromUser) {
-                ISqueezeService service = activity.getService();
-                if (service == null) {
-                    return;
-                }
-                service.setVolumeTo(player, (int)value);
-            }
-        });
-        volumeBar.setValue(playerState.getCurrentVolume());
+        updateVolume(player);
 
         if (playerState.getSleepDuration() > 0) {
             text2.setText(activity.getString(R.string.SLEEPING_IN)
                     + " " + Util.formatElapsedTime(player.getSleepingIn()));
         }
+    }
+
+    void updateVolume(Player player) {
+        volumeBar.setValue(player.getPlayerState().getCurrentVolume());
     }
 
     private int viewParamTwoLine(Player player) {

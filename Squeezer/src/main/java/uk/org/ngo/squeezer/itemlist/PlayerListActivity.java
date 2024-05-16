@@ -90,10 +90,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerVolume event) {
-        if (mTrackingTouch != event.player) {
-            adapter.notifyItemChanged(event.player);
-            adapter.notifyGroupChanged(event.player);
-        }
+        adapter.notifyVolumeChanged(event.player);
+        adapter.notifyGroupVolumeChanged(event.player);
     }
 
     @Override
