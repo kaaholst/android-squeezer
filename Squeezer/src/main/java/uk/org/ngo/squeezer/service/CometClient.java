@@ -211,6 +211,10 @@ class CometClient extends BaseClient {
 
         // Start the background connect
         mBackgroundHandler.post(() -> {
+            mPendingRequests.clear();
+            mPendingBrowseRequests.clear();
+            mCommandQueue.clear();
+            mCurrentCommand = false;
             cleanupBayeuxClient();
 
             final Preferences.ServerAddress serverAddress = Squeezer.getPreferences().getServerAddress();
@@ -327,7 +331,6 @@ class CometClient extends BaseClient {
         // If this is a rehandshake we may already have players.
         boolean rehandshake = !mConnectionState.isRehandshaking();
 
-        mCurrentCommand = false;
         mConnectionState.setConnectionState(ConnectionState.State.CONNECTION_COMPLETED);
 
         // Set a timeout for the handshake

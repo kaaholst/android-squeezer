@@ -118,7 +118,7 @@ public class ConnectionState {
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     public boolean canAutoConnect() {
-        return (state == State.DISCONNECTED || state == State.CONNECTION_FAILED)
+        return (state == State.DISCONNECTED || state == State.CONNECTION_FAILED || state == State.REHANDSHAKING)
                 && ((SystemClock.elapsedRealtime() - autoConnect) > AUTO_CONNECT_INTERVAL);
     }
 
