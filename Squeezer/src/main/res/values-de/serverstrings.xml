@@ -19,6 +19,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Vor dem Ersetzen der Wiedergabeliste immer nachfragen</string>
   <string name='ALARM_SHORT_DAY_5'>Fr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Destruktives Verhalten nicht unterdrücken</string>
+  <string name='DISABLE'>Deaktivieren</string>
   <string name='SETUP_SYNCPOWER_DESC'>Sie können diesen Player einzeln oder zusammen mit den anderen synchronisierten Playern ein- bzw. ausschalten. Wählen Sie die gewünschte Option und klicken Sie auf \'Ändern\'.</string>
   <string name='SWITCH_TO_GALLERY'>Große Plattenhüllen</string>
   <string name='ADVANCED_SETTINGS'>Erweitert</string>
@@ -32,6 +33,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Lautstärkeregelung</string>
   <string name='SETUP_SYNCPOWER_ON'>In Gruppe ein-/ausschalten</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>\n%s\nwird aus Wiedergabeliste entfernt…</string>
+  <string name='ALARM_DELETE'>Wecker entfernen</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Wenn Sie einen Titel auswählen und PLAY drücken, können Sie hier festlegen, ob nur dieses eine oder alle Titel aus diesem Album oder Ordner wiedergegeben werden soll.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Kleine Plattenhüllen</string>
   <string name='SETUP_SYNCPOWER'>Ein-/Ausschalten synchronisieren</string>

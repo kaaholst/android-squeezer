@@ -20,8 +20,6 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="undo">Annuler</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
     <string name="disabled">Désactivé</string>
     <string name="menu_item_players">Platine</string>
     <string name="menu_item_settings_label">Paramètres</string>

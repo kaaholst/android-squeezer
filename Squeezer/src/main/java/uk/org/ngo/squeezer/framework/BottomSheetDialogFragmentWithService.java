@@ -4,10 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -38,6 +41,11 @@ public abstract class BottomSheetDialogFragmentWithService extends BottomSheetDi
     public void onStart() {
         super.onStart();
         requireActivity().bindService(new Intent(getActivity(), SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        PackageManager packageManager = requireContext().getPackageManager();
+        boolean isTelevision = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+        if (isTelevision) {
+            BottomSheetBehavior.from((View)requireView().getParent()).setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
     }
 
     @Override

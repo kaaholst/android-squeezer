@@ -34,7 +34,6 @@ import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
-import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
@@ -42,6 +41,7 @@ import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
+import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 
 abstract class BaseClient implements SlimClient {
     final static int mPageSize = Squeezer.getInstance().getResources().getInteger(R.integer.PageSize);
@@ -113,7 +113,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(tokenMap, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
-        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getString(tokenMap, "mode"));
+        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getStringOrEmpty(tokenMap, "mode"));
 
         // Playing status
         if (changedPlayStatus) {
@@ -160,12 +160,21 @@ abstract class BaseClient implements SlimClient {
         if (changedSongDuration || changedSongTime || changedPlayStatus) {
             postSongTimeChanged(player);
         }
+
+        // Sleep times
+        if (changedSleep || changedSleepDuration) {
+            postSleepTimeChanged(player);
+        }
     }
 
     protected abstract void handleChangedSong(Player player);
 
     protected void postSongTimeChanged(Player player) {
         mEventBus.post(player.getTrackElapsed());
+    }
+
+    protected void postSleepTimeChanged(Player player) {
+        mEventBus.post(new SleepTimeChanged(player));
     }
 
     protected void postPlayerStateChanged(Player player) {

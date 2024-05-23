@@ -18,11 +18,12 @@
     tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">Squeezer</string>
     <string name="undo">Undo</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
-    <string name="pause">Pause</string>
     <string name="mute">Mute</string>
+    <string name="pause_active">Pause selected player</string>
+    <string name="pause_all">Pause all players</string>
+    <string name="mute_active">Mute selected player</string>
+    <string name="mute_all">Mute all players</string>
     <string name="minutes">minutes</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_settings_label">Settings</string>
@@ -44,6 +45,9 @@
     <string name="settings_band_instead_album">Classical music information</string>
     <string name="settings_add_conductor_line">Show band and conductor</string>
     <string name="settings_use_flat_icons">Flat icons</string>
+    <string name="settings_top_bar_search">Top bar search</string>
+    <string name="settings_top_bar_search_global">All places</string>
+    <string name="settings_top_bar_search_my_music">My music</string>
     <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
     <string name="settings_clear_current_playlist_confirmation_off">do not ask for confirmation</string>
     <string name="settings_clear_current_playlist_confirmation_on">ask for confirmation</string>

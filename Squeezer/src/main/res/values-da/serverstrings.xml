@@ -9,6 +9,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_SYNCPOWER_ON'>Tænd/sluk med gruppe</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Fjerner\n%s\nfra afspilningsliste…</string>
   <string name='SETTINGS'>Indstillinger</string>
+  <string name='ALARM_DELETE'>Slet vækkeur</string>
   <string name='SCREEN_SETTINGS'>Skærm</string>
   <string name='ALARM_ALARM_REPEAT'>Gentag vækning</string>
   <string name='SETUP_SYNCPOWER_OFF'>Tænd/sluk separat</string>
@@ -24,6 +25,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_SYNCVOLUME'>Synkroniser lydstyrke</string>
   <string name='EXTRAS'>Ekstra</string>
   <string name='SETUP_SYNCVOLUME_DESC'>Du kan vælge om lydstyrken på de synkroniserede afspillere skal være ens eller uafhængig af hinanden. Vælg nedenfor, og klik på Skift.</string>
+  <string name='DISABLE'>Deaktiver</string>
   <string name='SETUP_SYNCPOWER_DESC'>Du kan vælge kun at slukke denne afspiller, eller at den slukkes sammen med alle andre afspillere i den samme gruppe. Vælg nedenfor, og klik på Skift.</string>
   <string name='SWITCH_TO_GALLERY'>Store albumcovere</string>
   <string name='ADVANCED_SETTINGS'>Avanceret</string>

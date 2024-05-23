@@ -31,7 +31,7 @@ public class SyncVolumeDialog extends BaseChoicesDialog {
      */
     public interface SyncVolumeDialogHost {
         FragmentManager getSupportFragmentManager();
-        String getSyncVolume();
+        int getSyncVolume();
         void setSyncVolume(@NonNull String option);
     }
 
@@ -53,7 +53,7 @@ public class SyncVolumeDialog extends BaseChoicesDialog {
         return createDialog(
                 getString(R.string.SETUP_SYNCVOLUME),
                 getString(R.string.SETUP_SYNCVOLUME_DESC),
-                Integer.parseInt(host.getSyncVolume()),
+                host.getSyncVolume(),
                 options
         );
     }

@@ -25,7 +25,7 @@ limitations under the License.
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/icon"
@@ -42,7 +42,7 @@ limitations under the License.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/icon"
-            android:paddingStart="8dp"
+            android:paddingStart="16dp"
             android:text="@string/app_name"/>
 
         <TextView
@@ -52,7 +52,7 @@ limitations under the License.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/about_title"
             app:layout_constraintStart_toEndOf="@id/icon"
-            android:paddingStart="8dp"
+            android:paddingStart="16dp"
             tools:text="1.1.1" />
 
         <TextView
@@ -62,8 +62,7 @@ limitations under the License.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/icon"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
+            android:paddingTop="16dp"
             android:text="@string/copyright_text"/>
 
         <TextView
@@ -73,7 +72,7 @@ limitations under the License.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/copyright"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingTop="8dp"
+            android:paddingTop="16dp"
             android:text="@string/about_team"/>
 
         <TextView
@@ -83,7 +82,6 @@ limitations under the License.
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/team"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingStart="8dp"
             android:text="@string/about_authors"/>
 
         <TextView
@@ -103,8 +101,6 @@ limitations under the License.
             app:layout_constraintTop_toBottomOf="@id/support"
             app:layout_constraintStart_toStartOf="parent"
             android:autoLink="web"
-            android:paddingBottom="8dp"
-            android:paddingStart="8dp"
             android:text="@string/about_support_text"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

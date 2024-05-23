@@ -25,7 +25,7 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
 
     @Override
     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-        int position = target.getAbsoluteAdapterPosition();
+        int position = target.getBindingAdapterPosition();
 
         // Move the highlighted song if necessary
         int selectedIndex = activity.getSelectedIndex();
@@ -38,7 +38,7 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
         }
 
         // TODO remember moves so we can do them when items arrives
-        activity.getItemAdapter().moveItem(viewHolder.getAbsoluteAdapterPosition(), position);
+        activity.getItemAdapter().moveItem(viewHolder.getBindingAdapterPosition(), position);
         viewPosition = position;
 
         return true;
@@ -52,7 +52,7 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
                 break;
             case ItemTouchHelper.ACTION_STATE_DRAG:
                 if (viewHolder != null)  {
-                    itemPosition = viewPosition = viewHolder.getAbsoluteAdapterPosition();
+                    itemPosition = viewPosition = viewHolder.getBindingAdapterPosition();
                 }
                 break;
             case ItemTouchHelper.ACTION_STATE_IDLE:
@@ -69,7 +69,7 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int direction) {
         CurrentPlaylistItemView viewHolder = (CurrentPlaylistItemView) vh;
-        final int position = viewHolder.getAbsoluteAdapterPosition();
+        final int position = viewHolder.getBindingAdapterPosition();
         final JiveItem item = activity.getItemAdapter().getItem(position);
         activity.getItemAdapter().removeItem(position);
         Context context = viewHolder.itemView.getContext();

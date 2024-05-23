@@ -26,6 +26,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,30 +47,39 @@ import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.widget.DividerItemDecoration;
 
 public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerGroupViewHolder> {
+    private static final int UPDATE_VOLUME = 1;
+
     private final PlayerListActivity mActivity;
 
     private final List<SyncGroup> childAdapters = new ArrayList<>();
 
     public void notifyItemChanged(Player player) {
+        notifyItemChanged(player, null);
+    }
+
+    public void notifyVolumeChanged(Player player) {
+        notifyItemChanged(player, UPDATE_VOLUME);
+    }
+
+    private void notifyItemChanged(Player player, @Nullable Object payload) {
         for (SyncGroup childAdapter : childAdapters) {
             for (int i = 0; i < childAdapter.getItemCount(); i++) {
                 if (player == childAdapter.getItem(i)) {
-                    childAdapter.notifyItemChanged(i);
+                    childAdapter.notifyItemChanged(i, payload);
                     return;
                 }
             }
         }
     }
 
-    public void notifyGroupChanged(Player player) {
+    public void notifyGroupVolumeChanged(Player player) {
         for (int groupPos = 0; groupPos < getItemCount(); groupPos++) {
             SyncGroup syncGroup = childAdapters.get(groupPos);
             for (int playerPos = 0; playerPos < syncGroup.getItemCount(); playerPos++) {
                 if (player == syncGroup.getItem(playerPos)) {
-                    notifyItemChanged(groupPos);
+                    notifyItemChanged(groupPos, UPDATE_VOLUME);
                     return;
                 }
             }
@@ -91,6 +101,15 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         @Override
         public PlayerView createViewHolder(View view, int viewType) {
             return new PlayerView((PlayerListActivity) getActivity(), view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PlayerView holder, int position, @NonNull List<Object> payloads) {
+            if (payloads.contains(UPDATE_VOLUME)) {
+                holder.updateVolume(getItem(position));
+            } else {
+                onBindViewHolder(holder, position);
+            }
         }
 
         @Override
@@ -183,7 +202,16 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
     @NonNull
     @Override
     public PlayerGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PlayerGroupViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.player_group_layout, parent, false));
+        return new PlayerGroupViewHolder(mActivity, LayoutInflater.from(parent.getContext()).inflate(R.layout.player_group_layout, parent, false));
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull PlayerGroupViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.contains(UPDATE_VOLUME)) {
+            holder.calcGroupOffsets(childAdapters.get(position));
+        } else {
+            onBindViewHolder(holder, position);
+        }
     }
 
     @Override
@@ -194,58 +222,20 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
         if (groupSong != null) {
-            holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.songInfo.getArtist(),
-                    groupSong.songInfo.album));
+            holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.artistAlbum()));
         }
 
         holder.contextMenuButton.setVisibility(syncGroup.getItemCount() > 1 ? View.VISIBLE : View.GONE);
-        holder.contextMenuButton.setOnClickListener(v -> showContextMenu(holder));
 
         holder.groupVolume.setVisibility(syncGroup.getItemCount() > 1 && !syncGroup.getItem(0).isSyncVolume() ? View.VISIBLE : View.GONE);
-        holder.volumeOffsets = new int[syncGroup.getItemCount()];
-        holder.calcGroupOffsets();
-        holder.volumeBar.clearOnChangeListeners();
-        holder.volumeBar.addOnChangeListener((slider, value, fromUser) -> {
-            if (fromUser) {
-                ISqueezeService service = mActivity.getService();
-                if (service == null) {
-                    return;
-                }
-                int groupVolume = (int)value;
-                for (int i = 0; i < syncGroup.getItemCount(); i++) {
-                    service.setVolumeTo(syncGroup.getItem(i), trimVolume(groupVolume + holder.volumeOffsets[i]));
-                }
-            }
-        });
+        holder.calcGroupOffsets(syncGroup);
 
         holder.players.setAdapter(syncGroup);
     }
 
-    private int trimVolume(int volume) {
-        return volume < 0 ? 0 : Math.min(volume, 100);
-    }
-
-    public void showContextMenu(final PlayerGroupViewHolder holder) {
-        PopupMenu popup = new PopupMenu(mActivity, holder.contextMenuButton);
-        popup.inflate(R.menu.player_group_menu);
-        popup.setOnMenuItemClickListener(menuItem -> doItemContext(menuItem, holder.item));
-        popup.show();
-    }
-
-    private boolean doItemContext(MenuItem menuItem, SyncGroup selectedItem) {
-        mActivity.setCurrentSyncGroup(selectedItem);
-        if (menuItem.getItemId() == R.id.sync_volume) {
-            SyncVolumeDialog.show(mActivity);
-            return true;
-        } else if (menuItem.getItemId() == R.id.sync_power) {
-            SyncPowerDialog.show(mActivity);
-            return true;
-        }
-        return false;
-    }
-
     public static class PlayerGroupViewHolder extends RecyclerView.ViewHolder {
         SyncGroup item;
+        private final PlayerListActivity activity;
         final TextView text1;
         final TextView text2;
         final View groupVolume;
@@ -255,19 +245,36 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         int[] volumeOffsets;
 
-        public PlayerGroupViewHolder(@NonNull View itemView) {
+        public PlayerGroupViewHolder(PlayerListActivity activity, @NonNull View itemView) {
             super(itemView);
+            this.activity = activity;
             text1 = itemView.findViewById(R.id.text1);
             text2 = itemView.findViewById(R.id.text2);
             groupVolume = itemView.findViewById(R.id.group_volume);
             volumeBar = itemView.findViewById(R.id.group_volume_slider);
             contextMenuButton = itemView.findViewById(R.id.context_menu_button);
             players = itemView.findViewById(R.id.players_container);
-            players.addItemDecoration(new DividerItemDecoration(players.getContext(), LinearLayoutManager.VERTICAL));
             players.setLayoutManager(new LinearLayoutManager(players.getContext()));
+
+            contextMenuButton.setOnClickListener(v -> showContextMenu());
+
+            volumeBar.addOnChangeListener((slider, value, fromUser) -> {
+                if (fromUser) {
+                    ISqueezeService service = activity.getService();
+                    if (service == null) {
+                        return;
+                    }
+                    int groupVolume = (int)value;
+                    for (int i = 0; i < item.getItemCount(); i++) {
+                        service.setVolumeTo(item.getItem(i), trimVolume(groupVolume + volumeOffsets[i]));
+                    }
+                }
+            });
         }
 
-        private void calcGroupOffsets() {
+        private void calcGroupOffsets(SyncGroup syncGroup) {
+            volumeOffsets = new int[syncGroup.getItemCount()];
+
             int lowestVolume = item.getItem(0).getPlayerState().getCurrentVolume();
             for (int i = 0; i < item.getItemCount(); i++) {
                 int currentVolume = item.getItem(i).getPlayerState().getCurrentVolume();
@@ -282,6 +289,29 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
             volumeBar.setValueFrom(-groupVolumeOffset);
             volumeBar.setValue(item.getItem(0).getPlayerState().getCurrentVolume() - volumeOffsets[0]);
+        }
+
+        private int trimVolume(int volume) {
+            return volume < 0 ? 0 : Math.min(volume, 100);
+        }
+
+        private void showContextMenu() {
+            PopupMenu popup = new PopupMenu(activity, contextMenuButton);
+            popup.inflate(R.menu.player_group_menu);
+            popup.setOnMenuItemClickListener(menuItem -> doItemContext(menuItem, item));
+            popup.show();
+        }
+
+        private boolean doItemContext(MenuItem menuItem, SyncGroup selectedItem) {
+            activity.setCurrentSyncGroup(selectedItem);
+            if (menuItem.getItemId() == R.id.sync_volume) {
+                SyncVolumeDialog.show(activity);
+                return true;
+            } else if (menuItem.getItemId() == R.id.sync_power) {
+                SyncPowerDialog.show(activity);
+                return true;
+            }
+            return false;
         }
     }
 }

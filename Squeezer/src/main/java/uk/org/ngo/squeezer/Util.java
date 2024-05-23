@@ -236,19 +236,29 @@ public class Util {
     private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
 
     @NonNull
+    public static Uri getAbsoluteUrl(String urlPrefix, String url) {
+        if (url != null) {
+            if (!Uri.parse(url).isAbsolute()) {
+                url = urlPrefix + (url.startsWith("/") ? url : "/" + url);
+            }
+        }
+        return Uri.parse(url != null ? url : "");
+    }
+
+    @NonNull
     public static Uri getImageUrl(String urlPrefix, String imageId) {
         if (imageId != null) {
             if (HEX_PATTERN.matcher(imageId).matches()) {
                 // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
                 imageId = "/music/" + imageId + "/cover";
             }
-
-            // Make sure the url is absolute
-            if (!Uri.parse(imageId).isAbsolute()) {
-                imageId = urlPrefix + (imageId.startsWith("/") ? imageId : "/" + imageId);
-            }
         }
-        return Uri.parse(imageId != null ? imageId : "");
+        return getAbsoluteUrl(urlPrefix, imageId);
+    }
+
+    @NonNull
+    public static Uri getAbsoluteUrl(Map<String, Object> record, String fieldName) {
+        return getAbsoluteUrl(getString(record, "urlPrefix"), getString(record, fieldName));
     }
 
     @NonNull

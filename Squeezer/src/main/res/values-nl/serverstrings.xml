@@ -19,6 +19,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Altijd vragen om je selectie af te spelen</string>
   <string name='ALARM_SHORT_DAY_5'>vr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Niet vragen</string>
+  <string name='DISABLE'>Uitschakelen</string>
   <string name='SETUP_SYNCPOWER_DESC'>Je kunt ervoor kiezen om dit muzieksysteem apart uit te zetten, of als deel van een groep met de andere muzieksystemen in die groep. Maak hieronder een selectie en klik op de knop Veranderen.</string>
   <string name='SWITCH_TO_GALLERY'>Grote hoesafbeeldingen</string>
   <string name='ADVANCED_SETTINGS'>Geavanceerd</string>
@@ -32,6 +33,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Volumeregelaar</string>
   <string name='SETUP_SYNCPOWER_ON'>In groep uit-/aanzetten</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Bezig met verwijderen van\n%s\nuit playlist…</string>
+  <string name='ALARM_DELETE'>Weksignaal verwijderen</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Als je één nummer selecteert en op de PLAY-toets drukt terwijl je albums of mappen bekijkt, kun je alleen dit nummer laten afspelen, of alle nummers van het album of uit de map te beginnen met het geselecteerde nummer.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Kleine hoesafbeeldingen</string>
   <string name='SETUP_SYNCPOWER'>Aan/uit synchroniseren</string>

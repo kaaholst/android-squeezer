@@ -1,3 +1,31 @@
+2.3.5
+=====
+
+*   Fix current playlist when showing QR code
+
+
+2.3.4
+=====
+
+*   Bring back notification controls. This also gives a better experience over
+    bluetooth, and brings back background volume control on some devices.
+
+*   Smooth volume slider on Now Playing screen, prevents sudden volume changes
+
+*   Possibility to seek current song from notification
+
+*   Power on/off now possible from notification
+
+*   Fix context menu initially hidden in landscape
+
+*   Remove obsolete volume button on Now Playing mini layout
+
+*   Minor improvements when the app is sideloaded on Google TV
+
+*   Workaround an Android issue
+    https://issuetracker.google.com/issues/160946170
+
+
 2.3.3
 =====
 

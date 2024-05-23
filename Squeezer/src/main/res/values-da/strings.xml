@@ -18,11 +18,12 @@
 
 <resources>
     <string name="undo">Fortryd</string>
-    <string name="on">Til</string>
-    <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
-    <string name="pause">Pause</string>
     <string name="mute">Mute</string>
+    <string name="pause_active">Sæt den valgte afspiller på pause</string>
+    <string name="pause_all">Sæt alle afspillere på pause</string>
+    <string name="mute_active">Slå lyden fra for den valgte afspiller</string>
+    <string name="mute_all">Slå lyden fra for alle spillere</string>
     <string name="minutes">minutter</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_settings_label">Indstillinger</string>
@@ -41,6 +42,9 @@
     <string name="settings_screensaver_on">Ja</string>
     <string name="settings_screensaver_clock">Vis ur ved inaktivitet</string>
     <string name="settings_use_flat_icons">Flade ikoner</string>
+    <string name="settings_top_bar_search">Søg i toplinje</string>
+    <string name="settings_top_bar_search_global">Alle steder</string>
+    <string name="settings_top_bar_search_my_music">Min musik</string>
     <string name="settings_clear_current_playlist_confirmation">Når afspilningslisten ryddes</string>
     <string name="settings_clear_current_playlist_confirmation_off">bed ikke om bekræftelse</string>
     <string name="settings_clear_current_playlist_confirmation_on">bed om bekræftelse</string>

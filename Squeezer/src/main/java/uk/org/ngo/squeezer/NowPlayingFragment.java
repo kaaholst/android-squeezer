@@ -93,6 +93,7 @@ import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -145,8 +146,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private MenuItem menuItemDisconnect;
 
     private JiveItem topBarSearch;
-    private JiveItem globalSearch;
-    private JiveItem myMusicSearch;
     private MenuItem menuItemSearch;
 
     private MenuItem menuItemPlaylist;
@@ -617,7 +616,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem);
-                    updateUiFromPlayerState(requireService().getActivePlayerState());
                 }
             });
         } else {
@@ -831,7 +829,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.album));
+                artistAlbumText.setText(song.artistAlbum());
             }
         } else {
             trackText.setText("");
@@ -1093,15 +1091,15 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         switch (event.connectionState) {
-            case ConnectionState.MANUAL_DISCONNECT:
-            case ConnectionState.DISCONNECTED:
+            case MANUAL_DISCONNECT:
+            case DISCONNECTED:
                 dismissConnectingDialog();
                 ConnectActivity.show(mActivity);
                 break;
-            case ConnectionState.CONNECTION_STARTED:
+            case CONNECTION_STARTED:
                 showConnectingDialog();
                 break;
-            case ConnectionState.CONNECTION_FAILED:
+            case CONNECTION_FAILED:
                 dismissConnectingDialog();
                 switch (event.connectionError) {
                     case LOGIN_FALIED:
@@ -1116,7 +1114,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                         break;
                 }
                 break;
-            case ConnectionState.CONNECTION_COMPLETED:
+            case CONNECTION_COMPLETED:
+            case REHANDSHAKING:
                 break;
         }
      }
@@ -1157,6 +1156,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(ActivePlayerChanged event) {
+        updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
+    }
+
+    @MainThread
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MusicChanged event) {
         if (event.player.equals(requireService().getActivePlayer())) {
             updateSongInfo(event.playerState);
@@ -1188,20 +1193,14 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @MainThread
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HomeMenuEvent event) {
-        topBarSearch = globalSearch = myMusicSearch = null;
-        for (JiveItem menuItem : event.menuItems) {
-            if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                globalSearch = menuItem;
-            }
-            if ("myMusicSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
-                myMusicSearch = menuItem;
-                myMusicSearch.input = new Input();
-            }
+        boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
+        String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
+        topBarSearch = null;
+        for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {
+            if (searchKey.equals(menuItem.getId())) topBarSearch = menuItem;
+            if ("myMusicSearch".equals(menuItem.getId())) menuItem.input = new Input();
         }
-        topBarSearch = globalSearch;
-        if (menuItemSearch != null) {
-            menuItemSearch.setVisible(topBarSearch != null);
-        }
+        if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
     }
 
     @MainThread

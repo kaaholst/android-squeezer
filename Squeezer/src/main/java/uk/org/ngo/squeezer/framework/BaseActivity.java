@@ -83,7 +83,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public abstract class BaseActivity extends AppCompatActivity implements DownloadDialog.DownloadDialogListener {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
-    private static final String TAG = BaseActivity.class.getName();
+    private static final String TAG = BaseActivity.class.getSimpleName();
 
     @Nullable
     private ISqueezeService mService = null;
@@ -108,6 +108,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     /** Volume control panel. */
     @Nullable
     private VolumePanel volumePanel;
+
+    private Toast lastShownToast;
 
     /**
      * @return The {@link ISqueezeService}, or null if not bound
@@ -426,18 +428,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             showMe = false;
         }
 
-        if (showMe) {
-            if (!(icon.getVisibility() == View.VISIBLE &&text.getVisibility() == View.VISIBLE)) {
-                layout.findViewById(R.id.divider).setVisibility(View.GONE);
-            }
-            int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-            Toast toast = new Toast(getApplicationContext());
-            //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
-            // once we have material design and BaseTransientBottomBar
-            toast.setDuration(duration);
-            toast.setView(layout);
-            toast.show();
+        if (!showMe) {
+            return;
         }
+        if (lastShownToast != null) {
+            lastShownToast.cancel();
+        }
+        int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+        lastShownToast = new Toast(this);
+        //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
+        // once we have material design and BaseTransientBottomBar
+        lastShownToast.setDuration(duration);
+        lastShownToast.setView(layout);
+        lastShownToast.show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -1,6 +1,9 @@
 package uk.org.ngo.squeezer.framework;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +30,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
+import uk.org.ngo.squeezer.itemlist.JiveItemViewPending;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -79,6 +83,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         JiveItem item = contextStack.peek().first;
         text1.setText(item.getName());
         text2.setText(item.text2);
+        text2.setVisibility(TextUtils.isEmpty(item.text2) ? View.GONE : View.VISIBLE);
         if (contextStack.size() > 1) {
             icon.setVisibility(View.VISIBLE);
             icon.setImageResource(R.drawable.ic_keyboard_arrow_left);
@@ -120,7 +125,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         }
     }
 
-    private void doItemContext(JiveItem item) {
+    private void doItemContext(JiveItem item, int position) {
         Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
         JiveItem contextItem = contextStack.peek().first;
         if (JiveItem.PLAY_NOW.equals(item)) {
@@ -138,7 +143,10 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         } else if (nextWindow != null) {
             activity().action(item, item.goAction, contextStack.size());
         } else {
-            JiveItemViewLogic.execGoAction(activity(), this, item, contextStack.size());
+            if (item.goAction != null)
+                JiveItemViewLogic.execGoAction(activity(), this, item, position, contextStack.size());
+            else if (!item.webLink.equals(Uri.EMPTY))
+                getActivity().startActivity(new Intent(Intent.ACTION_VIEW, item.webLink));
             return;
         }
         dismiss();
@@ -210,17 +218,17 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
 
     private class ContextMenuAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         public ContextMenuAdapter(BaseActivity activity) {
-            super(activity, ContextMenu.this, false);
+            super(activity, ContextMenu.this);
         }
 
         @Override
         public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {
-            return new ContextItemViewHolder(getActivity(), view);
+            return (viewType == R.layout.list_item_pending) ? new JiveItemViewPending(getActivity(), view, false) : new ContextItemViewHolder(getActivity(), view);
         }
 
         @Override
         protected int getItemViewType(JiveItem item) {
-            return R.layout.context_menu_item;
+            return item == null ? R.layout.list_item_pending : R.layout.context_menu_item;
         }
     }
 
@@ -242,7 +250,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
             text.setAlpha(getAlpha(item));
             text.setText(item.getName());
             itemView.setEnabled(item.isSelectable());
-            itemView.setOnClickListener(view -> doItemContext(item));
+            itemView.setOnClickListener(view -> doItemContext(item, getBindingAdapterPosition()));
         }
     }
 }

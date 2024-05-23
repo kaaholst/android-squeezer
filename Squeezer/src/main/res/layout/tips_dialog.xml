@@ -26,10 +26,10 @@ limitations under the License.
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="16dp">
 
         <TextView
-            style="?android:attr/textAppearanceLarge"
+            style="@style/SqueezerTextAppearance.Medium"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
             android:text="@string/tips_title"
@@ -38,11 +38,10 @@ limitations under the License.
             android:drawablePadding="8dp"/>
 
         <TextView
-            style="?android:attr/textAppearanceMedium"
+            style="@style/SqueezerTextAppearance.Medium"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="16dp"
             android:text="@string/tip_volume"/>
     </LinearLayout>
 </ScrollView>

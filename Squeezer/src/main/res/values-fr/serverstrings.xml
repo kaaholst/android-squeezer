@@ -19,6 +19,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Toujours demander une confirmation avant de lancer le titre sélectionné</string>
   <string name='ALARM_SHORT_DAY_5'>Ve</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Continuer la liste de lecture en cours</string>
+  <string name='DISABLE'>Désactiver</string>
   <string name='SETUP_SYNCPOWER_DESC'>Vous pouvez spécifier que cette platine s\'allume et s\'éteigne indépendamment ou simultanément avec un groupe d\'autres platines. Effectuez votre sélection ci-dessous et cliquez sur Modifier.</string>
   <string name='SWITCH_TO_GALLERY'>Grandes pochettes</string>
   <string name='ADVANCED_SETTINGS'>Avancé</string>
@@ -32,6 +33,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Réglage du volume</string>
   <string name='SETUP_SYNCPOWER_ON'>Allumer/éteindre avec groupe</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Suppression de\n%s\nde la liste de lecture…</string>
+  <string name='ALARM_DELETE'>Supprimer le réveil</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Lorsque vous choisissez un morceau et que vous appuyez sur le bouton PLAY de la télécommande, la platine peut lire uniquement ce morceau ou tous les morceaux de l\'album ou du dossier en commençant par le morceau choisi.</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Petites pochettes</string>
   <string name='SETUP_SYNCPOWER'>Synchroniser la mise en marche</string>

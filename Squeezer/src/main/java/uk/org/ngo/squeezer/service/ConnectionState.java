@@ -61,29 +61,51 @@ public class ConnectionState {
 
     public final static String MEDIA_DIRS = "mediadirs";
 
-    // Connection state machine
-    @IntDef({MANUAL_DISCONNECT, DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ConnectionStates {}
-    /** User disconnected */
-    public static final int MANUAL_DISCONNECT = 0;
-    /** Ordinarily disconnected from the server. */
-    public static final int DISCONNECTED = 1;
-    /** A connection has been started. */
-    public static final int CONNECTION_STARTED = 2;
-    /** The connection to the server did not complete. */
-    public static final int CONNECTION_FAILED = 3;
-    /** The connection to the server completed, the handshake can start. */
-    public static final int CONNECTION_COMPLETED = 4;
+    public enum State {
+        /** User disconnected */
+        MANUAL_DISCONNECT,
+        /** Ordinarily disconnected from the server. */
+        DISCONNECTED,
+        /** A connection has been started. */
+        CONNECTION_STARTED,
+        /** The connection to the server did not complete. */
+        CONNECTION_FAILED,
+        /** The connection to the server completed, the handshake can start. */
+        CONNECTION_COMPLETED,
+        /** Currently trying to reestablish a previously working connection. */
+        REHANDSHAKING;
 
-    @ConnectionStates
-    private volatile int mConnectionState = DISCONNECTED;
+        boolean isConnected() {
+            return (this == CONNECTION_COMPLETED);
+        }
+
+        boolean isConnectInProgress() {
+            return (this == CONNECTION_STARTED);
+        }
+
+
+        /**
+         * @return True if the socket connection to the server has started, but not yet
+         *     completed (successfully or unsuccessfully).
+         */
+        boolean isRehandshaking() {
+            return (this == REHANDSHAKING);
+        }
+    }
+
+    private volatile State state = State.DISCONNECTED;
 
     /** Milliseconds since boot of latest auto connect */
     private volatile long autoConnect;
 
     /** Minimum milliseconds between automatic connection */
     private static final long AUTO_CONNECT_INTERVAL = 60_000;
+
+    /** Milliseconds since boot of latest start of rehandshake */
+    private volatile long rehandshake;
+
+    /** Duration before we give up rehandshake */
+    private static final long REHANDSHAKE_TIMEOUT = 15 * 60_000;
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
@@ -96,7 +118,7 @@ public class ConnectionState {
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     public boolean canAutoConnect() {
-        return (mConnectionState == DISCONNECTED || mConnectionState == CONNECTION_FAILED)
+        return (state == State.DISCONNECTED || state == State.CONNECTION_FAILED || state == State.REHANDSHAKING)
                 && ((SystemClock.elapsedRealtime() - autoConnect) > AUTO_CONNECT_INTERVAL);
     }
 
@@ -110,27 +132,33 @@ public class ConnectionState {
      *
      * @param connectionState The new connection state.
      */
-    void setConnectionState(@ConnectionStates int connectionState) {
-        Log.i(TAG, "setConnectionState(" + mConnectionState + " => " + connectionState + ")");
+    void setConnectionState(State connectionState) {
+        Log.i(TAG, "setConnectionState(" + state + " => " + connectionState + ")");
         updateConnectionState(connectionState);
         mEventBus.postSticky(new ConnectionChanged(connectionState));
     }
 
     void setConnectionError(ConnectionError connectionError) {
-        Log.i(TAG, "setConnectionError(" + mConnectionState + " => " + connectionError.name() + ")");
-        updateConnectionState(CONNECTION_FAILED);
+        Log.i(TAG, "setConnectionError(" + state + " => " + connectionError + ")");
+        updateConnectionState(State.CONNECTION_FAILED);
         mEventBus.postSticky(new ConnectionChanged(connectionError));
     }
 
-    private void updateConnectionState(@ConnectionStates int connectionState) {
+    private void updateConnectionState(State connectionState) {
         // Clear data if we were previously connected
-        if (isConnected() && !isConnected(connectionState)) {
+        if (isConnected() && !connectionState.isConnected()) {
             mEventBus.removeAllStickyEvents();
             setServerVersion(null);
             mPlayers.clear();
             setActivePlayer(null);
         }
-        mConnectionState = connectionState;
+
+        // Start timer for rehandshake
+        if (connectionState == State.REHANDSHAKING) {
+            rehandshake = SystemClock.elapsedRealtime();
+        }
+
+        state = connectionState;
     }
 
     public void setPlayers(Map<String, Player> players) {
@@ -208,7 +236,7 @@ public class ConnectionState {
 
     void setServerVersion(String version) {
         if (Util.atomicReferenceUpdated(serverVersion, version)) {
-            if (version != null && mConnectionState == CONNECTION_COMPLETED) {
+            if (version != null && state == State.CONNECTION_COMPLETED) {
                 HandshakeComplete event = new HandshakeComplete(getServerVersion());
                 Log.i(TAG, "Handshake complete: " + event);
                 mEventBus.postSticky(event);
@@ -250,41 +278,28 @@ public class ConnectionState {
         return mediaDirs.get();
     }
 
-    /**
-     * @return True if the socket connection to the server has completed.
-     */
     boolean isConnected() {
-        return isConnected(mConnectionState);
+        return state.isConnected();
     }
 
-    /**
-     * @return True if the socket connection to the server has completed.
-     */
-    static boolean isConnected(@ConnectionStates int connectionState) {
-        return connectionState == CONNECTION_COMPLETED;
-    }
-
-    /**
-     * @return True if the socket connection to the server has started, but not yet
-     *     completed (successfully or unsuccessfully).
-     */
     boolean isConnectInProgress() {
-        return isConnectInProgress(mConnectionState);
+        return state.isConnectInProgress();
     }
 
-    /**
-     * @return True if the socket connection to the server has started, but not yet
-     *     completed (successfully or unsuccessfully).
-     */
-    static boolean isConnectInProgress(@ConnectionStates int connectionState) {
-        return connectionState == CONNECTION_STARTED;
+    boolean isRehandshaking() {
+        return state.isRehandshaking();
+    }
+
+    boolean canRehandshake() {
+        return isRehandshaking()
+                && ((SystemClock.elapsedRealtime() - rehandshake) < REHANDSHAKE_TIMEOUT);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ConnectionState{" +
-                "mConnectionState=" + mConnectionState +
+                "mConnectionState=" + state +
                 ", serverVersion=" + serverVersion +
                 '}';
     }

@@ -24,16 +24,15 @@ import uk.org.ngo.squeezer.service.ConnectionState;
  */
 public class ConnectionChanged {
     /** The new connection state. */
-    @ConnectionState.ConnectionStates
-    public int connectionState;
+    public ConnectionState.State connectionState;
     public ConnectionError connectionError;
 
-    public ConnectionChanged(@ConnectionState.ConnectionStates int connectionState) {
+    public ConnectionChanged(ConnectionState.State connectionState) {
         this.connectionState = connectionState;
     }
 
     public ConnectionChanged(ConnectionError connectionError) {
-        this.connectionState = ConnectionState.CONNECTION_FAILED;
+        this.connectionState = ConnectionState.State.CONNECTION_FAILED;
         this.connectionError = connectionError;
     }
 

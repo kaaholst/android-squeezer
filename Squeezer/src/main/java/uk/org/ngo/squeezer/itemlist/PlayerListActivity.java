@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
@@ -45,6 +46,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 
 
 public class PlayerListActivity extends ItemListActivity implements
@@ -88,10 +90,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerVolume event) {
-        if (mTrackingTouch != event.player) {
-            adapter.notifyItemChanged(event.player);
-            adapter.notifyGroupChanged(event.player);
-        }
+        adapter.notifyVolumeChanged(event.player);
+        adapter.notifyGroupVolumeChanged(event.player);
     }
 
     @Override
@@ -175,8 +175,8 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    public String getSyncVolume() {
-        return currentSyncGroup.getItem(0).getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME);
+    public int getSyncVolume() {
+        return getGroupPref(Player.Pref.SYNC_VOLUME);
     }
 
     @Override
@@ -187,8 +187,8 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    public String getSyncPower() {
-        return currentSyncGroup.getItem(0).getPlayerState().prefs.get(Player.Pref.SYNC_POWER);
+    public int getSyncPower() {
+        return getGroupPref(Player.Pref.SYNC_POWER);
     }
 
     @Override
@@ -196,6 +196,14 @@ public class PlayerListActivity extends ItemListActivity implements
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
             requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_POWER, option);
         }
+    }
+
+    private int getGroupPref(Player.Pref pref) {
+        for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
+            int prefValue = Util.getInt(currentSyncGroup.getItem(i).getPlayerState().prefs.get(pref), -1);
+            if (prefValue != -1) return prefValue;
+        }
+        return 0;
     }
 
     @Override
@@ -225,6 +233,15 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PlayerStateChanged event) {
+        maybeUpdateAndExpandPlayerList();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(SleepTimeChanged event) {
+        maybeUpdateAndExpandPlayerList();
+    }
+
+    private void maybeUpdateAndExpandPlayerList() {
         if (mTrackingTouch == null) {
             updateAndExpandPlayerList();
         } else {

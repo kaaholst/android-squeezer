@@ -288,9 +288,6 @@ public class JiveItem extends Item {
 
         selectedIndex = getInt(record, "selectedIndex");
         choiceStrings = Util.getStringArray(record, "choiceStrings");
-        if (goAction != null && goAction.action != null && goAction.action.cmd.size() == 0) {
-            doAction = true;
-        }
 
         if (record.containsKey("checkbox")) {
             checkbox = (getInt(record, "checkbox") != 0);
@@ -313,7 +310,7 @@ public class JiveItem extends Item {
             slider.help = getString(record, "help");
         }
 
-        webLink = Uri.parse(getStringOrEmpty(record, "weblink"));
+        webLink = Util.getAbsoluteUrl(record, "weblink");
     }
 
     public JiveItem(Parcel source) {
@@ -420,6 +417,14 @@ public class JiveItem extends Item {
 
     public boolean canDownload() {
         return downloadCommand != null;
+    }
+
+    public String selectedChoice() {
+        return (selectedIndex > 0 && selectedIndex <= choiceStrings.length) ? choiceStrings[selectedIndex - 1] : "";
+    }
+
+    public String text2() {
+        return (hasChoices() && TextUtils.isEmpty(text2)) ? selectedChoice() : text2;
     }
 
     public SlimCommand downloadCommand() {
