@@ -1,15 +1,15 @@
-&bull; Bring back notification controls.
+&bull; Support weblink in context menu items
 
-&bull; Smooth volume slider on Now Playing screen.
+&bull; Improve connection stability
 
-&bull; Possibility to seek current song from notification
+&bull; Flat icons for Deezer local plugin
 
-&bull; Power on/off now possible from notification
+&bull; Update the Deezer icon to match the new branding
 
-&bull; Fix context menu initially hidden in landscape
+&bull; Option to choose whether search from the top bar searches in all places or My Music only
 
-&bull; Remove obsolete volume button on Now Playing mini layout
+&bull; Options to mute or pause all players on call
 
-&bull; Minor improvements when the app is sideloaded on Google TV
+&bull; UI fixes and improvements, contributed by Danny Baumann
 
-&bull; Workaround an Android issue https://issuetracker.google.com/issues/160946170
+&bull; Fix assorted potential crashes.

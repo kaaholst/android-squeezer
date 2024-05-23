@@ -2,6 +2,27 @@
 
 <changelog>
     <release
+        version="2.3.6"
+        versioncode="132">
+
+        <change>Support weblink in context menu items</change>
+
+        <change>Improve connection stability</change>
+
+        <change>Flat icons for Deezer local plugin</change>
+
+        <change>Update the Deezer icon to match the new branding</change>
+
+        <change>Option to choose whether search from the top bar searches in all places or My Music only</change>
+
+        <change>Options to mute or pause all players on call</change>
+
+        <change>UI fixes and improvements, contributed by Danny Baumann</change>
+
+        <change>Fix assorted potential crashes.</change>
+    </release>
+
+    <release
         version="2.3.5"
         versioncode="129">
 

@@ -1,1 +1,15 @@
-&bull; Fix current playlist when showing QR code
+&bull; Support weblink in context menu items
+
+&bull; Improve connection stability
+
+&bull; Flat icons for Deezer local plugin
+
+&bull; Update the Deezer icon to match the new branding
+
+&bull; Option to choose whether search from the top bar searches in all places or My Music only
+
+&bull; Options to mute or pause all players on call
+
+&bull; UI fixes and improvements, contributed by Danny Baumann
+
+&bull; Fix assorted potential crashes.

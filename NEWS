@@ -1,3 +1,24 @@
+2.3.6
+=====
+
+*   Support weblink in context menu items
+
+*   Improve connection stability
+
+*   Flat icons for Deezer local plugin
+
+*   Update the Deezer icon to match the new branding
+
+*   Option to choose whether search from the top bar searches in all places or
+    My Music only
+
+*   Options to mute or pause all players on call
+
+*   UI fixes and improvements, contributed by Danny Baumann
+
+*   Fix assorted potential crashes.
+
+
 2.3.5
 =====
 
