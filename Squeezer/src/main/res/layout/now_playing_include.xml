@@ -32,17 +32,31 @@
          will not change size when then the layout is recalculated, and the text continues
          to scroll. -->
     <LinearLayout
-        android:id="@+id/track_wrapper"
+        android:id="@+id/composer_wrapper"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/track_wrapper"
+        app:layout_constraintStart_toStartOf="parent">
+        <TextView
+            android:id="@+id/composer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|top"
+            style="@style/SqueezerWidget.NowPlaying.ComposerName"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/track_wrapper"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/composer_wrapper"
         app:layout_constraintBottom_toTopOf="@id/item"
         app:layout_constraintStart_toStartOf="parent">
         <TextView
             android:id="@+id/trackname"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="start|top"
             style="@style/SqueezerWidget.NowPlaying.SongName"/>
     </LinearLayout>
 
@@ -80,6 +94,15 @@
             app:layout_constraintStart_toStartOf="@id/albumname"
             app:layout_constraintEnd_toStartOf="@+id/context_menu"
             style="@style/SqueezerWidget.NowPlaying.ArtistName" />
+
+        <TextView
+            android:id="@+id/conductorname"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/artistname"
+            app:layout_constraintStart_toStartOf="@id/albumname"
+            app:layout_constraintEnd_toStartOf="@+id/context_menu"
+            style="@style/SqueezerWidget.NowPlaying.ConductorName" />
 
         <include
             layout="@layout/context_menu_image_button"

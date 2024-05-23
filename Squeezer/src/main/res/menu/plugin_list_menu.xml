@@ -81,6 +81,25 @@
                     />
             </group>
             <group
+                android:id="@+id/menu_group_track_info"
+                android:checkableBehavior="all">
+                <item
+                    android:id="@+id/menu_item_composer_line"
+                    android:title="@string/settings_add_composer_line"
+                    app:showAsAction="never"
+                    />
+				<item
+                    android:id="@+id/menu_item_conductor_line"
+                    android:title="@string/settings_add_conductor_line"
+                    app:showAsAction="never"
+                    />
+				<item
+                    android:id="@+id/menu_item_classical_music_tags"
+                    android:title="@string/settings_band_instead_album"
+                    app:showAsAction="never"
+                    />					
+            </group>			
+            <group
                 android:id="@+id/menu_group_flat_icons"
                 android:checkableBehavior="all">
                 <item

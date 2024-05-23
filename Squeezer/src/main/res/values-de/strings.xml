@@ -33,6 +33,11 @@
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
+    <string name="settings_add_composer_line">Komponist anzeigen</string>
+    <string name="settings_band_instead_album">Trackinfo für klassiche Musik</string>
+    <string name="settings_add_conductor_line">Orchester und Dirigent anzeigen</string>
+    <string name="settings_use_flat_icons">Flache Icons</string>
+
     <string name="settings_clear_current_playlist_confirmation_off">Nicht nachfragen</string>
     <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der Wiedergabeliste</string>
     <string name="settings_username_hint">Benutzername (optional)</string>
@@ -112,7 +117,9 @@
     <string name="unknown_album">Unbekanntes Album</string>
     <string name="unknown_artist">Unbekannter Künstler</string>
     <string name="unknown_artistalbum">Unbekannter Künstler/Album</string>
-
+    <string name="conductor">Dirigent: %s</string>
+    <string name="soloist">Solist: %s</string>
+    <string name="soloists">Solisten: %s</string>
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individuelle Alarme können aktiviert werden.</string>
     <string name="all_alarms_off_hint">Alle Alarme wurden daktiviert</string>

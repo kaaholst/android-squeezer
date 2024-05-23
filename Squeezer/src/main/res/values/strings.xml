@@ -40,6 +40,9 @@
     <string name="settings_screensaver_off">No</string>
     <string name="settings_screensaver_on">Yes</string>
     <string name="settings_screensaver_clock">Show clock when idle</string>
+    <string name="settings_add_composer_line">Show composer</string>
+    <string name="settings_band_instead_album">Classical music information</string>
+    <string name="settings_add_conductor_line">Show band and conductor</string>
     <string name="settings_use_flat_icons">Flat icons</string>
     <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
     <string name="settings_clear_current_playlist_confirmation_off">do not ask for confirmation</string>
@@ -126,6 +129,12 @@
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
     <string name="unknown_artistalbum">Unknown artist/album</string>
+    <string name="conductor">Conductor: %s</string>
+    <string name="soloist">Soloist: %s</string>
+    <string name="soloists">Soloists: %s</string>
+
+
+    <string name="empty_string"></string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>

@@ -125,9 +125,14 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private TextView artistText;
 
     private TextView trackText;
+    private TextView conductorText;
+    private TextView composerText;
 
     private JiveItem albumItem;
     private JiveItem artistItem;
+
+    private JiveItem conductorItem;
+    private JiveItem composerItem;
 
     @Nullable
     private View btnContextMenu;
@@ -281,10 +286,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         mFullHeightLayout = (container.getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT);
         Preferences preferences = Squeezer.getPreferences();
         boolean largeArtwork = preferences.isLargeArtwork();
+
         if (mFullHeightLayout) {
             v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
 
             artistText = v.findViewById(R.id.artistname);
+            conductorText = v.findViewById(R.id.conductorname);
             albumText = v.findViewById(R.id.albumname);
             shuffleButton = v.findViewById(R.id.shuffle);
             repeatButton = v.findViewById(R.id.repeat);
@@ -292,6 +299,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             totalTime = v.findViewById(R.id.totaltime);
             showRemainingTime = preferences.isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
+            artistText.requestFocus();
+
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
@@ -321,6 +330,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         trackText = v.findViewById(R.id.trackname);
+        composerText = v.findViewById(R.id.composer);
         playPauseButton = v.findViewById(R.id.pause);
 
         nextButton = v.findViewById(R.id.next);
@@ -352,6 +362,18 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 if (song != null && topBarSearch != null) {
                     topBarSearch.input.initialText = song.getName();
                     JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
+                }
+            });
+
+            composerText.setOnClickListener(v14 -> {
+                if (composerItem != null) {
+                    JiveItemListActivity.show(mActivity, composerItem, composerItem.goAction);
+                }
+            });
+
+            conductorText.setOnClickListener(v15 -> {
+                if (conductorItem != null) {
+                    JiveItemListActivity.show(mActivity, conductorItem, conductorItem.goAction);
                 }
             });
 
@@ -713,7 +735,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
         updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
-
+        Preferences preferences = Squeezer.getPreferences();
         CurrentPlaylistItem song = playerState.getCurrentSong();
         if (song == null) {
             // Create empty song if this is called (via _HandshakeComplete) before status is received
@@ -729,17 +751,78 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             boolean canSkip = !((playerState.getCurrentPlaylistTracksNum() == 1) && !playerState.isRemote());
             nextButton.setEnabled(canSkip);
             prevButton.setEnabled(canSkip);
+            boolean classicalMusicTags = preferences.displayClassicalMusicTags();
 
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                artistText.setText(song.songInfo.getArtist());
-                albumText.setText(song.songInfo.album);
+                composerText.setText(Util.joinSkipEmpty(":", song.songInfo.getComposer(), " ")) ;
+                boolean addComposerLine = preferences.addComposerLine();
+                boolean addConductorLine = preferences.addConductorLine();
+                if (!addComposerLine) {
+                    composerText.setVisibility(View.GONE);
+                }
+                else {
+                    composerText.setVisibility(View.VISIBLE);
+                }
+
+                if (classicalMusicTags) {
+                    if (song.songInfo.getArtist() == "") {
+                        artistText.setVisibility(View.GONE);
+                    }
+                    else if (song.songInfo.getBand()!="")  {
+                        if (song.songInfo.getArtist().contains(",")) {
+                            artistText.setText(getString(R.string.soloists, song.songInfo.getArtist()));
+                        }
+                        else {
+                            artistText.setText(getString(R.string.soloist, song.songInfo.getArtist()));
+                        }
+                        artistText.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        artistText.setText(song.songInfo.getArtist());
+                        artistText.setVisibility(View.VISIBLE);
+                    }
+                }
+                else {
+                    artistText.setText(song.songInfo.getArtist());
+                    artistText.setVisibility(View.VISIBLE);
+                }
+
+                if (addConductorLine) {
+                    albumText.setText(song.songInfo.getBand());
+                    if (classicalMusicTags && song.songInfo.getBand()=="") {
+                        albumText.setVisibility(View.GONE);
+                    }
+                    else {
+                        albumText.setVisibility(View.VISIBLE);
+                    }
+                }
+                else {
+                    albumText.setText(song.songInfo.album);
+                    albumText.setVisibility(View.VISIBLE);
+                }
+
+                if (!addConductorLine || song.songInfo.getConductor() == "") {
+                    conductorText.setVisibility(View.GONE);
+                }
+                else if (addConductorLine) {
+                    if (classicalMusicTags) {
+                        conductorText.setText(getString(R.string.conductor, song.songInfo.getConductor()));
+                    }
+                    else {
+                        conductorText.setText(song.songInfo.getConductor());
+                    }
+                    conductorText.setVisibility(View.VISIBLE);
+                }
+
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
-                        artistItem = findBrowseAction(items, "artist_id");
+                        artistItem = findBrowseAction(items, "artist_ids");
+                        composerItem = findBrowseAction(items, "composer_ids");
+                        conductorItem = findBrowseAction(items, "conductor_ids");
                     }
 
                     @Override

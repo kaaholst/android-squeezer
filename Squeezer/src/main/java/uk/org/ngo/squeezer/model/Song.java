@@ -126,6 +126,17 @@ public class Song  implements Parcelable {
         return TextUtils.join(", ", artists);
     }
 
+    public String getBand() {
+        return TextUtils.join(", ", bands);
+    }
+
+    public String getConductor() {
+        return TextUtils.join(", ", conductors);
+    }
+
+    public String getComposer() {
+        return TextUtils.join(", ", composers);
+    }
     public String getAlbumArtists() {
         return TextUtils.join(", ", albumArtists);
     }
