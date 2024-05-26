@@ -211,10 +211,6 @@ class CometClient extends BaseClient {
 
         // Start the background connect
         mBackgroundHandler.post(() -> {
-            mPendingRequests.clear();
-            mPendingBrowseRequests.clear();
-            mCommandQueue.clear();
-            mCurrentCommand = false;
             cleanupBayeuxClient();
 
             final Preferences.ServerAddress serverAddress = Squeezer.getPreferences().getServerAddress();
@@ -310,6 +306,10 @@ class CometClient extends BaseClient {
     }
 
     private void cleanupBayeuxClient() {
+        mPendingRequests.clear();
+        mPendingBrowseRequests.clear();
+        mCommandQueue.clear();
+        mCurrentCommand = false;
         if (mBayeuxClient != null) {
             for (String channelId: List.of(Channel.META_HANDSHAKE, Channel.META_CONNECT)) {
                 ClientSessionChannel channel = mBayeuxClient.getChannel(channelId);
