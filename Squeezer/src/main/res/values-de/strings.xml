@@ -22,6 +22,7 @@
     <string name="menu_item_settings_label">Einstellungen</string>
     <string name="menu_item_about_label">Info</string>
     <string name="menu_item_view">Ansicht</string>
+    <string name="menu_nowplaying_trackinfo">Titel-Informationen</string>
     <string name="activity_settings_name">Einstellungen</string>
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_manual_server_addr">Manuelle Eingabe der IP-Adresse</string>

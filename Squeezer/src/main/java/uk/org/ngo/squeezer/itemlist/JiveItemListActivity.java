@@ -108,10 +108,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private MenuItem menuItemTwoLines;
     private MenuItem menuItemAllInfo;
 
-    private MenuItem menuItemComposerLine;
-    private MenuItem menuItemConductorLine;
-    private MenuItem menuItemClassicalMusicTags;
-
     private MenuItem menuItemFlatIcons;
 
     protected ViewParamItemView<JiveItem> parentViewHolder;
@@ -594,9 +590,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         menuItemOneLine = viewMenu.findItem(R.id.menu_item_one_line);
         menuItemTwoLines = viewMenu.findItem(R.id.menu_item_two_lines);
         menuItemAllInfo = viewMenu.findItem(R.id.menu_item_all_lines);
-        menuItemComposerLine = viewMenu.findItem(R.id.menu_item_composer_line);
-        menuItemConductorLine = viewMenu.findItem(R.id.menu_item_conductor_line);
-        menuItemClassicalMusicTags = viewMenu.findItem(R.id.menu_item_classical_music_tags);
         menuItemFlatIcons = viewMenu.findItem(R.id.menu_item_flat_icons);
         return super.onCreateOptionsMenu(menu);
     }
@@ -669,21 +662,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         } else if (itemId == R.id.menu_item_all_lines) {
             setMaxLines(0);
             return true;
-        } else if (itemId == R.id.menu_item_composer_line) {
-            Squeezer.getPreferences().addComposerLine(!menuItemComposerLine.isChecked());
-            updateViewMenuItems(getListLayout(), window.windowStyle);
-            getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
-            return true;
-        } else if (itemId == R.id.menu_item_conductor_line) {
-            Squeezer.getPreferences().addConductorLine(!menuItemConductorLine.isChecked());
-            updateViewMenuItems(getListLayout(), window.windowStyle);
-            getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
-            return true;
-        } else if (itemId == R.id.menu_item_classical_music_tags) {
-            Squeezer.getPreferences().displayClassicalMusicTags(!menuItemClassicalMusicTags.isChecked());
-            updateViewMenuItems(getListLayout(), window.windowStyle);
-            getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
-            return true;
         } else if (itemId == R.id.menu_item_flat_icons) {
             Squeezer.getPreferences().useFlatIcons(!menuItemFlatIcons.isChecked());
             getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
@@ -719,9 +697,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                     menuItemAllInfo.setChecked(true);
                     break;
             }
-            menuItemComposerLine.setChecked(preferences.addComposerLine());
-            menuItemConductorLine.setChecked(preferences.addConductorLine());
-            menuItemClassicalMusicTags.setChecked(preferences.displayClassicalMusicTags());
             menuItemFlatIcons.setChecked(preferences.useFlatIcons());
         }
     }

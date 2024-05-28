@@ -20,9 +20,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.core.view.MenuCompat;
+
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 
@@ -31,6 +34,14 @@ public class NowPlayingActivity extends BaseActivity {
     /**
      * Called when the activity is first created.
      */
+
+    private Menu trackInfoMenu;
+
+    private MenuItem menuItemComposerLine;
+    private MenuItem menuItemConductorLine;
+    private MenuItem menuItemClassicalMusicTags;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,15 +66,65 @@ public class NowPlayingActivity extends BaseActivity {
         }
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.plugin_nowplaying_menu, menu);
+        trackInfoMenu = menu.findItem(R.id.menu_nowplaying_trackinfo).getSubMenu();
+        MenuCompat.setGroupDividerEnabled(trackInfoMenu, true);
+
+        menuItemComposerLine = trackInfoMenu.findItem(R.id.menu_item_composer_line);
+        menuItemConductorLine = trackInfoMenu.findItem(R.id.menu_item_conductor_line);
+        menuItemClassicalMusicTags = trackInfoMenu.findItem(R.id.menu_item_classical_music_tags);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        updateTrackInfoMenuItems();
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
             finish();
             return true;
+        } else if (itemId == R.id.menu_item_composer_line) {
+            Squeezer.getPreferences().addComposerLine(!menuItemComposerLine.isChecked());
+            updateTrackInfoMenuItems();
+            // Make sure view is updated to reflect changes
+            NowPlayingActivity.show(this);
+            return true;
+        } else if (itemId == R.id.menu_item_conductor_line) {
+            Squeezer.getPreferences().addConductorLine(!menuItemConductorLine.isChecked());
+            updateTrackInfoMenuItems();
+            // Make sure view is updated to reflect changes
+            NowPlayingActivity.show(this);
+            return true;
+        } else if (itemId == R.id.menu_item_classical_music_tags) {
+            Squeezer.getPreferences().displayClassicalMusicTags(!menuItemClassicalMusicTags.isChecked());
+            updateTrackInfoMenuItems();
+            // Make sure view is updated to reflect changes
+            NowPlayingActivity.show(this);
+            return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
+    private void updateTrackInfoMenuItems() {
+        if (menuItemComposerLine != null) {
+            Preferences preferences = Squeezer.getPreferences();
+
+            menuItemComposerLine.setChecked(preferences.addComposerLine());
+            menuItemConductorLine.setChecked(preferences.addConductorLine());
+            menuItemClassicalMusicTags.setChecked(preferences.displayClassicalMusicTags());
+        }
+    }
+
 
     @Override
     public void onPause() {
@@ -72,4 +133,6 @@ public class NowPlayingActivity extends BaseActivity {
         }
         super.onPause();
     }
+
+
 }

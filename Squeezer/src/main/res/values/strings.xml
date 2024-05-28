@@ -29,6 +29,7 @@
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="menu_item_view">View</string>
+    <string name="menu_nowplaying_trackinfo">Track infos</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_manual_server_addr">Manually enter address</string>
