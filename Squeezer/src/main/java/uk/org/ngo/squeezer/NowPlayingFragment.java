@@ -767,8 +767,13 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     if (song.songInfo.getArtist() == "") {
                         artistText.setVisibility(View.GONE);
                     }
+                    // if there is no band, no need to describe that the
+                    // artists are soloists
                     else if (song.songInfo.getBand()!="")  {
+                        // Show description of soloists, depending on whether there is
+                        // one or more of them
                         if (song.songInfo.getArtist().contains(",")) {
+
                             artistText.setText(getString(R.string.soloists, song.songInfo.getArtist()));
                         }
                         else {
@@ -787,27 +792,38 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 }
 
                 if (addConductorLine) {
+                    // show band instead of album
                     albumText.setText(song.songInfo.getBand());
                     if (classicalMusicTags && song.songInfo.getBand()=="") {
+                        // remove album line if there is no band
                         albumText.setVisibility(View.GONE);
                     }
                     else {
                         albumText.setVisibility(View.VISIBLE);
                     }
+                    if (!classicalMusicTags && song.songInfo.getBand()=="") {
+                        // don't show "Unknown album" if line is intended
+                        // for showing the band and there is no band
+                        albumText.setText(" ");
+                    }
                 }
                 else {
+                    // standard view
                     albumText.setText(song.songInfo.album);
                     albumText.setVisibility(View.VISIBLE);
                 }
 
                 if (!addConductorLine || song.songInfo.getConductor() == "") {
+                    // remove line if it should not be shown or there is no conductor
                     conductorText.setVisibility(View.GONE);
                 }
                 else if (addConductorLine) {
                     if (classicalMusicTags) {
+                        // show description of conductor
                         conductorText.setText(getString(R.string.conductor, song.songInfo.getConductor()));
                     }
                     else {
+                        // just show conductor's name
                         conductorText.setText(song.songInfo.getConductor());
                     }
                     conductorText.setVisibility(View.VISIBLE);
