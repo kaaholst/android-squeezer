@@ -35,7 +35,6 @@ public class NowPlayingActivity extends BaseActivity {
      * Called when the activity is first created.
      */
 
-    private Menu trackInfoMenu;
 
     private MenuItem menuItemComposerLine;
     private MenuItem menuItemConductorLine;
@@ -69,6 +68,9 @@ public class NowPlayingActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        Menu trackInfoMenu;
+
         getMenuInflater().inflate(R.menu.plugin_nowplaying_menu, menu);
         trackInfoMenu = menu.findItem(R.id.menu_nowplaying_trackinfo).getSubMenu();
         MenuCompat.setGroupDividerEnabled(trackInfoMenu, true);

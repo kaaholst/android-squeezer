@@ -46,7 +46,8 @@
                 android:id="@+id/composer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/SqueezerWidget.NowPlaying.ComposerName"/>					
+                style="@style/SqueezerWidget.NowPlaying.ComposerName"
+                tools:text="Composer" />
         </FrameLayout>
 		
         <FrameLayout
@@ -81,7 +82,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintEnd_toStartOf="@+id/context_menu"
-                style="@style/SqueezerWidget.NowPlaying.AlbumName" />
+                style="@style/SqueezerWidget.NowPlaying.AlbumName"
+                tools:text="Album" />
 
             <TextView
                 android:id="@+id/artistname"
@@ -90,7 +92,8 @@
                 app:layout_constraintTop_toBottomOf="@id/albumname"
                 app:layout_constraintStart_toStartOf="@id/albumname"
                 app:layout_constraintEnd_toStartOf="@+id/context_menu"
-                style="@style/SqueezerWidget.NowPlaying.ArtistName" />
+                style="@style/SqueezerWidget.NowPlaying.ArtistName" 
+                tools:text="Artist" />
 				
 			<TextView
 				android:id="@+id/conductorname"
@@ -99,7 +102,8 @@
 				app:layout_constraintTop_toBottomOf="@id/artistname"
 				app:layout_constraintStart_toStartOf="@id/albumname"
 				app:layout_constraintEnd_toStartOf="@+id/context_menu"
-				style="@style/SqueezerWidget.NowPlaying.ConductorName" />				
+				style="@style/SqueezerWidget.NowPlaying.ConductorName"
+				tools:text="Conductor" />
 
             <include
                 layout="@layout/context_menu_image_button"

@@ -166,7 +166,6 @@
     </style>
 
     <style name="SqueezerWidget.NowPlaying.ComposerName" parent="SqueezerWidget.SingleLine">
-        <item name="android:hint">@string/empty_string</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ComposerName</item>
     </style>
 
@@ -186,7 +185,6 @@
     </style>
 
     <style name="SqueezerWidget.NowPlaying.ConductorName" parent="SqueezerWidget.SingleLine">
-        <item name="android:hint">@string/empty_string</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ConductorName</item>
     </style>
 

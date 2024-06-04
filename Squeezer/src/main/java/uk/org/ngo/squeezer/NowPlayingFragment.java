@@ -29,6 +29,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -764,12 +765,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 }
 
                 if (classicalMusicTags) {
-                    if (song.songInfo.getArtist() == "") {
+                    if (TextUtils.isEmpty(song.songInfo.getArtist())) {
                         artistText.setVisibility(View.GONE);
                     }
                     // if there is no band, no need to describe that the
                     // artists are soloists
-                    else if (song.songInfo.getBand()!="")  {
+                    else if (!TextUtils.isEmpty(song.songInfo.getBand()))  {
                         // Show description of soloists, depending on whether there is
                         // one or more of them
                         if (song.songInfo.getArtist().contains(",")) {
@@ -813,11 +814,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     albumText.setVisibility(View.VISIBLE);
                 }
 
-                if (!addConductorLine || song.songInfo.getConductor() == "") {
-                    // remove line if it should not be shown or there is no conductor
-                    conductorText.setVisibility(View.GONE);
-                }
-                else if (addConductorLine) {
+                 if (addConductorLine && !TextUtils.isEmpty(song.songInfo.getConductor())) {
                     if (classicalMusicTags) {
                         // show description of conductor
                         conductorText.setText(getString(R.string.conductor, song.songInfo.getConductor()));
@@ -827,6 +824,10 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                         conductorText.setText(song.songInfo.getConductor());
                     }
                     conductorText.setVisibility(View.VISIBLE);
+                }
+                else {
+                    // remove line if it should not be shown
+                    conductorText.setVisibility(View.GONE);
                 }
 
 
