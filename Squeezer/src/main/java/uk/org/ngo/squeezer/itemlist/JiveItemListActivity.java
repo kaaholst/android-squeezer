@@ -107,7 +107,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private MenuItem menuItemOneLine;
     private MenuItem menuItemTwoLines;
     private MenuItem menuItemAllInfo;
-
     private MenuItem menuItemFlatIcons;
 
     protected ViewParamItemView<JiveItem> parentViewHolder;
@@ -580,7 +579,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.plugin_list_menu, menu);
+        getMenuInflater().inflate(R.menu.jiveitemlist_menu, menu);
         viewMenu = menu.findItem(R.id.menu_item_view).getSubMenu();
         MenuCompat.setGroupDividerEnabled(viewMenu, true);
         menuItemLight = viewMenu.findItem(R.id.menu_item_light);
@@ -697,6 +696,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                     menuItemAllInfo.setChecked(true);
                     break;
             }
+
             menuItemFlatIcons.setChecked(preferences.useFlatIcons());
         }
     }

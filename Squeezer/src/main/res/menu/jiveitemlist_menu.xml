@@ -80,7 +80,6 @@
                     app:showAsAction="never"
                     />
             </group>
-			
             <group
                 android:id="@+id/menu_group_flat_icons"
                 android:checkableBehavior="all">

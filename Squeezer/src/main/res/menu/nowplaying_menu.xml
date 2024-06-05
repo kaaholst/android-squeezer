@@ -42,8 +42,8 @@
                     android:id="@+id/menu_item_classical_music_tags"
                     android:title="@string/settings_band_instead_album"
                     app:showAsAction="never"
-                    />					
-            </group>			
+                    />
+            </group>
          </menu>
     </item>
 </menu>

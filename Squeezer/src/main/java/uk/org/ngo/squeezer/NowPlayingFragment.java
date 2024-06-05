@@ -299,7 +299,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             totalTime = v.findViewById(R.id.totaltime);
             showRemainingTime = preferences.isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
-            artistText.requestFocus();
 
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
@@ -734,6 +733,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
         updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
+
         Preferences preferences = Squeezer.getPreferences();
         CurrentPlaylistItem song = playerState.getCurrentSong();
         if (song == null) {

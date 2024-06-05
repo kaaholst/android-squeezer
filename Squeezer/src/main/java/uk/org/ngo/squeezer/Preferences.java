@@ -234,7 +234,6 @@ public final class Preferences {
     // Number of minutes for the custom sleep duration.
     private static final String KEY_SLEEP_MINUTES = "squeezer.sleep_minutes";
 
-
     private final Context context;
     private final SharedPreferences sharedPreferences;
     private final int defaultCliPort;
@@ -627,7 +626,6 @@ public final class Preferences {
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
         sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
     }
-
 
     public boolean addComposerLine() {
         return sharedPreferences.getBoolean(KEY_COMPOSER_LINE, false);

@@ -35,11 +35,9 @@ public class NowPlayingActivity extends BaseActivity {
      * Called when the activity is first created.
      */
 
-
     private MenuItem menuItemComposerLine;
     private MenuItem menuItemConductorLine;
     private MenuItem menuItemClassicalMusicTags;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,10 +66,9 @@ public class NowPlayingActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         Menu trackInfoMenu;
 
-        getMenuInflater().inflate(R.menu.plugin_nowplaying_menu, menu);
+        getMenuInflater().inflate(R.menu.nowplaying_menu, menu);
         trackInfoMenu = menu.findItem(R.id.menu_nowplaying_trackinfo).getSubMenu();
         MenuCompat.setGroupDividerEnabled(trackInfoMenu, true);
 
@@ -113,9 +110,9 @@ public class NowPlayingActivity extends BaseActivity {
             NowPlayingActivity.show(this);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
-
 
     private void updateTrackInfoMenuItems() {
         if (menuItemComposerLine != null) {
@@ -127,7 +124,6 @@ public class NowPlayingActivity extends BaseActivity {
         }
     }
 
-
     @Override
     public void onPause() {
         if (isFinishing()) {
@@ -135,6 +131,5 @@ public class NowPlayingActivity extends BaseActivity {
         }
         super.onPause();
     }
-
 
 }
