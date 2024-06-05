@@ -38,7 +38,6 @@
              reset.  Wrapping the trackname TextView in a LinearLayout means that the TextView
              will not change size when then the layout is recalculated, and the text continues
              to scroll. -->
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
