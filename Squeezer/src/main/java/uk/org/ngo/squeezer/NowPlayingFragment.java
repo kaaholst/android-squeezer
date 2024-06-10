@@ -750,19 +750,14 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             boolean canSkip = !((playerState.getCurrentPlaylistTracksNum() == 1) && !playerState.isRemote());
             nextButton.setEnabled(canSkip);
             prevButton.setEnabled(canSkip);
-            boolean classicalMusicTags = preferences.displayClassicalMusicTags();
 
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
                 composerText.setText(Util.joinSkipEmpty(":", song.songInfo.getComposer(), " ")) ;
                 boolean addComposerLine = preferences.addComposerLine();
                 boolean addConductorLine = preferences.addConductorLine();
-                if (!addComposerLine) {
-                    composerText.setVisibility(View.GONE);
-                }
-                else {
-                    composerText.setVisibility(View.VISIBLE);
-                }
+                boolean classicalMusicTags = preferences.displayClassicalMusicTags();
+                composerText.setVisibility(addComposerLine ? View.VISIBLE : View.GONE);
 
                 if (classicalMusicTags) {
                     if (TextUtils.isEmpty(song.songInfo.getArtist())) {
@@ -773,8 +768,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     else if (!TextUtils.isEmpty(song.songInfo.getBand()))  {
                         // Show description of soloists, depending on whether there is
                         // one or more of them
-                        if (song.songInfo.getArtist().contains(",")) {
-
+                        if (song.songInfo.artists.length>1) {
                             artistText.setText(getString(R.string.soloists, song.songInfo.getArtist()));
                         }
                         else {
@@ -795,14 +789,11 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 if (addConductorLine) {
                     // show band instead of album
                     albumText.setText(song.songInfo.getBand());
-                    if (classicalMusicTags && song.songInfo.getBand()=="") {
-                        // remove album line if there is no band
-                        albumText.setVisibility(View.GONE);
-                    }
-                    else {
-                        albumText.setVisibility(View.VISIBLE);
-                    }
-                    if (!classicalMusicTags && song.songInfo.getBand()=="") {
+
+                    // remove album line if there is no band
+                    albumText.setVisibility((classicalMusicTags && TextUtils.isEmpty(song.songInfo.getBand())) ? View.GONE : View.VISIBLE);
+
+                    if (!classicalMusicTags && TextUtils.isEmpty(song.songInfo.getBand())) {
                         // don't show "Unknown album" if line is intended
                         // for showing the band and there is no band
                         albumText.setText(" ");
