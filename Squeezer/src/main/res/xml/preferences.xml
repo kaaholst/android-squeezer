@@ -47,6 +47,29 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/settings_category_nowplaying_trackinfo">
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.add_composer_line"
+            android:summaryOff="@string/settings_add_composer_line_off"
+            android:summaryOn="@string/settings_add_composer_line_on"
+            android:title="@string/settings_add_composer_line_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.add_conductor_line"
+            android:summaryOff="@string/settings_add_conductor_line_off"
+            android:summaryOn="@string/settings_add_conductor_line_on"
+            android:title="@string/settings_add_conductor_line_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.display_classical_music_tags"
+            android:summaryOff="@string/settings_classical_music_tags_off"
+            android:summaryOn="@string/settings_classical_music_tags_on"
+            android:title="@string/settings_classical_music_tags_title"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/settings_category_ui">
 
         <ListPreference

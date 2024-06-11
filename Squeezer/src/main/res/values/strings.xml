@@ -138,6 +138,18 @@
     <string name="soloist">Soloist: %s</string>
     <string name="soloists">Soloists: %s</string>
 
+    <!-- NowPlaying Track Info -->
+    <string name="settings_category_nowplaying_trackinfo">NowPlaying track information</string>
+    <string name="settings_add_composer_line_off">Don\'t show composer</string>
+    <string name="settings_add_composer_line_on">Show composer in front of the track title</string>
+    <string name="settings_add_composer_line_title">Composer information</string>
+    <string name="settings_add_conductor_line_off">Don\'t show band/orchestra and conductor</string>
+    <string name="settings_add_conductor_line_on">Show band/orchestra instead of album and show conductor on separate line</string>
+    <string name="settings_add_conductor_line_title">Band/orchestra and conductor information</string>
+    <string name="settings_classical_music_tags_off">Normal behavior</string>
+    <string name="settings_classical_music_tags_on">Adapted to classical music, including description of conductor and soloists</string>
+    <string name="settings_classical_music_tags_title">Appearance of track information</string>
+
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>
     <string name="all_alarms_off_hint">All alarms are disabled</string>
