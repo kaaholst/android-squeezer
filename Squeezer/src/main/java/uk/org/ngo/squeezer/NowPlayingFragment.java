@@ -743,7 +743,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
         // TODO handle button remapping (buttons in status response)
         if (!song.getName().isEmpty()) {
-            trackText.setText(song.getName());
 
             // don't remove rew and fwd for remote tracks, because a single track playlist
             // is not an indication that fwd and rwd are invalid actions
@@ -751,13 +750,17 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             nextButton.setEnabled(canSkip);
             prevButton.setEnabled(canSkip);
 
+            boolean addComposerLine = preferences.addComposerLine();
+            boolean addConductorLine = preferences.addConductorLine();
+            boolean classicalMusicTags = preferences.displayClassicalMusicTags();
+
+            trackText.setText(addComposerLine && !mFullHeightLayout ? Util.joinSkipEmpty(": ", song.songInfo.getComposer(), song.getName()) : song.getName());
+
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                composerText.setText(Util.joinSkipEmpty(":", song.songInfo.getComposer(), " ")) ;
-                boolean addComposerLine = preferences.addComposerLine();
-                boolean addConductorLine = preferences.addConductorLine();
-                boolean classicalMusicTags = preferences.displayClassicalMusicTags();
-                composerText.setVisibility(addComposerLine ? View.VISIBLE : View.GONE);
+
+                composerText.setText(song.songInfo.getComposer());
+                composerText.setVisibility(addComposerLine && !TextUtils.isEmpty(song.songInfo.getComposer()) ? View.VISIBLE : View.GONE);
 
                 if (classicalMusicTags) {
                     if (TextUtils.isEmpty(song.songInfo.getArtist())) {
@@ -820,7 +823,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     // remove line if it should not be shown
                     conductorText.setVisibility(View.GONE);
                 }
-
+                artistText.setSelected(true);
+                albumText.setSelected(true);
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
@@ -837,7 +841,13 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(song.artistAlbum());
+                if (addConductorLine) {
+                    artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.getBand(),song.songInfo.getConductor()));
+                }
+                else {
+                    artistAlbumText.setText(song.artistAlbum());
+                }
+                artistAlbumText.setSelected(true);
             }
         } else {
             trackText.setText("");
