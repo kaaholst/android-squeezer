@@ -308,9 +308,13 @@ public class PlayerState implements Parcelable {
     }
 
     private double calcPosition() {
-        double now = SystemClock.elapsedRealtime() / 1000.0;
-        double trackCorrection = rate * (now - statusSeen);
-        return trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection;
+        if (isPlaying()) {
+            double now = SystemClock.elapsedRealtime() / 1000.0;
+            double trackCorrection = rate * (now - statusSeen);
+            return trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection;
+        } else {
+            return currentTimeSecond;
+        }
     }
 
     public int getCurrentSongDuration() {
