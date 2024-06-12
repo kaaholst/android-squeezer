@@ -151,6 +151,15 @@ public final class Preferences {
     // Preferred maximum info per item for a given list layout
     public static final String KEY_MAX_LINES_FORMAT = "squeezer.%s.maxLines";
 
+    // Add line above track title for showing composer
+    public static final String KEY_COMPOSER_LINE = "squeezer.add_composer_line";
+
+    // Add line below artist line for showing conductor and use album line for band
+    public static final String KEY_CONDUCTOR_LINE = "squeezer.add_conductor_line";
+
+    // Display artists as "soloists", explicitly show "conductor", and
+    // collapse band, soloist and conductor lines if not used
+    public static final String KEY_CLASSICAL_MUSIC_TAGS = "squeezer.display_classical_music_tags";
     // Use flat icons or legacy LMS icons
     public static final String KEY_FLAT_ICONS = "squeezer.use_flat_icons";
 
@@ -616,6 +625,30 @@ public final class Preferences {
 
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
         sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
+    }
+
+    public boolean addComposerLine() {
+        return sharedPreferences.getBoolean(KEY_COMPOSER_LINE, false);
+    }
+
+    public void addComposerLine(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_COMPOSER_LINE, b).apply();
+    }
+
+    public boolean addConductorLine() {
+        return sharedPreferences.getBoolean(KEY_CONDUCTOR_LINE, false);
+    }
+
+    public void addConductorLine(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_CONDUCTOR_LINE, b).apply();
+    }
+
+    public boolean displayClassicalMusicTags() {
+        return sharedPreferences.getBoolean(KEY_CLASSICAL_MUSIC_TAGS, false);
+    }
+
+    public void displayClassicalMusicTags(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_CLASSICAL_MUSIC_TAGS, b).apply();
     }
 
     public boolean useFlatIcons() {

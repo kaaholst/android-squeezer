@@ -81,6 +81,8 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         fillDisplayPreferences(preferences);
 
+        fillNowPlayingPreferences(preferences);
+
         fillUserInterfacePreferences(preferences);
 
         fillScrobblePreferences(sharedPreferences);
@@ -185,6 +187,17 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         ListPreference screensaverPref = findPreference(Preferences.KEY_SCREENSAVER);
         fillEnumPreference(screensaverPref, Preferences.ScreensaverMode.class, preferences.getScreensaverMode());
+    }
+
+    private void fillNowPlayingPreferences(Preferences preferences) {
+        final SwitchPreferenceCompat addComposerLine = findPreference(Preferences.KEY_COMPOSER_LINE);
+        addComposerLine.setChecked(preferences.addComposerLine());
+
+        final SwitchPreferenceCompat addConductorLine = findPreference(Preferences.KEY_CONDUCTOR_LINE);
+        addConductorLine.setChecked(preferences.addConductorLine());
+
+        final SwitchPreferenceCompat displayClassicalMusicAppearance = findPreference(Preferences.KEY_CLASSICAL_MUSIC_TAGS);
+        displayClassicalMusicAppearance.setChecked(preferences.displayClassicalMusicTags());
     }
 
     private void fillUserInterfacePreferences(Preferences preferences) {

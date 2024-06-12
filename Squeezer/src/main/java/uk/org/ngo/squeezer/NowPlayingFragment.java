@@ -29,6 +29,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -126,9 +127,14 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private TextView artistText;
 
     private TextView trackText;
+    private TextView conductorText;
+    private TextView composerText;
 
     private JiveItem albumItem;
     private JiveItem artistItem;
+
+    private JiveItem conductorItem;
+    private JiveItem composerItem;
 
     @Nullable
     private View btnContextMenu;
@@ -280,10 +286,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         mFullHeightLayout = (container.getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT);
         Preferences preferences = Squeezer.getPreferences();
         boolean largeArtwork = preferences.isLargeArtwork();
+
         if (mFullHeightLayout) {
             v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
 
             artistText = v.findViewById(R.id.artistname);
+            conductorText = v.findViewById(R.id.conductorname);
             albumText = v.findViewById(R.id.albumname);
             shuffleButton = v.findViewById(R.id.shuffle);
             repeatButton = v.findViewById(R.id.repeat);
@@ -291,6 +299,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             totalTime = v.findViewById(R.id.totaltime);
             showRemainingTime = preferences.isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
+
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
@@ -320,6 +329,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         trackText = v.findViewById(R.id.trackname);
+        composerText = v.findViewById(R.id.composer);
         playPauseButton = v.findViewById(R.id.pause);
 
         nextButton = v.findViewById(R.id.next);
@@ -351,6 +361,18 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 if (song != null && topBarSearch != null) {
                     topBarSearch.input.initialText = song.getName();
                     JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
+                }
+            });
+
+            composerText.setOnClickListener(v14 -> {
+                if (composerItem != null) {
+                    JiveItemListActivity.show(mActivity, composerItem, composerItem.goAction);
+                }
+            });
+
+            conductorText.setOnClickListener(v15 -> {
+                if (conductorItem != null) {
+                    JiveItemListActivity.show(mActivity, conductorItem, conductorItem.goAction);
                 }
             });
 
@@ -712,6 +734,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private void updateSongInfo(@NonNull PlayerState playerState) {
         updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
 
+        Preferences preferences = Squeezer.getPreferences();
         CurrentPlaylistItem song = playerState.getCurrentSong();
         if (song == null) {
             // Create empty song if this is called (via _HandshakeComplete) before status is received
@@ -720,7 +743,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
         // TODO handle button remapping (buttons in status response)
         if (!song.getName().isEmpty()) {
-            trackText.setText(song.getName());
 
             // don't remove rew and fwd for remote tracks, because a single track playlist
             // is not an indication that fwd and rwd are invalid actions
@@ -728,16 +750,89 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             nextButton.setEnabled(canSkip);
             prevButton.setEnabled(canSkip);
 
+            boolean addComposerLine = preferences.addComposerLine();
+            boolean addConductorLine = preferences.addConductorLine();
+            boolean classicalMusicTags = preferences.displayClassicalMusicTags();
+
+            trackText.setText(addComposerLine && !mFullHeightLayout ? Util.joinSkipEmpty(": ", song.songInfo.getComposer(), song.getName()) : song.getName());
+
             if (mFullHeightLayout) {
                 btnContextMenu.setVisibility(View.VISIBLE);
-                artistText.setText(song.songInfo.getArtist());
-                albumText.setText(song.songInfo.album);
+
+                composerText.setText(song.songInfo.getComposer());
+                composerText.setVisibility(addComposerLine && !TextUtils.isEmpty(song.songInfo.getComposer()) ? View.VISIBLE : View.GONE);
+
+                if (classicalMusicTags) {
+                    if (TextUtils.isEmpty(song.songInfo.getArtist())) {
+                        artistText.setVisibility(View.GONE);
+                    }
+                    // if there is no band, no need to describe that the
+                    // artists are soloists
+                    else if (!TextUtils.isEmpty(song.songInfo.getBand()))  {
+                        // Show description of soloists, depending on whether there is
+                        // one or more of them
+                        if (song.songInfo.artists.length>1) {
+                            artistText.setText(getString(R.string.soloists, song.songInfo.getArtist()));
+                        }
+                        else {
+                            artistText.setText(getString(R.string.soloist, song.songInfo.getArtist()));
+                        }
+                        artistText.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        artistText.setText(song.songInfo.getArtist());
+                        artistText.setVisibility(View.VISIBLE);
+                    }
+                }
+                else {
+                    artistText.setText(song.songInfo.getArtist());
+                    artistText.setVisibility(View.VISIBLE);
+                }
+
+                if (addConductorLine) {
+                    // show band instead of album
+                    albumText.setText(song.songInfo.getBand());
+
+                    // remove album line if there is no band
+                    albumText.setVisibility((classicalMusicTags && TextUtils.isEmpty(song.songInfo.getBand())) ? View.GONE : View.VISIBLE);
+
+                    if (!classicalMusicTags && TextUtils.isEmpty(song.songInfo.getBand())) {
+                        // don't show "Unknown album" if line is intended
+                        // for showing the band and there is no band
+                        albumText.setText(" ");
+                    }
+                }
+                else {
+                    // standard view
+                    albumText.setText(song.songInfo.album);
+                    albumText.setVisibility(View.VISIBLE);
+                }
+
+                 if (addConductorLine && !TextUtils.isEmpty(song.songInfo.getConductor())) {
+                    if (classicalMusicTags) {
+                        // show description of conductor
+                        conductorText.setText(getString(R.string.conductor, song.songInfo.getConductor()));
+                    }
+                    else {
+                        // just show conductor's name
+                        conductorText.setText(song.songInfo.getConductor());
+                    }
+                    conductorText.setVisibility(View.VISIBLE);
+                }
+                else {
+                    // remove line if it should not be shown
+                    conductorText.setVisibility(View.GONE);
+                }
+                artistText.setSelected(true);
+                albumText.setSelected(true);
 
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
-                        artistItem = findBrowseAction(items, "artist_id");
+                        artistItem = findBrowseAction(items, "artist_ids");
+                        composerItem = findBrowseAction(items, "composer_ids");
+                        conductorItem = findBrowseAction(items, "conductor_ids");
                     }
 
                     @Override
@@ -746,7 +841,13 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     }
                 });
             } else {
-                artistAlbumText.setText(song.artistAlbum());
+                if (addConductorLine) {
+                    artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.getBand(),song.songInfo.getConductor()));
+                }
+                else {
+                    artistAlbumText.setText(song.artistAlbum());
+                }
+                artistAlbumText.setSelected(true);
             }
         } else {
             trackText.setText("");

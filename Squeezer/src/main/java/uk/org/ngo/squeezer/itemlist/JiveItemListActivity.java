@@ -579,7 +579,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.plugin_list_menu, menu);
+        getMenuInflater().inflate(R.menu.jiveitemlist_menu, menu);
         viewMenu = menu.findItem(R.id.menu_item_view).getSubMenu();
         MenuCompat.setGroupDividerEnabled(viewMenu, true);
         menuItemLight = viewMenu.findItem(R.id.menu_item_light);

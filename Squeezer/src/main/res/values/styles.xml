@@ -131,9 +131,11 @@
     <style name="SqueezerTextAppearance.NowPlaying.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
     <style name="SqueezerTextAppearance.NowPlaying.Tertiary" parent="SqueezerTextAppearance.SongInfo.Tertiary"/>
 
+    <style name="SqueezerTextAppearance.NowPlaying.ComposerName" parent="SqueezerTextAppearance.NowPlaying.Primary"/>
     <style name="SqueezerTextAppearance.NowPlaying.SongName" parent="SqueezerTextAppearance.NowPlaying.Primary"/>
     <style name="SqueezerTextAppearance.NowPlaying.AlbumName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
     <style name="SqueezerTextAppearance.NowPlaying.ArtistName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
+    <style name="SqueezerTextAppearance.NowPlaying.ConductorName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
 
     <!-- Text on the NowPlayingFragment mini player. -->
     <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary">
@@ -163,19 +165,27 @@
         <item name="android:focusableInTouchMode">true</item>
     </style>
 
+    <style name="SqueezerWidget.NowPlaying.ComposerName" parent="SqueezerWidget.SingleLine">
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ComposerName</item>
+    </style>
+
     <style name="SqueezerWidget.NowPlaying.SongName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_track</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.SongName</item>
     </style>
 
-    <style name="SqueezerWidget.NowPlaying.AlbumName" parent="SqueezerWidget.SingleLine">
+    <style name="SqueezerWidget.NowPlaying.AlbumName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_album</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.AlbumName</item>
     </style>
 
-    <style name="SqueezerWidget.NowPlaying.ArtistName" parent="SqueezerWidget.SingleLine">
+    <style name="SqueezerWidget.NowPlaying.ArtistName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_artist</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ArtistName</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlaying.ConductorName" parent="SqueezerWidget.SingleLine">
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ConductorName</item>
     </style>
 
     <style name="SqueezerWidget.NowPlaying"/>
@@ -193,7 +203,7 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.SongName</item>
     </style>
 
-    <style name="SqueezerWidget.NowPlayingMini.ArtistAlbumName" parent="SqueezerWidget.SingleLine">
+    <style name="SqueezerWidget.NowPlayingMini.ArtistAlbumName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_artistalbum</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName</item>
     </style>

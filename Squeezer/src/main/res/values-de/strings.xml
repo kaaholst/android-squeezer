@@ -22,6 +22,7 @@
     <string name="menu_item_settings_label">Einstellungen</string>
     <string name="menu_item_about_label">Info</string>
     <string name="menu_item_view">Ansicht</string>
+    <string name="menu_nowplaying_trackinfo">Titel-Informationen</string>
     <string name="activity_settings_name">Einstellungen</string>
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_manual_server_addr">Manuelle Eingabe der IP-Adresse</string>
@@ -30,6 +31,11 @@
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
+    <string name="settings_add_composer_line">Komponist anzeigen</string>
+    <string name="settings_band_instead_album">Trackinfo für klassiche Musik</string>
+    <string name="settings_add_conductor_line">Orchester und Dirigent anzeigen</string>
+    <string name="settings_use_flat_icons">Flache Icons</string>
+
     <string name="settings_clear_current_playlist_confirmation_off">Nicht nachfragen</string>
     <string name="settings_clear_current_playlist_confirmation">Vor dem Löschen der Wiedergabeliste</string>
     <string name="settings_username_hint">Benutzername (optional)</string>
@@ -109,6 +115,21 @@
     <string name="unknown_album">Unbekanntes Album</string>
     <string name="unknown_artist">Unbekannter Künstler</string>
     <string name="unknown_artistalbum">Unbekannter Künstler/Album</string>
+    <string name="conductor">Dirigent: %s</string>
+    <string name="soloist">Solist: %s</string>
+    <string name="soloists">Solisten: %s</string>
+
+    <!-- NowPlaying Titel-Informationen -->
+    <string name="settings_category_nowplaying_trackinfo">NowPlaying Titel-Informationen</string>
+    <string name="settings_add_composer_line_off">Zeige Komponist nicht an</string>
+    <string name="settings_add_composer_line_on">Zeige Komponist vor dem Track-Titel</string>
+    <string name="settings_add_composer_line_title">Anzeige des Komponisten</string>
+    <string name="settings_add_conductor_line_off">Zeige Band / Orchester und Dirigent nicht an</string>
+    <string name="settings_add_conductor_line_on">Zeige Band / Orchester statt Album, sowie Dirigent auf separater Zeile</string>
+    <string name="settings_add_conductor_line_title">Anzeige von Band / Orchester und Dirigent</string>
+    <string name="settings_classical_music_tags_off">Normale Anzeige</string>
+    <string name="settings_classical_music_tags_on">Angepasst auf klassische Musik, mit Beschriftung von Dirigent und Solisten</string>
+    <string name="settings_classical_music_tags_title">Anzeige der Titel-Informationen</string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individuelle Alarme können aktiviert werden</string>
