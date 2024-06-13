@@ -39,9 +39,11 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
     <string name="settings_screensaver_title">Keep screen on</string>
-    <string name="settings_screensaver_off">No</string>
-    <string name="settings_screensaver_on">Yes</string>
-    <string name="settings_screensaver_clock">Show clock when idle</string>
+    <string name="settings_screensaver_off">while active</string>
+    <string name="settings_screensaver_on">always</string>
+    <string name="settings_screensaver_clock">while active, then show clock</string>
+    <string name="settings_screensaver_clock_whenNotPlaying">while playing, then show clock</string>
+    <string name="settings_screensaver_off_whenNotPlaying">while playing</string>
     <string name="settings_switch_to_nowplaying_title">NowPlaying screen behavior</string>
     <string name="settings_switch_to_nowplaying_on">Always switch to NowPlaying screen when item has been chosen</string>
     <string name="settings_switch_to_nowplaying_off">Remain on current screen</string>

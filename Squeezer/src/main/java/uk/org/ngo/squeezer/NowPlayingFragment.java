@@ -527,6 +527,8 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @UiThread
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
         playPauseButton.setIconResource((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ? R.drawable.ic_action_pause : R.drawable.ic_action_play);
+        // send a signal to the screensaver timers to start or stop count down
+        mActivity.setNotplayingTimer((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ? false : true);
     }
 
     @UiThread

@@ -62,6 +62,7 @@ import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.screensaver.BlackScreensaver;
 import uk.org.ngo.squeezer.screensaver.Screensaver;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -160,6 +161,32 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
     }
 
+    private static final int INACTIVITY_TIME = 1 * 60 * 1000;
+    Handler inactivityHandler = null;
+    Runnable inactivityAction;
+
+    Handler notplayingHandler = null;
+    Runnable notplayingAction;
+
+    private void setInactivityTimer(boolean b) {
+        if (inactivityHandler != null) {
+            inactivityHandler.removeCallbacks(inactivityAction);
+            if (b) {
+                inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
+            }
+        }
+    }
+
+    public void setNotplayingTimer(boolean b) {
+        if (notplayingHandler != null) {
+            notplayingHandler.removeCallbacks(notplayingAction);
+            if (b) {
+                notplayingHandler.postDelayed(notplayingAction, INACTIVITY_TIME);
+            }
+        }
+    }
+
+
     @Override
     @CallSuper
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +211,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
                 if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
                     inactivityHandler = new Handler();
                     inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
-                    setInactivityTimer();
+                    setInactivityTimer(true);
+                }
+                if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.CLOCK_NOTPLAYING ) {
+                    notplayingHandler = new Handler();
+                    notplayingAction = () -> startActivity(new Intent(this, Screensaver.class));
+                    // do not yet start timer, because player state (playing or paused) is not known here
+                    setNotplayingTimer(false);
+                }
+                if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.OFF_NOTPLAYING ) {
+                    notplayingHandler = new Handler();
+                    notplayingAction = () -> startActivity(new Intent(this, BlackScreensaver.class));
+                    // do not yet start timer, because player state (playing or paused) is not known here
+                    setNotplayingTimer(false);
                 }
             }
         });
@@ -212,28 +251,21 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             maybeRegisterOnEventBus(mService);
         }
 
-        if (inactivityHandler != null) {
-            setInactivityTimer();
-        }
+        setInactivityTimer(true);
 
-        // If SqueezePlayer is installed, start it
+         // If SqueezePlayer is installed, start it
         squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
     }
 
-    private void setInactivityTimer() {
-        inactivityHandler.removeCallbacks(inactivityAction);
-        inactivityHandler.postDelayed(inactivityAction, INACTIVITY_TIME);
-    }
 
     @Override
     @CallSuper
     public void onPause() {
-        if (inactivityHandler != null) {
-            inactivityHandler.removeCallbacks(inactivityAction);
-        }
+        setInactivityTimer(false);
+        setNotplayingTimer(false);
 
         if (squeezePlayer != null) {
             squeezePlayer.stopControllingSqueezePlayer();
@@ -366,16 +398,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         this.notifyVolumePanel = notifyVolumePanel;
     }
 
-    private static final int INACTIVITY_TIME = 5 * 60 * 1000;
-    Handler inactivityHandler;
-    Runnable inactivityAction;
 
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
 
-        if (inactivityHandler != null) {
-            setInactivityTimer();
+        setInactivityTimer(true);
+
+        if (notplayingHandler != null) {
+            // If playing is paused and there is some user interaction,
+            // the waiting time until screensaver comes is "charged up" again.
+            if (notplayingHandler.hasCallbacks(notplayingAction)) {
+                setNotplayingTimer(true);
+            }
         }
     }
 

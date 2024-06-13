@@ -903,9 +903,12 @@ public final class Preferences {
     }
 
     public enum ScreensaverMode implements EnumWithText {
-        OFF(R.string.settings_screensaver_off),
         ON(R.string.settings_screensaver_on),
-        CLOCK(R.string.settings_screensaver_clock);
+        OFF(R.string.settings_screensaver_off),
+        OFF_NOTPLAYING(R.string.settings_screensaver_off_whenNotPlaying),
+        CLOCK(R.string.settings_screensaver_clock),
+        CLOCK_NOTPLAYING(R.string.settings_screensaver_clock_whenNotPlaying);
+
 
         private final int labelId;
 
