@@ -172,6 +172,9 @@ public final class Preferences {
     // Preferred UI theme.
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
+    // Behavior of NowPlaying screen
+    public static final String KEY_ON_NOW_PLAYING_SELECT = "squeezer.always_to_nowplaying";
+
     // Screensaver
     public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
@@ -534,6 +537,14 @@ public final class Preferences {
 
     public void setTheme(ThemeManager.Theme theme) {
         sharedPreferences.edit().putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name()).apply();
+    }
+
+    public boolean isNowPlayingSwitching() {
+        return sharedPreferences.getBoolean(KEY_ON_NOW_PLAYING_SELECT, false);
+    }
+
+    public void setNowPlayingSwitching(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_ON_NOW_PLAYING_SELECT, b).apply();
     }
 
     public ScreensaverMode getScreensaverMode() {

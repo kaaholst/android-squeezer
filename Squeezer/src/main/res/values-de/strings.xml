@@ -260,6 +260,9 @@
     <string name="settings_screensaver_off">Nein</string>
     <string name="settings_screensaver_on">Ja</string>
     <string name="settings_screensaver_clock">Uhr zeigen bei Inaktivität</string>
+    <string name="settings_switch_to_nowplaying_title">NowPlaying-Bildschirm Verhalten</string>
+    <string name="settings_switch_to_nowplaying_on">Immer auf NowPlaying wechseln wenn ein Item ausgewählt wurde</string>
+    <string name="settings_switch_to_nowplaying_off">Bildschirm nicht automatisch wechseln</string>
     <string name="settings_volume_title">Einstellungen für Lautstärkeregelung</string>
     <string name="settings_restore_after_call">Nach Beendigung wieder starten</string>
     <string name="call_state_permission_message">Bei einem Anruf kann Squeezer die Wiedergabe pausieren.</string>
