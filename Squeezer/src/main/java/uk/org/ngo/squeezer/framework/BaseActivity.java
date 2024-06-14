@@ -161,7 +161,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
     }
 
-    private static final int INACTIVITY_TIME = 1 * 60 * 1000;
+    private static final int INACTIVITY_TIME = 5 * 60 * 1000;
     Handler inactivityHandler = null;
     Runnable inactivityAction;
 
