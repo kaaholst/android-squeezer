@@ -253,7 +253,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         setInactivityTimer(true);
 
-         // If SqueezePlayer is installed, start it
+        // If SqueezePlayer is installed, start it
         squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
