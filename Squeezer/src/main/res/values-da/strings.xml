@@ -29,6 +29,7 @@
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
     <string name="menu_item_view">Visning</string>
+    <string name="menu_nowplaying_trackinfo">Oplysninger om nummer der spiller</string>
     <string name="activity_settings_name">Indstillinger</string>
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_manual_server_addr">Angiv adressen manuelt</string>
@@ -41,6 +42,9 @@
     <string name="settings_screensaver_off">Nej</string>
     <string name="settings_screensaver_on">Ja</string>
     <string name="settings_screensaver_clock">Vis ur ved inaktivitet</string>
+    <string name="settings_add_composer_line">Vis komponist</string>
+    <string name="settings_band_instead_album">Oplysninger til klassisk musik</string>
+    <string name="settings_add_conductor_line">Vis orkester og dirigent</string>
     <string name="settings_use_flat_icons">Flade ikoner</string>
     <string name="settings_top_bar_search">Søg i toplinje</string>
     <string name="settings_top_bar_search_global">Alle steder</string>
@@ -133,6 +137,21 @@
     <string name="unknown_album">Ukendt album</string>
     <string name="unknown_artist">Ukendt kunster</string>
     <string name="unknown_artistalbum">Ukendt kunster/album</string>
+    <string name="conductor">Dirigent: %s</string>
+    <string name="soloist">Solist: %s</string>
+    <string name="soloists">Solister: %s</string>
+
+    <!-- NowPlaying Track Info -->
+    <string name="settings_category_nowplaying_trackinfo">Oplysninger under afspilning</string>
+    <string name="settings_add_composer_line_off">Vis ikke komponist</string>
+    <string name="settings_add_composer_line_on">Vis komponist foran the nummerets titel</string>
+    <string name="settings_add_composer_line_title">Oplysninger om komponist</string>
+    <string name="settings_add_conductor_line_off">Vis ikke orkester og dirigent</string>
+    <string name="settings_add_conductor_line_on">Vis orkester i stedet for album og vis dirigent på en ny linje</string>
+    <string name="settings_add_conductor_line_title">Oplysninger om orkester og dirigent</string>
+    <string name="settings_classical_music_tags_off">Standard</string>
+    <string name="settings_classical_music_tags_on">Tilpasset til klassisk musik, med beskrivelse af dirigent og solister</string>
+    <string name="settings_classical_music_tags_title">Visning af oplysninger om nummer der spiller</string>
 
     <string name="all_alarms_on_hint">De enkelte vækkeure kan slåes til</string>
     <string name="all_alarms_off_hint">Alle vækkeure er slået fra</string>
