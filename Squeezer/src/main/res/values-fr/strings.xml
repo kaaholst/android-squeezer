@@ -42,6 +42,9 @@
     <string name="settings_fadeinsecs_title">Temps d\'ouverture en fondu</string>
     <string name="settings_fadeinsecs_summary">Entrez la durée d\'ouverture en fondu, en secondes, quand en pause. Entrez 0 pour désactiver l\'ouverture en fondu.</string>
 
+    <string name="settings_switch_to_nowplaying_title">Comportement du vue NowPlaying</string>
+    <string name="settings_switch_to_nowplaying_on">Toujours alterner à la vue NowPlaying quand on a choisi un élément</string>
+    <string name="settings_switch_to_nowplaying_off">Pas alterner la vue</string>
     <string name="settings_scrobble_title">Faire du scrobble par Last.fm</string>
     <string name="settings_scrobble_on">Les informations sur le morceau sont envoyées à Last.fm</string>
     <string name="settings_scrobble_off">Les informations sur le morceau ne sont pas envoyées à Last.fm</string>

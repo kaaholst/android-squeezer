@@ -463,6 +463,11 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             switch (nextWindow.nextWindow) {
                 case nowPlaying:
                     // Do nothing as now playing is always available in Squeezer (maybe toast the action)
+                    // only if set by special preference
+                    Preferences preferences = Squeezer.getPreferences();
+                    if (preferences.isNowPlayingSwitching()) {
+                        NowPlayingActivity.show(this);
+                    }
                     break;
                 case playlist:
                     CurrentPlaylistActivity.show(this);

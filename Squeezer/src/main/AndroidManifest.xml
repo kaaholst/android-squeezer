@@ -132,6 +132,11 @@
             android:theme="@style/Theme.MaterialComponents.NoActionBar">
         </activity>
 
+        <activity
+            android:name=".screensaver.BlackScreensaver"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+        </activity>
+
         <service android:exported="false" android:label="Squeezer Service"
             android:foregroundServiceType="mediaPlayback"
             android:name=".service.SqueezeService">

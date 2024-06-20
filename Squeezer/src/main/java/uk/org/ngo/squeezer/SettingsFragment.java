@@ -185,6 +185,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         }
         onSelectThemePref.setOnPreferenceChangeListener(this);
 
+        final SwitchPreferenceCompat alwaysSwitchToNowPlaying = findPreference(Preferences.KEY_ON_NOW_PLAYING_SELECT);
+        alwaysSwitchToNowPlaying.setChecked(preferences.isNowPlayingSwitching());
+
         ListPreference screensaverPref = findPreference(Preferences.KEY_SCREENSAVER);
         fillEnumPreference(screensaverPref, Preferences.ScreensaverMode.class, preferences.getScreensaverMode());
     }
