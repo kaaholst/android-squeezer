@@ -65,7 +65,7 @@
         app:icon="@drawable/ic_action_previous"
         style="@style/BottomBar.MediaButton"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/pause"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
         app:layout_constraintBottom_toBottomOf="parent"
