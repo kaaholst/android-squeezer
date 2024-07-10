@@ -28,6 +28,8 @@ import androidx.core.view.MenuCompat;
 
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.service.event.MusicChanged;
 
 public class NowPlayingActivity extends BaseActivity {
 
@@ -35,6 +37,8 @@ public class NowPlayingActivity extends BaseActivity {
      * Called when the activity is first created.
      */
 
+    private MenuItem menuItemTrackCount;
+    private MenuItem menuItemTechnicalInfo;
     private MenuItem menuItemComposerLine;
     private MenuItem menuItemConductorLine;
     private MenuItem menuItemClassicalMusicTags;
@@ -72,6 +76,8 @@ public class NowPlayingActivity extends BaseActivity {
         trackInfoMenu = menu.findItem(R.id.menu_nowplaying_trackinfo).getSubMenu();
         MenuCompat.setGroupDividerEnabled(trackInfoMenu, true);
 
+        menuItemTrackCount = trackInfoMenu.findItem(R.id.menu_item_track_info);
+        menuItemTechnicalInfo = trackInfoMenu.findItem(R.id.menu_item_technical_info);
         menuItemComposerLine = trackInfoMenu.findItem(R.id.menu_item_composer_line);
         menuItemConductorLine = trackInfoMenu.findItem(R.id.menu_item_conductor_line);
         menuItemClassicalMusicTags = trackInfoMenu.findItem(R.id.menu_item_classical_music_tags);
@@ -91,33 +97,45 @@ public class NowPlayingActivity extends BaseActivity {
         if (itemId == android.R.id.home) {
             finish();
             return true;
+        } else if (itemId == R.id.menu_item_track_info) {
+            Squeezer.getPreferences().showTrackCount(!menuItemTrackCount.isChecked());
+            refreshTrackInfo();
+            return true;
+        } else if (itemId == R.id.menu_item_technical_info) {
+            Squeezer.getPreferences().showTechnicalInfo(!menuItemTechnicalInfo.isChecked());
+            refreshTrackInfo();
+            return true;
         } else if (itemId == R.id.menu_item_composer_line) {
             Squeezer.getPreferences().addComposerLine(!menuItemComposerLine.isChecked());
-            updateTrackInfoMenuItems();
-            // Make sure view is updated to reflect changes
-            NowPlayingActivity.show(this);
+            refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_conductor_line) {
             Squeezer.getPreferences().addConductorLine(!menuItemConductorLine.isChecked());
-            updateTrackInfoMenuItems();
-            // Make sure view is updated to reflect changes
-            NowPlayingActivity.show(this);
+            refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_classical_music_tags) {
             Squeezer.getPreferences().displayClassicalMusicTags(!menuItemClassicalMusicTags.isChecked());
-            updateTrackInfoMenuItems();
-            // Make sure view is updated to reflect changes
-            NowPlayingActivity.show(this);
+            refreshTrackInfo();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void refreshTrackInfo() {
+        updateTrackInfoMenuItems();
+        Player activePlayer = getActivePlayer();
+        if (activePlayer != null) {
+            requireService().getEventBus().post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+        }
+    }
+
     private void updateTrackInfoMenuItems() {
         if (menuItemComposerLine != null) {
             Preferences preferences = Squeezer.getPreferences();
 
+            menuItemTrackCount.setChecked(preferences.showTrackCount());
+            menuItemTechnicalInfo.setChecked(preferences.showTechnicalInfo());
             menuItemComposerLine.setChecked(preferences.addComposerLine());
             menuItemConductorLine.setChecked(preferences.addConductorLine());
             menuItemClassicalMusicTags.setChecked(preferences.displayClassicalMusicTags());

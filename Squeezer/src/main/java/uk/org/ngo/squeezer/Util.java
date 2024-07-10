@@ -87,7 +87,7 @@ public class Util {
 
         StringBuilder sb = new StringBuilder();
         for (String part : parts) {
-            if (part == null) continue;
+            if (part == null || part.isEmpty()) continue;
 
             if (sb.length() > 0) sb.append(separator);
             sb.append(part);

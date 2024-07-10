@@ -128,6 +128,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     private TextView trackText;
     private TextView conductorText;
     private TextView composerText;
+    private TextView trackInfo;
 
     private JiveItem albumItem;
     private JiveItem artistItem;
@@ -295,8 +296,10 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
 
             artistText = v.findViewById(R.id.artistname);
+            composerText = v.findViewById(R.id.composer);
             conductorText = v.findViewById(R.id.conductorname);
             albumText = v.findViewById(R.id.albumname);
+            trackInfo = v.findViewById(R.id.track_info);
             shuffleButton = v.findViewById(R.id.shuffle);
             repeatButton = v.findViewById(R.id.repeat);
             currentTime = v.findViewById(R.id.currenttime);
@@ -333,7 +336,6 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         }
 
         trackText = v.findViewById(R.id.trackname);
-        composerText = v.findViewById(R.id.composer);
         playPauseButton = v.findViewById(R.id.pause);
 
         nextButton = v.findViewById(R.id.next);
@@ -830,6 +832,10 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 artistText.setSelected(true);
                 albumText.setSelected(true);
 
+                String trackInfoText = formatTrackInfo(preferences, playerState, song);
+                trackInfo.setText(trackInfoText);
+                trackInfo.setVisibility(!TextUtils.isEmpty(trackInfoText) ? View.VISIBLE : View.GONE);
+
                 requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
@@ -869,6 +875,20 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
         }
+    }
+
+    private static String formatTrackInfo(Preferences preferences, PlayerState playerState, CurrentPlaylistItem song) {
+        return Util.joinSkipEmpty(" - ", formatTechnicalInfo(preferences, song), formatTrackCount(preferences, playerState));
+    }
+
+    private static String formatTechnicalInfo(Preferences preferences, CurrentPlaylistItem song) {
+        return preferences.showTechnicalInfo() ? Util.joinSkipEmpty(" ", song.songInfo.getBitRate(), song.songInfo.getSampleRate()) : "";
+    }
+
+    private static String formatTrackCount(Preferences preferences, PlayerState playerState) {
+        return (preferences.showTrackCount() && playerState.getCurrentPlaylistTracksNum() > 1)
+                ? String.format("%s/%s", playerState.getCurrentPlaylistIndex() + 1, playerState.getCurrentPlaylistTracksNum())
+                : "";
     }
 
     private void updateVolumeInfo() {

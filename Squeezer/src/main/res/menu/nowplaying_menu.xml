@@ -29,6 +29,16 @@
                 android:id="@+id/menu_group_nowplaying_trackinfo"
                 android:checkableBehavior="all">
                 <item
+                    android:id="@+id/menu_item_track_info"
+                    android:title="@string/settings_show_track_number"
+                    app:showAsAction="never"
+                    />
+                <item
+                    android:id="@+id/menu_item_technical_info"
+                    android:title="@string/settings_show_technical_info"
+                    app:showAsAction="never"
+                    />
+                <item
                     android:id="@+id/menu_item_composer_line"
                     android:title="@string/settings_add_composer_line"
                     app:showAsAction="never"

@@ -42,6 +42,8 @@
     <string name="settings_screensaver_off">Nej</string>
     <string name="settings_screensaver_on">Ja</string>
     <string name="settings_screensaver_clock">Vis ur ved inaktivitet</string>
+    <string name="settings_show_track_number">Spornummer</string>
+    <string name="settings_show_technical_info">Teknisk information (bithastighed, m.v)</string>
     <string name="settings_add_composer_line">Vis komponist</string>
     <string name="settings_band_instead_album">Oplysninger til klassisk musik</string>
     <string name="settings_add_conductor_line">Vis orkester og dirigent</string>
@@ -143,6 +145,12 @@
 
     <!-- NowPlaying Track Info -->
     <string name="settings_category_nowplaying_trackinfo">Oplysninger under afspilning</string>
+    <string name="settings_show_track_number_title">Spornummer</string>
+    <string name="settings_show_track_number_off">Vis ikke spornummer</string>
+    <string name="settings_show_track_number_on">Vis spornummer over tid i spor</string>
+    <string name="settings_show_technical_info_title">Teknisk information (bithastighed, m.v)</string>
+    <string name="settings_show_technical_info_off">Vis ikke teknisk information</string>
+    <string name="settings_show_technical_info_on">Vis teknisk information over tid i spor</string>
     <string name="settings_add_composer_line_off">Vis ikke komponist</string>
     <string name="settings_add_composer_line_on">Vis komponist foran the nummerets titel</string>
     <string name="settings_add_composer_line_title">Oplysninger om komponist</string>

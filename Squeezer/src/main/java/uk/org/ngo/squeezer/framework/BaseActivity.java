@@ -62,6 +62,7 @@ import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.screensaver.Screensaver;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -449,6 +450,13 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     // Safe accessors
+
+    public Player getActivePlayer() {
+        if (mService == null) {
+            return null;
+        }
+        return mService.getActivePlayer();
+    }
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via

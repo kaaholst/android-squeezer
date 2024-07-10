@@ -151,6 +151,12 @@ public final class Preferences {
     // Preferred maximum info per item for a given list layout
     public static final String KEY_MAX_LINES_FORMAT = "squeezer.%s.maxLines";
 
+    // Show current track and queue length on now playing screen
+    public static final String KEY_TRACK_COUNT = "squeezer.show_track_count";
+
+    // Show technical info (bitrate, samplerate etc) on now playing screen
+    public static final String KEY_TECHNICAL_INFO = "squeezer.show_technical_info";
+
     // Add line above track title for showing composer
     public static final String KEY_COMPOSER_LINE = "squeezer.add_composer_line";
 
@@ -625,6 +631,22 @@ public final class Preferences {
 
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
         sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
+    }
+
+    public boolean showTrackCount() {
+        return sharedPreferences.getBoolean(KEY_TRACK_COUNT, true);
+    }
+
+    public void showTrackCount(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_TRACK_COUNT, b).apply();
+    }
+
+    public boolean showTechnicalInfo() {
+        return sharedPreferences.getBoolean(KEY_TECHNICAL_INFO, false);
+    }
+
+    public void showTechnicalInfo(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_TECHNICAL_INFO, b).apply();
     }
 
     public boolean addComposerLine() {

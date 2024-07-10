@@ -190,6 +190,12 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     private void fillNowPlayingPreferences(Preferences preferences) {
+        final SwitchPreferenceCompat trackCount = findPreference(Preferences.KEY_TRACK_COUNT);
+        trackCount.setChecked(preferences.showTrackCount());
+
+        final SwitchPreferenceCompat teachnicalInfo = findPreference(Preferences.KEY_TECHNICAL_INFO);
+        teachnicalInfo.setChecked(preferences.showTechnicalInfo());
+
         final SwitchPreferenceCompat addComposerLine = findPreference(Preferences.KEY_COMPOSER_LINE);
         addComposerLine.setChecked(preferences.addComposerLine());
 

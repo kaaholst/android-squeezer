@@ -30,85 +30,102 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:orientation="vertical">
 
-       <TextView
-            android:id="@+id/composer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/SqueezerWidget.NowPlaying.ComposerName"
-            tools:text="Composer" />
-
-        <!-- The trackname TextView needs to be wrapped in a LinearLayout.
-             If you do not do this then changing the contents of any other item in the layout
-             will cause the layout to reflow, which causes the scrolling marquee text to
-             reset.  Wrapping the trackname TextView in a LinearLayout means that the TextView
-             will not change size when then the layout is recalculated, and the text continues
-             to scroll. -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">				
-            <TextView
-                android:id="@+id/trackname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/SqueezerWidget.NowPlaying.SongName"/>
-        </FrameLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/item"
-            android:layout_marginTop="4dp"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <ImageView
-                style="@style/SqueezerWidget.List.CoverArt"
-                android:id="@+id/icon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/labels"
-                android:contentDescription="@string/app_name"
-                tools:src="@drawable/pending" />
-
             <LinearLayout
-                android:id="@+id/labels"
-                android:orientation="vertical"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toEndOf="@id/icon"
-                app:layout_constraintEnd_toStartOf="@+id/context_menu">
+                android:orientation="vertical">
                 <TextView
-                    android:id="@+id/albumname"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/composer"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/SqueezerWidget.NowPlaying.AlbumName"
-                    tools:text="Album" />
+                    style="@style/SqueezerWidget.NowPlaying.ComposerName"
+                    tools:text="Composer" />
 
-                <TextView
-                    android:id="@+id/artistname"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/SqueezerWidget.NowPlaying.ArtistName"
-                    tools:text="Artist" />
+                <!-- The trackname TextView needs to be wrapped in a LinearLayout.
+                     If you do not do this then changing the contents of any other item in the layout
+                     will cause the layout to reflow, which causes the scrolling marquee text to
+                     reset.  Wrapping the trackname TextView in a LinearLayout means that the TextView
+                     will not change size when then the layout is recalculated, and the text continues
+                     to scroll. -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/trackname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/SqueezerWidget.NowPlaying.SongName"/>
+                </FrameLayout>
 
-                <TextView
-                    android:id="@+id/conductorname"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/SqueezerWidget.NowPlaying.ConductorName"
-                    tools:text="Conductor" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/item"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/SqueezerWidget.List.CoverArt"
+                        android:id="@+id/icon"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/labels"
+                        android:contentDescription="@string/app_name"
+                        tools:src="@drawable/pending" />
+
+                    <LinearLayout
+                        android:id="@+id/labels"
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintEnd_toStartOf="@+id/context_menu">
+                        <TextView
+                            android:id="@+id/albumname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/SqueezerWidget.NowPlaying.AlbumName"
+                            tools:text="Album" />
+
+                        <TextView
+                            android:id="@+id/artistname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/SqueezerWidget.NowPlaying.ArtistName"
+                            tools:text="Artist" />
+
+                        <TextView
+                            android:id="@+id/conductorname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/SqueezerWidget.NowPlaying.ConductorName"
+                            tools:text="Conductor" />
+                    </LinearLayout>
+
+                    <include
+                        layout="@layout/context_menu_image_button"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
-
-            <include
-                layout="@layout/context_menu_image_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/track_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        tools:text="Track info" />
 
     <LinearLayout
         android:layout_width="match_parent"

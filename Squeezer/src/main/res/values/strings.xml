@@ -42,6 +42,8 @@
     <string name="settings_screensaver_off">No</string>
     <string name="settings_screensaver_on">Yes</string>
     <string name="settings_screensaver_clock">Show clock when idle</string>
+    <string name="settings_show_track_number">Track number</string>
+    <string name="settings_show_technical_info">Technical info (bitrate, etc)</string>
     <string name="settings_add_composer_line">Show composer</string>
     <string name="settings_band_instead_album">Classical music information</string>
     <string name="settings_add_conductor_line">Show band and conductor</string>
@@ -140,6 +142,12 @@
 
     <!-- NowPlaying Track Info -->
     <string name="settings_category_nowplaying_trackinfo">NowPlaying track information</string>
+    <string name="settings_show_track_number_title">Track number</string>
+    <string name="settings_show_track_number_off">Don\'t show track number</string>
+    <string name="settings_show_track_number_on">Show track number above time in track</string>
+    <string name="settings_show_technical_info_title">Technical info (bitrate, etc)</string>
+    <string name="settings_show_technical_info_off">Don\'t show Technical info</string>
+    <string name="settings_show_technical_info_on">Show technical info above time in track</string>
     <string name="settings_add_composer_line_off">Don\'t show composer</string>
     <string name="settings_add_composer_line_on">Show composer in front of the track title</string>
     <string name="settings_add_composer_line_title">Composer information</string>

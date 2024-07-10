@@ -50,6 +50,18 @@
         android:title="@string/settings_category_nowplaying_trackinfo">
 
         <SwitchPreferenceCompat
+            android:key="squeezer.show_track_count"
+            android:summaryOff="@string/settings_show_track_number_off"
+            android:summaryOn="@string/settings_show_track_number_on"
+            android:title="@string/settings_show_track_number_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.show_technical_info"
+            android:summaryOff="@string/settings_show_technical_info_off"
+            android:summaryOn="@string/settings_show_technical_info_on"
+            android:title="@string/settings_show_technical_info_title"/>
+
+        <SwitchPreferenceCompat
             android:key="squeezer.add_composer_line"
             android:summaryOff="@string/settings_add_composer_line_off"
             android:summaryOn="@string/settings_add_composer_line_on"

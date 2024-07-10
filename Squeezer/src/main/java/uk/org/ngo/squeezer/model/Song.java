@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -143,6 +144,18 @@ public class Song  implements Parcelable {
 
     public String getLocalPath(DownloadPathStructure downloadPathStructure, DownloadFilenameStructure downloadFilenameStructure) {
         return new File(downloadPathStructure.get(this), downloadFilenameStructure.get(this)).getPath();
+    }
+
+    public String getSampleRate() {
+        try  {
+            int sampleRateInteger = Integer.parseInt(sampleRate);
+            return (sampleRateInteger > 0) ? new DecimalFormat("#.#").format(sampleRateInteger / 1000.0) + " kHz" : "";
+        } catch (NumberFormatException ignored) {}
+        return sampleRate;
+    }
+
+    public String getBitRate() {
+        return "0".equals(bitRate) ? "" : bitRate;
     }
 
     @Override
