@@ -34,7 +34,7 @@ import uk.org.ngo.squeezer.util.Reflection;
 
 
 /**
- * A generic class for an adapter to list items of a particular SqueezeServer data type. The data
+ * A generic class for an adapter to list items of a particular slimserver data type. The data
  * type is defined by the generic type argument, and must be an extension of {@link Item}.
  * <p>
  * Extend this and {@link VH}, to display a list of items
@@ -55,7 +55,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     /**
      * List of items, possibly headed with an empty item.
      * <p>
-     * As the items are received from SqueezeServer they will be inserted in the list.
+     * As the items are received from slimserver they will be inserted in the list.
      */
     private int count;
 
@@ -69,7 +69,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     /**
      * Creates a new adapter. Initially the item list is populated with items displaying the
      * localized "loading" text. Call {@link #update(int, int, List)} as items arrives from
-     * SqueezeServer.
+     * slimserver.
      *
      * @param activity The {@link ItemListActivity} which hosts this adapter
      */
@@ -183,7 +183,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * The size of the list of items is automatically adjusted if necessary, to obey the given
      * parameters.
      *
-     * @param count Number of items as reported by SqueezeServer.
+     * @param count Number of items as reported by slimserver.
      * @param start The start position of items in this update.
      * @param items New items to insert in the main list
      */

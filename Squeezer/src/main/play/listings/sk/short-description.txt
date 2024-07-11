@@ -1,1 +1,1 @@
-Diaľkový ovládač Logitech Media Server ("Squeezeserver" apod) a hráči.
+Diaľkový ovládač Lyrion Music Server a hráči.

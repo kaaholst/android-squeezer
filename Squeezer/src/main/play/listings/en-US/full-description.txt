@@ -1,4 +1,4 @@
-Remote control for your Logitech Media Server ("Squeezeserver" etc) and players.
+Remote control for your Lyrion Music Server and players.
 
 Features include:
 
@@ -7,7 +7,7 @@ Features include:
 &bull; Manage players, and groups of players
 &bull; Full library search
 &bull; Internet radio support (browse, staff picks, search)
-&bull; Browse Squeezeserver music folders
+&bull; Browse music folders
 &bull; Supports Plugins/Apps
 &bull; Library Views and Remote Music Libraries
 &bull; Download of local music; track, album, artist, genre, year, playlist and music folder

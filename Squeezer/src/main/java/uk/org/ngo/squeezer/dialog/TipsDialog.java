@@ -46,7 +46,7 @@ public class TipsDialog extends DialogFragment implements OnKeyListener {
     }
 
     /*
-     * Intercept hardware volume control keys to control Squeezeserver volume.
+     * Intercept hardware volume control keys to control slimserver volume.
      * 
      * Change the volume when the key is depressed. Suppress the keyUp event,
      * otherwise you get a notification beep as well as the volume changing.

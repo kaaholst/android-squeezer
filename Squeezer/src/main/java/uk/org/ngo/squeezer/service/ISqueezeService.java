@@ -38,7 +38,7 @@ public interface ISqueezeService {
      */
     @NonNull EventBus getEventBus();
 
-    // Instructing the service to connect to the SqueezeCenter server:
+    // Instructing the service to connect to the Lyrion Music Server
     // hostPort is the port of the CLI interface.
     void startConnect(boolean autoConnect);
     void disconnect();
@@ -164,7 +164,7 @@ public interface ISqueezeService {
     void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
-     * Start an asynchronous fetch of the squeezeservers generic menu items.
+     * Start an asynchronous fetch of the slimserver generic menu items.
      * <p>
      * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
      *
@@ -177,7 +177,7 @@ public interface ISqueezeService {
     void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
-     * Start an asynchronous fetch of the squeezeservers generic menu items with no paging nor extra parameters.
+     * Start an asynchronous fetch of the slimserver generic menu items with no paging nor extra parameters.
      * <p>
      * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
      *

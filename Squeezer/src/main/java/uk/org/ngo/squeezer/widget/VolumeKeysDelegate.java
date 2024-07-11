@@ -5,7 +5,7 @@ import android.view.KeyEvent;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
- * Intercept hardware volume control keys to control Squeezeserver
+ * Intercept hardware volume control keys to control slimserver
  * volume.
  *
  * Change the volume when the key is depressed.  Suppress the keyUp

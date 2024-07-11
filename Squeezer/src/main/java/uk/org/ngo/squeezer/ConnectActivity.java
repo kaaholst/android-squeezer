@@ -39,7 +39,7 @@ import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 /**
- * An activity for when the user is not connected to a Squeezeserver.
+ * An activity for when the user is not connected to a slimserver.
  * <p>
  * Provide a UI for connecting to the configured server, launch HomeMenuActivity when the user
  * connects.

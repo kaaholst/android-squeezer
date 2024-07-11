@@ -109,7 +109,7 @@
     <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
-    <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
+    <string name="connecting_to_text">Connecting to Lyrion Music Server at %s</string>
     <string name="connection_failed_text">Connection failed.</string>
     <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
     <string name="invalid_url_text">Please enter a valid address.</string>

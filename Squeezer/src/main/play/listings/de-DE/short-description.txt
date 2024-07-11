@@ -1,1 +1,1 @@
-Fernbedienung für Logitech Media Server ("Squeezeserver" etc.) und Spieler.
+Fernbedienung für Lyrion Music Server und Spieler.

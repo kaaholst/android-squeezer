@@ -35,14 +35,14 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 
 /**
- * A generic base class for an activity to list items of a particular SqueezeServer data type. The
+ * A generic base class for an activity to list items of a particular slimserver data type. The
  * data type is defined by the generic type argument, and must be an extension of {@link Item}. You
  * must provide an {@link ItemAdapter} to provide the view logic used by this activity. This is done by
  * implementing {@link #createItemListAdapter()}}.
  * <p>
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemAdapter}
  * is created. See {@link ItemListActivity} for see details of
- * ordering and receiving of list items from SqueezeServer.
+ * ordering and receiving of list items from slimserver.
  *
  * @param <T> Denotes the class of the items this class should list
  *

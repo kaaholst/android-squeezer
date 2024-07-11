@@ -141,7 +141,7 @@ public class ScanNetworkTask implements Runnable {
     }
 
     /**
-     * Parse a Squeezeserver broadcast response.
+     * Parse a slimserver broadcast response.
      * <p>
      * The response buffer consists of a literal 'E' followed by 1 or more packed tuples that
      * follow the format {4-byte-type}{1-byte-length}{[length]-bytes-values}.

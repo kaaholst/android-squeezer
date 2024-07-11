@@ -50,7 +50,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 /**
- * This class defines the common minimum, which any activity browsing the SqueezeServer's database
+ * This class defines the common minimum, which any activity browsing the slimserver's database
  * must implement.
  *
  * @author Kurt Aaholst

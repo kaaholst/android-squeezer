@@ -1,1 +1,1 @@
-Mando a distancia para Logitech Media Server ("SqueezeServer") y los jugadores.
+Mando a distancia para Lyrion Music Server y los jugadores.

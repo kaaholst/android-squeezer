@@ -1,1 +1,1 @@
-Τηλεχειριστήριο για Logitech Media Server ("Squeezeserver" κλπ) και τους παίκτες
+Τηλεχειριστήριο για Lyrion Music Server και τους παίκτες

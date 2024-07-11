@@ -1,1 +1,1 @@
-Дистанційне керування Logitech Media Server ("Squeezeserver") та програвачами.
+Дистанційне керування Lyrion Music Server та програвачами.

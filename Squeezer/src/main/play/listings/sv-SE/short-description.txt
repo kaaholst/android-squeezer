@@ -1,1 +1,1 @@
-Fjärrkontroll för Logitech Media Server ("Squeezeserver" etc) och spelare.
+Fjärrkontroll för Lyrion Music Server och spelare.

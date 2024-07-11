@@ -27,7 +27,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='CLEARING_PLAYLIST'>Clearing Playlist…</string>
   <string name='SETUP_DIGITALVOLUMECONTROL_ON'>Volume controls adjust outputs</string>
   <string name='ALARM_SET_TIME'>Set Time</string>
-  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC'>When touching/selecting a playable item on your Squeezebox, you can accidentally replace what is currently playing. This destructive behaviour can be controlled using this parameter. </string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC'>When touching/selecting a playable item on your Squeezebox, you can accidentally replace what is currently playing. This destructive behavior can be controlled using this parameter.</string>
   <string name='ALARM_ALL_ALARMS'>All Alarms</string>
   <string name='SLEEPING_IN'>Sleeping in</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Volume Control</string>

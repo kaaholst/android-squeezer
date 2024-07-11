@@ -374,7 +374,7 @@ public class SqueezeService extends Service {
             mDelegate.subscribeDisplayStatus(activePlayer, true);
             mDelegate.subscribeMenuStatus(activePlayer, true);
             mDelegate.requestPlayerStatus(activePlayer);
-            // Start an asynchronous fetch of the squeezeservers "home menu" items
+            // Start an asynchronous fetch of the slimserver "home menu" items
             // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
             mDelegate.requestItems(activePlayer, 0, new HomeMenuReceiver())
                     .cmd("menu").param("direct", "1").exec();
@@ -1486,7 +1486,7 @@ public class SqueezeService extends Service {
                     .param("url", "".equals(playlist.getId()) ? "0" : playlist.getId()).exec();
         }
 
-        /* Start an asynchronous fetch of the squeezeservers generic menu items */
+        /* Start an asynchronous fetch of the slimserver generic menu items */
         @Override
         public void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
@@ -1495,7 +1495,7 @@ public class SqueezeService extends Service {
             mDelegate.requestItems(getActivePlayer(), start, callback).cmd(cmd).param("menu", "menu").exec();
         }
 
-        /* Start an asynchronous fetch of the squeezeservers generic menu items */
+        /* Start an asynchronous fetch of the slimserver generic menu items */
         @Override
         public void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {

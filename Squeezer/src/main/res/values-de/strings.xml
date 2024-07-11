@@ -91,7 +91,7 @@
     <string name="menu_item_playlist_show_current_song">Zum aktuellen Titel</string>
     <string name="menu_item_volume">Lautstärke ändern</string>
     <string name="connecting_text">Verbinde</string>
-    <string name="connecting_to_text">Verbinde mit Logitech Media Server %s</string>
+    <string name="connecting_to_text">Verbinde mit Lyrion Music Server %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen</string>
     <string name="login_failed_text">Login fehlgeschlagen. Prüfen Sie die Einstellungen!</string>
     <string name="invalid_url_text">Geben Sie bitte eine gültige Adresse (URL) an.</string>

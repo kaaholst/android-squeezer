@@ -1,1 +1,1 @@
-Logitech Media Server ("SqueezeServer" vb) ve oyuncular için uzaktan kumanda.
+Lyrion Music Server ve oyuncular için uzaktan kumanda.

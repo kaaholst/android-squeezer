@@ -27,9 +27,9 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 
 /**
- * Base class for SqueezeServer data.
+ * Base class for slimserver data.
  * <p>
- * Has an id, a getName() method and a few helper methods for parsing records from Squeezeserver.
+ * Has an id, a getName() method and a few helper methods for parsing records from slimserver.
  *
  * @author Kurt Aaholst
  */
@@ -62,7 +62,7 @@ public abstract class Item implements Parcelable {
         }
 
         if (o.getClass() != getClass()) {
-            // There is no guarantee that SqueezeServer items have globally unique IDs.
+            // There is no guarantee that slimserver items have globally unique IDs.
             return false;
         }
 

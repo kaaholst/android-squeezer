@@ -25,7 +25,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 
 /**
- * Encapsulate a music folder item on the Squeezeserver.
+ * Encapsulate a music folder item on the slimserver.
  * <p>
  * An item has a name and a type. The name is free text, the type may be one of "track", "folder",
  * "playlist", or "unknown".

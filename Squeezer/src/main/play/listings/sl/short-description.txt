@@ -1,1 +1,1 @@
-Daljinski upravljalnik za Logitech Media Server ("Squeezeserver" itd) in igralce
+Daljinski upravljalnik za Lyrion Music Server in igralce
