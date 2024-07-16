@@ -40,6 +40,12 @@
             android:title="@string/settings_theme_title"
             android:summary="%s"/>
 
+        <SwitchPreferenceCompat
+            android:key="squeezer.always_to_nowplaying"
+            android:summaryOff="@string/settings_switch_to_nowplaying_off"
+            android:summaryOn="@string/settings_switch_to_nowplaying_on"
+            android:title="@string/settings_switch_to_nowplaying_title"/>
+
         <ListPreference
             android:key="squeezer.screensaver"
             android:title="@string/settings_screensaver_title"

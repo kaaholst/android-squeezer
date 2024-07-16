@@ -172,6 +172,9 @@ public final class Preferences {
     // Preferred UI theme.
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
+    // Behavior of NowPlaying screen
+    public static final String KEY_ON_NOW_PLAYING_SELECT = "squeezer.always_to_nowplaying";
+
     // Screensaver
     public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
@@ -536,6 +539,14 @@ public final class Preferences {
         sharedPreferences.edit().putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name()).apply();
     }
 
+    public boolean isNowPlayingSwitching() {
+        return sharedPreferences.getBoolean(KEY_ON_NOW_PLAYING_SELECT, false);
+    }
+
+    public void setNowPlayingSwitching(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_ON_NOW_PLAYING_SELECT, b).apply();
+    }
+
     public ScreensaverMode getScreensaverMode() {
         String string = sharedPreferences.getString(KEY_SCREENSAVER, null);
         return string == null ? ScreensaverMode.OFF : ScreensaverMode.valueOf(string);
@@ -892,9 +903,12 @@ public final class Preferences {
     }
 
     public enum ScreensaverMode implements EnumWithText {
-        OFF(R.string.settings_screensaver_off),
         ON(R.string.settings_screensaver_on),
-        CLOCK(R.string.settings_screensaver_clock);
+        OFF(R.string.settings_screensaver_off),
+        OFF_NOTPLAYING(R.string.settings_screensaver_off_whenNotPlaying),
+        CLOCK(R.string.settings_screensaver_clock),
+        CLOCK_NOTPLAYING(R.string.settings_screensaver_clock_whenNotPlaying);
+
 
         private final int labelId;
 
