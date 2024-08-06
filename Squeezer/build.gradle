@@ -13,16 +13,16 @@ apply plugin: 'uk.org.ngo.gradle.whatsnew'
 apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
-    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.palette:palette:1.0.0'
-    implementation 'androidx.webkit:webkit:1.8.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.media:media:1.6.0'
+    implementation 'androidx.media:media:1.7.0'
 
     // EventBus, https://github.com/greenrobot/EventBus.
     implementation 'org.greenrobot:eventbus:3.2.0'
