@@ -23,7 +23,7 @@ buildscript {
 ext {
     compileSdkVersion = 34
     minSdkVersion = 21
-    targetSdkVersion = 33
+    targetSdkVersion = 34
 
     assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
     assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"

@@ -773,7 +773,7 @@ public class SqueezeService extends Service {
                 unplayed.removeAll(played);
                 Log.i(TAG, String.format("Loaded %s unplayed tracks from folder %s for Random Play on player %s.", unplayed.size(), folderID, player.getName()));
             }
-            if (unplayed.size() > 0) {
+            if (!unplayed.isEmpty()) {
                 randomPlayDelegate.fillPlaylist(unplayed, player, nextTrack);
             } else {
                 Log.e(TAG, String.format("No unplayed tracks found for Random Play in folder %s on %s!", folderID, player.getName()));
