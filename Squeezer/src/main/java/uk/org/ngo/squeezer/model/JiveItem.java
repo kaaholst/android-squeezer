@@ -127,6 +127,7 @@ public class JiveItem extends Item {
     private String type;
 
     public Action.NextWindow nextWindow;
+    public RefreshWindow onClick;
     public Input input;
     public String inputValue;
     public Window window;
@@ -260,6 +261,7 @@ public class JiveItem extends Item {
         Map<String, Object> baseWindow = (baseRecord != null ? getRecord(baseRecord, "window") : null);
         Map<String, Object> actionsRecord = getRecord(record, "actions");
         nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
+        onClick = RefreshWindow.fromString(getString(record, baseRecord, "onClick"));
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"), baseWindow);
 
@@ -325,6 +327,7 @@ public class JiveItem extends Item {
         weight = source.readInt();
         type = source.readString();
         nextWindow = Action.NextWindow.fromString(source.readString());
+        onClick = RefreshWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
         window = source.readParcelable(getClass().getClassLoader());
         goAction = source.readParcelable(getClass().getClassLoader());
@@ -340,8 +343,8 @@ public class JiveItem extends Item {
         checkbox = (Boolean) source.readValue(getClass().getClassLoader());
         if (checkbox != null) {
             checkboxActions = new HashMap<>();
-            checkboxActions.put(true, (Action) source.readParcelable(getClass().getClassLoader()));
-            checkboxActions.put(false, (Action) source.readParcelable(getClass().getClassLoader()));
+            checkboxActions.put(true, source.readParcelable(getClass().getClassLoader()));
+            checkboxActions.put(false, source.readParcelable(getClass().getClassLoader()));
         }
         radio = (Boolean) source.readValue(getClass().getClassLoader());
         slider = source.readParcelable(getClass().getClassLoader());
@@ -364,6 +367,7 @@ public class JiveItem extends Item {
         dest.writeInt(weight);
         dest.writeString(type);
         dest.writeString(nextWindow == null ? null : nextWindow.toString());
+        dest.writeString(onClick == null ? null : onClick.toString());
         Input.writeToParcel(dest, input);
         dest.writeParcelable(window, flags);
         dest.writeParcelable(goAction, flags);

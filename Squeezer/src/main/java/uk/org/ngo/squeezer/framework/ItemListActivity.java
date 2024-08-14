@@ -372,6 +372,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
      */
     public void clearAndReOrderItems() {
         if (!(needPlayer() && requireService().getActivePlayer() == null)) {
+            Log.i(TAG, "clearAndReOrderItems()");
             showLoading();
             clearItems();
             maybeOrderPage(0);

@@ -74,6 +74,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.RefreshWindow;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
@@ -90,8 +91,11 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private static final int GO = 1;
     private static final String FINISH = "FINISH";
     private static final String RELOAD = "RELOAD";
+    private static final String RELOAD_PARENT = "RELOAD_PARENT";
+    private static final String RELOAD_ON_FINISH = "RELOAD_ON_PARENT";
     private static final String WINDOW = "WINDOW";
     public static final String WINDOW_EXTRA = "windowId";
+    private static final String TAG = "JiveItemListActivity";
 
     private boolean register;
     protected JiveItem parent;
@@ -350,7 +354,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        Log.d("JiveItemListActivity", "Handshake complete");
+        Log.d(TAG, "Handshake complete");
         super.onEventMainThread(event);
         if (parent != null && parent.hasSubItems()) {
             getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
@@ -441,16 +445,18 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
         Action.JsonAction jAction = (action != null && action.action != null) ? action.action : null;
         Action.NextWindow nextWindow = (jAction != null ? jAction.nextWindow : item.nextWindow);
+        setRefreshWindow(item.onClick);
         nextWindow(nextWindow, alreadyPopped);
     }
 
     @Override
-    public void action(Action.JsonAction action, int alreadyPopped) {
+    public void action(JiveItem item, Action.JsonAction action, int alreadyPopped) {
         if (getService() == null) {
             return;
         }
 
         getService().action(action);
+        setRefreshWindow(item.onClick);
         nextWindow(action.nextWindow, alreadyPopped);
     }
 
@@ -460,6 +466,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             alreadyPopped--;
         }
         if (nextWindow != null) {
+            Log.d(TAG, "nextWindow(" + nextWindow.nextWindow +")");
             switch (nextWindow.nextWindow) {
                 case nowPlaying:
                     // Do nothing as now playing is always available in Squeezer (maybe toast the action)
@@ -474,7 +481,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                     finish();
                     break;
                 case grandparent:
-                    setResult(Activity.RESULT_OK, new Intent(FINISH));
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD_PARENT));
                     finish();
                     break;
                 case refresh:
@@ -508,15 +515,38 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         }
     }
 
+    private void setRefreshWindow(RefreshWindow refreshWindow) {
+        if (refreshWindow != null) {
+            Log.i(TAG, "setRefreshWindow: " + refreshWindow);
+            switch (refreshWindow) {
+                case refreshMe:
+                    clearAndReOrderItems();
+                    break;
+                case refreshOrigin:
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                    break;
+                case refreshGrandparent:
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD_ON_FINISH));
+                    break;
+            }
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GO) {
+            Log.d(TAG, "onActivityResult(" + requestCode + ", " + resultCode + "): " + (data != null ? data.getAction() : ""));
             if (resultCode == RESULT_OK) {
                 if (FINISH.equals(data.getAction())) {
                     finish();
                 } else if (RELOAD.equals(data.getAction())) {
                     clearAndReOrderItems();
+                } else if (RELOAD_ON_FINISH.equals(data.getAction())) {
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                } else if (RELOAD_PARENT.equals(data.getAction())) {
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                    finish();
                 } else if (WINDOW.equals(data.getAction())) {
                     String windowId = data.getStringExtra(WINDOW_EXTRA);
                     if (!(windowId.equals(parent.getId()) ||

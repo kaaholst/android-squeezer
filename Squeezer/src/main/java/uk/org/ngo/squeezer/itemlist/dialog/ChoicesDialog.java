@@ -44,7 +44,7 @@ public class ChoicesDialog extends BaseChoicesDialog {
 
     @Override
     protected void onSelectOption(int checkedId) {
-        activity.action(item.goAction.choices[checkedId], alreadyPopped);
+        activity.action(item, item.goAction.choices[checkedId], alreadyPopped);
         item.selectedIndex = checkedId+1;
         if (activity instanceof JiveItemListActivity) {
             JiveItemListActivity a = (JiveItemListActivity) activity;

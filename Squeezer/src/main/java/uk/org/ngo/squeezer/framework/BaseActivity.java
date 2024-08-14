@@ -477,7 +477,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
      * {@link ISqueezeService#action(Action.JsonAction)}
      */
-    public void action(Action.JsonAction action, int alreadyPopped) {
+    public void action(JiveItem item, Action.JsonAction action, int alreadyPopped) {
         if (mService == null) {
             return;
         }
