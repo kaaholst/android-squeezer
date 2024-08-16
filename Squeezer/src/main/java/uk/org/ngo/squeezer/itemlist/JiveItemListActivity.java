@@ -344,20 +344,14 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (parent != null) {
-            if (action == null || (parent.hasInput() && !parent.isInputReady())) {
+            if (parent.hasSubItems()) {
+                onItemsReceived(parent.subItems.size(), 0, parent.subItems, JiveItem.class);
+            } else if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
             } else
                 service.pluginItems(start, parent, action, this);
         } else if (register) {
             service.register(this);
-        }
-    }
-
-    public void onEventMainThread(HandshakeComplete event) {
-        Log.d(TAG, "Handshake complete");
-        super.onEventMainThread(event);
-        if (parent != null && parent.hasSubItems()) {
-            getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
     }
 
