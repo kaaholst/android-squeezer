@@ -59,6 +59,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     private final AppCompatCheckedTextView repeat;
     private final TextView playlist;
     private final TextView[] dowTexts = new TextView[DAY_TEXT_IDS.length];
+    private final CharSequence[] dayTexts = new String[DAY_TEXT_IDS.length];
 
     public AlarmView(@NonNull AlarmsActivity activity, @NonNull View view) {
         super(activity, view);
@@ -94,6 +95,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         for (int day = 0; day < DAY_TEXT_IDS.length; day++) {
             dowTexts[day] = view.findViewById(DAY_TEXT_IDS[day]);
+            dayTexts[day] = dowTexts[day].getText();
             final int finalDay = day;
             dowTexts[day].setOnClickListener(v -> {
                 if (getActivity().getService() != null) {
@@ -154,7 +156,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
 
     private void setDowText(int day) {
-        SpannableString text = new SpannableString(dowTexts[day].getText());
+        SpannableString text = new SpannableString(dayTexts[day]);
         if (item.isDayActive(day)) {
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
