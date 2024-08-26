@@ -317,10 +317,10 @@ public class SqueezeService extends Service {
     /**
      * Change the player that is controlled by Squeezer (the "active" player).
      *
-     * @param newActivePlayer The new active player. May be null, in which case no players
-     *     are controlled.
+     * @param newActivePlayer The new active player. May be null, in which case no players are controlled.
+     * @param continuePlaying Continue playback on the supplied player
      */
-    private void changeActivePlayer(@Nullable final Player newActivePlayer) {
+    private void changeActivePlayer(@Nullable final Player newActivePlayer, boolean continuePlaying) {
         Player prevActivePlayer = mDelegate.getActivePlayer();
 
         // Do nothing if the player hasn't actually changed.
@@ -338,7 +338,13 @@ public class SqueezeService extends Service {
 
         updateAllPlayerSubscriptionStates();
         requestPlayerData();
+        if (continuePlaying && prevActivePlayer != null) moveCurrentPlaylist(prevActivePlayer, newActivePlayer);
         Squeezer.getPreferences().setLastPlayer(newActivePlayer);
+    }
+
+    private void moveCurrentPlaylist(Player from, Player to) {
+        squeezeService.syncPlayerToPlayer(to, from.getId());
+        squeezeService.unsyncPlayer(from);
     }
 
     class HomeMenuReceiver implements IServiceItemListCallback<JiveItem> {
@@ -805,7 +811,7 @@ public class SqueezeService extends Service {
         Player activePlayer = mDelegate.getActivePlayer();
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
-            changeActivePlayer(getPreferredPlayer(mDelegate.getPlayers().values()));
+            changeActivePlayer(getPreferredPlayer(mDelegate.getPlayers().values()), false);
         } else {
             activePlayer = mDelegate.getPlayer(activePlayer.getId());
             mDelegate.setActivePlayer(activePlayer);
@@ -1323,8 +1329,8 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void setActivePlayer(@Nullable final Player newActivePlayer) {
-            changeActivePlayer(newActivePlayer);
+        public void setActivePlayer(@Nullable final Player newActivePlayer, boolean continuePlaying) {
+            changeActivePlayer(newActivePlayer, continuePlaying);
         }
 
         @Override

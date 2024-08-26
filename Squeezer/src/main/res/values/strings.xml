@@ -462,4 +462,5 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="forward_seconds">Forward seconds</string>
     <string name="RANDOM_PLAY_UNABLE">Unable to start Random Play</string>
     <string name="RANDOM_PLAY_STARTED">Random Play started</string>
+    <string name="continue_playback">Continue playback</string>
 </resources>

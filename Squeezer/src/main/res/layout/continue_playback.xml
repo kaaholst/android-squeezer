@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:clickable="false" />
+
+    <TextView
+        style="@style/SqueezerWidget.DropdownText"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:text="@string/continue_playback"/>
+
+</LinearLayout>

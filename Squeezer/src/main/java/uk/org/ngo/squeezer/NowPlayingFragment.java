@@ -38,7 +38,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -606,14 +605,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
             actionBar.setCustomView(R.layout.action_bar_custom_view);
             AutoCompleteTextView spinner = actionBar.getCustomView().findViewById(R.id.player);
             final Context actionBarContext = actionBar.getThemedContext();
-            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<>(actionBarContext, R.layout.dropdown_item, connectedPlayers) {
-                @Override
-                public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                    TextView view = (TextView) requireActivity().getLayoutInflater().inflate(R.layout.dropdown_item, parent, false);
-                    view.setText(getItem(position).getName());
-                    return view;
-                }
-            };
+            final PlayerDropdownAdapter playerAdapter = new PlayerDropdownAdapter(actionBarContext, connectedPlayers, activePlayer);
             spinner.setAdapter(playerAdapter);
             playerAdapter.notifyDataSetChanged();
             spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
@@ -621,7 +613,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 Player selectedItem = playerAdapter.getItem(position);
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
-                    requireService().setActivePlayer(selectedItem);
+                    requireService().setActivePlayer(selectedItem, playerAdapter.continuePlayback());
                 }
             });
         } else {
@@ -1200,6 +1192,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ActivePlayerChanged event) {
         updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
+        updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
     }
 
     @MainThread

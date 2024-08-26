@@ -104,7 +104,7 @@ public class SqueezerInfoScreen extends SqueezerHomeScreenWidget {
         if (SQUEEZER_REMOTE_OPEN.equals(action)) {
             runOnService(context, service -> {
                 Log.d(TAG, "setting active player: " + playerId);
-                service.setActivePlayer(service.getPlayer(playerId));
+                service.setActivePlayer(service.getPlayer(playerId), false);
                 Handler handler = new Handler();
                 float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
                         Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);

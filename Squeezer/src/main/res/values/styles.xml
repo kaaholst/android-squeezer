@@ -165,6 +165,14 @@
         <item name="android:focusableInTouchMode">true</item>
     </style>
 
+    <!-- Texts in dropdowns -->
+    <style name="SqueezerWidget.DropdownText">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
+    </style>
+
     <style name="SqueezerWidget.NowPlaying.ComposerName" parent="SqueezerWidget.SingleLine">
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ComposerName</item>
     </style>

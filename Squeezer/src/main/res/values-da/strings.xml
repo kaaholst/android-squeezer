@@ -274,5 +274,6 @@
     <string name="forward_seconds">Sekunder frem</string>
     <string name="RANDOM_PLAY_UNABLE">Fejl ved start af tilfældig afspilning</string>
     <string name="RANDOM_PLAY_STARTED">Tilfældig afspilning er start</string>
+    <string name="continue_playback">Fortsæt afspilning</string>
 
 </resources>

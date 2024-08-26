@@ -15,21 +15,21 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public enum RemoteButton {
     OPEN((context, service, player) -> {
-        service.setActivePlayer(service.getPlayer(player.getId()));
+        service.setActivePlayer(service.getPlayer(player.getId()), false);
         Handler handler = new Handler();
         float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
                 Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
         handler.postDelayed(() -> HomeActivity.show(context), (long) (300 * animationDelay));
     }, R.string.remote_openPlayer, R.drawable.ic_home),
     OPEN_NOW_PLAYING((context, service, player) -> {
-        service.setActivePlayer(service.getPlayer(player.getId()));
+        service.setActivePlayer(service.getPlayer(player.getId()), false);
         Handler handler = new Handler();
         float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
                 Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
         handler.postDelayed(() -> NowPlayingActivity.show(context), (long) (300 * animationDelay));
     }, R.string.remote_openNowPlaying, R.drawable.ic_action_nowplaying),
     OPEN_CURRENT_PLAYLIST((context, service, player) -> {
-        service.setActivePlayer(service.getPlayer(player.getId()));
+        service.setActivePlayer(service.getPlayer(player.getId()), false);
         Handler handler = new Handler();
         float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
                 Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);

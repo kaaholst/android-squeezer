@@ -59,8 +59,9 @@ public interface ISqueezeService {
      * Change the player that is controlled by Squeezer (the "active" player).
      *
      * @param player May be null, in which case no players are controlled.
+     * @param continuePlaying Continue playback on the supplied player
      */
-    void setActivePlayer(@NonNull Player player);
+    void setActivePlayer(@NonNull Player player, boolean continuePlaying);
 
     // Returns the player we are currently controlling
     @Nullable

@@ -153,4 +153,5 @@
     <string name="download_filename_structure_number_dot_artist_title">Nombre. Artiste - Titre</string>
     <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">n\'a pas pu être ajouté à la base de données multimédia de l\'appareil</string>
     <string name="pref_cat_third_party">Intégration tierce</string>
+    <string name="continue_playback">Continue playback</string>
 </resources>
