@@ -125,6 +125,7 @@ public class ItemIconUtils {
         result.put("hm_myMusicMusicFolder", R.drawable.ml_folder);
         result.put("hm_myMusicPlaylists", R.drawable.ml_playlist);
         result.put("hm_myMusicNewMusic", R.drawable.ml_new_music);
+        result.put("hm_myMusicWorks", R.drawable.works);
         result.put("hm_randomplay", R.drawable.ml_random);
         result.put("hm_opmlselectVirtualLibrary", R.drawable.ml_library_views);
         result.put("hm_opmlselectRemoteLibrary", R.drawable.library_music);
@@ -211,7 +212,9 @@ public class ItemIconUtils {
             .with("/playlist.png", new IconMap(ItemIconUtils::endsWith, R.drawable.ml_playlist))
             .with("/playlists.png", new IconMap(ItemIconUtils::endsWith, R.drawable.ml_playlist))
             .with("/radio.png", new IconMap(ItemIconUtils::endsWith, R.drawable.internet_radio))
-            .with("/genres.png", new IconMap(ItemIconUtils::endsWith, R.drawable.ml_genres));
+            .with("/genres.png", new IconMap(ItemIconUtils::endsWith, R.drawable.ml_genres))
+            .with("/works.png", new IconMap(ItemIconUtils::endsWith, R.drawable.works))
+            ;
 
 
     private static class IconMap {
