@@ -170,6 +170,7 @@ public class ItemIconUtils {
             .with("/plugins/LMA/html/images/icon.png", new IconMap(ItemIconUtils::endsWith, R.drawable.lma))
             .with("/static/images/icons/classical.png", new IconMap(ItemIconUtils::endsWith, R.drawable.classical_com))
             .with("/plugins/Classical/html/images/icon.png", new IconMap(ItemIconUtils::endsWith, R.drawable.classical_com))
+            .with("/plugins/WalkWithMe/html/images/icon.png", new IconMap(ItemIconUtils::endsWith, R.drawable.ml_playlist))
             .with("/picks.png", new IconMap(ItemIconUtils::endsWith, R.drawable.staff_picks))
             .with("/radiopresets.png", new IconMap(ItemIconUtils::endsWith, R.drawable.favorites))
             .with("/radiolocal.png", new IconMap(ItemIconUtils::endsWith, R.drawable.location))
