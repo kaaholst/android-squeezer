@@ -223,7 +223,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
         if (connectingDialog == null || !connectingDialog.isShowing()) {
             Squeezer.getPreferences(preferences -> {
                 // We may no longer be attached to the parent activity. If so, do nothing.
-                if (isAdded()) {
+                if (!isAdded()) {
                     return;
                 }
 
