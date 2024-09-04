@@ -169,6 +169,7 @@ public class ConnectActivity extends BaseActivity {
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HandshakeComplete event) {
         Log.d("ConnectActivity", "Handshake complete");
+        Squeezer.getPreferences().saveServer();
         HomeActivity.show(this);
     }
 }

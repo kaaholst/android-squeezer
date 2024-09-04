@@ -58,7 +58,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
 
     private RadioButton squeezeNetworkButton;
     private RadioButton localServerButton;
-    private EditText serverAddressEditText;
+    private AutoCompleteTextView serverAddressEditText;
     private TextInputLayout serverName_til;
     private TextView serverName;
     private TextInputLayout serversSpinner_til;
@@ -106,6 +106,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                 localServerButton = findViewById(R.id.squeezeServer);
 
                 serverAddressEditText = findViewById(R.id.server_address);
+                serverAddressEditText.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, preferences.getServerHistory()));
                 userNameEditText = findViewById(R.id.username);
                 passwordEditText = findViewById(R.id.password);
 

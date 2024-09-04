@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import org.eclipse.jetty.util.ajax.JSON;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
@@ -63,6 +65,9 @@ public final class Preferences {
 
     // Squeezebox server address (host:port)
     private static final String KEY_SERVER_ADDRESS = "squeezer.server_addr";
+
+    // History of previously conencted servers
+    private static final String KEY_SERVER_HISTORY = "squeezer.server_history";
 
     // Do we connect to mysqueezebox.com
     private static final String KEY_SQUEEZE_NETWORK = "squeezer.squeeze_network";
@@ -325,6 +330,18 @@ public final class Preferences {
 
     private String prefix(ServerAddress serverAddress) {
         return (serverAddress.bssId != null ? serverAddress.bssId + "_ " : "") + serverAddress.localAddress() + "_";
+    }
+
+    public List<String> getServerHistory() {
+        String[] servers = sharedPreferences.getString(KEY_SERVER_HISTORY, "").split("\t");
+        return Arrays.asList(servers).stream().sorted().collect(Collectors.toList());
+    }
+
+    public void saveServer() {
+        String address = getServerAddress().localAddress();
+        Set<String> serverHistory = new HashSet<>(getServerHistory());
+        serverHistory.add(address);
+        sharedPreferences.edit().putString(KEY_SERVER_HISTORY, String.join("\t", serverHistory)).apply();
     }
 
     public void saveRandomPlayed(String folderID, Set<String> set) {

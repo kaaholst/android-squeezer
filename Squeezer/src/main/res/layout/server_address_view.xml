@@ -94,9 +94,10 @@
                 android:id="@+id/server_address_til"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/settings_serveraddr_hint">
+                android:hint="@string/settings_serveraddr_hint"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <AutoCompleteTextView
                     android:id="@+id/server_address"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
