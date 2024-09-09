@@ -1,7 +1,5 @@
 package uk.org.ngo.squeezer.service;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -9,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
@@ -20,14 +17,11 @@ import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuHandling {
 
-
-    private static final String TAG = "HomeMenuHandling";
-
     /**
      * Home menu tree as received from slimserver
      */
-    public final List<JiveItem> homeMenu = new Vector<>();
-    public CopyOnWriteArrayList<JiveItem> customShortcuts = new CopyOnWriteArrayList<>();
+    private final List<JiveItem> homeMenu = new CopyOnWriteArrayList<>();
+    public final CopyOnWriteArrayList<JiveItem> customShortcuts = new CopyOnWriteArrayList<>();
 
     public HomeMenuHandling(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
