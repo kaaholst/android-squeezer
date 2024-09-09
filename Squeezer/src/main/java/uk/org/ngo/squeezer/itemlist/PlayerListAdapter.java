@@ -79,7 +79,12 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             SyncGroup syncGroup = childAdapters.get(groupPos);
             for (int playerPos = 0; playerPos < syncGroup.getItemCount(); playerPos++) {
                 if (player == syncGroup.getItem(playerPos)) {
-                    notifyItemChanged(groupPos, UPDATE_VOLUME);
+                    if (mActivity.getListView().isComputingLayout()) {
+                        final int finalGroupPos = groupPos;
+                        mActivity.getListView().post(() -> notifyItemChanged(finalGroupPos, UPDATE_VOLUME));
+                    } else {
+                        notifyItemChanged(groupPos, UPDATE_VOLUME);
+                    }
                     return;
                 }
             }
