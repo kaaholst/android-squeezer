@@ -4,6 +4,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DIGITALVOLUMECONTROL'>Justering af lydstyrke</string>
   <string name='X_MINUTES'>%s minutter</string>
   <string name='SLEEP'>Slumre</string>
+  <string name='RESCANNING_SHORT'>Gennemsøger mediebibliotek igen…</string>
   <string name='ALARM'>Vækkeur</string>
   <string name='SETUP_DIGITALVOLUMECONTROL_OFF'>Udgangsnivau er fast 100%</string>
   <string name='SETUP_SYNCPOWER_ON'>Tænd/sluk med gruppe</string>

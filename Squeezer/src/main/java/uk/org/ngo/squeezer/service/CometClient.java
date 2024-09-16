@@ -391,6 +391,17 @@ class CometClient extends BaseClient {
             ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
         }
 
+        boolean rescan = Util.getInt(data, "rescan") != 0;
+        getConnectionState().setRescan(
+                rescan,
+                Util.getString(data, "progressname"),
+                Util.getString(data, "progressdone"),
+                Util.getString(data, "progresstotal"));
+        if (rescan) {
+            mBackgroundHandler.removeMessages(MSG_REFRESH_SERVER_STATUS);
+            mBackgroundHandler.sendEmptyMessageDelayed(MSG_REFRESH_SERVER_STATUS, 2000);
+        }
+
         getConnectionState().setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
         getConnectionState().setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
@@ -811,6 +822,7 @@ class CometClient extends BaseClient {
     private static final int MSG_TIME_UPDATE = 6;
     private static final int MSG_SLEEP_UPDATE = 7;
     private static final int MSG_MUSIC_CHANGED = 8;
+    private static final int MSG_REFRESH_SERVER_STATUS = 9;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -862,6 +874,9 @@ class CometClient extends BaseClient {
                     }
                     break;
                 }
+                case MSG_REFRESH_SERVER_STATUS:
+                    requestServerStatus();
+                    break;
             }
         }
     }

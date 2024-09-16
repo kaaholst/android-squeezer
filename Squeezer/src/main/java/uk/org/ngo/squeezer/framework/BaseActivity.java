@@ -385,12 +385,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     public void showDisplayMessage(String text) {
-        Map<String, Object> display = new HashMap<>();
-        display.put("text", new String[]{ text });
-        display.put("type", "text");
-        display.put("style", "style");  // TODO: What is the proper object for style?
-        DisplayMessage displayMessage = new DisplayMessage(display);
-        showDisplayMessage(displayMessage);
+        showDisplayMessage(new DisplayMessage(text));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

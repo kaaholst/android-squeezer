@@ -178,6 +178,7 @@ slimstrings {
             'SETTINGS',
             'SCREEN_SETTINGS',
             'ADVANCED_SETTINGS',
+            'RESCANNING_SHORT',
             'EXTRAS',
             'SETUP_PLAYTRACKALBUM',
             'SETUP_PLAYTRACKALBUM_DESC',

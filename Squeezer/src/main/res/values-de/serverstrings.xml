@@ -31,6 +31,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_ALL_ALARMS'>Alle Wecker</string>
   <string name='SLEEPING_IN'>Schlafmodus in</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Lautstärkeregelung</string>
+  <string name='RESCANNING_SHORT'>Medienbibliothek wird durchsucht…</string>
   <string name='SETUP_SYNCPOWER_ON'>In Gruppe ein-/ausschalten</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>\n%s\nwird aus Wiedergabeliste entfernt…</string>
   <string name='ALARM_DELETE'>Wecker entfernen</string>

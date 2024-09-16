@@ -47,6 +47,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.RefreshEvent;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 /**
@@ -285,6 +286,12 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
                 clearAndReOrderItems();
             }
         }
+    }
+
+    @MainThread
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(RefreshEvent event) {
+        clearAndReOrderItems();
     }
 
     /**

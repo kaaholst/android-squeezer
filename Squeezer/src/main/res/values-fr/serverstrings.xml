@@ -31,6 +31,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_ALL_ALARMS'>Tous les réveils</string>
   <string name='SLEEPING_IN'>Mise en veille dans</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Réglage du volume</string>
+  <string name='RESCANNING_SHORT'>Nouvelle analyse de la bibliothèque multimédia en cours…</string>
   <string name='SETUP_SYNCPOWER_ON'>Allumer/éteindre avec groupe</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Suppression de\n%s\nde la liste de lecture…</string>
   <string name='ALARM_DELETE'>Supprimer le réveil</string>

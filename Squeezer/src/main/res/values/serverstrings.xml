@@ -31,6 +31,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_ALL_ALARMS'>All Alarms</string>
   <string name='SLEEPING_IN'>Sleeping in</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Volume Control</string>
+  <string name='RESCANNING_SHORT'>Rescanning Media Library…</string>
   <string name='SETUP_SYNCPOWER_ON'>Power off/on with group</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Removing\n%s\nfrom Playlist…</string>
   <string name='ALARM_DELETE'>Remove Alarm</string>

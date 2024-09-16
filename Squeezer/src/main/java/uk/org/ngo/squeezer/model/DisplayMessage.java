@@ -26,12 +26,14 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.util.FluentHashMap;
 
 /**
  * The purpose of the showBriefly is (typically) to show a brief popup message on the display to
  * convey something to the user.
  */
 public class DisplayMessage {
+    private static final int DEFAULT_DURATION = 3000;
     private static final String TYPE_ICON = "icon";
     private static final String TYPE_TEXT = "text";
     private static final String TYPE_MIXED = "mixed";
@@ -51,16 +53,20 @@ public class DisplayMessage {
     public final String text;
 
     /** Remote icon or {@link Uri#EMPTY} */
-    @NonNull public Uri icon;
+    @NonNull public final Uri icon;
 
     public DisplayMessage(Map<String, Object> display) {
         type = Util.getString(display, "type", TYPE_TEXT);
-        duration = Util.getInt(display, "duration", 3000);
+        duration = Util.getInt(display, "duration", DEFAULT_DURATION);
         style = Util.getString(display, "style");
         Object[] texts = (Object[]) display.get("text");
         String text = TextUtils.join("\n",texts).replaceAll("\\\\n", "\n");
         this.text = (text.startsWith("\n") ? text.substring(1) : text);
         icon = Util.getImageUrl(display, display.containsKey("icon-id") ? "icon-id" : "icon");
+    }
+
+    public DisplayMessage(String text) {
+        this(new FluentHashMap<String, Object>().with("type", "text").with("text", new String[]{ text }));
     }
 
     public boolean isIcon() {

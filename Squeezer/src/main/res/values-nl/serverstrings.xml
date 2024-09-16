@@ -31,6 +31,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_ALL_ALARMS'>Alle wekkers</string>
   <string name='SLEEPING_IN'>Sluimermodus in</string>
   <string name='SETUP_DIGITALVOLUMECONTROL'>Volumeregelaar</string>
+  <string name='RESCANNING_SHORT'>Mediabibliotheek wordt opnieuw gescand…</string>
   <string name='SETUP_SYNCPOWER_ON'>In groep uit-/aanzetten</string>
   <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Bezig met verwijderen van\n%s\nuit afspeellijst…</string>
   <string name='ALARM_DELETE'>Wekker verwijderen</string>

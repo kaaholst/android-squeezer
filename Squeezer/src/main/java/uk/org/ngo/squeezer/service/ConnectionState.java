@@ -20,11 +20,8 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,15 +32,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.greenrobot.eventbus.EventBus;
+
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
+import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.RefreshEvent;
 
 public class ConnectionState {
 
@@ -293,6 +294,23 @@ public class ConnectionState {
     boolean canRehandshake() {
         return isRehandshaking()
                 && ((SystemClock.elapsedRealtime() - rehandshake) < REHANDSHAKE_TIMEOUT);
+    }
+
+    private volatile boolean rescan;
+
+    public void setRescan(boolean rescan, String progressName, String progressDone, String progressTotal) {
+        if (rescan || rescan != this.rescan) {
+            this.rescan = rescan;
+            mEventBus.post(rescan
+                    ? new DisplayEvent(new DisplayMessage(formatScanningProgress(progressName, progressDone, progressTotal)))
+                    : new RefreshEvent()
+            );
+        }
+    }
+
+    private String formatScanningProgress(String progressName, String progressDone, String progressTotal) {
+        if (progressName == null) return Squeezer.getInstance().getString(R.string.RESCANNING_SHORT);
+        return progressName + (progressDone != null && progressTotal != null ? String.format(" %s/%s", progressDone, progressTotal) : "");
     }
 
     @NonNull
