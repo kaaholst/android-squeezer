@@ -39,6 +39,7 @@ import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
+import uk.org.ngo.squeezer.service.HomeMenuHandling;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
 
@@ -46,13 +47,8 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     private final ArtworkListLayout listLayout;
 
     Preferences mPreferences = Squeezer.getPreferences();
-    final boolean isShortcutActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
+    final boolean isShortcutsActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
     final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
-
-    /**
-     * Will also be used (and set) in HomeMenuJiveItemView.
-     */
-    CustomJiveItemHandling mCustomJiveItemHandling = null;
 
     JiveItemView(@NonNull JiveItemListActivity activity, @NonNull View view) {
         this(activity, activity.window.windowStyle, activity.getPreferredListLayout(), view);
@@ -60,9 +56,6 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     JiveItemView(@NonNull JiveItemListActivity activity, Window.WindowStyle windowStyle, ArtworkListLayout preferredListLayout, @NonNull View view) {
         super(activity, view);
-        if (mCustomJiveItemHandling == null) {
-            mCustomJiveItemHandling = new CustomJiveItemHandling(activity);
-        }
         this.windowStyle = windowStyle;
         this.listLayout = listLayout(preferredListLayout, windowStyle);
 
@@ -105,7 +98,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         text2.setAlpha(getAlpha());
         itemView.setOnClickListener(view -> onItemSelected());
 
-        if ( isShortcutActive || isArchiveActive ) {
+        if ( isShortcutsActive || isArchiveActive ) {
             itemView.setOnLongClickListener(view -> putItemAsShortcut());
         } else {
             itemView.setOnLongClickListener(null);
@@ -130,15 +123,16 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
      */
     private boolean putItemAsShortcut() {
         @StringRes int message = !isArchiveActive ? R.string.ITEM_CANNOT_BE_SHORTCUT :
-                isShortcutActive ? R.string.ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED : R.string.ITEM_CANNOT_BE_ARCHIVED;
+                isShortcutsActive ? R.string.ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED : R.string.ITEM_CANNOT_BE_ARCHIVED;
 
-        if (!mCustomJiveItemHandling.isShortcutable(item)) {
+        int shortCutWeight = CustomJiveItemHandling.shortcutWeight(item);
+        if (shortCutWeight == CustomJiveItemHandling.CUSTOM_SHORTCUT_WEIGHT_NOT_ALLOWED) {
             getActivity().showDisplayMessage(message);
         } else {
-            if (isShortcutActive) {
-                if (mCustomJiveItemHandling.triggerCustomShortcut(item)) {
-                    mPreferences.saveShortcuts(mCustomJiveItemHandling.convertShortcuts());
-//                  TODO: check ok?
+            if (isShortcutsActive) {
+                HomeMenuHandling homeMenuHandling = getActivity().requireService().getHomeMenuHandling();
+                if (homeMenuHandling.addShortcut(item, getActivity().parent, shortCutWeight)) {
+                    mPreferences.saveShortcuts(homeMenuHandling.getCustomShortcuts());
                     getActivity().showDisplayMessage(R.string.ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU);
                 } else {
                     getActivity().showDisplayMessage(R.string.ITEM_IS_ALREADY_A_SHORTCUT);

@@ -175,7 +175,7 @@ public class JiveItem extends Item {
     /**
      * @return Whether the song has downloadable artwork associated with it.
      */
-    private boolean hasIconUri() {
+    public boolean hasIconUri() {
         return !getIcon().equals(Uri.EMPTY);
     }
 
@@ -235,13 +235,6 @@ public class JiveItem extends Item {
     public Map<String, Object> getRecord() {
         JSON json = new JSON();
         return (Map) json.fromJSON(this.record);
-    }
-
-    public void appendWeight(int weight) {
-        JSON json = new JSON();
-        Map<String, Object> map = (Map) json.fromJSON(this.record);
-        map.put("weight", weight);
-        this.record = json.toJSON(map);
     }
 
     public JiveItem(Map<String, Object> record) {
@@ -316,6 +309,7 @@ public class JiveItem extends Item {
     }
 
     public JiveItem(Parcel source) {
+        record = source.readString();
         setId(source.readString());
         name = source.readString();
         text2 = source.readString();
@@ -356,6 +350,7 @@ public class JiveItem extends Item {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(record);
         dest.writeString(getId());
         dest.writeString(name);
         dest.writeString(text2);
@@ -389,10 +384,6 @@ public class JiveItem extends Item {
         dest.writeParcelable(slider, flags);
         dest.writeParcelable(downloadCommand, flags);
         dest.writeString(webLink.toString());
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
     }
 
     public boolean hasInput() {

@@ -43,8 +43,10 @@ import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.LastscanChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.RefreshEvent;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class ConnectionState {
 
@@ -298,14 +300,55 @@ public class ConnectionState {
     }
 
     private volatile boolean rescan;
+    private volatile boolean rescanned;
+    private volatile long lastScan = 0;
+    private volatile long savedScan = 0;
 
+    public void initLastScan(long lastScan) {
+        savedScan = lastScan;
+        this.lastScan = 0;
+        rescan = rescanned = false;
+    }
+
+    /**
+     * Last scan time will change when browsing music folder
+     * So we only flush cache and rebuild shortcut after a rescan or if
+     * last scan time changed since last connection
+     *
+     * @param lastScan New last scanning time
+     * @return true if the new last scanning time is different from stored value.
+     */
+    public boolean setLastScan(long lastScan) {
+        if (lastScan != 0 && lastScan != savedScan) {
+            Log.i(TAG, "setLastScan(" + lastScan + ") was " + savedScan);
+            if (rescanned || (this.lastScan == 0)) {
+                Log.i(TAG, "Flush/rebuild client side caches: " + lastScan);
+                rescanned = false;
+                ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
+                mEventBus.post(new LastscanChanged(lastScan));
+            }
+            this.lastScan = savedScan = lastScan;
+            return true;
+        }
+        this.lastScan = lastScan;
+        return false;
+    }
+
+    /**
+     * When a scanning status is received we notify subscribers of the progress.
+     * When the scanning is completed ask subscribers to refresh the contents from the server.
+     * Because last scanning time will change unnecessarily we store whether there have been a rescan
+     * in {@link #rescanned}
+     */
     public void setRescan(boolean rescan, String progressName, String progressDone, String progressTotal) {
         if (rescan || rescan != this.rescan) {
+            Log.i(TAG, "setRescan(" + rescan + ")");
             this.rescan = rescan;
             mEventBus.post(rescan
                     ? new DisplayEvent(new DisplayMessage(formatScanningProgress(progressName, progressDone, progressTotal)))
                     : new RefreshEvent()
             );
+            if (rescan) rescanned = true;
         }
     }
 

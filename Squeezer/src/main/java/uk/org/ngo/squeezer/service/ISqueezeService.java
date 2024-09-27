@@ -235,11 +235,7 @@ public interface ISqueezeService {
      */
     void triggerHomeMenuEvent();
 
-    /**
-     * Get mDelegate
-     * @return
-     */
-    SlimDelegate getDelegate();
+    HomeMenuHandling getHomeMenuHandling();
 
     /**
      * Remove the item after it was long pressed on the home menu screen

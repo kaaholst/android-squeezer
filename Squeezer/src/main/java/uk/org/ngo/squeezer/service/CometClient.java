@@ -75,7 +75,6 @@ import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.FluentHashMap;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
 
@@ -214,6 +213,7 @@ class CometClient extends BaseClient {
             cleanupBayeuxClient();
 
             final Preferences.ServerAddress serverAddress = Squeezer.getPreferences().getServerAddress();
+            mConnectionState.initLastScan(serverAddress.lastScan);
             final String username = serverAddress.userName;
             final String password = serverAddress.password;
             if (serverAddress.wakeOnLan) {
@@ -381,18 +381,17 @@ class CometClient extends BaseClient {
 
         // We can't distinguish between no connected players and players not received
         // so we check the server version which is also set from server status
-        boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
+        boolean firstTimePlayersReceived = (mConnectionState.getServerVersion() == null);
 
-        final Preferences preferences = Squeezer.getPreferences();
-        final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
         long lastScan = Util.getLong(data, "lastscan");
-        if (lastScan > 0 && lastScan != serverAddress.lastScan) {
+        if (mConnectionState.setLastScan(lastScan)) {
+            final Preferences preferences = Squeezer.getPreferences();
+            final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
             preferences.saveLastScan(serverAddress, lastScan);
-            ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
         }
 
         boolean rescan = Util.getInt(data, "rescan") != 0;
-        getConnectionState().setRescan(
+        mConnectionState.setRescan(
                 rescan,
                 Util.getString(data, "progressname"),
                 Util.getString(data, "progressdone"),
@@ -402,8 +401,8 @@ class CometClient extends BaseClient {
             mBackgroundHandler.sendEmptyMessageDelayed(MSG_REFRESH_SERVER_STATUS, 2000);
         }
 
-        getConnectionState().setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
-        getConnectionState().setServerVersion((String) data.get("version"));
+        mConnectionState.setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
+        mConnectionState.setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
         final HashMap<String, Player> players = new HashMap<>();
         if (item_data != null) {
@@ -651,7 +650,6 @@ class CometClient extends BaseClient {
                     parseMessage("playlist_tracks", "playlist_loop", message);
                     break;
             }
-            parseMessage("titles_loop", message);
         }
     }
 

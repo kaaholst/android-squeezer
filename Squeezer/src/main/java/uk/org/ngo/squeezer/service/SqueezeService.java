@@ -74,6 +74,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.SlimCommand;
@@ -87,6 +88,7 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.LastscanChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -136,6 +138,7 @@ public class SqueezeService extends Service {
     private volatile boolean foreGround;
 
     private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
+    private final HomeMenuHandling homeMenuHandling = mDelegate.getHomeMenuHandling();
 
     private final RandomPlayDelegate randomPlayDelegate = new RandomPlayDelegate(mDelegate);
 
@@ -211,7 +214,10 @@ public class SqueezeService extends Service {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
 
-        Squeezer.getPreferences(this::cachePreferences);
+        Squeezer.getPreferences(preferences -> {
+            cachePreferences(preferences);
+            homeMenuHandling.setCustomShortcuts(preferences.getCustomShortcuts());
+        });
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
@@ -348,7 +354,6 @@ public class SqueezeService extends Service {
     }
 
     class HomeMenuReceiver implements IServiceItemListCallback<JiveItem> {
-
         private final List<JiveItem> homeMenu = new ArrayList<>();
 
         @Override
@@ -361,8 +366,7 @@ public class SqueezeService extends Service {
                 if ((useArchive) && (mDelegate.getActivePlayer() != null)) {
                     archivedMenuItems = preferences.getArchivedMenuItems(mDelegate.getActivePlayer());
                 }
-                Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
-                mDelegate.setHomeMenu(homeMenu, archivedMenuItems, customShortcuts);
+                homeMenuHandling.setHomeMenu(homeMenu, archivedMenuItems);
             }
         }
 
@@ -372,6 +376,14 @@ public class SqueezeService extends Service {
         }
     }
 
+    public <T> void requestItems(SlimCommand command, IServiceItemListCallback<T> callback) {
+        mDelegate.requestAllItems(callback).params(command.params).cmd(command.cmd()).exec();
+    }
+
+    public void updateShortCut(JiveItem item, Map<String, Object> record) {
+        List<JiveItem> shortcuts = homeMenuHandling.updateShortcut(item, record);
+        Squeezer.getPreferences().saveShortcuts(shortcuts);
+    }
 
     private void requestPlayerData() {
         Player activePlayer = mDelegate.getActivePlayer();
@@ -820,6 +832,11 @@ public class SqueezeService extends Service {
         }
     }
 
+    @Subscribe(priority = 1)
+    public void onEvent(LastscanChanged event) {
+        CustomJiveItemHandling.recoverShortcuts(this, homeMenuHandling.getCustomShortcuts());
+    }
+
     /**
      * @return The player that should be chosen as the (new) active player. This is either the
      *     last active player (if known), the first player the server knows about if there are
@@ -859,7 +876,7 @@ public class SqueezeService extends Service {
 
         @Override
         public Object getClient() {
-            return this;
+            return SqueezeService.this;
         }
     };
 
@@ -882,7 +899,7 @@ public class SqueezeService extends Service {
 
         @Override
         public Object getClient() {
-            return this;
+            return SqueezeService.this;
         }
     };
 
@@ -1396,12 +1413,11 @@ public class SqueezeService extends Service {
                 if ((useArchive) && (getActivePlayer() != null)) {
                     archivedMenuItems = preferences.getArchivedMenuItems(getActivePlayer());
                 }
-                Map<String, Map<String, Object>> customShortcuts = preferences.restoreCustomShortcuts();
-                mDelegate.setHomeMenu(archivedMenuItems, customShortcuts);
+                homeMenuHandling.setHomeMenu(archivedMenuItems);
             } else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
                 if (preferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.DISABLED) {
-                    mDelegate.getHomeMenuHandling().removeAllShortcuts();
-                    preferences.saveShortcuts(preferences.convertShortcuts(mDelegate.getHomeMenuHandling().customShortcuts)); // TODO check for simplification
+                    homeMenuHandling.removeAllShortcuts();
+                    preferences.saveShortcuts(homeMenuHandling.getCustomShortcuts());
                 }
             } else if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
                 if (preferences.getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE) {
@@ -1562,28 +1578,28 @@ public class SqueezeService extends Service {
         }
 
         public boolean toggleArchiveItem(JiveItem item) {
-            List<String> menu = mDelegate.toggleArchiveItem(item);
+            List<String> menu = homeMenuHandling.toggleArchiveItem(item);
             Squeezer.getPreferences().setArchivedMenuItems(menu, getActivePlayer());
             return menu.isEmpty();
         }
 
         @Override
         public boolean isInArchive(JiveItem item) {
-           return mDelegate.isInArchive(item);
+           return homeMenuHandling.isInArchive(item);
         }
 
         public void triggerHomeMenuEvent() {
-            mDelegate.triggerHomeMenuEvent();
+            homeMenuHandling.triggerHomeMenuEvent();
         }
 
         @Override
-        public SlimDelegate getDelegate() {
-            return mDelegate;
+        public HomeMenuHandling getHomeMenuHandling() {
+            return homeMenuHandling;
         }
 
         @Override
         public void removeCustomShortcut(JiveItem item) {
-            mDelegate.removeCustomShortcut(item);
+            homeMenuHandling.removeCustomShortcut(item);
         }
     }
 

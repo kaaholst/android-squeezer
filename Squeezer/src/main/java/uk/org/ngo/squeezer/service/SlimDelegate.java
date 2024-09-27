@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.util.List;
@@ -31,7 +29,7 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
 
-public class SlimDelegate {
+class SlimDelegate {
 
     @NonNull private final SlimClient mClient;
 
@@ -146,14 +144,6 @@ public class SlimDelegate {
         return mClient.getConnectionState().getVolume(groupVolume);
     }
 
-    void setHomeMenu(List<String> archivedItems,  Map<String, Map<String, Object>> customShortcuts) {
-        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(archivedItems, customShortcuts);
-    }
-
-    void setHomeMenu(List<JiveItem> items, List<String> archivedItems, Map<String, Map<String, Object>> customShortcuts) {
-        mClient.getConnectionState().getHomeMenuHandling().setHomeMenu(items, archivedItems, customShortcuts);
-    }
-
     public String getUsername() {
         return mClient.getUsername();
     }
@@ -170,24 +160,8 @@ public class SlimDelegate {
         return mClient.getConnectionState().getMediaDirs();
     }
 
-    List<String> toggleArchiveItem(JiveItem item) {
-        return mClient.getConnectionState().getHomeMenuHandling().toggleArchiveItem(item);
-    }
-
-    public boolean isInArchive(JiveItem item) {
-        return mClient.getConnectionState().getHomeMenuHandling().isInArchive(item);
-    }
-
-    public void triggerHomeMenuEvent() {
-        mClient.getConnectionState().getHomeMenuHandling().triggerHomeMenuEvent();
-    }
-
     public HomeMenuHandling getHomeMenuHandling() {
         return mClient.getConnectionState().getHomeMenuHandling();
-    }
-
-    public void removeCustomShortcut(JiveItem item) {
-        mClient.getConnectionState().getHomeMenuHandling().removeCustomShortcut(item);
     }
 
     public int addItems(String folderID, Set<String> set) {

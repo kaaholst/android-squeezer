@@ -770,15 +770,15 @@ public final class Preferences {
         editor.apply();
     }
 
-    public void saveShortcuts(Map<String, Object> map) {
+    public void saveShortcuts(List<JiveItem> shortcuts) {
+        Map<String, Object> map = convertShortcuts(shortcuts);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         JSONObject json = new JSONObject(map);
         editor.putString(CUSTOM_SHORTCUTS, json.toString());
         editor.apply();
     }
 
-//  TODO If possible, remove this or CustomJiveItemHandling.convertShortcuts()
-    public Map<String, Object> convertShortcuts(List<JiveItem> customShortcuts) {
+    private Map<String, Object> convertShortcuts(List<JiveItem> customShortcuts) {
         Map<String, Object> map = new HashMap<>();
         for (JiveItem item : customShortcuts) {
             map.put(item.getName(), item.getRecord());
@@ -790,28 +790,25 @@ public final class Preferences {
      * Return a map of names (keys) of shortcuts with value: Map<String, Object> which is a record
      * and can be used as such when generating JiveItems
      */
-    public HashMap<String, Map<String, Object>> restoreCustomShortcuts() {
-        HashMap<String, Map<String, Object>> allShortcutsFromPref = new HashMap<>();
+    public List<Map<String, Object>> getCustomShortcuts() {
+        List<Map<String, Object>> allShortcutsFromPref = new ArrayList<>();
         String jsonString = sharedPreferences.getString(CUSTOM_SHORTCUTS, null);
-        if (TextUtils.isEmpty(jsonString)) {
-            return allShortcutsFromPref;
-        }
+        if (TextUtils.isEmpty(jsonString)) return allShortcutsFromPref;
+
         try {
 //          whole String to JSON, then extract name/record pairs
             JSONObject allShortcuts = new JSONObject(jsonString);
             Iterator<String> keysItr = allShortcuts.keys();
             while (keysItr.hasNext()) {
                 String key = keysItr.next();
-                JSON json = new JSON();
                 try {
-                    Map<String, Object> recordFromPref = (Map) json.parse(allShortcuts.getString(key));
-                    allShortcutsFromPref.put(key, recordFromPref);
+                    allShortcutsFromPref.add((Map<String, Object>) JSON.parse(allShortcuts.getString(key)));
                 } catch (IllegalStateException e) {
-                    Log.w(TAG, "Can't parse custom shortcut '" + key + "': " + e.getMessage());
+                    Log.w(TAG, "Can't parse custom shortcut '" + key + "'", e);
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Exception reading shortcuts", e);
         }
         return allShortcutsFromPref;
     }
