@@ -1,15 +1,15 @@
-&bull; Support weblink in context menu items
+&bull; Classical music information (composer, band, conductor)
 
-&bull; Improve connection stability
+&bull; Rename Logitech Media Server to Lyrion Music Server
 
-&bull; Flat icons for Deezer local plugin
+&bull; Optionally show technical info and track number
 
-&bull; Update the Deezer icon to match the new branding
+&bull; Possibility to move the current playlist when switching player
 
-&bull; Option to choose whether search from the top bar searches in all places or My Music only
+&bull; Remember previously connected servers so you don't have to type them
 
-&bull; Options to mute or pause all players on call
+&bull; Show server scanning progress and reload current page when scanning is complete
 
-&bull; UI fixes and improvements, contributed by Danny Baumann
+&bull; Refresh shortcuts after a music library rescan
 
-&bull; Fix assorted potential crashes.
+&bull; Target API 34

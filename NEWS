@@ -1,3 +1,28 @@
+2.3.7
+=====
+
+*   Classical music information (composer, band, conductor). Contributed by
+    schup011 <philipp.schumnn@web.de>
+
+*   Rename Logitech Media Server to Lyrion Music Server
+
+*   Optionally show technical info (bitrate and samplerate) and track number
+
+*   Possibility to move the current playlist to the new player when switching
+    player
+
+*   Remember previously connected servers so you don't have to type them
+
+*   Show server scanning progress and reload current page when scanning is
+    complete
+
+*   Refresh shortcuts after a music library rescan
+
+*   Target API 34
+
+*   Fixed various minor issues
+
+
 2.3.6
 =====
 
