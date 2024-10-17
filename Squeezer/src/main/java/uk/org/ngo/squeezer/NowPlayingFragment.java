@@ -60,8 +60,6 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-import com.sdsmdg.harjot.crollerTest.Croller;
-import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -107,9 +105,11 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
+import uk.org.ngo.squeezer.widget.RadialSeekBar;
+import uk.org.ngo.squeezer.widget.OnRadialSeekBarChangeListener;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
-public class NowPlayingFragment extends Fragment  implements OnCrollerChangeListener, CallStateDialog.CallStateDialogHost {
+public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChangeListener, CallStateDialog.CallStateDialogHost {
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -188,7 +188,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
 
     // For the small artwork layout
     private CheckBox muteToggle;
-    private Croller volumeWheel;
+    private RadialSeekBar volumeWheel;
     private int currentProgress = 0;
     private boolean trackingTouch;
 
@@ -445,7 +445,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                     mActivity.recreate();
                 });
 
-                volumeWheel.setOnCrollerChangeListener(this);
+                volumeWheel.setOnRadialSeekBarChangeListener(this);
                 muteToggle.setOnClickListener(view -> requireService().toggleMute());
 
                 v.findViewById(R.id.settings).setOnClickListener(view1 -> {
@@ -900,7 +900,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
                 volumeWheel.setIndicatorColor(ColorUtils.setAlphaComponent(volumeWheel.getIndicatorColor(), volumeInfo.muted ? 63 : 255));
                 volumeWheel.setProgressPrimaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressPrimaryColor(), volumeInfo.muted ? 63 : 255));
                 volumeWheel.setProgressSecondaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressSecondaryColor(), volumeInfo.muted ? 63 : 255));
-                volumeWheel.setOnCrollerChangeListener(volumeInfo.muted ? null : this);
+                volumeWheel.setOnRadialSeekBarChangeListener(volumeInfo.muted ? null : this);
                 volumeWheel.setOnTouchListener(volumeInfo.muted ? (view, motionEvent) -> true : null);
             }
         }
@@ -1272,7 +1272,7 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     }
 
     @Override
-    public void onProgressChanged(Croller croller, int progress) {
+    public void onProgressChanged(RadialSeekBar seekBar, int progress) {
         if (currentProgress != progress) {
             currentProgress = progress;
             volumeWheel.setLabel(String.valueOf(progress));
@@ -1281,12 +1281,12 @@ public class NowPlayingFragment extends Fragment  implements OnCrollerChangeList
     }
 
     @Override
-    public void onStartTrackingTouch(Croller croller) {
+    public void onStartTrackingTouch(RadialSeekBar seekBar) {
         trackingTouch = true;
     }
 
     @Override
-    public void onStopTrackingTouch(Croller croller) {
+    public void onStopTrackingTouch(RadialSeekBar seekBar) {
         trackingTouch = false;
     }
 

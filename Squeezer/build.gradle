@@ -30,9 +30,6 @@ dependencies {
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
-    // Radial SeekBar
-    implementation 'com.sdsmdg.harjot:croller:1.0.7'
-
     // Fastscroller
     implementation 'com.quiph.ui:recyclerviewfastscroller:1.0.0'
 

@@ -58,7 +58,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:icon="@drawable/ic_settings"/>
 
-    <uk.org.ngo.squeezer.widget.Croller
+    <uk.org.ngo.squeezer.widget.RadialSeekBar
         android:id="@+id/level"
         android:layout_width="0dp"
         android:layout_height="0dp"
