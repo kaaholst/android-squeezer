@@ -829,11 +829,13 @@ class CometClient extends BaseClient {
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
-                case MSG_PUBLISH: {
-                    PublishMessage message = (PublishMessage) msg.obj;
-                    _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                case MSG_PUBLISH:
+                    if (mConnectionState.isConnected()) {
+                        PublishMessage message = (PublishMessage) msg.obj;
+                        _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                    }
                     break;
-                }
+
                 case MSG_DISCONNECT:
                     removeCallbacksAndMessages(null);
                     cleanupBayeuxClient();
@@ -873,7 +875,7 @@ class CometClient extends BaseClient {
                     break;
                 }
                 case MSG_REFRESH_SERVER_STATUS:
-                    requestServerStatus();
+                    if (mConnectionState.isConnected()) requestServerStatus();
                     break;
             }
         }
