@@ -604,8 +604,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setCustomView(R.layout.action_bar_custom_view);
             AutoCompleteTextView spinner = actionBar.getCustomView().findViewById(R.id.player);
-            final Context actionBarContext = actionBar.getThemedContext();
-            final PlayerDropdownAdapter playerAdapter = new PlayerDropdownAdapter(actionBarContext, connectedPlayers, activePlayer);
+            final PlayerDropdownAdapter playerAdapter = new PlayerDropdownAdapter(requireActivity(), connectedPlayers, activePlayer);
             spinner.setAdapter(playerAdapter);
             playerAdapter.notifyDataSetChanged();
             spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
