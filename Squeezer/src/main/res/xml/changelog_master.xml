@@ -2,6 +2,13 @@
 
 <changelog>
     <release
+        version="2.3.8"
+        versioncode="141">
+
+        <change>Disable full rebuild of client caches to prevent slow startup in some scenarios</change>
+    </release>
+
+    <release
         version="2.3.7"
         versioncode="136">
 

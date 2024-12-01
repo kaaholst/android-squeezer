@@ -1,3 +1,10 @@
+2.3.8
+=====
+
+*   Disable full rebuild of client caches to prevent slow startup in some
+    scenarios
+
+
 2.3.7
 =====
 

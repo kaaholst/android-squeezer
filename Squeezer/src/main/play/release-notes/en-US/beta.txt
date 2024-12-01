@@ -1,15 +1,1 @@
-&bull; Classical music information (composer, band, conductor)
-
-&bull; Rename Logitech Media Server to Lyrion Music Server
-
-&bull; Optionally show technical info and track number
-
-&bull; Possibility to move the current playlist when switching player
-
-&bull; Remember previously connected servers so you don't have to type them
-
-&bull; Show server scanning progress and reload current page when scanning is complete
-
-&bull; Refresh shortcuts after a music library rescan
-
-&bull; Target API 34
+&bull; Disable full rebuild of client caches to prevent slow startup in some scenarios
