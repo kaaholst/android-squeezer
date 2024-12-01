@@ -90,7 +90,8 @@ public class CustomJiveItemHandling {
         public RecoverReceiver(SqueezeService service, List<JiveItem> mainShortcuts, List<JiveItem> subShortCuts) {
             this.service = service;
             this.mainShortcuts = mainShortcuts;
-            this.subShortCuts = subShortCuts;
+            // TODO recursive shortcut recovery is disabled until LMS doesn't return updated library scan time after every browse via folder
+            this.subShortCuts = List.of(); // subShortCuts;
         }
 
         @Override
