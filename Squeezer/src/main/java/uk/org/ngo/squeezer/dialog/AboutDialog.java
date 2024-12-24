@@ -25,6 +25,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -42,6 +44,10 @@ public class AboutDialog extends DialogFragment {
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
         final TextView titleText = view.findViewById(R.id.about_title);
         final TextView versionText = view.findViewById(R.id.version_text);
+        final TextView support = view.findViewById(R.id.support);
+        final TextView privacy = view.findViewById(R.id.privacy);
+        support.setMovementMethod(LinkMovementMethod.getInstance());
+        privacy.setMovementMethod(LinkMovementMethod.getInstance());
 
         PackageManager pm = getActivity().getPackageManager();
         PackageInfo info;

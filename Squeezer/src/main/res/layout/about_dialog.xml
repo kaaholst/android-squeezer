@@ -86,7 +86,7 @@ limitations under the License.
 
         <TextView
             android:id="@+id/support"
-            android:textAppearance="@style/SqueezerTextAppearance.Medium"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/authors"
@@ -95,12 +95,13 @@ limitations under the License.
             android:text="@string/about_support"/>
 
         <TextView
-            android:textAppearance="@style/SqueezerTextAppearance.Small"
+            android:id="@+id/privacy"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/support"
             app:layout_constraintStart_toStartOf="parent"
-            android:autoLink="web"
-            android:text="@string/about_support_text"/>
+            android:paddingTop="16dp"
+            android:text="@string/about_privacy_policy"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
