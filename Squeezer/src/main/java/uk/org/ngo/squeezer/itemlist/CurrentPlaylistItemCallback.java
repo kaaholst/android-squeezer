@@ -1,9 +1,13 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,11 +20,13 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
     private final CurrentPlaylistActivity activity;
     private int viewPosition = -1;
     private int itemPosition = -1;
-
+    private final Rect tmpRect = new Rect();
+    private final Drawable deleteIcon;
 
     public CurrentPlaylistItemCallback(@NonNull CurrentPlaylistActivity activity) {
         super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.activity = activity;
+        deleteIcon = AppCompatResources.getDrawable(activity, R.drawable.ic_delete);
     }
 
     @Override
@@ -88,6 +94,29 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
                 }
             }
         });
+    }
+
+    @Override
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if (dX != 0 && isCurrentlyActive) {
+            var itemView = viewHolder.itemView;
+            var left = (dX < 0 ? itemView.getWidth() + (int)dX : 0);
+            var right = (dX < 0 ? itemView.getWidth() : (int)dX);
+            tmpRect.set(left, itemView.getTop(), right, itemView.getBottom());
+
+            if (Math.abs(dX) > deleteIcon.getIntrinsicWidth()) {
+                var iconTop = (tmpRect.centerY() - deleteIcon.getIntrinsicHeight() / 2);
+                var iconLeft = (tmpRect.centerX() - deleteIcon.getIntrinsicWidth() / 2);
+                deleteIcon.setBounds(
+                        iconLeft,
+                        iconTop,
+                        iconLeft + deleteIcon.getIntrinsicWidth(),
+                        iconTop + deleteIcon.getIntrinsicHeight()
+                );
+                deleteIcon.draw(c);
+            }
+        }
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
 }
