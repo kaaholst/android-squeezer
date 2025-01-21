@@ -34,7 +34,6 @@
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_manual_server_addr">Manually enter address</string>
     <string name="settings_server_prompt">Choose a server</string>
-    <string name="settings_local_server">Local server</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
@@ -422,7 +421,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="about_authors" translatable="false">Benjamin Viertel\nKurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
     <string name="about_support" translatable="false"><a href="https://github.com/kaaholst/android-squeezer">Support</a></string>
     <string name="about_privacy_policy" translatable="false"><a href="https://github.com/kaaholst/android-squeezer/blob/develop/PRIVACY.md">Privacy policy</a></string>
-    <string name="mysqueezebox_com" translatable="false">mysqueezebox.com</string>
     <string name="configure_select_player">Select player to control</string>
     <string name="configure_select_button">Widget action</string>
     <string name="remote_unknownDescription">Unknown</string>

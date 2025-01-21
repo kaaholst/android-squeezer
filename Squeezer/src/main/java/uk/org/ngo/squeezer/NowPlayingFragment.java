@@ -99,7 +99,6 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
-import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
@@ -1178,13 +1177,6 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         updateUiFromPlayerState(playerState);
 
         requestCallStateLauncher.trySetAction(Squeezer.getPreferences().getActionOnIncomingCall());
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
-        // We're connected but the controller needs to register with the server
-        JiveItemListActivity.register(mActivity);
     }
 
     @MainThread

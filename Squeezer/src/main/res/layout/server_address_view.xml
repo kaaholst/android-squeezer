@@ -22,30 +22,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/server_name_til"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:startIconDrawable="@drawable/ic_refresh"
-        app:hintEnabled="false">
-
-        <AutoCompleteTextView
-            android:id="@+id/server_name"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            tools:text="@string/settings_server_scan_progress"
-            android:inputType="none" />
-    </com.google.android.material.textfield.TextInputLayout>
+    android:paddingHorizontal="16dp">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/found_servers_til"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/server_name_til"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:hint="@string/settings_server_prompt"
         android:labelFor="@id/found_servers"
@@ -67,23 +50,14 @@
         app:layout_constraintStart_toStartOf="parent"
         android:max="100"/>
 
-    <RadioButton
-        android:id="@+id/squeezeServer"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/scan_progress"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="@string/settings_local_server" />
-
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/server_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/squeezeServer"
+        app:layout_constraintTop_toBottomOf="@id/scan_progress"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="4dp"
-        app:cardCornerRadius="2dp">
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -155,14 +129,5 @@
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <RadioButton
-        android:id="@+id/squeezeNetwork"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        app:layout_constraintTop_toBottomOf="@id/server_info"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        android:text="@string/mysqueezebox_com" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

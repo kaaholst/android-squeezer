@@ -30,7 +30,6 @@ import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.transport.ClientTransport;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 
@@ -73,7 +72,6 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
-import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.FluentHashMap;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
@@ -225,10 +223,8 @@ class CometClient extends BaseClient {
             if (!mEventBus.isRegistered(CometClient.this)) {
                 mEventBus.register(CometClient.this);
             }
-            final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
 
             final HttpClient httpClient = new HttpClient();
-            httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer-squeezer/" + SqueezerBayeuxExtension.getRevision()));
             try {
                 httpClient.start();
             } catch (Exception e) {
@@ -269,7 +265,7 @@ class CometClient extends BaseClient {
             ClientTransport clientTransport = new HttpStreamingTransport(url, null, httpClient) {
                 @Override
                 protected void customize(org.eclipse.jetty.client.api.Request request) {
-                    if (!isSqueezeNetwork && username != null && password != null) {
+                    if (username != null && password != null) {
                         String authorization = B64Code.encode(username + ":" + password);
                         request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
                     }
@@ -277,10 +273,9 @@ class CometClient extends BaseClient {
             };
 
             mBayeuxClient = new SqueezerBayeuxClient(mConnectionState, url, clientTransport);
-            mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
             mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
                 if (message.isSuccessful()) {
-                    onConnected(isSqueezeNetwork);
+                    onConnected();
                 } else if (!mConnectionState.canRehandshake()) {
                     Map<String, Object> failure = Util.getRecord(message, "failure");
                     Message failedMessage = (failure != null) ? (Message) failure.get("message") : message;
@@ -321,11 +316,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private boolean needRegister() {
-        return mBayeuxClient.getId().startsWith("1X");
-    }
-
-    private void onConnected(boolean isSqueezeNetwork) {
+    private void onConnected() {
         Log.i(TAG, "Connected, start learning server capabilities");
 
         // If this is a rehandshake we may already have players.
@@ -353,12 +344,6 @@ class CometClient extends BaseClient {
         {
             Request request = serverStatusRequest().param("subscribe", String.valueOf(SERVER_STATUS_INTERVAL));
             publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
-        }
-
-        if (isSqueezeNetwork) {
-            if (needRegister()) {
-                mEventBus.post(new RegisterSqueezeNetwork());
-            }
         }
 
         if (rehandshake) {

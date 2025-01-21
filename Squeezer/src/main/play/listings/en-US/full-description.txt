@@ -13,7 +13,6 @@ Features include:
 &bull; Download of local music; track, album, artist, genre, year, playlist and music folder
 &bull; Automatic discovery of local servers
 &bull; Support for password protected servers
-&bull; Connect to mysqueezebox.com
 &bull; Control playback from your Android Wear device
 &bull; Home Screen Widgets
 &bull; Alarm Clock management

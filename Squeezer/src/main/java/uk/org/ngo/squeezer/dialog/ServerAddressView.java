@@ -26,7 +26,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,11 +55,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private Preferences preferences;
     private Preferences.ServerAddress serverAddress;
 
-    private RadioButton squeezeNetworkButton;
-    private RadioButton localServerButton;
     private AutoCompleteTextView serverAddressEditText;
-    private TextInputLayout serverName_til;
-    private TextView serverName;
     private TextInputLayout serversSpinner_til;
     private AutoCompleteTextView serversSpinner;
     private EditText userNameEditText;
@@ -102,9 +97,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                     }
                 }
 
-                squeezeNetworkButton = findViewById(R.id.squeezeNetwork);
-                localServerButton = findViewById(R.id.squeezeServer);
-
                 serverAddressEditText = findViewById(R.id.server_address);
                 serverAddressEditText.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, preferences.getServerHistory()));
                 userNameEditText = findViewById(R.id.username);
@@ -144,20 +136,14 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                     }
                 });
 
-                final OnClickListener onNetworkSelected = view -> setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
-                squeezeNetworkButton.setOnClickListener(onNetworkSelected);
-                localServerButton.setOnClickListener(onNetworkSelected);
-
                 scanProgress = findViewById(R.id.scan_progress);
-                serverName_til = findViewById(R.id.server_name_til);
-                serverName = findViewById(R.id.server_name);
 
                 // Set up the servers spinner.
                 serversSpinner_til = findViewById(R.id.found_servers_til);
                 serversSpinner = findViewById(R.id.found_servers);
                 serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item));
 
-                setSqueezeNetwork(serverAddress.squeezeNetwork);
+                setEditServerAddressAvailability();
                 setServerAddress(serverAddress.localAddress());
 
                 startNetworkScan();
@@ -180,7 +166,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             return false;
         }
 
-        serverAddress.squeezeNetwork = squeezeNetworkButton.isChecked();
         String address = serverAddressEditText.getText().toString();
         serverAddress.setAddress(address);
         serverAddress.setServerName(getServerName(address));
@@ -208,11 +193,9 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
      */
     private void startNetworkScan() {
         scanProgress.setVisibility(VISIBLE);
-        serverName_til.setStartIconDrawable(android.R.color.transparent);
-        serverName_til.setStartIconOnClickListener(null);
-        serverName.setText(R.string.settings_server_scan_progress);
-        serverName_til.setVisibility(VISIBLE);
-        serversSpinner_til.setVisibility(GONE);
+        serversSpinner_til.setStartIconDrawable(android.R.color.transparent);
+        serversSpinner_til.setStartIconOnClickListener(null);
+        serversSpinner.setText(R.string.settings_server_scan_progress);
         scanNetworkTask = new ScanNetworkTask(getContext(), this);
         new Thread(scanNetworkTask).start();
 
@@ -237,59 +220,37 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         scanNetworkTask = null;
 
         scanProgress.setVisibility(INVISIBLE);
-        serverName.setText(R.string.settings_manual_server_addr);
-        serverName_til.setVisibility(GONE);
-        serversSpinner_til.setVisibility(GONE);
+        serversSpinner_til.setStartIconDrawable(R.drawable.ic_refresh);
+        serversSpinner_til.setStartIconOnClickListener(startNetWorkScan);
 
         discoveredServers = serverMap;
 
-        if (discoveredServers.size() == 0) {
-            // No servers found, manually enter address
-            // Populate the edit text widget with current address stored in preferences.
-            setServerAddress(serverAddress.localAddress());
-            serverAddressEditText.setEnabled(true);
-            serverName_til.setStartIconDrawable(R.drawable.ic_refresh);
-            serverName_til.setStartIconOnClickListener(startNetWorkScan);
-            serverName_til.setVisibility(VISIBLE);
-        } else {
-            List<String> keys = new ArrayList<>(discoveredServers.keySet());
-            keys.add(getContext().getString(R.string.settings_manual_server_addr));
-            serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, keys));
+        List<String> keys = new ArrayList<>(discoveredServers.keySet());
+        keys.add(getContext().getString(R.string.settings_manual_server_addr));
+        serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, keys));
 
-            // First look for the stored server name in the list of found servers
-            String addressOfStoredServerName = discoveredServers.get(serverAddress.serverName());
-            int position = getServerPosition(addressOfStoredServerName);
+        // First look for the stored server name in the list of found servers
+        String addressOfStoredServerName = discoveredServers.get(serverAddress.serverName());
+        int position = getServerPosition(addressOfStoredServerName);
 
-            // If that fails, look for the stored server address in the list of found servers
-            if (position < 0) {
-                position = getServerPosition(serverAddress.localAddress());
-            }
-
-            // This shouldn't happen, but crash reports say that it does
-            if (keys.size() > 0) {
-                serversSpinner.setText(keys.get(position < 0 ? keys.size() - 1 : position), false);
-            }
-            isManual = (position < 0);
-            setEditServerAddressAvailability(serverAddress.squeezeNetwork);
-
-            serversSpinner.setOnItemClickListener((parent, view, pos, id) -> {
-                String serverAddress = discoveredServers.get((String) ((TextView)view).getText());
-                isManual = (pos == parent.getCount() - 1);
-                setSqueezeNetwork(false);
-                setServerAddress(serverAddress);
-            });
-            serversSpinner_til.setVisibility(VISIBLE);
+        // If that fails, look for the stored server address in the list of found servers
+        if (position < 0) {
+            position = getServerPosition(serverAddress.localAddress());
         }
-    }
 
-    private void setSqueezeNetwork(boolean isSqueezeNetwork) {
-        squeezeNetworkButton.setChecked(isSqueezeNetwork);
-        localServerButton.setChecked(!isSqueezeNetwork);
-        setEditServerAddressAvailability(isSqueezeNetwork);
-        userNameEditText.setEnabled(!isSqueezeNetwork);
-        passwordEditText.setEnabled(!isSqueezeNetwork);
-        wakeOnLan.setEnabled(!isSqueezeNetwork);
-        macEditText.setEnabled(!isSqueezeNetwork);
+        // This shouldn't happen, but crash reports say that it does
+        if (keys.size() > 0) {
+            serversSpinner.setText(keys.get(position < 0 ? keys.size() - 1 : position), false);
+        }
+        isManual = (position < 0);
+        setEditServerAddressAvailability();
+
+        serversSpinner.setOnItemClickListener((parent, view, pos, id) -> {
+            String serverAddress = discoveredServers.get((String) ((TextView)view).getText());
+            isManual = (pos == parent.getCount() - 1);
+            setEditServerAddressAvailability();
+            setServerAddress(serverAddress);
+        });
     }
 
     private void setServerAddress(String address) {
@@ -303,10 +264,8 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         macEditText.setText(Util.formatMac(serverAddress.mac));
     }
 
-    private void setEditServerAddressAvailability(boolean isSqueezeNetwork) {
-        if (isSqueezeNetwork) {
-            serverAddressEditText.setEnabled(false);
-        } else if (discoveredServers == null || discoveredServers.isEmpty()) {
+    private void setEditServerAddressAvailability() {
+        if (discoveredServers == null || discoveredServers.isEmpty()) {
             serverAddressEditText.setEnabled(true);
         } else {
             serverAddressEditText.setEnabled(isManual);

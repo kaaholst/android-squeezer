@@ -1078,25 +1078,6 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void register(IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            // We register ourselves as a player. This will come back in serverstatus, so we get an
-            // active player, which is required for the register_sn command:
-            // [ "playerid", [ "register_sn", 0, 100, "login_password", "email:...", "password:..." ] ]
-            // We then start register flow with the command:
-            // [ "", [ "register", 0, 100, "login_password", "service:SN" ] ]
-            // This is same command squeezeplay uses, and allows connect to an existing account or
-            // create a new.
-            // This way we can use server side logic and we don't have to store account credentials
-            // locally.
-            String macId = Squeezer.getPreferences().getMacId();
-            mDelegate.command().cmd("playerRegister", null, macId, "Squeezer-" + Build.MODEL).exec();
-            mDelegate.requestItems(callback).cmd("register").param("service", "SN").exec();
-        }
-
-        @Override
         public void togglePower(Player player) {
             mDelegate.command(player).cmd("power").exec();
         }

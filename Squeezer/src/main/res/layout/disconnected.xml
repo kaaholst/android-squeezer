@@ -9,12 +9,11 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_weight="1">
 
         <uk.org.ngo.squeezer.dialog.ServerAddressView
             android:id="@+id/server_address_view"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </ScrollView>
 
@@ -22,8 +21,8 @@
         android:id="@+id/connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
         android:text="@string/menu_item_connect"/>
 
     <!--

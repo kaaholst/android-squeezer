@@ -49,9 +49,6 @@ public interface ISqueezeService {
     /** Request a manual (i.e. besides the subscription) status about the server */
     void requestServerStatus();
 
-    /** Initiate the flow to register the controller with the server */
-    void register(IServiceItemListCallback<JiveItem> callback);
-
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(Preferences preferences, String key);
 

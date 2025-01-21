@@ -42,9 +42,7 @@ import java.util.Iterator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
@@ -308,7 +306,6 @@ public final class Preferences {
     private void readServerAddress(ServerAddress serverAddress, String address, int defaultPort) {
         serverAddress.setAddress(address, defaultPort);
 
-        serverAddress.squeezeNetwork = sharedPreferences.getBoolean(prefixed(serverAddress.bssId, KEY_SQUEEZE_NETWORK), false);
         serverAddress.serverName = getStringPreference(prefix(serverAddress) + KEY_SERVER_NAME);
         serverAddress.userName = getStringPreference(prefix(serverAddress) + KEY_USERNAME);
         serverAddress.password = getStringPreference(prefix(serverAddress) + KEY_PASSWORD);
@@ -362,10 +359,7 @@ public final class Preferences {
     }
 
     public static class ServerAddress {
-        private static final String SN = "mysqueezebox.com";
-
         private final String bssId;
-        public boolean squeezeNetwork;
         private String address; // <host name or ip>:<port>
         private String host;
         private int port;
@@ -406,7 +400,7 @@ public final class Preferences {
         }
 
         public String host() {
-            return (squeezeNetwork ? SN : host);
+            return host;
         }
 
         public String localHost() {
@@ -414,13 +408,10 @@ public final class Preferences {
         }
 
         public int port() {
-            return (squeezeNetwork ? defaultPort : port);
+            return port;
         }
 
         public String serverName() {
-            if (squeezeNetwork) {
-                return ServerAddress.SN;
-            }
             return serverName != null ? serverName : host;
         }
 
@@ -473,7 +464,6 @@ public final class Preferences {
     public void saveServerAddress(ServerAddress serverAddress) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(prefixed(serverAddress.bssId, KEY_SERVER_ADDRESS), serverAddress.address);
-        editor.putBoolean(prefixed(serverAddress.bssId, KEY_SQUEEZE_NETWORK), serverAddress.squeezeNetwork);
         editor.putString(prefix(serverAddress) + KEY_SERVER_NAME, serverAddress.serverName);
         editor.putString(prefix(serverAddress) + KEY_USERNAME, serverAddress.userName);
         editor.putString(prefix(serverAddress) + KEY_PASSWORD, serverAddress.password);
@@ -597,8 +587,8 @@ public final class Preferences {
         return sharedPreferences.getBoolean(KEY_RESTORE_MUSIC_AFTER_CALL, false);
     }
 
-    public boolean controlSqueezePlayer(ServerAddress serverAddress) {
-        return  (!serverAddress.squeezeNetwork && sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true));
+    public boolean controlSqueezePlayer() {
+        return (sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
     /** Get the preferred album list layout. */
@@ -696,51 +686,6 @@ public final class Preferences {
 
     public void useFlatIcons(boolean b) {
         sharedPreferences.edit().putBoolean(Preferences.KEY_FLAT_ICONS, b).apply();
-    }
-
-    /**
-     * Retrieve a "mac id" for this app instance.
-     * <p>
-     * If a mac id is previously stored, then use it, otherwise create a new mac id
-     * store it and return it.
-     */
-    public String getMacId() {
-        String macId = sharedPreferences.getString(KEY_MAC_ID, null);
-        if (macId == null) {
-            macId = generateMacLikeId();
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Preferences.KEY_MAC_ID, macId);
-            editor.apply();
-        }
-        return macId;
-    }
-
-    /**
-     * As Android (6.0 and above) does not allow acces to the mac id, and mysqueezebox.com requires
-     * it, this is the best I can think of.
-     */
-    private String generateMacLikeId() {
-        byte[] mac = new byte[6];
-        new Random().nextBytes(mac);
-        return Util.formatMac(mac);
-    }
-
-    /**
-     * Retrieve a unique id (uuid) for this app instance.
-     * <p>
-     * If a uuid is previously stored, then use it, otherwise create a new uuid,
-     * store it and return it.
-     */
-    public String getUuid() {
-        String uuid = sharedPreferences.getString(KEY_UUID, null);
-        if (uuid == null) {
-            //NOTE mysqueezebox.com doesn't accept dash in the uuid
-            uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Preferences.KEY_UUID, uuid);
-            editor.apply();
-        }
-        return uuid;
     }
 
     public CustomizeHomeMenuMode getCustomizeHomeMenuMode() {

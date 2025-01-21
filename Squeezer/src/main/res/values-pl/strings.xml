@@ -106,7 +106,6 @@
     <string name="settings_serveraddr_hint">Nazwa lub adres IP serwera</string>
     <string name="settings_manual_server_addr">Wpisz adres ręcznie</string>
     <string name="settings_server_prompt">Wybierz serwer</string>
-    <string name="settings_local_server">Lokalny serwer</string>
     <string name="server_error">%1$s zgłosił błąd: \"%2$s\".</string>
     <string name="menu_item_power_off">Wyłącz</string>
     <string name="menu_item_power_on">Włącz</string>

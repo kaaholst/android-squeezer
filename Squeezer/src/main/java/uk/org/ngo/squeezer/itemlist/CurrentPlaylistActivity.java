@@ -97,11 +97,6 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     }
 
     @Override
-    protected boolean needPlayer() {
-        return true;
-    }
-
-    @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CurrentPlaylistItemCallback(this));

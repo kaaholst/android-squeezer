@@ -78,7 +78,6 @@ import uk.org.ngo.squeezer.model.RefreshWindow;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
 
@@ -97,7 +96,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     public static final String WINDOW_EXTRA = "windowId";
     private static final String TAG = "JiveItemListActivity";
 
-    private boolean register;
     protected JiveItem parent;
     private Action action;
     Window window = new Window();
@@ -136,7 +134,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Bundle extras = Objects.requireNonNull(getIntent().getExtras(), "intent did not contain extras");
-        register = extras.getBoolean("register");
         parent = extras.getParcelable(JiveItem.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
@@ -300,7 +297,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
 
     void updateWindowStyle(Window.WindowStyle windowStyle) {
-        updateWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : windowStyle, getListLayout());
+        updateWindowStyle(windowStyle, getListLayout());
     }
 
     void updateWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
@@ -336,9 +333,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     @Override
     protected boolean needPlayer() {
-        // Most of the the times we actually do need a player, but if we need to register on SN,
-        // it is before we can get the players
-        return !register;
+        return true;
     }
 
     @Override
@@ -350,8 +345,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                 showContent();
             } else
                 service.pluginItems(start, parent, action, this);
-        } else if (register) {
-            service.register(this);
         }
     }
 
@@ -726,12 +719,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
 
-    public static void register(Activity activity) {
-        final Intent intent = new Intent(activity, JiveItemListActivity.class);
-        intent.putExtra("register", true);
-        activity.startActivity(intent);
-    }
-
     /**
      * Start a new {@link JiveItemListActivity} to perform the supplied <code>action</code>.
      * <p>
@@ -751,25 +738,16 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                 action.action.players = (player != null ? new String[]{player.getId()} : parentAction.action.players);
             }
         }
-        final Intent intent = getPluginListIntent(activity);
+        final Intent intent = new Intent(activity, JiveItemListActivity.class);
         intent.putExtra(JiveItem.class.getName(), parent);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivityForResult(intent, GO);
     }
 
     public static void show(Activity activity, JiveItem item) {
-        final Intent intent = getPluginListIntent(activity);
+        final Intent intent = new Intent(activity, JiveItemListActivity.class);
         intent.putExtra(JiveItem.class.getName(), item);
         activity.startActivityForResult(intent, GO);
-    }
-
-    @NonNull
-    private static Intent getPluginListIntent(Activity activity) {
-        Intent intent = new Intent(activity, JiveItemListActivity.class);
-        if (activity instanceof JiveItemListActivity && ((JiveItemListActivity)activity).register) {
-            intent.putExtra("register", true);
-        }
-        return intent;
     }
 
 }

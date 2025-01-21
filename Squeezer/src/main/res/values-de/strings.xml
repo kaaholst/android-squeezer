@@ -27,7 +27,6 @@
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_manual_server_addr">Manuelle Eingabe der IP-Adresse</string>
     <string name="settings_server_prompt">Wählen Sie einen Server</string>
-    <string name="settings_local_server">Lokaler Server</string>
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
     <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>

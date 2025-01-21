@@ -51,7 +51,7 @@ public class SqueezePlayer extends Handler {
         Preferences preferences = Squeezer.getPreferences();
         Preferences.ServerAddress serverAddress = preferences.getServerAddress();
 
-        if (hasSqueezePlayer(context) && preferences.controlSqueezePlayer(serverAddress)) {
+        if (hasSqueezePlayer(context) && preferences.controlSqueezePlayer()) {
             return new SqueezePlayer(context, serverAddress);
         }
 
