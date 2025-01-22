@@ -113,6 +113,9 @@ android {
         lintConfig file('lint.xml')
     }
     namespace 'uk.org.ngo.squeezer'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 def publishTrack() {
