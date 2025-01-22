@@ -123,6 +123,7 @@ public class ItemIconUtils {
         result.put("hm_myMusicGenres", R.drawable.ml_genres);
         result.put("hm_myMusicYears", R.drawable.ml_years);
         result.put("hm_myMusicMusicFolder", R.drawable.ml_folder);
+        result.put("hm_myMusicFileSystem", R.drawable.folder);
         result.put("hm_myMusicPlaylists", R.drawable.ml_playlist);
         result.put("hm_myMusicNewMusic", R.drawable.ml_new_music);
         result.put("hm_myMusicWorks", R.drawable.works);
