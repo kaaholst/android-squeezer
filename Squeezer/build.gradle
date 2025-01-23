@@ -44,17 +44,9 @@ dependencies {
 android {
     compileSdk rootProject.compileSdkVersion
 
-    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
-    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
-    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
-    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
-    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
-
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
-
-        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
         versionCode 141
         versionName "2.3.8"

@@ -53,11 +53,7 @@ public class AboutDialog extends DialogFragment {
         PackageInfo info;
         try {
             info = pm.getPackageInfo(getActivity().getPackageName(), 0);
-            if (BuildConfig.DEBUG) {
-                versionText.setText(info.versionName + ' ' + BuildConfig.GIT_DESCRIPTION);
-            } else {
-                versionText.setText(info.versionName);
-            }
+            versionText.setText(info.versionName);
         } catch (NameNotFoundException e) {
             titleText.setText(getString(R.string.app_name));
         }
