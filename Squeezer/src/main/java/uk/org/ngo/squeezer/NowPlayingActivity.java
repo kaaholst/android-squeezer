@@ -23,13 +23,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.core.view.MenuCompat;
-
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class NowPlayingActivity extends BaseActivity {
 
@@ -47,11 +46,9 @@ public class NowPlayingActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_down);
-        }
+        setSupportActionBar(findViewById(R.id.toolbar));
+        ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
     }
 
     public static void show(Context context) {

@@ -23,6 +23,14 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_home"
+        app:title="@string/app_name" />
+
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="fill_parent"

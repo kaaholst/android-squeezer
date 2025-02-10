@@ -8,15 +8,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 import org.eclipse.jetty.util.ajax.JSON;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -24,16 +23,12 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 // Trick to make the app context useful available everywhere.
 // See http://stackoverflow.com/questions/987072/using-application-context-everywhere
 
-public class Squeezer extends Application {
+public class Squeezer extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
 
     private static Squeezer instance;
-    private static SharedPreferences preferences;
-
-    public Squeezer() {
-        instance = this;
-    }
+    private Preferences preferences;
 
     public static Squeezer getInstance() {
         return instance;
@@ -56,18 +51,21 @@ public class Squeezer extends Application {
                     .build());
         }
 
-        // Initiate an off thread load of our preferences
-        getPreferences(Preferences::isDownloadEnabled);
+        instance = this;
+        preferences = new Preferences(this, getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE));
+        AppCompatDelegate.setDefaultNightMode(preferences.getTheme().getNightMode());
+        preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+
 
         // Read the default shared preferences cause it's used in de.cketti.library.changelog.ChangeLog
-        instance.executor.execute(() -> PreferenceManager.getDefaultSharedPreferences(Squeezer.this).getString("dummy", ""));
+        doInBackground(() -> PreferenceManager.getDefaultSharedPreferences(Squeezer.this).getString("dummy", ""));
 
         // Jetty JSON has a loader which has a static logger property which use disk read.
         // We load the class off thread to avoid a StrictMode violation.
-        instance.executor.execute(JSON::new);
+        doInBackground(JSON::new);
 
         // Instantiate the image fetcher off thread.
-        instance.executor.execute(() -> ImageFetcher.getInstance(Squeezer.this));
+        doInBackground(() -> ImageFetcher.getInstance(Squeezer.this));
 
         super.onCreate();
     }
@@ -77,81 +75,29 @@ public class Squeezer extends Application {
     }
 
     /**
-     * Load the preferences from external storage
+     * Return the preferences to the UI thread
      * <p>
-     * If the preferences are already loaded, the callback will be called immediately,
-     * otherwise the callback will be called when they are loaded.
-     * <p>
-     * The result is given directly to a {@link ResultFuture}, otherwise it is
+     * If this is called from the UI thread directly to the callback, otherwise it is
      * posted to the UI thread.
      *
-     * @param callback This will be called when the remotes are ready.
+     * @param callback This will be called with the preferences.
      */
     public static void getPreferences(final Consumer<Preferences> callback) {
-        instance.executor.execute(() -> {
-            if (preferences == null) {
-                preferences = instance.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
-            }
-            Preferences preferences = new Preferences(instance, Squeezer.preferences);
-            if (callback instanceof ResultFuture) {
-                callback.accept(preferences);
-            } else {
-                instance.uiThreadHandler.post(() -> callback.accept(preferences));
-            }
-
-        });
+        if (instance.uiThreadHandler.getLooper() == Looper.myLooper()) {
+            callback.accept(instance.preferences);
+        } else {
+            instance.uiThreadHandler.post(() -> callback.accept(instance.preferences));
+        }
     }
 
-    /** Synchronous fetch of preferences. */
     public static Preferences getPreferences() {
-        final ResultFuture<Preferences> resultFuture = new ResultFuture<>();
-        getPreferences(resultFuture);
-        return resultFuture.get();
+        return instance.preferences;
     }
 
-    /**
-     * Helper to run async tasks synchronously.
-     *
-     * @param <T> Type of result for the async callback
-     * @see Consumer
-     */
-    private static class ResultFuture<T> implements Future<T>, Consumer<T> {
-        private T result;
-        private final CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public boolean isDone() {
-            return countDownLatch.getCount() == 0;
-        }
-
-        public T get() {
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            return result;
-        }
-
-        @Override
-        public T get(long timeout, TimeUnit unit) {
-            throw new UnsupportedOperationException("Only synchronous operation is allowed");
-        }
-
-        @Override
-        public void accept(T result) {
-            this.result = result;
-            countDownLatch.countDown();
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+            AppCompatDelegate.setDefaultNightMode(preferences.getTheme().getNightMode());
         }
     }
 }

@@ -18,13 +18,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents">
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="alarm_dow_selected">@android:color/white</item>
 
         <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariantDark</item>
         <item name="colorSecondary">@color/colorSecondaryDark</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantDark</item>
+        <item name="colorToolbar">@color/colorToolbarDark</item>
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
@@ -33,19 +35,30 @@
         <item name="currentTrackBackground">@drawable/current_track_background_dark</item>
     </style>
 
-    <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="alarm_dow_selected">@android:color/black</item>
 
         <item name="colorPrimary">@color/colorPrimaryLight</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariantLight</item>
         <item name="colorSecondary">@color/colorSecondaryLight</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
+        <item name="colorToolbar">@color/colorToolbarLight</item>
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
 
         <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color_light</item>
         <item name="currentTrackBackground">@drawable/current_track_background_light</item>
+    </style>
+
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Toolbar" parent="">
+        <item name="colorPrimary">?attr/colorToolbar</item>
+        <item name="colorOnPrimary">?attr/colorControlNormal</item>
     </style>
 
     <style name="OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">

@@ -47,6 +47,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class GalleryActivity extends BaseActivity implements IServiceItemListCallback<JiveItem> {
 
@@ -66,7 +67,7 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
         RecyclerView listView = findViewById(R.id.item_list);
         listView.setAdapter(imageAdapter);
         listView.setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
-
+        ViewUtilities.setInsetsListener(listView, true, true, false);
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)

@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:title="@string/disconnected_text"
+        />
+
     <ScrollView
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -17,18 +27,22 @@
             android:layout_height="wrap_content"/>
     </ScrollView>
 
-    <Button
-        android:id="@+id/connect"
+    <FrameLayout
+        android:id="@+id/bottom_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginHorizontal="16dp"
-        android:text="@string/menu_item_connect"/>
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/menu_item_connect"/>
+    </FrameLayout>
 
     <!--
       Fragment needs to be present to provide menus, but does not need
-      to be visible. Wrap it in a LinearLayout so it can be hidden
-      through the android:visibility attribute.
+      to be visible.
       -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/now_playing_fragment"

@@ -541,8 +541,13 @@ public final class Preferences {
         return sharedPreferences.getInt(KEY_FADE_IN_SECS, 0);
     }
 
-    public String getTheme() {
-        return getStringPreference(KEY_ON_THEME_SELECT_ACTION);
+    public ThemeManager.Theme getTheme() {
+        ThemeManager.Theme defaultTheme = ThemeManager.getDefaultTheme();
+        try {
+            return ThemeManager.Theme.valueOf(sharedPreferences.getString(KEY_ON_THEME_SELECT_ACTION, defaultTheme.name()));
+        } catch (Exception e) {
+            return defaultTheme;
+        }
     }
 
     public void setTheme(ThemeManager.Theme theme) {

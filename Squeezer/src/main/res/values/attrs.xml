@@ -23,6 +23,7 @@
     <!-- Volume panel -->
     <attr name="volume_panel_back_circle_color" format="reference"/>
 
-    <!-- Current playlist -->
+    <!-- Themable colors -->
     <attr name="currentTrackBackground" format="reference"/>
+    <attr name="colorToolbar" format="reference"/>
 </resources>

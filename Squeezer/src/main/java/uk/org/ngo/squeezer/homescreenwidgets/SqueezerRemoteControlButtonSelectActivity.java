@@ -37,14 +37,6 @@ public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private Player player;
 
-    /*
-    This Activity leverages a base Activity which almost all of squeezer uses, itself adding an
-    actionBar, which we don't want on this activity.
-     */
-    @Override
-    protected void addActionBar() {
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);

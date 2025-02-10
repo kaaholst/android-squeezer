@@ -19,12 +19,11 @@ package uk.org.ngo.squeezer.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AppCompatDelegate;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.EnumWithText;
@@ -41,25 +40,36 @@ import uk.org.ngo.squeezer.framework.EnumWithText;
 public class ThemeManager {
     /** The current theme applied to the app. */
     @StyleRes
-    private int mCurrentTheme;
+    private int currentThemeId;
 
     /** Available themes. */
     public enum Theme implements EnumWithText {
-        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
-        DARK(R.string.settings_theme_dark, R.style.AppTheme);
+        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar, AppCompatDelegate.MODE_NIGHT_NO),
+        DARK(R.string.settings_theme_dark, R.style.AppTheme, AppCompatDelegate.MODE_NIGHT_YES);
 
-        @StringRes private final int mLabelId;
-        @StyleRes public final int mThemeId;
+        @StringRes private final int labelId;
+        @StyleRes public final int themeId;
+        private final int nightMode;
 
-        Theme(@StringRes int labelId, @StyleRes int themeId) {
-            mLabelId = labelId;
-            mThemeId = themeId;
+        Theme(@StringRes int labelId, @StyleRes int themeId, int nightMode) {
+            this.labelId = labelId;
+            this.themeId = themeId;
+            this.nightMode = nightMode;
+        }
+
+        @AppCompatDelegate.NightMode
+        public int getNightMode() {
+            return nightMode;
         }
 
         @Override
         public String getText(Context context) {
-            return context.getString(mLabelId);
+            return context.getString(labelId);
         }
+    }
+
+    public int getCurrentThemeId() {
+        return currentThemeId;
     }
 
     /**
@@ -72,8 +82,8 @@ public class ThemeManager {
      */
     public void onCreate(Activity activity) {
         // Ensure the activity uses the correct theme.
-        mCurrentTheme = getThemePreference(activity);
-        activity.setTheme(mCurrentTheme);
+        currentThemeId = Squeezer.getPreferences().getTheme().themeId;
+        activity.setTheme(currentThemeId);
     }
 
     /**
@@ -87,12 +97,8 @@ public class ThemeManager {
         // Themes can only be applied before views are instantiated.  If the current theme
         // changed while this activity was paused (e.g., because the user went to the
         // SettingsActivity and changed it) then restart this activity with the new theme.
-        if (mCurrentTheme != getThemePreference(activity)) {
-            Intent intent = activity.getIntent();
-            activity.finish();
-            activity.overridePendingTransition(0, 0);
-            activity.startActivity(intent);
-            activity.overridePendingTransition(0, 0);
+        if (currentThemeId != Squeezer.getPreferences().getTheme().themeId) {
+            activity.recreate();
         }
     }
 
@@ -103,17 +109,4 @@ public class ThemeManager {
         return Theme.DARK;
     }
 
-    /**
-     * Retrieve the user's theme preference.
-     *
-     * @return A resource identifier for the user's chosen theme.
-     */
-    private int getThemePreference(Activity activity) {
-        try {
-            Theme theme = Theme.valueOf(Squeezer.getPreferences().getTheme());
-            return theme.mThemeId;
-        } catch (Exception e) {
-            return getDefaultTheme().mThemeId;
-        }
-    }
 }

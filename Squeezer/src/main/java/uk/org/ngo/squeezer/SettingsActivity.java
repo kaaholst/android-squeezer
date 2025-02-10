@@ -19,27 +19,41 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import uk.org.ngo.squeezer.util.ThemeManager;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class SettingsActivity extends AppCompatActivity {
-    private static final String TAG = "SettingsActivity";
-
     private final ThemeManager mThemeManager = new ThemeManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mThemeManager.onCreate(this);
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+        setSupportActionBar(findViewById(R.id.toolbar));
+        ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.settings_container), false, true, false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mThemeManager.onResume(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public static void show(Context context) {

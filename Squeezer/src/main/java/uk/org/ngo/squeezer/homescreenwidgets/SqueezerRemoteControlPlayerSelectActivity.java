@@ -124,15 +124,6 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         adapter.notifyDataSetChanged();
     }
 
-    /*
-    This Activity leverages a base Activity which almost all of squeezer uses, itself adding an
-    actionBar, which we don't want on this activity.
-     */
-    @Override
-    protected void addActionBar() {
-        Log.d(TAG, "addActionBar");
-    }
-
     public class SqueezerRemoteControlConfigureActivityPlayerView extends PlayerBaseView {
         public SqueezerRemoteControlConfigureActivityPlayerView(BaseActivity activity, View view) {
             super(activity, view);

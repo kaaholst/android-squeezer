@@ -37,20 +37,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -89,8 +87,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @Nullable
     private ISqueezeService mService = null;
 
-    private final ThemeManager mTheme = new ThemeManager();
-    private int mThemeId = ThemeManager.getDefaultTheme().mThemeId;
+    private final ThemeManager themeManager = new ThemeManager();
 
     /** Records whether the activity has registered on the service's event bus. */
     private boolean mRegisteredOnEventBus;
@@ -136,7 +133,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     public int getThemeId() {
-        return mThemeId;
+        return themeManager.getCurrentThemeId();
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -152,22 +149,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         }
     };
 
-    protected void addActionBar() {
-        // Set the icon as the home button, and display it.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
     @Override
     @CallSuper
     protected void onCreate(Bundle savedInstanceState) {
-        mTheme.onCreate(this);
+        themeManager.onCreate(this);
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
-
-        addActionBar();
 
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
@@ -198,16 +185,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     @Override
-    public void setTheme(int resId) {
-        super.setTheme(resId);
-        mThemeId = resId;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
-        mTheme.onResume(this);
+        themeManager.onResume(this);
 
         if (mService != null) {
             maybeRegisterOnEventBus(mService);
@@ -316,22 +297,21 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @Override
     @CallSuper
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                if (upIntent != null) {
-                    if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-                        TaskStackBuilder.create(this)
-                                .addNextIntentWithParentStack(upIntent)
-                                .startActivities();
-                    } else {
-                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        NavUtils.navigateUpTo(this, upIntent);
-                    }
+        if (item.getItemId() == android.R.id.home) {
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            if (upIntent != null) {
+                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                    TaskStackBuilder.create(this)
+                            .addNextIntentWithParentStack(upIntent)
+                            .startActivities();
                 } else {
-                    HomeActivity.show(this);
+                    upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    NavUtils.navigateUpTo(this, upIntent);
                 }
-                return true;
+            } else {
+                HomeActivity.show(this);
+            }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

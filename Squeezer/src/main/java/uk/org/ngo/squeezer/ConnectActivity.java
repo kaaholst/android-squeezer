@@ -37,6 +37,7 @@ import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 /**
  * An activity for when the user is not connected to a slimserver.
@@ -70,6 +71,11 @@ public class ConnectActivity extends BaseActivity {
         }
 
         setContentView(R.layout.disconnected);
+        setSupportActionBar(findViewById(R.id.toolbar));
+        ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.content), false, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.bottom_container), false, true, true);
+
         serverAddressView = findViewById(R.id.server_address_view);
         setErrorMessageFromReason(mDisconnectionReason);
 

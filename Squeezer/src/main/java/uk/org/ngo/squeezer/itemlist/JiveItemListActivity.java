@@ -551,7 +551,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
      * Save the supplied theme in preferences and restart activity to apply it.
      */
     private void setTheme(ThemeManager.Theme theme) {
-        if (getThemeId() != theme.mThemeId) {
+        if (getThemeId() != theme.themeId) {
             Squeezer.getPreferences().setTheme(theme);
 
             Intent intent = getIntent();
@@ -625,7 +625,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
      * thus becoming invisible.
      */
     private void fixOverflowMenuIconColor(Menu menu) {
-        if (getThemeId() == ThemeManager.Theme.LIGHT_DARKACTIONBAR.mThemeId) {
+        if (getThemeId() == ThemeManager.Theme.LIGHT_DARKACTIONBAR.themeId) {
             fixOverflowMenuIconColor(menu, false);
         }
     }

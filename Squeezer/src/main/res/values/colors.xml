@@ -127,5 +127,7 @@
     <color name="colorPrimaryVariantLight">@color/lightBlueLightVariant</color>
     <color name="colorSecondaryLight">@color/amberLight</color>
     <color name="colorSecondaryVariantLight">@color/amberLightVariant</color>
+    <color name="colorToolbarDark">#121212</color>
+    <color name="colorToolbarLight">#f5f5f5</color>
 
 </resources>

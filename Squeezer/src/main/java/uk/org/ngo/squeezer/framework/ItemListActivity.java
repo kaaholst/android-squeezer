@@ -49,6 +49,7 @@ import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.RefreshEvent;
 import uk.org.ngo.squeezer.util.RetainFragment;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 /**
  * This class defines the common minimum, which any activity browsing the slimserver's database
@@ -129,10 +130,10 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
 
-        loadingProgress = Objects.requireNonNull((View) findViewById(R.id.loading_label),
+        loadingProgress = Objects.requireNonNull(findViewById(R.id.loading_label),
                 "activity layout did not return a view containing R.id.loading_label");
 
-        emptyView = Objects.requireNonNull((View) findViewById(R.id.empty_view),
+        emptyView = Objects.requireNonNull(findViewById(R.id.empty_view),
                 "activity layout did not return a view containing R.id.empty_view");
 
         listView = Objects.requireNonNull(subActivityContent.findViewById(R.id.item_list),
@@ -160,6 +161,10 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
 
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
         setContentView(getContentView());
+        setSupportActionBar(findViewById(R.id.toolbar));
+        ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(subActivityContent, false, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
 
         mReceivedPages = getRetainedValue(TAG_RECEIVED_PAGES);
         if (mReceivedPages == null) {
