@@ -233,7 +233,7 @@ public class Util {
     /**
      * Make sure the icon/image tag is an absolute URL.
      */
-    private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+    private static final Pattern HEX_PATTERN = Pattern.compile("^-?\\p{XDigit}+$");
 
     @NonNull
     public static Uri getAbsoluteUrl(String urlPrefix, String url) {
