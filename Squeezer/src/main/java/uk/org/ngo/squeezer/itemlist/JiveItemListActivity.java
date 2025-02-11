@@ -49,7 +49,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller;
 
@@ -144,9 +143,8 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         Window window = (savedInstanceState != null ? savedInstanceState.getParcelable("window") : null);
         updateHeader(window);
 
-        findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
+        findViewById(R.id.plugin_input_til).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
         if (hasInputField()) {
-            MaterialButton inputButton = findViewById(R.id.input_button);
             final EditText inputText = findViewById(R.id.plugin_input);
             TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
@@ -156,7 +154,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                 case TEXT:
                     break;
                 case SEARCH:
-                    inputImage = R.drawable.ic_menu_search;
+                    inputImage = R.drawable.search;
                     break;
                 case EMAIL:
                     inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
@@ -166,7 +164,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                     break;
             }
             inputText.setInputType(inputType);
-            inputButton.setIconResource(inputImage);
+            inputTextLayout.setEndIconDrawable(inputImage);
             inputTextLayout.setHint(TextUtils.isEmpty(parent.input.title) ? this.window.text : parent.input.title);
             inputText.setText(parent.input.initialText);
             parent.inputValue = parent.input.initialText;
@@ -174,15 +172,15 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             inputText.setOnKeyListener((v, keyCode, event) -> {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN)
                         && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    clearAndReOrderItems(inputText.getText().toString(), inputButton);
+                    clearAndReOrderItems(inputText.getText().toString(), inputText);
                     return true;
                 }
                 return false;
             });
 
-            inputButton.setOnClickListener(v -> {
+            inputTextLayout.setEndIconOnClickListener(v -> {
                 if (getService() != null) {
-                    clearAndReOrderItems(inputText.getText().toString(), inputButton);
+                    clearAndReOrderItems(inputText.getText().toString(), inputText);
                 }
             });
         }

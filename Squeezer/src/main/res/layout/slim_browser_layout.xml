@@ -109,36 +109,23 @@
         android:paddingEnd="16dp"
         android:paddingTop="4dp"/>
 
-    <LinearLayout
-        android:id="@+id/input_view"
-        android:layout_width="fill_parent"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/plugin_input_til"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_width="match_parent"
+        app:endIconDrawable="@drawable/keyboard_return"
+        app:endIconTint="?attr/colorPrimary"
+        app:endIconMode="custom"
         android:visibility="gone"
         tools:visibility="visible"
-        android:orientation="horizontal">
+        >
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/plugin_input_til"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/plugin_input"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/plugin_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/input_button"
-            android:layout_marginStart="8dp"
-            app:icon="@drawable/keyboard_return"
-            app:iconSize="24dp"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <include layout="@layout/item_list"
         android:layout_width="fill_parent"
