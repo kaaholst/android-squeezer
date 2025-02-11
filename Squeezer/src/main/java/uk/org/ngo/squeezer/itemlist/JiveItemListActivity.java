@@ -19,11 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -41,7 +37,6 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.MenuCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -610,46 +605,8 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        fixOverflowMenuIconColor(menu);
         updateViewMenuItems(getListLayout(), window.windowStyle);
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    /**
-     * Work around an issue with Theme.MaterialComponents.Light.DarkActionBar.
-     * <p>
-     * Icon on the action bar is tinted correct to the theme of action bar. The overflow menu(s)
-     * however are popped up in the theme of the main app, but tinted according to the action bar,
-     * thus becoming invisible.
-     */
-    private void fixOverflowMenuIconColor(Menu menu) {
-        if (getThemeId() == ThemeManager.Theme.LIGHT_DARKACTIONBAR.themeId) {
-            fixOverflowMenuIconColor(menu, false);
-        }
-    }
-
-    private void fixOverflowMenuIconColor(Menu menu, boolean isSubMenu) {
-        for (int i = 0; i < menu.size(); i++) {
-            MenuItem item = menu.getItem(i);
-            if (isSubMenu && item.getIcon() != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    item.setIconTintList(getTint());
-                } else {
-                    Drawable icon = item.getIcon().mutate();
-                    int color = R.attr.actionMenuTextColor;
-                    icon.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                    icon.setAlpha(item.isEnabled() ? 255 : 128);
-                    item.setIcon(icon);
-                }
-            }
-            if (item.hasSubMenu()) {
-                fixOverflowMenuIconColor(item.getSubMenu(), true);
-            }
-        }
-    }
-
-    private ColorStateList getTint() {
-        return AppCompatResources.getColorStateList(this, getAttributeValue(R.attr.colorControlNormal));
     }
 
     @Override
