@@ -137,7 +137,7 @@
     <string name="settings_squeezeplayer_title">Uruchom SqueezePlayer</string>
     <string name="settings_theme_title">Motyw</string>
     <string name="settings_theme_dark">Ciemny</string>
-    <string name="settings_theme_light_dark">Jasny, ciemny pasek akcji</string>
+    <string name="settings_theme_light">Jasny</string>
     <string name="settings_screensaver_title">Pozostaw włączony ekran</string>
     <string name="settings_screensaver_off">Nie</string>
     <string name="settings_screensaver_on">Tak</string>

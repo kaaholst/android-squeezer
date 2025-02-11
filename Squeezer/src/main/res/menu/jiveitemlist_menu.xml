@@ -30,7 +30,7 @@
                 android:checkableBehavior="single">
                 <item
                     android:id="@+id/menu_item_light"
-                    android:title="@string/settings_theme_light_dark"
+                    android:title="@string/settings_theme_light"
                     android:icon="@drawable/ic_theme_light"
                     app:showAsAction="never"
                     />

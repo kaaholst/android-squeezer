@@ -36,7 +36,7 @@
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
-    <string name="settings_theme_light_dark">Light, dark action bar</string>
+    <string name="settings_theme_light">Light</string>
     <string name="settings_screensaver_title">Keep screen on</string>
     <string name="settings_screensaver_off">No</string>
     <string name="settings_screensaver_on">Yes</string>

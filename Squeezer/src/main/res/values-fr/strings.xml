@@ -31,7 +31,7 @@
     <string name="settings_server_prompt">Choisissez un serveur</string>
     <string name="settings_theme_title">Thème</string>
     <string name="settings_theme_dark">Sombre</string>
-    <string name="settings_theme_light_dark">Clair, barre d\'action sombre</string>
+    <string name="settings_theme_light">Clair</string>
     <string name="settings_add_composer_line">Présenter le compositeur</string>
     <string name="settings_band_instead_album">Présenter information pour musique classique</string>
     <string name="settings_add_conductor_line">Présenter l\'orchestre e le chef</string>

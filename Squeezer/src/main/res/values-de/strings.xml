@@ -29,7 +29,7 @@
     <string name="settings_server_prompt">Wählen Sie einen Server</string>
     <string name="settings_theme_title">Erscheinungsbild</string>
     <string name="settings_theme_dark">Dunkel</string>
-    <string name="settings_theme_light_dark">Hell, dunkle Aktionsleiste</string>
+    <string name="settings_theme_light">Hell</string>
     <string name="settings_add_composer_line">Komponist anzeigen</string>
     <string name="settings_band_instead_album">Trackinfo für klassiche Musik</string>
     <string name="settings_add_conductor_line">Orchester und Dirigent anzeigen</string>

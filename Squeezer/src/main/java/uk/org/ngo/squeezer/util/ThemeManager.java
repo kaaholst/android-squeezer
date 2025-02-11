@@ -44,7 +44,7 @@ public class ThemeManager {
 
     /** Available themes. */
     public enum Theme implements EnumWithText {
-        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar, AppCompatDelegate.MODE_NIGHT_NO),
+        LIGHT_DARKACTIONBAR(R.string.settings_theme_light, R.style.AppTheme_Light, AppCompatDelegate.MODE_NIGHT_NO),
         DARK(R.string.settings_theme_dark, R.style.AppTheme, AppCompatDelegate.MODE_NIGHT_YES);
 
         @StringRes private final int labelId;

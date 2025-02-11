@@ -36,7 +36,7 @@
     <string name="settings_server_prompt">Vælg en server</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_dark">Mørk</string>
-    <string name="settings_theme_light_dark">Lys, mørk handlingslinie</string>
+    <string name="settings_theme_light">Lys</string>
     <string name="settings_screensaver_title">Hold skærmen tændt</string>
     <string name="settings_screensaver_off">Nej</string>
     <string name="settings_screensaver_on">Ja</string>
