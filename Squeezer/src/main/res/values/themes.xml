@@ -9,6 +9,7 @@
         <item name="colorSecondary">@color/colorSecondaryDark</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantDark</item>
         <item name="colorToolbar">@color/colorToolbarDark</item>
+        <item name="colorBottomBar">@color/colorBottomBarDark</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
@@ -26,6 +27,7 @@
         <item name="colorSecondary">@color/colorSecondaryLight</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
         <item name="colorToolbar">@color/colorToolbarLight</item>
+        <item name="colorBottomBar">@color/colorBottomBarLight</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
