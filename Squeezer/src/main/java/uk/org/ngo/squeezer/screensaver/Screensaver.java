@@ -1,7 +1,10 @@
 package uk.org.ngo.squeezer.screensaver;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -11,11 +14,19 @@ import android.widget.TextClock;
 import uk.org.ngo.squeezer.R;
 
 public class Screensaver extends AppCompatActivity {
+    private boolean systemBarVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (view, insets) -> {
+            boolean systemBarVisible = insets.isVisible(WindowInsetsCompat.Type.navigationBars()) || insets.isVisible(WindowInsetsCompat.Type.statusBars());
+            if (systemBarVisible && !this.systemBarVisible) finish();
+            this.systemBarVisible = systemBarVisible;
+            return WindowInsetsCompat.CONSUMED;
+        });
         setContentView(R.layout.clock);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
