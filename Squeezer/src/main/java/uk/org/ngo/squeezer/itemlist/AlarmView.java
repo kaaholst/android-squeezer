@@ -17,9 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.content.res.Resources;
-import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
 
@@ -27,6 +25,7 @@ import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.TextView;
 
@@ -49,9 +48,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             R.id.day_sunday, R.id.day_monday, R.id.day_tuesday, R.id.day_wednesday,
             R.id.day_thursday, R.id.day_friday, R.id.day_saturday
     };
-    private final Resources mResources;
     private final int mColorSelected;
-    private final float mDensity;
     private final boolean is24HourFormat;
     private final TextView time;
     private final TextView amPm;
@@ -63,9 +60,8 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
     public AlarmView(@NonNull AlarmsActivity activity, @NonNull View view) {
         super(activity, view);
-        mResources = activity.getResources();
-        mColorSelected = mResources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
-        mDensity = mResources.getDisplayMetrics().density;
+        Resources resources = activity.getResources();
+        mColorSelected = resources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
 
         is24HourFormat = DateFormat.is24HourFormat(getActivity());
         time = view.findViewById(R.id.time);
@@ -158,14 +154,10 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     private void setDowText(int day) {
         SpannableString text = new SpannableString(dayTexts[day]);
         if (item.isDayActive(day)) {
+            text.setSpan(new UnderlineSpan(), 0, text.length(), 0);
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
-            Drawable underline = mResources.getDrawable(R.drawable.underline);
-            float textSize = (new Paint()).measureText(text.toString());
-            underline.setBounds(0, 0, (int) (textSize * mDensity), (int) (1 * mDensity));
-            dowTexts[day].setCompoundDrawables(null, null, null, underline);
-        } else
-            dowTexts[day].setCompoundDrawables(null, null, null, null);
+        }
         dowTexts[day].setText(text);
     }
 
