@@ -8,9 +8,8 @@
         <item name="colorPrimaryVariant">@color/colorPrimaryVariantDark</item>
         <item name="colorSecondary">@color/colorSecondaryDark</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantDark</item>
-        <item name="colorToolbar">@color/colorToolbarDark</item>
-        <item name="colorBottomBar">@color/colorBottomBarDark</item>
-        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+        <item name="colorAppBar">@color/colorAppBarDark</item>
+        <item name="appBarLayoutStyle">@style/AppBarStyle</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
@@ -26,9 +25,8 @@
         <item name="colorPrimaryVariant">@color/colorPrimaryVariantLight</item>
         <item name="colorSecondary">@color/colorSecondaryLight</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
-        <item name="colorToolbar">@color/colorToolbarLight</item>
-        <item name="colorBottomBar">@color/colorBottomBarLight</item>
-        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+        <item name="colorAppBar">@color/colorAppBarLight</item>
+        <item name="appBarLayoutStyle">@style/AppBarStyle</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="sliderStyle">@style/Widget.App.Slider</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Squeezer.BottomSheetDialog</item>
@@ -37,13 +35,14 @@
         <item name="currentTrackBackground">@drawable/current_track_background_light</item>
     </style>
 
-    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
-    </style>
+    <style name="AppBarStyle">
+        <item name="android:elevation">4dp</item>
+        <item name="android:background">?attr/colorAppBar</item>
+        <item name="titleTextColor">?attr/colorControlNormal</item>
+        <item name="subtitleTextColor">@color/material_on_primary_emphasis_medium</item>
 
-    <style name="ThemeOverlay.App.Toolbar" parent="">
-        <item name="colorPrimary">?attr/colorToolbar</item>
-        <item name="colorOnPrimary">?attr/colorControlNormal</item>
+        <item name="android:theme">@style/ThemeOverlay.MaterialComponents.Toolbar.Primary</item>
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Toolbar.Popup.Primary</item>
     </style>
 
     <style name="OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">

@@ -25,6 +25,5 @@
 
     <!-- Themable colors -->
     <attr name="currentTrackBackground" format="reference"/>
-    <attr name="colorToolbar" format="reference"/>
-    <attr name="colorBottomBar" format="reference"/>
+    <attr name="colorAppBar" format="reference"/>
 </resources>
