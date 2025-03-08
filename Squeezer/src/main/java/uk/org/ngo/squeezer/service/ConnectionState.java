@@ -36,12 +36,10 @@ import org.greenrobot.eventbus.EventBus;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
-import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.LastscanChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -342,12 +340,9 @@ public class ConnectionState {
      */
     public void setRescan(boolean rescan, String progressName, String progressDone, String progressTotal) {
         if (rescan || rescan != this.rescan) {
-            Log.i(TAG, "setRescan(" + rescan + ")");
+            Log.i(TAG, "setRescan(" + (rescan ? formatScanningProgress(progressName, progressDone, progressTotal) : "done") + ")");
             this.rescan = rescan;
-            mEventBus.post(rescan
-                    ? new DisplayEvent(new DisplayMessage(formatScanningProgress(progressName, progressDone, progressTotal)))
-                    : new RefreshEvent()
-            );
+            if (!rescan) mEventBus.post(new RefreshEvent());
             if (rescan) rescanned = true;
         }
     }
