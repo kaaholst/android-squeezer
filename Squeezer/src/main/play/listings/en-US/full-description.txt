@@ -1,10 +1,10 @@
-Remote control for your Lyrion Music Server and players.
+Control your Lyrion Music Server and players.
 
 Features include:
 
 &bull; Browse the library by album artist, all artists, composers, album, genre, year, playlist, favorites, or new music
 &bull; Playlist control (now playing, shuffle, repeat, save/clear/modify playlists)
-&bull; Manage players, and groups of players
+&bull; Manage players (names, synchronisation groups, sleep, alarms)
 &bull; Full library search
 &bull; Internet radio support (browse, staff picks, search)
 &bull; Browse music folders

@@ -1,3 +1,9 @@
+---
+layout: page
+title: Privacy Policy
+permalink: /privacy/
+---
+
 # Squeezer Privacy Policy
 
 This Application collects some Personal Data from its Users.
@@ -431,5 +437,5 @@ multiple legislations, including Art. 13/14 of Regulation (EU)
 This privacy policy relates solely to this Application, if not stated
 otherwise within this document.
 
-Latest update: September 18, 2018
+Latest update: July 9, 2020
 

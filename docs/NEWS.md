@@ -1,3 +1,9 @@
+---
+layout: page
+title: Changelog
+permalink: /changelog/
+---
+
 2.3.8
 =====
 

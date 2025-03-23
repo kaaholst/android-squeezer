@@ -7,38 +7,27 @@ Control your Lyrion Music Server and players from your Android phone.
 
 Features include:
 
-*   Now playing, artwork, seeking within tracks, volume control.
+* Browse the library by album artist, all artists, composers, album, genre, year, playlist, favorites, or new music
+* Playlist control (now playing, shuffle, repeat, save/clear/modify playlists)
+* Manage players (names, synchronisation groups, sleep, alarms)
+* Full library search
+* Internet radio support (browse, staff picks, search).
+* Browse music folders
+* Supports Plugins/Apps
+* Library Views and Remote Music Libraries
+* Download of local music; track, album, artist, genre, year, playlist and music folder
+* Automatic discovery of local servers
+* Support for password protected servers
+* Control playback from your Android Wear device
+* Home Screen Widgets
+* Alarm Clock management
+* Add/remove music from favorites
+* Display lyrics
 
-*   Browse the library by album artist, all artists, composers, album, genre, year, playlist, favorites, or new music
+Squeezer is free, and open source.
 
-*   Browse the music folders (if supported by the server).
-
-*   Full library search.
-
-*   Supports Plugins/Apps
-
-*   Library Views and Remote Music Libraries
-
-*   Download of local music; track, album, artist, genre, year, playlist and music folder
-
-*   Manage players (names, synchronisation groups, sleep, alarms)
-
-*   Internet radio support (browse, staff picks, search).
-
-*   Home Screen Widgets
-
-*   Alarm Clock management
-
-*   Add/remove music from favorites
-
-*   Automatic discovery of local servers
-
-*   Control playback from your Android Wear device
-
-Squeezer is free, and open source. To contribute, see [Contributing](https://github.com/kaaholst/android-squeezer/blob/develop/CONTRIBUTING.md).
-
-To file an issue or a feature request please use the [Issue Tracker](https://github.com/kaaholst/android-squeezer/issues).
-
-If you like to help translate Squeezer, please see [Translating Squeezer](https://github.com/kaaholst/android-squeezer/wiki/Translating-Squeezer).
-
-[Privacy Policy](PRIVACY.md).
+* [Issue Tracker](https://github.com/kaaholst/android-squeezer/issues) to file an issue or a feature request.
+* [Beta testing](Beta-testing.md) to join the Squeezer beta test programme.
+* [Privacy Policy](PRIVACY.md).
+* [Contributing](https://github.com/kaaholst/android-squeezer/blob/develop/CONTRIBUTING.md) if you want to help develop or translating Squeezer.
+* [Changelog](NEWS.md).

@@ -62,7 +62,11 @@ class WhatsNewPlugin implements Plugin<Project> {
                 def changeLog = new XmlSlurper().parseText(
                         new File(project.whatsnew.changelogPath).getText('UTF-8'))
 
-                String content = ''
+                String content = '---\n' +
+                        'layout: page\n' +
+                        'title: Changelog\n' +
+                        'permalink: /changelog/\n' +
+                        '---\n\n'
                 changeLog.release.each { release ->
                     content += release.@version.text() + '\n'
                     content += ('=' * release.@version.text().size()) + '\n\n'

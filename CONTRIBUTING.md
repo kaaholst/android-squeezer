@@ -17,8 +17,19 @@ reported it, and if so, add a comment to their note.
 The easiest way to contribute, especially if you are not a programmer,
 is to help translate Squeezer's interface in to different languages.
 
-There's more information on how to do that at
-[Translating Squeezer](https://github.com/nikclayton/android-squeezer/wiki/Translating-Squeezer).
+Follow [How to contribute code](#how-to-contribute-code) to fetch the code 
+and submit a pull request with your changes. 
+
+For a new translation copy Squeezer/src/main/res/values/strings.xml to a 
+folder named Squeezer/src/main/res/values-\<language\>.
+
+The language is defined by a two-letter 
+[ISO 639-1](http://www.loc.gov/standards/iso639-2/php/code_list.php) language code, 
+optionally followed by a two-letter 
+[ISO 3166-1-alpha-2](https://www.iso.org/obp/ui/#iso:pub:PUB500001:en) region code 
+(preceded by lowercase r).
+
+Translate the copied file, commit and submit a pull request with your changes.
 
 ## Small bug fixes
 
@@ -29,25 +40,17 @@ You can also review the
 [list of open bugs](https://github.com/kaaholst/android-squeezer/issues?q=is%3Aopen+is%3Aissue)
 if you want inspiration for something to work on.
 
-Please see the [Co-ordination](#Co-ordination) section if you think the
-fix is going to be particularly complex, or if it touches lots of
-files. The [How to contribute code](#How-to-contribute-code) section
-has technical details on how to contribute code.
+The [How to contribute code](#How-to-contribute-code) section has technical details on how to contribute code.
 
 ## Larger features
 
 Contributing larger features to Squeezer is also very welcome. For these
-please review the [Co-ordination](#Co-ordination) section, and let us
+please use the [issues page](https://github.com/kaaholst/android-squeezer/issues), and let us
 know what you plan on working on, so we don't end up duplicating too much
 effort.
 
 Please see the [How to contribute code](#How-to-contribute-code) section
 for technical details.
-
-## Co-ordination
-
-The old mailing list at android-squeezer@googlegroups.com is not longer monitored.
-All issues are migrated to Github and should be discussed there.
 
 ## How to contribute code
 
@@ -66,9 +69,6 @@ We (roughly) follow the branching model laid out in the
 blog post.
 
 Specifically:
-
-*   The `master` branch is generally kept pristine. No development work
-    happens here.
 
 *   The `develop` branch is for small bug fixes or other cleanups that need
     no more than a single commit to complete. Work is merged onto `develop` by
