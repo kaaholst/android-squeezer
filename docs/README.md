@@ -41,4 +41,4 @@ To file an issue or a feature request please use the [Issue Tracker](https://git
 
 If you like to help translate Squeezer, please see [Translating Squeezer](https://github.com/kaaholst/android-squeezer/wiki/Translating-Squeezer).
 
-[Privacy Policy](/PRIVACY.md).
+[Privacy Policy](PRIVACY.md).
