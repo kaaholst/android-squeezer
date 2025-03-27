@@ -1,1 +1,1 @@
-https://github.com/kaaholst/android-squeezer
+https://kaaholst.github.io/android-squeezer
