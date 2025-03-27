@@ -420,7 +420,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="about_team" translatable="false">Team</string>
     <string name="about_authors" translatable="false">Benjamin Viertel\nKurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
     <string name="about_support" translatable="false"><a href="https://github.com/kaaholst/android-squeezer">Support</a></string>
-    <string name="about_privacy_policy" translatable="false"><a href="https://github.com/kaaholst/android-squeezer/blob/develop/PRIVACY.md">Privacy policy</a></string>
+    <string name="about_privacy_policy" translatable="false"><a href="https://kaaholst.github.io/android-squeezer/privacy">Privacy policy</a></string>
     <string name="configure_select_player">Select player to control</string>
     <string name="configure_select_button">Widget action</string>
     <string name="remote_unknownDescription">Unknown</string>
