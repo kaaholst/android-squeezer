@@ -19,7 +19,7 @@ values.
 ### Update the release notes.
 
 Edit `Squeezer/src/main/res/xml/changelog_master.xml` with the details.
-Run `git log master..develop` to see what's changed
+Run `git log x.y.z..develop` to see what's changed (where x.y.z is previous release)
 
 ### Update the `produktion.txt` or `beta.txt` release-note files.
 
@@ -72,11 +72,6 @@ and the release branch is no longer necessary.
     git merge release-x.y.z
     git tag -a x.y.z -m "Code for the x.y.z release."
     git push origin x.y.z
-
-### Update the master branch.
-
-    git switch master
-    git merge develop
 
 ### Delete the release branch
 
