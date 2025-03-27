@@ -2,6 +2,23 @@
 
 <changelog>
     <release
+        version="2.3.9"
+        versioncode="144">
+
+        <change>Add Polish translation. Contributed by Michał Szkutnik</change>
+
+        <change>Remove the obsolete possibility to connect to mysqueezebox.com</change>
+
+        <change>Embed icon for Disk and folders Plugin</change>
+
+        <change>Target Android 15 and enable EdgeToEdge</change>
+
+        <change>Don't display scanning progress popup messages</change>
+
+        <change>Fixed various minor issues</change>
+    </release>
+
+    <release
         version="2.3.8"
         versioncode="141">
 

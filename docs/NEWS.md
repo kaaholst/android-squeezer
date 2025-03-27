@@ -4,6 +4,22 @@ title: Changelog
 permalink: /changelog/
 ---
 
+2.3.9
+=====
+
+*   Add Polish translation. Contributed by Michał Szkutnik
+
+*   Remove the obsolete possibility to connect to mysqueezebox.com
+
+*   Embed icon for Disk and folders Plugin
+
+*   Target Android 15 and enable EdgeToEdge
+
+*   Don't display scanning progress popup messages
+
+*   Fixed various minor issues
+
+
 2.3.8
 =====
 

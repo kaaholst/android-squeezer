@@ -1,1 +1,11 @@
-&bull; Disable full rebuild of client caches to prevent slow startup in some scenarios
+&bull; Add Polish translation. Contributed by Michał Szkutnik
+
+&bull; Remove the obsolete possibility to connect to mysqueezebox.com
+
+&bull; Embed icon for Disk and folders Plugin
+
+&bull; Target Android 15 and enable EdgeToEdge
+
+&bull; Don't display scanning progress popup messages
+
+&bull; Fixed various minor issues
