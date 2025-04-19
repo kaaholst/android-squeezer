@@ -19,12 +19,8 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -88,12 +84,6 @@ public class PlayerListActivity extends ItemListActivity implements
         return false;
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayerVolume event) {
-        adapter.notifyVolumeChanged(event.player);
-        adapter.notifyGroupVolumeChanged(event.player);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +97,18 @@ public class PlayerListActivity extends ItemListActivity implements
             currentPlayer = savedInstanceState.getParcelable(PlayerListActivity.CURRENT_PLAYER);
         }
        currentSyncGroup = getRetainedValue(CURRENT_SYNC_GROUP);
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (HandshakeComplete event) -> updateAndExpandPlayerList());
+        repository().observe(this, (PlayerStateChanged event) -> maybeUpdateAndExpandPlayerList());
+        repository().observe(this, (PlayerVolume event) -> {
+            adapter.notifyVolumeChanged(event.player);
+            adapter.notifyGroupVolumeChanged(event.player);
+        });
+        repository().observe(this, (SleepTimeChanged event) -> maybeUpdateAndExpandPlayerList());
     }
 
     @Override
@@ -223,22 +225,6 @@ public class PlayerListActivity extends ItemListActivity implements
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         // Do nothing -- the service has been tracking players from the time it
         // initially connected to the server.
-    }
-
-    public void onEventMainThread(HandshakeComplete event) {
-        Log.d("PlayerListActivity", "Handshake complete");
-        super.onEventMainThread(event);
-        updateAndExpandPlayerList();
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayerStateChanged event) {
-        maybeUpdateAndExpandPlayerList();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(SleepTimeChanged event) {
-        maybeUpdateAndExpandPlayerList();
     }
 
     private void maybeUpdateAndExpandPlayerList() {

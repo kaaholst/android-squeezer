@@ -21,8 +21,6 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import org.greenrobot.eventbus.EventBus;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Action;
@@ -33,11 +31,6 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 public interface ISqueezeService {
-    /**
-     * @return the EventBus the activity posts events to.
-     */
-    @NonNull EventBus getEventBus();
-
     // Instructing the service to connect to the Lyrion Music Server
     // hostPort is the port of the CLI interface.
     void startConnect(boolean autoConnect);

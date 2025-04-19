@@ -24,9 +24,6 @@ dependencies {
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.media:media:1.7.0'
 
-    // EventBus, https://github.com/greenrobot/EventBus.
-    implementation 'org.greenrobot:eventbus:3.3.1'
-
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
@@ -95,7 +92,6 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
-            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-cometd.cfg"
             proguardFile "proguard-squeezer.cfg"

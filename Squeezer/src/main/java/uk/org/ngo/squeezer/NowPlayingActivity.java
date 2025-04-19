@@ -123,7 +123,7 @@ public class NowPlayingActivity extends BaseActivity {
         updateTrackInfoMenuItems();
         Player activePlayer = getActivePlayer();
         if (activePlayer != null) {
-            requireService().getEventBus().post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+            repository().post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
         }
     }
 

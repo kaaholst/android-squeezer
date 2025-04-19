@@ -48,11 +48,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.AlertWindow;
 import uk.org.ngo.squeezer.model.DisplayMessage;
@@ -68,8 +66,8 @@ import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.FluentHashMap;
@@ -113,7 +111,6 @@ class CometClient extends BaseClient {
     public static long SERVER_STATUS_INTERVAL = 60;
     public static final long SERVER_STATUS_TIMEOUT = SERVER_STATUS_INTERVAL * 1_000 + 10_000;
 
-
     /** Handler for off-main-thread work. */
     @NonNull
     private final Handler mBackgroundHandler;
@@ -142,12 +139,13 @@ class CometClient extends BaseClient {
     // asynchronous responses are received.
     private volatile int mCorrelationId = 0;
 
-    CometClient(@NonNull EventBus eventBus) {
-        super(eventBus);
+    CometClient(SqueezerRepository repository) {
+        super(repository);
 
         HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
         handlerThread.start();
         mBackgroundHandler = new CliHandler(handlerThread.getLooper());
+        repository.observeForever(this::onHandshakeComplete);
 
         List<ItemListener<?>> itemListeners = Arrays.asList(
                 new AlarmsListener(),
@@ -176,7 +174,7 @@ class CometClient extends BaseClient {
                             int newVolume = Integer.parseInt(volume);
                             PlayerState playerState = player.getPlayerState();
                             playerState.setCurrentVolume(newVolume);
-                            mEventBus.post(new PlayerVolume(player));
+                            repository.post(new PlayerVolume(player));
                         } else {
                             // Since LMS doesn't send player status when volume is updated via a synced player we order them explicitly
                             if (player.isSyncVolume()) {
@@ -219,10 +217,6 @@ class CometClient extends BaseClient {
                 SendWakeOnLan.sendWakeOnLan(serverAddress.mac);
             }
             Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
-
-            if (!mEventBus.isRegistered(CometClient.this)) {
-                mEventBus.register(CometClient.this);
-            }
 
             final HttpClient httpClient = new HttpClient();
             try {
@@ -457,7 +451,7 @@ class CometClient extends BaseClient {
                 if (items.size() > 0) {
                     player.getPlayerState().getCurrentSong().songInfo = items.get(0);
                     mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
-                    mEventBus.postSticky(new MusicChanged(player, player.getPlayerState()));
+                    repository.post(new MusicChanged(player, player.getPlayerState()));
                 }
             }
 
@@ -494,11 +488,11 @@ class CometClient extends BaseClient {
             String type = Util.getString(display, "type");
             if ("alertWindow".equals(type)) {
                 AlertWindow alertWindow = new AlertWindow(display);
-                mEventBus.post(new AlertEvent(alertWindow));
+                repository.post(new AlertEvent(alertWindow));
             } else {
                 display.put("urlPrefix", mUrlPrefix);
                 DisplayMessage displayMessage = new DisplayMessage(display);
-                mEventBus.post(new DisplayEvent(displayMessage));
+                repository.post(new DisplayEvent(displayMessage));
             }
         }
     }
@@ -652,8 +646,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    @Subscribe
-    public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
+    private void onHandshakeComplete(HandshakeComplete event) {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
     }
 
@@ -855,7 +848,7 @@ class CometClient extends BaseClient {
                 case MSG_MUSIC_CHANGED: {
                     Player activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {
-                        mEventBus.postSticky(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
+                        repository.post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
                     }
                     break;
                 }

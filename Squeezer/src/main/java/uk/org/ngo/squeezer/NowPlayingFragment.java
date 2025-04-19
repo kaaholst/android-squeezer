@@ -46,7 +46,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -60,9 +59,6 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -632,7 +628,55 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         Log.v(TAG, "Service bound");
         mService = service;
 
-        maybeRegisterCallbacks(mService);
+        SqueezerRepository repository = mActivity.repository();
+
+        repository.observe(this, this::onConnectionChanged);
+        repository.observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+        repository.observe(this, this::onHomeMenuChange);
+
+        repository.observe(this, (ShuffleStatusChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updateShuffleStatus(event.shuffleStatus);
+            }
+        });
+        repository.observe(this, (RepeatStatusChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updateRepeatStatus(event.repeatStatus);
+            }
+        });
+        repository.observe(this, (PowerStatusChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updatePlayerMenuItems();
+            }
+        });
+        repository.observe(this, (PlayerVolume event) -> {
+            if (!trackingTouch) {
+                if (event.player == requireService().getActivePlayer()) {
+                    updateVolumeInfo();
+                }
+            }
+        });
+        repository.observe(this, (MusicChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updateSongInfo(event.playerState);
+            }
+        });
+        repository.observe(this, (PlayStatusChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updatePlayPauseIcon(event.playStatus);
+            }
+        });
+        repository.observe(this, (SongTimeChanged event) -> {
+            if (event.player.equals(requireService().getActivePlayer())) {
+                updateTimeDisplayTo(event.currentPosition, event.duration);
+            }
+        });
+
+        repository.observe(this, (ActivePlayerChanged event) -> {
+            updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
+            updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
+        });
+        repository.observe(this, (PlayersChanged event) -> updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer()));
 
         // Assume they want to connect
         if (canAutoConnect()) {
@@ -657,29 +701,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
-
-        if (mService != null) {
-            maybeRegisterCallbacks(mService);
-        }
-
-        mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
-                ConnectivityManager.CONNECTIVITY_ACTION));
-    }
-
-    /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
-
-    /**
-     * This is called when the service is first connected, and whenever the activity is resumed.
-     */
-    private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
-        if (!mRegisteredCallbacks) {
-            service.getEventBus().register(this);
-
-            mRegisteredCallbacks = true;
-        }
+        mActivity.registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @UiThread
@@ -962,11 +984,6 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
 
         mActivity.unregisterReceiver(broadcastReceiver);
 
-        if (mRegisteredCallbacks) {
-            requireService().getEventBus().unregister(this);
-            mRegisteredCallbacks = false;
-        }
-
         super.onPause();
     }
 
@@ -1112,9 +1129,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
     }
 
 
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(ConnectionChanged event) {
+    private void onConnectionChanged(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
 
         // The fragment may no longer be attached to the parent activity.  If so, do nothing.
@@ -1152,9 +1167,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         }
      }
 
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HandshakeComplete event) {
+    private void onHandshakeComplete() {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
         // XXX: Verify that this is possible, since the fragment can't register for events
@@ -1179,46 +1192,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         requestCallStateLauncher.trySetAction(Squeezer.getPreferences().getActionOnIncomingCall());
     }
 
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(ActivePlayerChanged event) {
-        updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
-        updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MusicChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updateSongInfo(event.playerState);
-        }
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayStatusChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updatePlayPauseIcon(event.playStatus);
-        }
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PowerStatusChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updatePlayerMenuItems();
-        }
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HomeMenuEvent event) {
+    private void onHomeMenuChange(HomeMenuEvent event) {
         boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
         String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
         topBarSearch = null;
@@ -1227,39 +1201,6 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             if ("myMusicSearch".equals(menuItem.getId())) menuItem.input = new Input();
         }
         if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(RepeatStatusChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updateRepeatStatus(event.repeatStatus);
-        }
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(ShuffleStatusChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updateShuffleStatus(event.shuffleStatus);
-        }
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(SongTimeChanged event) {
-        if (event.player.equals(requireService().getActivePlayer())) {
-            updateTimeDisplayTo(event.currentPosition, event.duration);
-        }
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(PlayerVolume event) {
-        if (!trackingTouch) {
-            if (event.player == requireService().getActivePlayer()) {
-                updateVolumeInfo();
-            }
-        }
     }
 
     @Override

@@ -24,11 +24,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,6 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
@@ -80,6 +79,12 @@ public class ConnectActivity extends BaseActivity {
         setErrorMessageFromReason(mDisconnectionReason);
 
         findViewById(R.id.connect).setOnClickListener(view -> onUserInitiatesConnect());
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, this::onHandshakeComplete);
     }
 
     /**
@@ -172,8 +177,7 @@ public class ConnectActivity extends BaseActivity {
         }
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HandshakeComplete event) {
+    private void onHandshakeComplete(HandshakeComplete event) {
         Log.d("ConnectActivity", "Handshake complete");
         Squeezer.getPreferences().saveServer();
         HomeActivity.show(this);

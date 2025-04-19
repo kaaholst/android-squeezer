@@ -53,6 +53,7 @@ import java.util.HashSet;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.dialog.DownloadDialog;
@@ -71,9 +72,6 @@ import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.VolumeKeysDelegate;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 /**
  * Common base class for all activities in Squeezer.
  *
@@ -88,9 +86,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     private ISqueezeService mService = null;
 
     private final ThemeManager themeManager = new ThemeManager();
-
-    /** Records whether the activity has registered on the service's event bus. */
-    private boolean mRegisteredOnEventBus;
 
     private SqueezePlayer squeezePlayer;
 
@@ -190,10 +185,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         themeManager.onResume(this);
 
-        if (mService != null) {
-            maybeRegisterOnEventBus(mService);
-        }
-
         if (inactivityHandler != null) {
             setInactivityTimer();
         }
@@ -221,14 +212,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             squeezePlayer.stopControllingSqueezePlayer();
             squeezePlayer = null;
         }
-        if (mRegisteredOnEventBus) {
-            // If we are not bound to the service, it's process is no longer
-            // running, so the callbacks are already cleaned up.
-            if (mService != null) {
-                mService.getEventBus().unregister(this);
-                mService.cancelItemListRequests(this);
-            }
-            mRegisteredOnEventBus = false;
+
+        // If we are not bound to the service, it's process is no longer
+        // running, so the callbacks are already cleaned up.
+        if (mService != null) {
+            mService.cancelItemListRequests(this);
         }
 
         // Ensure that any pending image fetching tasks are unpaused, and finish quickly.
@@ -275,23 +263,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         Log.d(TAG, "onServiceConnected");
         supportInvalidateOptionsMenu();
-        maybeRegisterOnEventBus(service);
+        repository().observe(this, (AlertEvent event) -> AlertEventDialog.show(getSupportFragmentManager(), event.message.title, event.message.text));
+        repository().observe(this, (DisplayEvent event) -> showDisplayMessage(event.message));
     }
 
-    /**
-     * Conditionally registers with the service's EventBus.
-     * <p>
-     * Registration can happen in {@link #onResume()} and {@link
-     * #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures that it only
-     * happens once.
-     *
-     * @param service The connection to the bound service.
-     */
-    private void maybeRegisterOnEventBus(@NonNull ISqueezeService service) {
-        if (!mRegisteredOnEventBus) {
-            service.getEventBus().register(this);
-            mRegisteredOnEventBus = true;
-        }
+    public SqueezerRepository repository() {
+        return ((Squeezer)getApplicationContext()).repository();
     }
 
     @Override
@@ -368,11 +345,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         showDisplayMessage(new DisplayMessage(text));
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(DisplayEvent displayEvent) {
-        showDisplayMessage(displayEvent.message);
-    }
-
     public void showDisplayMessage(DisplayMessage display) {
         boolean showMe = true;
         View layout = getLayoutInflater().inflate(R.layout.display_message, findViewById(R.id.display_message_container));
@@ -417,11 +389,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         lastShownToast.setDuration(duration);
         lastShownToast.setView(layout);
         lastShownToast.show();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(AlertEvent alert) {
-        AlertEventDialog.show(getSupportFragmentManager(), alert.message.title, alert.message.text);
     }
 
     // Safe accessors

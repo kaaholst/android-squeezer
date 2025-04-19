@@ -28,6 +28,7 @@ public class Squeezer extends Application implements SharedPreferences.OnSharedP
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
 
     private static Squeezer instance;
+    private SqueezerRepository repository;
     private Preferences preferences;
 
     public static Squeezer getInstance() {
@@ -52,10 +53,10 @@ public class Squeezer extends Application implements SharedPreferences.OnSharedP
         }
 
         instance = this;
+        repository = new SqueezerRepository();
         preferences = new Preferences(this, getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE));
         AppCompatDelegate.setDefaultNightMode(preferences.getTheme().getNightMode());
         preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
 
         // Read the default shared preferences cause it's used in de.cketti.library.changelog.ChangeLog
         doInBackground(() -> PreferenceManager.getDefaultSharedPreferences(Squeezer.this).getString("dummy", ""));
@@ -68,6 +69,10 @@ public class Squeezer extends Application implements SharedPreferences.OnSharedP
         doInBackground(() -> ImageFetcher.getInstance(Squeezer.this));
 
         super.onCreate();
+    }
+
+    public SqueezerRepository repository() {
+        return repository;
     }
 
     public void doInBackground(Runnable task) {

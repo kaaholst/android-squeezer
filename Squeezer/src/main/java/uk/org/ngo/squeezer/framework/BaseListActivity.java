@@ -20,7 +20,6 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +29,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Item;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -62,6 +62,12 @@ public abstract class BaseListActivity<VH extends ItemViewHolder<T>, T extends I
     private ItemAdapter<VH, T> itemAdapter;
 
     @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+    }
+
+    @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
 
@@ -70,10 +76,9 @@ public abstract class BaseListActivity<VH extends ItemViewHolder<T>, T extends I
         setupAdapter(getListView());
     }
 
-    @MainThread
-    public void onEventMainThread(HandshakeComplete event) {
-        Log.d("BaseLitActivity", "Handshake complete");
-        super.onEventMainThread(event);
+    private void onHandshakeComplete() {
+        Log.d("BaseListActivity", "Handshake complete");
+
         if (!needPlayer() || requireService().getActivePlayer() != null) {
             maybeOrderVisiblePages(getListView());
         } else {

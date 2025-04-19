@@ -25,13 +25,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashSet;
 import java.util.List;
@@ -196,6 +192,14 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         cancelOrders();
     }
 
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+        repository().observe(this, this::onActivePlayerChanged);
+        repository().observe(this, (RefreshEvent event) -> clearAndReOrderItems());
+    }
+
     private void showLoading() {
         subActivityContent.setVisibility(View.GONE);
         loadingProgress.setVisibility(View.VISIBLE);
@@ -281,9 +285,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
     /**
      * Update the UI with the player change
      */
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(ActivePlayerChanged event) {
+    private void onActivePlayerChanged(ActivePlayerChanged event) {
         Log.i(TAG, "ActivePlayerChanged: " + event.player);
         String activePlayerId = (event.player != null ? event.player.getId() : "");
         putRetainedValue(TAG_PLAYER_ID, activePlayerId);
@@ -297,25 +299,14 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         }
     }
 
-    @MainThread
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(RefreshEvent event) {
-        clearAndReOrderItems();
-    }
-
-    /**
-     * Orders any pages requested before the handshake completed.
-     */
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HandshakeComplete event) {
+    private void onHandshakeComplete() {
         Log.d(TAG, "Handshake complete");
         String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
         Player activePlayer = requireService().getActivePlayer();
         String activePlayerId = (activePlayer != null ? activePlayer.getId() : "");
         putRetainedValue(TAG_PLAYER_ID, activePlayerId);
         if (oldPlayerId != null && !oldPlayerId.equals(activePlayerId)) {
-            onEventMainThread(new ActivePlayerChanged(activePlayer));
+            onActivePlayerChanged(new ActivePlayerChanged(activePlayer));
         } else {
             // Order any pages that were requested before the handshake complete.
             while (!mOrderedPagesBeforeHandshake.empty()) {

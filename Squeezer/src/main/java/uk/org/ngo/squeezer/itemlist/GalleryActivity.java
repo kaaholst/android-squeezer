@@ -20,7 +20,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +29,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +40,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.SlideShow;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Image;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
@@ -70,10 +67,10 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
         ViewUtilities.setInsetsListener(listView, true, true, false);
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HandshakeComplete event) {
-        Log.d("GalleryActivity", "Handshake complete");
-        requireService().pluginItems(action, this);
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (HandshakeComplete event) -> requireService().pluginItems(action, this));
     }
 
     private class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {

@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.greenrobot.eventbus.EventBus;
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
@@ -33,8 +32,8 @@ class SlimDelegate {
 
     @NonNull private final SlimClient mClient;
 
-    SlimDelegate(@NonNull EventBus eventBus) {
-        mClient = new CometClient(eventBus);
+    SlimDelegate(SqueezerRepository repository) {
+        mClient = new CometClient(repository);
     }
 
     void startConnect(SqueezeService service, boolean autoConnect) {

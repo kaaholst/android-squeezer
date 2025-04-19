@@ -31,10 +31,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.greenrobot.eventbus.EventBus;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.model.Player;
@@ -50,13 +49,13 @@ public class ConnectionState {
 
     private static final String TAG = "ConnectionState";
 
-    ConnectionState(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
-        mHomeMenuHandling = new HomeMenuHandling(eventBus);
+    ConnectionState(SqueezerRepository repository) {
+        this.repository = repository;
+        mHomeMenuHandling = new HomeMenuHandling(repository);
     }
 
-    private final EventBus mEventBus;
     private final HomeMenuHandling mHomeMenuHandling;
+    private final SqueezerRepository repository;
     private final Map<Player, RandomPlay> mRandomPlay = new HashMap<>();
 
 
@@ -136,19 +135,19 @@ public class ConnectionState {
     void setConnectionState(State connectionState) {
         Log.i(TAG, "setConnectionState(" + state + " => " + connectionState + ")");
         updateConnectionState(connectionState);
-        mEventBus.postSticky(new ConnectionChanged(connectionState));
+        repository.post(new ConnectionChanged(connectionState));
     }
 
     void setConnectionError(ConnectionError connectionError) {
         Log.i(TAG, "setConnectionError(" + state + " => " + connectionError + ")");
         updateConnectionState(State.CONNECTION_FAILED);
-        mEventBus.postSticky(new ConnectionChanged(connectionError));
+        repository.post(new ConnectionChanged(connectionError));
     }
 
     private void updateConnectionState(State connectionState) {
         // Clear data if we were previously connected
         if (isConnected() && !connectionState.isConnected()) {
-            mEventBus.removeAllStickyEvents();
+            repository.removeEvents();
             setServerVersion(null);
             mPlayers.clear();
             setActivePlayer(null);
@@ -165,7 +164,7 @@ public class ConnectionState {
     public void setPlayers(Map<String, Player> players) {
         mPlayers.clear();
         mPlayers.putAll(players);
-        mEventBus.postSticky(new PlayersChanged());
+        repository.post(new PlayersChanged());
     }
 
     Player getPlayer(String playerId) {
@@ -232,7 +231,7 @@ public class ConnectionState {
 
     void setActivePlayer(Player player) {
         mActivePlayer.set(player);
-        mEventBus.post(new ActivePlayerChanged(player));
+        repository.post(new ActivePlayerChanged(player));
     }
 
     void setServerVersion(String version) {
@@ -240,7 +239,7 @@ public class ConnectionState {
             if (version != null && state == State.CONNECTION_COMPLETED) {
                 HandshakeComplete event = new HandshakeComplete(getServerVersion());
                 Log.i(TAG, "Handshake complete: " + event);
-                mEventBus.postSticky(event);
+                repository.post(event);
             }
         }
     }
@@ -323,7 +322,7 @@ public class ConnectionState {
                 Log.i(TAG, "Flush/rebuild client side caches: " + lastScan);
                 rescanned = false;
                 ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
-                mEventBus.post(new LastscanChanged(lastScan));
+                repository.post(new LastscanChanged(lastScan));
             }
             this.lastScan = savedScan = lastScan;
             return true;
@@ -342,7 +341,7 @@ public class ConnectionState {
         if (rescan || rescan != this.rescan) {
             Log.i(TAG, "setRescan(" + (rescan ? formatScanningProgress(progressName, progressDone, progressTotal) : "done") + ")");
             this.rescan = rescan;
-            if (!rescan) mEventBus.post(new RefreshEvent());
+            if (!rescan) repository.post(new RefreshEvent());
             if (rescan) rescanned = true;
         }
     }

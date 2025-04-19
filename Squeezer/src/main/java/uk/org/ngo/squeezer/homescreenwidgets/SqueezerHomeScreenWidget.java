@@ -13,8 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import org.greenrobot.eventbus.Subscribe;
-
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -51,17 +50,14 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
                     final ISqueezeService squeezeService = (ISqueezeService) service1;
 
                     // Wait for the PlayersChanged event
-                    squeezeService.getEventBus().register(new Object() {
-                        @Subscribe(sticky = true)
-                        public void onEvent(PlayersChanged event) {
-                            squeezeService.getEventBus().unregister(this);
-                            Log.i(SqueezerHomeScreenWidget.TAG, "Players ready, perform action");
-                            uiThreadHandler.post(() -> {
-                                showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
-                                // Handler was called successfully; service no longer needed
-                                context.unbindService(serviceConnection);
-                            });
-                        }
+                    Squeezer.getInstance().repository().observeForever((PlayersChanged event) -> {
+                        Log.i(SqueezerHomeScreenWidget.TAG, "Players ready, perform action");
+                        uiThreadHandler.post(() -> {
+                            showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
+                            // Handler was called successfully; service no longer needed
+                            context.unbindService(serviceConnection);
+                            // TODO remove observer
+                        });
                     });
 
                     // Auto connect if necessary

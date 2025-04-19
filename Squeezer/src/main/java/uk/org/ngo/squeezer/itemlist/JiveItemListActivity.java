@@ -35,7 +35,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -184,6 +183,16 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     private void setParentViewHolder() {
         parentViewHolder = new ViewParamItemView<>(this, findViewById(R.id.parent_container));
         parentViewHolder.contextMenuButton.setOnClickListener(v -> ContextMenu.show(this, parent));
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (ActivePlayerChanged event) -> {
+            if (action != null && !forActivePlayer(action)) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -339,15 +348,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
             } else
                 service.pluginItems(start, parent, action, this);
         }
-    }
-
-    @MainThread
-    public void onEventMainThread(ActivePlayerChanged event) {
-        if (action != null && !forActivePlayer(action)) {
-            finish();
-            return;
-        }
-        super.onEventMainThread(event);
     }
 
     protected boolean forActivePlayer(Action action) {

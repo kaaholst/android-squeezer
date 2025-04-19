@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -29,9 +28,6 @@ import android.widget.TextView;
 
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -84,6 +80,13 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         }
 
         ((SimpleItemAnimator) getListView().getItemAnimator()).setSupportsChangeAnimations(false);
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, this::onPlayerStateChanged);
+        repository().observe(this, (ActivePlayerChanged event) -> mActivePlayer = event.player);
     }
 
     @Override
@@ -211,15 +214,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         mAllAlarmsHintView.setText(alarmsEnabled ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
     }
 
-    @MainThread
-    public void onEventMainThread(ActivePlayerChanged event) {
-        super.onEventMainThread(event);
-        mActivePlayer = event.player;
-    }
-
-    @MainThread
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayerStateChanged event) {
+    private void onPlayerStateChanged(PlayerStateChanged event) {
         mActivePlayer = event.player;
         bindPreferences();
     }

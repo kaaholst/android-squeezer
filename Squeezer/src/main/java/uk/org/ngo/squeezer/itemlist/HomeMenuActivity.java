@@ -25,8 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +40,11 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuActivity extends JiveItemListActivity {
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, this::onHomeMenuEvent);
+    }
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
@@ -73,23 +76,21 @@ public class HomeMenuActivity extends JiveItemListActivity {
         return Window.WindowStyle.HOME_MENU;
     }
 
-    @Subscribe(sticky = true)
-    public void onEvent(HomeMenuEvent event) {
-        runOnUiThread(() -> {
-            clearItemAdapter();
+    public void onHomeMenuEvent(HomeMenuEvent event) {
+        clearItemAdapter();
 
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                if (JiveItem.HOME.equals(parent)) {
-                    parentViewHolder.itemView.setVisibility(View.GONE);
-                    // Turn off the home icon.
-                    actionBar.setDisplayHomeAsUpEnabled(false);
-                } else {
-                    boolean inArchive = JiveItem.ARCHIVE.equals(parent) || requireService().isInArchive(parent);
-                    actionBar.setHomeAsUpIndicator(inArchive ? R.drawable.ic_action_archive : R.drawable.ic_action_home);
-                }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            if (JiveItem.HOME.equals(parent)) {
+                parentViewHolder.itemView.setVisibility(View.GONE);
+                // Turn off the home icon.
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            } else {
+                boolean inArchive = JiveItem.ARCHIVE.equals(parent) || requireService().isInArchive(parent);
+                actionBar.setHomeAsUpIndicator(inArchive ? R.drawable.ic_action_archive : R.drawable.ic_action_home);
             }
-        });
+        }
+
         List<JiveItem> menu = getMenuNode(parent.getId(), event.menuItems);
         onItemsReceived(menu.size(), 0, menu, JiveItem.class);
     }

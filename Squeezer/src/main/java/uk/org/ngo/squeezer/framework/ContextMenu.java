@@ -17,9 +17,6 @@ import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -63,6 +60,12 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         items.setAdapter(adapter);
 
         return view;
+    }
+
+    @Override
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        Squeezer.getInstance().repository().observe(this, (HandshakeComplete event) -> maybeOrderPage(0));
     }
 
     public void show(JiveItem item, Action action) {
@@ -146,7 +149,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
             if (item.goAction != null)
                 JiveItemViewLogic.execGoAction(activity(), this, item, position, contextStack.size());
             else if (!item.webLink.equals(Uri.EMPTY))
-                getActivity().startActivity(new Intent(Intent.ACTION_VIEW, item.webLink));
+                requireActivity().startActivity(new Intent(Intent.ACTION_VIEW, item.webLink));
             return;
         }
         dismiss();
@@ -183,11 +186,6 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
     @Override
     public Object getClient() {
         return this;
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
-        maybeOrderPage(0);
     }
 
     @Override

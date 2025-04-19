@@ -33,8 +33,7 @@ public abstract class BottomSheetDialogFragmentWithService extends BottomSheetDi
         }
     };
 
-    protected final void onServiceConnected() {
-        service.getEventBus().register(this);
+    protected void onServiceConnected() {
     }
 
     @Override
@@ -52,7 +51,6 @@ public abstract class BottomSheetDialogFragmentWithService extends BottomSheetDi
     public void onStop() {
         super.onStop();
         if (service != null) {
-            service.getEventBus().unregister(this);
             service.cancelItemListRequests(this);
         }
         requireActivity().unbindService(serviceConnection);

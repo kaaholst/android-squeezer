@@ -26,7 +26,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -34,6 +34,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeActivity extends HomeMenuActivity {
@@ -60,10 +61,14 @@ public class HomeActivity extends HomeMenuActivity {
         });
     }
 
-    @MainThread
-    public void onEventMainThread(HandshakeComplete event) {
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+    }
+
+    private void onHandshakeComplete() {
         Log.d(TAG, "Handshake complete");
-        super.onEventMainThread(event);
 
         // Show a tip about volume controls, if this is the first time this app
         // has run. TODO: Add more robust and general 'tips' functionality.

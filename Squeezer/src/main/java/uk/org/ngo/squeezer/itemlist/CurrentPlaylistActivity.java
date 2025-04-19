@@ -33,12 +33,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.Map;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
@@ -81,6 +77,13 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
             detector.onTouchEvent(event);
             return true;
         });
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        repository().observe(this, this::onMusicChanged);
+        repository().observe(this, this::onPlaylistChanged);
     }
 
     @Override
@@ -189,8 +192,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         return getService().getCurrentPlaylist();
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MusicChanged event) {
+    private void onMusicChanged(MusicChanged event) {
         if (getService() == null) {
             return;
         }
@@ -202,8 +204,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         }
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaylistChanged event) {
+    private void onPlaylistChanged(PlaylistChanged event) {
         if (getService() == null) {
             return;
         }

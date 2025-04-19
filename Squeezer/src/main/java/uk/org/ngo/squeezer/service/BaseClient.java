@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import org.greenrobot.eventbus.EventBus;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
@@ -52,14 +52,14 @@ abstract class BaseClient implements SlimClient {
     final ConnectionState mConnectionState;
 
     /** Shared event bus for status changes. */
-    @NonNull final EventBus mEventBus;
+    @NonNull final SqueezerRepository repository;
 
     /** The prefix for URLs for downloads and cover art. */
     String mUrlPrefix;
 
-    BaseClient(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
-        mConnectionState = new ConnectionState(eventBus);
+    BaseClient(@NonNull SqueezerRepository repository) {
+        this.repository = repository;
+        mConnectionState = new ConnectionState(repository);
     }
 
     @Override
@@ -117,12 +117,12 @@ abstract class BaseClient implements SlimClient {
 
         // Playing status
         if (changedPlayStatus) {
-            mEventBus.post(new PlayStatusChanged(playerState.getPlayStatus(), player));
+            repository.post(new PlayStatusChanged(playerState.getPlayStatus(), player));
         }
 
         // Current playlist
         if (changedPlaylist) {
-            mEventBus.postSticky(new PlaylistChanged(player));
+            repository.post(new PlaylistChanged(player));
         }
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
@@ -133,12 +133,12 @@ abstract class BaseClient implements SlimClient {
 
         // Volume
         if (changedVolume) {
-            mEventBus.post(new PlayerVolume(player));
+            repository.post(new PlayerVolume(player));
         }
 
         // Power status
         if (changedPower) {
-            mEventBus.post(new PowerStatusChanged(player));
+            repository.post(new PowerStatusChanged(player));
         }
 
         // Current song
@@ -148,12 +148,12 @@ abstract class BaseClient implements SlimClient {
 
         // Shuffle status.
         if (changedShuffleStatus) {
-            mEventBus.post(new ShuffleStatusChanged(player, playerState.getShuffleStatus()));
+            repository.post(new ShuffleStatusChanged(player, playerState.getShuffleStatus()));
         }
 
         // Repeat status.
         if (changedRepeatStatus) {
-            mEventBus.post(new RepeatStatusChanged(player, playerState.getRepeatStatus()));
+            repository.post(new RepeatStatusChanged(player, playerState.getRepeatStatus()));
         }
 
         // Position in song
@@ -170,15 +170,15 @@ abstract class BaseClient implements SlimClient {
     protected abstract void handleChangedSong(Player player);
 
     protected void postSongTimeChanged(Player player) {
-        mEventBus.post(player.getTrackElapsed());
+        repository.post(player.getTrackElapsed());
     }
 
     protected void postSleepTimeChanged(Player player) {
-        mEventBus.post(new SleepTimeChanged(player));
+        repository.post(new SleepTimeChanged(player));
     }
 
     protected void postPlayerStateChanged(Player player) {
-        mEventBus.post(new PlayerStateChanged(player));
+        repository.post(new PlayerStateChanged(player));
     }
 
     private boolean updatePlayStatus(PlayerState playerState, String playStatus) {

@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
-import org.greenrobot.eventbus.EventBus;
-
+import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -25,11 +24,11 @@ public class HomeMenuHandling {
     private final List<JiveItem> homeMenu = new CopyOnWriteArrayList<>();
     private final List<JiveItem> customShortcuts = new CopyOnWriteArrayList<>();
 
-    public HomeMenuHandling(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
+    public HomeMenuHandling(@NonNull SqueezerRepository repository) {
+        this.repository = repository;
     }
 
-    private final EventBus mEventBus;
+    private final SqueezerRepository repository;
 
     boolean isInArchive(JiveItem toggledItem) {
         return getParents(toggledItem.getNode()).contains(JiveItem.ARCHIVE) ? Boolean.TRUE : Boolean.FALSE;
@@ -67,7 +66,7 @@ public class HomeMenuHandling {
     }
 
     public void triggerHomeMenuEvent() {
-        mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+        repository.post(new HomeMenuEvent(homeMenu));
     }
 
     List<String> toggleArchiveItem(JiveItem toggledItem) {

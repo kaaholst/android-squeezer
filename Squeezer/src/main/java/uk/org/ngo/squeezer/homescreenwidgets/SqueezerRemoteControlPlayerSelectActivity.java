@@ -15,10 +15,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +79,9 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         super.onServiceConnected(service);
         Log.d(TAG, "onServiceConnected: service.isConnected=" + service.isConnected());
 
+        repository().observe(this, (HandshakeComplete event) -> updatePlayerList());
+        repository().observe(this, (PlayerStateChanged event) -> updatePlayerList());
+
         if (!service.isConnected()) {
             service.startConnect(false);
         }
@@ -107,16 +106,6 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         public int getItemCount() {
             return players.size();
         }
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(HandshakeComplete event) {
-        updatePlayerList();
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlayerStateChanged event) {
-        updatePlayerList();
     }
 
     protected void updatePlayerList() {
