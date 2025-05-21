@@ -182,20 +182,8 @@ public class SqueezeService extends Service {
      * handshake completes.
      */
     public static class HandshakeNotCompleteException extends IllegalStateException {
-        public HandshakeNotCompleteException() {
-            super();
-        }
-
         public HandshakeNotCompleteException(String message) {
             super(message);
-        }
-
-        public HandshakeNotCompleteException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public HandshakeNotCompleteException(Throwable cause) {
-            super(cause);
         }
     }
 
@@ -1029,7 +1017,7 @@ public class SqueezeService extends Service {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            Log.i(TAG, "Interupted while pausing between commands");
                         }
                     }
                     adjustPlayerVolume(player, adjust);
@@ -1159,23 +1147,20 @@ public class SqueezeService extends Service {
             if (playStatus == null)
                 return false;
 
-            if (playStatus.equals(PlayerState.PLAY_STATE_PLAY)) {
-                // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
-                // because then we'd get confused when they came back in to us, not being
-                // able to differentiate ours coming back on the listen channel vs. those
-                // of those idiots at the dinner party messing around.
-                mDelegate.command(player).cmd("pause", "1").exec();
-                return true;
-            }
-
-            if (playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
-                mDelegate.command(player).cmd("play", fadeInSecs()).exec();
-                return true;
-            }
-
-            if (playStatus.equals(PlayerState.PLAY_STATE_PAUSE)) {
-                mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
-                return true;
+            switch (playStatus) {
+                case PlayerState.PLAY_STATE_PLAY:
+                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                    // because then we'd get confused when they came back in to us, not being
+                    // able to differentiate ours coming back on the listen channel vs. those
+                    // of those idiots at the dinner party messing around.
+                    mDelegate.command(player).cmd("pause", "1").exec();
+                    return true;
+                case PlayerState.PLAY_STATE_STOP:
+                    mDelegate.command(player).cmd("play", fadeInSecs()).exec();
+                    return true;
+                case PlayerState.PLAY_STATE_PAUSE:
+                    mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
+                    return true;
             }
 
             return true;
