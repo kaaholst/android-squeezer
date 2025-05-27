@@ -20,10 +20,8 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
@@ -35,7 +33,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -156,25 +153,6 @@ public class SqueezeService extends Service {
     private static final String ACTION_POWER = "power";
     private static final String ACTION_DISCONNECT = "disconnect";
 
-    private final BroadcastReceiver deviceIdleModeReceiver = new BroadcastReceiver() {
-        @Override
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        public void onReceive(Context context, Intent intent) {
-            // On M and above going in to Doze mode suspends the network but does not shut down
-            // existing network connections or cause them to generate exceptions. Explicitly
-            // disconnect here, so that resuming from Doze mode forces a reconnect. See
-            // https://github.com/nikclayton/android-squeezer/issues/177.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-
-                if (pm.isDeviceIdleMode()) {
-                    Log.d(TAG, "Entering doze mode, disconnecting");
-                    disconnect(false);
-                }
-            }
-        }
-    };
-
     private SqueezerVolumeProvider mVolumeProvider;
 
     /**
@@ -207,11 +185,6 @@ public class SqueezeService extends Service {
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            registerReceiver(deviceIdleModeReceiver, new IntentFilter(
-                    PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED));
-        }
 
         repository.observeForever(this::onConnectionChanged);
         repository.observeForever(this::onHandshakeComplete);
@@ -297,15 +270,6 @@ public class SqueezeService extends Service {
         repository.removeObserver(this::onActivePlayerChanged);
         repository.removeObserver(this::onPlayersChanged);
         repository.removeObserver(this::onLastscanChanged);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                unregisterReceiver(deviceIdleModeReceiver);
-            } catch (IllegalArgumentException e) {
-                // Do nothing. This can occur in testing when we destroy the service before the
-                // receiver is registered.
-            }
-        }
     }
 
     @Override
