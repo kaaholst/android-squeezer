@@ -209,7 +209,7 @@ abstract class BaseClient implements SlimClient {
             if (params != null) this.params(params);
         }
 
-        public BrowseRequest update(int start, int itemsPerResponse) {
+        public BrowseRequest<T> update(int start, int itemsPerResponse) {
             this.start = start;
             this.itemsPerResponse = itemsPerResponse;
             return this;

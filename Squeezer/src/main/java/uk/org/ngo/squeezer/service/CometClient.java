@@ -448,7 +448,7 @@ class CometClient extends BaseClient {
         final BaseClient.BrowseRequest<Song> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new IServiceItemListCallback<>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
-                if (items.size() > 0) {
+                if (!items.isEmpty()) {
                     player.getPlayerState().getCurrentSong().songInfo = items.get(0);
                     mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
                     repository.post(new MusicChanged(player, player.getPlayerState()));
@@ -619,14 +619,14 @@ class CometClient extends BaseClient {
         @Override
         public void onResponse(Player player, Request request, Message message) {
             switch (request.getRequest()) {
-                default:
-                    parseMessage("titles_loop", message);
-                    break;
                 case "playlists tracks":
                     parseMessage("playlisttracks_loop", message);
                     break;
                 case "status":
                     parseMessage("playlist_tracks", "playlist_loop", message);
+                    break;
+                default:
+                    parseMessage("titles_loop", message);
                     break;
             }
         }
@@ -692,7 +692,6 @@ class CometClient extends BaseClient {
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_PUBLISH, publishMessage);
             mBackgroundHandler.sendMessage(message);
         }
-
     }
 
     /** This may only be called from the handler thread */
@@ -714,7 +713,7 @@ class CometClient extends BaseClient {
     @Override
     protected  <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
-        ItemListener listener = mItemRequestMap.get(callbackClass);
+        ItemListener<?> listener = mItemRequestMap.get(callbackClass);
         if (listener == null) {
             throw new RuntimeException("No handler defined for '" + browseRequest.getCallback().getClass() + "'");
         }
