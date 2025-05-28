@@ -1072,8 +1072,10 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
 
         int itemId = item.getItemId();
         if (itemId == R.id.menu_item_search) {
-            topBarSearch.input.initialText = "";
-            JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
+            if (topBarSearch != null) {
+                topBarSearch.input.initialText = "";
+                JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
+            }
             return true;
         } else if (itemId == R.id.menu_item_playlist) {
             CurrentPlaylistActivity.show(mActivity);
