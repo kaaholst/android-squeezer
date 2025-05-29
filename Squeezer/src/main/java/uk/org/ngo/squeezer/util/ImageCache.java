@@ -408,7 +408,7 @@ public class ImageCache {
 
         synchronized (mDiskCacheLock) {
             mDiskCacheStarting = true;
-            if (mDiskLruCache != null) {
+            if (mDiskLruCache != null && !mDiskLruCache.isClosed()) {
                 try {
                     mDiskLruCache.delete();
                     if (BuildConfig.DEBUG) {
