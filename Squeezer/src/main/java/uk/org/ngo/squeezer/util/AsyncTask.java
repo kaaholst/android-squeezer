@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.util;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import androidx.annotation.IntDef;
@@ -603,6 +604,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
     }
 
     private static class InternalHandler extends Handler {
+        public InternalHandler() {
+            super(Looper.getMainLooper());
+        }
 
         @SuppressWarnings({"unchecked", "RawUseOfParameterizedType"})
         @Override
