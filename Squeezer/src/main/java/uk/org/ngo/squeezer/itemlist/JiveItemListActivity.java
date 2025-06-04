@@ -305,12 +305,16 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     void updateWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
         ArtworkListLayout listLayout = JiveItemView.listLayout(getPreferredListLayout(), windowStyle);
         updateViewMenuItems(listLayout, windowStyle);
+        ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter = getItemAdapter();
+        if (windowStyle != null && adapter instanceof JiveItemAdapter) {
+            ((JiveItemAdapter)adapter).setWindowStyle(getPreferredListLayout(), windowStyle);
+        }
         if (windowStyle != window.windowStyle || listLayout != prevListLayout) {
             window.windowStyle = windowStyle;
             if (windowStyle != Window.WindowStyle.TEXT_ONLY) {
                 parentViewHolder.icon.setVisibility(View.GONE);
             }
-            getItemAdapter().notifyDataSetChanged();
+            adapter.notifyDataSetChanged();
         }
         if (listLayout != prevListLayout) {
             setupListView(getListView(), listLayout);
@@ -561,7 +565,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         updateWindowStyle(window.windowStyle, prevListLayout);
     }
 
-    ArtworkListLayout getListLayout() {
+    public ArtworkListLayout getListLayout() {
         return JiveItemView.listLayout(getPreferredListLayout(), window.windowStyle);
     }
 

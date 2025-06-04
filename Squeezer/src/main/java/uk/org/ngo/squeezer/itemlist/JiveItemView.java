@@ -44,20 +44,14 @@ import uk.org.ngo.squeezer.service.HomeMenuHandling;
 public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     private final Window.WindowStyle windowStyle;
-    private final ArtworkListLayout listLayout;
 
     Preferences mPreferences = Squeezer.getPreferences();
     final boolean isShortcutsActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
     final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
 
-    JiveItemView(@NonNull JiveItemListActivity activity, @NonNull View view) {
-        this(activity, activity.window.windowStyle, activity.getPreferredListLayout(), view);
-    }
-
-    JiveItemView(@NonNull JiveItemListActivity activity, Window.WindowStyle windowStyle, ArtworkListLayout preferredListLayout, @NonNull View view) {
+    JiveItemView(@NonNull JiveItemListActivity activity, Window.WindowStyle windowStyle, ArtworkListLayout listLayout, @NonNull View view) {
         super(activity, view);
         this.windowStyle = windowStyle;
-        this.listLayout = listLayout(preferredListLayout, windowStyle);
 
         // Certain LMS actions (e.g. slider) doesn't have text in their views
         if (text1 != null) {

@@ -50,7 +50,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         super.update(count, start, items);
         for (int i = 0; i < items.size(); i++) {
             JiveItem item = items.get(i);
-            ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> childAdapter = ("opml".equals(item.getType())) ? new GroupAdapter(getActivity()) : new ChildAdapter(getActivity());
+            ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> childAdapter = ("opml".equals(item.getType())) ? new GroupAdapter(getActivity()) : new JiveItemAdapter(getActivity());
             ChildAdapterHolder childAdapterHolder = new ChildAdapterHolder(getActivity(), this, i, childAdapter);
             childAdapterHolders.add(childAdapterHolder);
             item.inputValue = getActivity().parent.inputValue;
@@ -81,8 +81,8 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
             final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
-            if (window != null && window.windowStyle != null && adapter instanceof ChildAdapter) {
-                ((ChildAdapter)adapter).setWindowStyle(window.windowStyle);
+            if (window != null && window.windowStyle != null && adapter instanceof JiveItemAdapter) {
+                ((JiveItemAdapter)adapter).setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
             }
             activity.runOnUiThread(() -> {
                 adapter.update(count, start, items);
@@ -128,7 +128,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_up : R.drawable.ic_keyboard_arrow_down);
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), drawableRes));
             subList.setAdapter(childAdapterHolder.adapter);
-            ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof ChildAdapter) ? ((ChildAdapter) childAdapterHolder.adapter).listLayout : ArtworkListLayout.list;
+            ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof JiveItemAdapter) ? ((JiveItemAdapter) childAdapterHolder.adapter).getListLayout() : ArtworkListLayout.list;
             getActivity().setupListView(subList, listLayout);
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
             if (childAdapterHolder.visible && !childAdapterHolder.ordered) {
@@ -141,35 +141,6 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         @Override
         public JiveItemListActivity getActivity() {
             return (JiveItemListActivity) super.getActivity();
-        }
-    }
-
-    private static class ChildAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
-        private Window.WindowStyle windowStyle = Window.WindowStyle.TEXT_ONLY;
-        private ArtworkListLayout listLayout = ArtworkListLayout.list;
-
-        public ChildAdapter(JiveItemListActivity activity) {
-            super(activity);
-        }
-
-        public void setWindowStyle(Window.WindowStyle windowStyle) {
-            this.windowStyle = windowStyle;
-            listLayout = JiveItemView.listLayout(Squeezer.getPreferences().getAlbumListLayout(), windowStyle);
-        }
-
-        @Override
-        public JiveItemListActivity getActivity() {
-            return (JiveItemListActivity) super.getActivity();
-        }
-
-        @Override
-        public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {
-            return new JiveItemView(getActivity(), windowStyle, Squeezer.getPreferences().getAlbumListLayout(), view);
-        }
-
-        @Override
-        protected int getItemViewType(JiveItem item) {
-            return (listLayout == ArtworkListLayout.list ? R.layout.list_item : R.layout.grid_item);
         }
     }
 }

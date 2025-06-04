@@ -20,7 +20,7 @@ public class HomeMenuJiveItemView extends JiveItemView {
     ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> mItemAdapter;
 
     public HomeMenuJiveItemView(HomeMenuActivity homeMenuActivity, View view, ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter) {
-        super(homeMenuActivity, view);
+        super(homeMenuActivity, homeMenuActivity.window.windowStyle, homeMenuActivity.getListLayout(), view);
         mItemAdapter = adapter;
     }
 
