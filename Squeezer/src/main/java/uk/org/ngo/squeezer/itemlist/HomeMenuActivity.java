@@ -127,7 +127,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
         return new JiveItemAdapter(this) {
             @Override
             public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {
-                return new HomeMenuJiveItemView(HomeMenuActivity.this, view, this);
+                return new HomeMenuJiveItemView(HomeMenuActivity.this, view);
             }
         };
     }

@@ -350,6 +350,7 @@ public class SqueezeService extends Service {
     public void updateShortCut(JiveItem item, Map<String, Object> record) {
         List<JiveItem> shortcuts = homeMenuHandling.updateShortcut(item, record);
         Squeezer.getPreferences().saveShortcuts(shortcuts);
+        homeMenuHandling.triggerHomeMenuEvent();
     }
 
     private void requestPlayerData() {
@@ -1510,6 +1511,7 @@ public class SqueezeService extends Service {
         public boolean toggleArchiveItem(JiveItem item) {
             List<String> menu = homeMenuHandling.toggleArchiveItem(item);
             Squeezer.getPreferences().setArchivedMenuItems(menu, getActivePlayer());
+            triggerHomeMenuEvent();
             return menu.isEmpty();
         }
 
@@ -1530,6 +1532,15 @@ public class SqueezeService extends Service {
         @Override
         public void removeCustomShortcut(JiveItem item) {
             homeMenuHandling.removeCustomShortcut(item);
+            Squeezer.getPreferences().saveShortcuts(homeMenuHandling.getCustomShortcuts());
+        }
+
+        @Override
+        public boolean addCustomShortcut(JiveItem item, JiveItem parent, int shortcutWeight) {
+            boolean result = homeMenuHandling.addShortcut(item, parent, shortcutWeight);
+            Squeezer.getPreferences().saveShortcuts(homeMenuHandling.getCustomShortcuts());
+            triggerHomeMenuEvent();
+            return result;
         }
     }
 

@@ -83,7 +83,6 @@ public class HomeMenuHandling {
         toggledItem.setNode(JiveItem.ARCHIVE.getId());
         if (!homeMenu.contains(JiveItem.ARCHIVE)) {
             homeMenu.add(JiveItem.ARCHIVE);
-            triggerHomeMenuEvent();
         }
         return getArchivedItems();
     }
@@ -190,7 +189,6 @@ public class HomeMenuHandling {
     public List<JiveItem> updateShortcut(JiveItem item, Map<String, Object> record) {
         removeCustomShortcut(item);
         addShortcut(record, item, item.getWeight());
-        triggerHomeMenuEvent();
         return customShortcuts;
     }
 

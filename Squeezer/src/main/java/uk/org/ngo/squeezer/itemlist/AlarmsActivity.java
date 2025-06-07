@@ -48,7 +48,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
-import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implements AlarmSettingsDialog.HostActivity {
     /** The most recent active player. */
@@ -120,7 +119,6 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     @Override
     public void onPause() {
         super.onPause();
-        UndoBarController.hide(this);
     }
 
     @Override

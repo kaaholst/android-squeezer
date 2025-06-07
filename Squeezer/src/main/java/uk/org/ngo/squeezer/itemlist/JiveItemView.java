@@ -124,9 +124,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().showDisplayMessage(message);
         } else {
             if (isShortcutsActive) {
-                HomeMenuHandling homeMenuHandling = getActivity().requireService().getHomeMenuHandling();
-                if (homeMenuHandling.addShortcut(item, getActivity().parent, shortCutWeight)) {
-                    mPreferences.saveShortcuts(homeMenuHandling.getCustomShortcuts());
+                if (getActivity().requireService().addCustomShortcut(item, getActivity().parent, shortCutWeight)) {
                     getActivity().showDisplayMessage(R.string.ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU);
                 } else {
                     getActivity().showDisplayMessage(R.string.ITEM_IS_ALREADY_A_SHORTCUT);

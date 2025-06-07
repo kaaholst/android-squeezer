@@ -233,6 +233,9 @@ public interface ISqueezeService {
      */
     void removeCustomShortcut(JiveItem item);
 
+    /** Add the item to the home menu screen */
+    boolean addCustomShortcut(JiveItem item, JiveItem parent, int shortcutWeight);
+
     class VolumeInfo {
         /** True if the volume is muted */
         public final boolean muted;

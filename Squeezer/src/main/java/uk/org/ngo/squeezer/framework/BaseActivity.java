@@ -70,6 +70,7 @@ import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
+import uk.org.ngo.squeezer.widget.UndoBarController;
 import uk.org.ngo.squeezer.widget.VolumeKeysDelegate;
 
 /**
@@ -223,6 +224,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         ImageFetcher imageFetcher = ImageFetcher.getInstance(this);
         imageFetcher.setExitTasksEarly(true);
         imageFetcher.setPauseWork(false);
+
+        // Ensure that any pending undo bar onDone listener is called immediately
+        UndoBarController.hide(this);
 
         super.onPause();
     }
