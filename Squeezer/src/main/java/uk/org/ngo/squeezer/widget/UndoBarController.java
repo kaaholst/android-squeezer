@@ -22,6 +22,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,8 +49,7 @@ import uk.org.ngo.squeezer.R;
  * between requests, when using the same activity. When a new request comes in, any existing
  * listener is called, and the listener is replaced with the one in the new request.
  * <p>
- * Activities which uses the undo bar, should call {@link #hide(Activity)} in their
- * {@link Activity#onPause()} method.
+ * Activities which uses the undo bar, should call {@link #hide(Activity)} in onPause.
  */
 public class UndoBarController extends LinearLayout {
     public static final int FADE_DURATION = 300;
@@ -57,28 +57,18 @@ public class UndoBarController extends LinearLayout {
 
     private final View mUndoBar;
     private final TextView mMessageView;
-    private final Handler mHideHandler = new Handler();
+    private final Handler mHideHandler = new Handler(Looper.getMainLooper());
     private UndoListener mUndoListener;
 
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hideUndoBar(false, false);
-        }
-    };
+    private final Runnable mHideRunnable = () -> hideUndoBar(false, false);
 
     private UndoBarController(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.undo_bar, this, true);
-        mMessageView = (TextView) findViewById(R.id.undobar_message);
+        mMessageView = findViewById(R.id.undobar_message);
         mUndoBar = (View) mMessageView.getParent();
-        TextView button = (TextView) findViewById(R.id.undobar_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                hideUndoBar(false, true);
-            }
-        });
+        TextView button = findViewById(R.id.undobar_button);
+        button.setOnClickListener(view -> hideUndoBar(false, true));
 
         hideUndoBar(true, false);
     }
