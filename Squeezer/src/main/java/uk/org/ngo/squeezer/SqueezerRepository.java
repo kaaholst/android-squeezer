@@ -34,7 +34,11 @@ public class SqueezerRepository {
     @SuppressWarnings("unchecked")
     public <T> void post(T event, T[] ... reified) {
         MutableLiveData<T> data = get((Class<T>) reified.getClass().getComponentType());
-        if (Looper.getMainLooper() == Looper.myLooper()) data.setValue(event); else data.postValue(event);
+        setValue(data, event);
+    }
+
+    private <T> void setValue(MutableLiveData<T> data, T value) {
+        if (Looper.getMainLooper() == Looper.myLooper()) data.setValue(value); else data.postValue(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -55,6 +59,6 @@ public class SqueezerRepository {
     }
 
     public void removeEvents() {
-        liveData.values().forEach(data -> data.setValue(null));
+        liveData.values().forEach(data -> setValue(data, null));
     }
 }
