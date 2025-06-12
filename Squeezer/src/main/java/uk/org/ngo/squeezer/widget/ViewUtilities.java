@@ -2,6 +2,7 @@ package uk.org.ngo.squeezer.widget;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -16,4 +17,23 @@ public class ViewUtilities {
         });
     }
 
+    public static void requestApplyInsetsWhenAttached(View view) {
+        if (view.isAttachedToWindow()) {
+            // We're already attached, just request as normal
+            view.requestApplyInsets();
+        } else {
+            // We're not attached to the hierarchy, add a listener to request when we are
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(@NonNull View v) {
+                    v.removeOnAttachStateChangeListener(this);
+                    v.requestApplyInsets();
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(@NonNull View view) {
+                }
+            });
+        }
+    }
 }

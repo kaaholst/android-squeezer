@@ -112,6 +112,8 @@ public class UndoBarController extends LinearLayout {
         if (undo == null) {
             undo = new UndoBarController(activity, null);
             ((ViewGroup) activity.findViewById(android.R.id.content)).addView(undo);
+            ViewUtilities.setInsetsListener(undo, false, true, false);
+            ViewUtilities.requestApplyInsetsWhenAttached(undo);
         } else {
             undo.hideUndoBar(true, false);
         }
