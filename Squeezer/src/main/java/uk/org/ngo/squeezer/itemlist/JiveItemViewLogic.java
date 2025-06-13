@@ -73,12 +73,14 @@ public class JiveItemViewLogic {
             }
         } else if (item.doAction) {
             if (item.hasInput()) {
-                if (item.hasChoices()) {
-                    ChoicesDialog.show(activity, item, position, alreadyPopped);
-                } else if ("time".equals(item.input.inputStyle)) {
-                    InputTimeDialog.show(activity, item, alreadyPopped);
-                } else {
-                    InputTextDialog.show(activity, item, alreadyPopped);
+                if (!activity.getSupportFragmentManager().isDestroyed()) {
+                    if (item.hasChoices()) {
+                        ChoicesDialog.show(activity, item, position, alreadyPopped);
+                    } else if ("time".equals(item.input.inputStyle)) {
+                        InputTimeDialog.show(activity, item, alreadyPopped);
+                    } else {
+                        InputTextDialog.show(activity, item, alreadyPopped);
+                    }
                 }
             } else {
                 activity.action(item, item.goAction, alreadyPopped);
