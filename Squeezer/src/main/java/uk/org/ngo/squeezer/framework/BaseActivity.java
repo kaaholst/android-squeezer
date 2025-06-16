@@ -267,8 +267,14 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         Log.d(TAG, "onServiceConnected");
         supportInvalidateOptionsMenu();
-        repository().observe(this, (AlertEvent event) -> AlertEventDialog.show(getSupportFragmentManager(), event.message.title, event.message.text));
-        repository().observe(this, (DisplayEvent event) -> showDisplayMessage(event.message));
+        repository().observe(this, (AlertEvent event) -> {
+            if (!event.isShown) AlertEventDialog.show(getSupportFragmentManager(), event.message.title, event.message.text);
+            event.isShown = true;
+        });
+        repository().observe(this, (DisplayEvent event) -> {
+            if (!event.isShown) showDisplayMessage(event.message);
+            event.isShown = true;
+        });
     }
 
     public SqueezerRepository repository() {

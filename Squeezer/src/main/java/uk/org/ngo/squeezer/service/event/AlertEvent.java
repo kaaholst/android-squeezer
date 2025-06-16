@@ -26,6 +26,8 @@ public class AlertEvent {
     @NonNull
     public final AlertWindow message;
 
+    public boolean isShown = false;
+
     public AlertEvent(@NonNull AlertWindow message) {
         this.message = message;
     }

@@ -26,6 +26,8 @@ public class DisplayEvent {
     @NonNull
     public final DisplayMessage message;
 
+    public boolean isShown = false;
+
     public DisplayEvent(@NonNull DisplayMessage message) {
         this.message = message;
     }
