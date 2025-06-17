@@ -8,7 +8,7 @@ import android.util.Log;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 public class Scrobble {
@@ -40,7 +40,7 @@ public class Scrobble {
             return;
 
         @PlayerState.PlayState String playStatus = playerState.getPlayStatus();
-        CurrentPlaylistItem currentSong = playerState.getCurrentSong();
+        CurrentTrack currentSong = playerState.getCurrentTrack();
 
         if (playStatus == null || currentSong == null)
             return;
@@ -57,7 +57,7 @@ public class Scrobble {
             i.putExtra("track", currentSong.getName());
             i.putExtra("album", currentSong.songInfo.album);
             i.putExtra("artist", currentSong.songInfo.getArtist());
-            i.putExtra("duration", playerState.getCurrentSongDuration());
+            i.putExtra("duration", playerState.getCurrentTrackDuration());
             i.putExtra("source", "P");
         } else if (Scrobble.haveScrobbleDroid()) {
             // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
@@ -66,7 +66,7 @@ public class Scrobble {
             i.putExtra("track", currentSong.getName());
             i.putExtra("album", currentSong.songInfo.album);
             i.putExtra("artist", currentSong.songInfo.getArtist());
-            i.putExtra("secs", playerState.getCurrentSongDuration());
+            i.putExtra("secs", playerState.getCurrentTrackDuration());
             i.putExtra("source", "P");
         }
         context.sendBroadcast(i);

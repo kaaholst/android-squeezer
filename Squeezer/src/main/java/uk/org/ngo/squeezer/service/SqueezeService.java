@@ -76,7 +76,7 @@ import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
@@ -411,13 +411,13 @@ public class SqueezeService extends Service {
         }
 
         final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-        CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
+        CurrentTrack song = player.getPlayerState().getCurrentTrack();
         if (song != null) {
             metaBuilder.putString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, notificationSubtext(player));
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, song.songInfo.getArtist());
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, song.songInfo.album);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, song.text2());
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, song.songInfo.title);
-            metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, player.getPlayerState().getCurrentSongDuration()*1000L);
+            metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, player.getPlayerState().getCurrentTrackDuration()*1000L);
             metaBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, player.getPlayerState().getCurrentPlaylistIndex() + 1);
             metaBuilder.putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, player.getPlayerState().getCurrentPlaylistTracksNum());
             mMediaSession.setMetadata(metaBuilder.build());
@@ -484,7 +484,7 @@ public class SqueezeService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             Player player = mDelegate.getActivePlayer();
             if (player != null) {
-                CurrentPlaylistItem song = player.getPlayerState().getCurrentSong();
+                CurrentTrack song = player.getPlayerState().getCurrentTrack();
                 if (song != null) {
                     builder.setContentTitle(song.getName());
                     builder.setContentText(song.artistAlbum());

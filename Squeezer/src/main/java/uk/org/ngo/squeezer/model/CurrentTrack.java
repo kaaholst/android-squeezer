@@ -24,34 +24,39 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 
 
-public class CurrentPlaylistItem extends JiveItem {
+public class CurrentTrack extends JiveItem {
     @NonNull public Song songInfo;
 
-    public CurrentPlaylistItem(Map<String, Object> record) {
+    public CurrentTrack(Map<String, Object> record) {
         super(record);
         songInfo = new Song(record);
         songInfo.title = getStringOrEmpty(record, "track");
     }
 
-    public static final Creator<CurrentPlaylistItem> CREATOR = new Creator<CurrentPlaylistItem>() {
+    public static final Creator<CurrentTrack> CREATOR = new Creator<CurrentTrack>() {
         @Override
-        public CurrentPlaylistItem[] newArray(int size) {
-            return new CurrentPlaylistItem[size];
+        public CurrentTrack[] newArray(int size) {
+            return new CurrentTrack[size];
         }
 
         @Override
-        public CurrentPlaylistItem createFromParcel(Parcel source) {
-            return new CurrentPlaylistItem(source);
+        public CurrentTrack createFromParcel(Parcel source) {
+            return new CurrentTrack(source);
         }
     };
 
-    private CurrentPlaylistItem(Parcel source) {
+    private CurrentTrack(Parcel source) {
         super(source);
         songInfo = source.readParcelable(getClass().getClassLoader());
     }
 
+    @Override
+    public String text2() {
+        return songInfo.album.isEmpty() ? super.text2() : songInfo.album;
+    }
+
     public String artistAlbum() {
-        return Util.joinSkipEmpty(" - ", songInfo.getArtist(), songInfo.album);
+        return Util.joinSkipEmpty(" - ", songInfo.getArtist(), text2);
     }
 
     @Override

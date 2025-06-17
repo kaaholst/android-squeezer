@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Item;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.JiveItem;
 
 public class UtilTest extends TestCase {
@@ -35,7 +35,7 @@ public class UtilTest extends TestCase {
         JiveItem album = new JiveItem(new HashMap<String, Object>());
         album.setId("1");
         album.setName("Album");
-        CurrentPlaylistItem song = new CurrentPlaylistItem(new HashMap<String, Object>());
+        CurrentTrack song = new CurrentTrack(new HashMap<String, Object>());
         song.setId("1");
 
         assertFalse(Util.atomicReferenceUpdated(atomicItem, null));

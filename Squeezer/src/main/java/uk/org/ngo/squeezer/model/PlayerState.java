@@ -61,12 +61,12 @@ public class PlayerState implements Parcelable {
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
-        currentSong = source.readParcelable(getClass().getClassLoader());
+        currentTrack = source.readParcelable(getClass().getClassLoader());
         currentPlaylist = source.readString();
         currentPlaylistTimestamp = source.readLong();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readDouble();
-        currentSongDuration = source.readInt();
+        currentTrackDuration = source.readInt();
         currentVolume = source.readInt();
         sleepDuration = source.readInt();
         sleep = source.readInt();
@@ -83,12 +83,12 @@ public class PlayerState implements Parcelable {
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
-        dest.writeParcelable(currentSong, flags);
+        dest.writeParcelable(currentTrack, flags);
         dest.writeString(currentPlaylist);
         dest.writeLong(currentPlaylistTimestamp);
         dest.writeInt(currentPlaylistIndex);
         dest.writeDouble(currentTimeSecond);
-        dest.writeInt(currentSongDuration);
+        dest.writeInt(currentTrackDuration);
         dest.writeInt(currentVolume);
         dest.writeInt(sleepDuration);
         dest.writeDouble(sleep);
@@ -112,7 +112,7 @@ public class PlayerState implements Parcelable {
 
     private RepeatStatus repeatStatus;
 
-    private CurrentPlaylistItem currentSong;
+    private CurrentTrack currentTrack;
 
     /** The name of the current playlist if any. */
     private String currentPlaylist;
@@ -131,7 +131,7 @@ public class PlayerState implements Parcelable {
 
     private double currentTimeSecond;
 
-    private int currentSongDuration;
+    private int currentTrackDuration;
 
     public double statusSeen;
 
@@ -228,15 +228,15 @@ public class PlayerState implements Parcelable {
         return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.getInt(s)) : null);
     }
 
-    public CurrentPlaylistItem getCurrentSong() {
-        return currentSong;
+    public CurrentTrack getCurrentTrack() {
+        return currentTrack;
     }
 
-    public boolean setCurrentSong(CurrentPlaylistItem song) {
-        if (song.equals(currentSong))
+    public boolean setCurrentSong(CurrentTrack song) {
+        if (song.equals(currentTrack))
             return false;
 
-        currentSong = song;
+        currentTrack = song;
         return true;
     }
 
@@ -317,15 +317,15 @@ public class PlayerState implements Parcelable {
         }
     }
 
-    public int getCurrentSongDuration() {
-        return currentSongDuration;
+    public int getCurrentTrackDuration() {
+        return currentTrackDuration;
     }
 
     public boolean setCurrentSongDuration(int value) {
-        if (value == currentSongDuration)
+        if (value == currentTrackDuration)
             return false;
 
-        currentSongDuration = value;
+        currentTrackDuration = value;
         return true;
     }
 
@@ -437,11 +437,11 @@ public class PlayerState implements Parcelable {
                 ", playStatus='" + playStatus + '\'' +
                 ", shuffleStatus=" + shuffleStatus +
                 ", repeatStatus=" + repeatStatus +
-                ", currentSong=" + currentSong +
+                ", currentSong=" + currentTrack +
                 ", currentPlaylist='" + currentPlaylist + '\'' +
                 ", currentPlaylistIndex=" + currentPlaylistIndex +
                 ", currentTimeSecond=" + currentTimeSecond +
-                ", currentSongDuration=" + currentSongDuration +
+                ", currentSongDuration=" + currentTrackDuration +
                 ", currentVolume=" + currentVolume +
                 ", sleepDuration=" + sleepDuration +
                 ", sleep=" + sleep +

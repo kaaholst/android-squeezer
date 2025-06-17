@@ -57,7 +57,7 @@ import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
@@ -425,14 +425,14 @@ class CometClient extends BaseClient {
             return;
 
         Map<String, Object> messageData = message.getDataAsMap();
-        CurrentPlaylistItem currentSong = null;
+        CurrentTrack currentSong = null;
         Object[] item_data = (Object[]) messageData.get("item_loop");
         if (item_data != null && item_data.length > 0) {
             Map<String, Object> record = (Map<String, Object>) item_data[0];
 
             patchUrlPrefix(record);
             record.put("base", messageData.get("base"));
-            currentSong = new CurrentPlaylistItem(record);
+            currentSong = new CurrentTrack(record);
             record.remove("base");
         }
         parseStatus(player, currentSong, messageData);
@@ -449,7 +449,7 @@ class CometClient extends BaseClient {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
                 if (!items.isEmpty()) {
-                    player.getPlayerState().getCurrentSong().songInfo = items.get(0);
+                    player.getPlayerState().getCurrentTrack().songInfo = items.get(0);
                     mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
                     repository.post(new MusicChanged(player, player.getPlayerState()));
                 }

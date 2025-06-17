@@ -44,7 +44,7 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -225,7 +225,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         holder.item = syncGroup;
         holder.text1.setText(mActivity.getString(R.string.player_group_header, syncGroup.syncGroupName));
 
-        CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
+        CurrentTrack groupSong = syncGroup.getItem(0).getPlayerState().getCurrentTrack();
         if (groupSong != null) {
             holder.text2.setText(Util.joinSkipEmpty(" - ", groupSong.getName(), groupSong.artistAlbum()));
         }

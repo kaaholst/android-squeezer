@@ -77,7 +77,7 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
@@ -314,7 +314,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
 
             final ViewParamItemView<JiveItem> viewHolder = new ViewParamItemView<>(mActivity, v);
             viewHolder.contextMenuButton.setOnClickListener(view -> {
-                CurrentPlaylistItem currentSong = getCurrentSong();
+                CurrentTrack currentSong = getCurrentTrack();
                 // This extra check is if user pressed the button before visibility is set to GONE
                 if (currentSong != null) {
                     ContextMenu.show(mActivity, currentSong);
@@ -357,7 +357,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             });
 
             trackText.setOnClickListener(v13 -> {
-                CurrentPlaylistItem song = getCurrentSong();
+                CurrentTrack song = getCurrentTrack();
                 if (song != null && topBarSearch != null) {
                     topBarSearch.input.initialText = song.getName();
                     JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
@@ -466,18 +466,18 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
                 Squeezer.getPreferences().setShowRemainingTime(showRemainingTime);
                 PlayerState playerState = getPlayerState();
                 if (playerState != null) {
-                    updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
+                    updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentTrackDuration());
                 }
             });
 
             slider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-                CurrentPlaylistItem seekingSong;
+                CurrentTrack seekingSong;
 
                 // Disable updates when user drags the thumb.
                 @Override
                 @SuppressLint("RestrictedApi")
                 public void onStartTrackingTouch(@NonNull Slider s) {
-                    seekingSong = getCurrentSong();
+                    seekingSong = getCurrentTrack();
                     updateSeekBar = false;
                 }
 
@@ -487,7 +487,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
                 @Override
                 @SuppressLint("RestrictedApi")
                 public void onStopTrackingTouch(@NonNull Slider s) {
-                    CurrentPlaylistItem thisSong = getCurrentSong();
+                    CurrentTrack thisSong = getCurrentTrack();
 
                     updateSeekBar = true;
 
@@ -750,13 +750,13 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
      */
     @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
-        updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentSongDuration());
+        updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentTrackDuration());
 
         Preferences preferences = Squeezer.getPreferences();
-        CurrentPlaylistItem song = playerState.getCurrentSong();
+        CurrentTrack song = playerState.getCurrentTrack();
         if (song == null) {
             // Create empty song if this is called (via _HandshakeComplete) before status is received
-            song = new CurrentPlaylistItem(new HashMap<>());
+            song = new CurrentTrack(new HashMap<>());
         }
 
         // TODO handle button remapping (buttons in status response)
@@ -822,7 +822,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
                 }
                 else {
                     // standard view
-                    albumText.setText(song.songInfo.album);
+                    albumText.setText(song.text2());
                     albumText.setVisibility(View.VISIBLE);
                 }
 
@@ -889,11 +889,11 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         }
     }
 
-    private static String formatTrackInfo(Preferences preferences, PlayerState playerState, CurrentPlaylistItem song) {
+    private static String formatTrackInfo(Preferences preferences, PlayerState playerState, CurrentTrack song) {
         return Util.joinSkipEmpty(" - ", formatTechnicalInfo(preferences, song), formatTrackCount(preferences, playerState));
     }
 
-    private static String formatTechnicalInfo(Preferences preferences, CurrentPlaylistItem song) {
+    private static String formatTechnicalInfo(Preferences preferences, CurrentTrack song) {
         return preferences.showTechnicalInfo() ? Util.joinSkipEmpty(" ", song.songInfo.getBitRate(), song.songInfo.getSampleRate()) : "";
     }
 
@@ -959,9 +959,9 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         return mService.getActivePlayer();
     }
 
-    private CurrentPlaylistItem getCurrentSong() {
+    private CurrentTrack getCurrentTrack() {
         PlayerState playerState = getPlayerState();
-        return playerState != null ? playerState.getCurrentSong() : null;
+        return playerState != null ? playerState.getCurrentTrack() : null;
     }
 
     private boolean isConnected() {

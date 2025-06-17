@@ -30,7 +30,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
@@ -90,7 +90,7 @@ abstract class BaseClient implements SlimClient {
         return mUrlPrefix;
     }
 
-    void parseStatus(final Player player, CurrentPlaylistItem currentSong, Map<String, Object> tokenMap) {
+    void parseStatus(final Player player, CurrentTrack currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
         playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
 
@@ -103,7 +103,7 @@ abstract class BaseClient implements SlimClient {
         playerState.setCurrentPlaylist(Util.getString(tokenMap, "playlist_name"));
         boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
-        if (currentSong == null) currentSong = new CurrentPlaylistItem(tokenMap);
+        if (currentSong == null) currentSong = new CurrentTrack(tokenMap);
         boolean changedSong = playerState.setCurrentSong(currentSong);
         playerState.setRemote(Util.getInt(tokenMap, "remote") == 1);
         playerState.waitingToPlay = Util.getInt(tokenMap, "waitingToPlay") == 1;
