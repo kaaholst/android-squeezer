@@ -101,6 +101,8 @@
 
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
+    <string name="menu_item_stop_server">Stop Lyrion Music Server</string>
+    <string name="menu_item_restart_server">Restart Lyrion Music Server</string>
     <string name="menu_item_poweron">Turn on \"%s\"</string>
     <string name="menu_item_poweroff">Turn off \"%s\"</string>
     <string name="menu_item_rename">Rename</string>

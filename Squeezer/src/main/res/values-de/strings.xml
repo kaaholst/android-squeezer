@@ -81,6 +81,8 @@
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
+    <string name="menu_item_stop_server">Lyrion Music Server anhalten</string>
+    <string name="menu_item_restart_server">Lyrion Music Server neu starten</string>
     <string name="menu_item_poweron">%s einschalten</string>
     <string name="menu_item_poweroff">%s ausschalten</string>
     <string name="menu_item_rename">Umbenennen</string>

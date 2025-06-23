@@ -53,6 +53,8 @@
 
     <string name="menu_item_disconnect">Déconnecter</string>
     <string name="menu_item_connect">Connexion</string>
+    <string name="menu_item_stop_server">Arrêter le Lyrion Music Server</string>
+    <string name="menu_item_restart_server">Redémarrer le Lyrion Music Server</string>
     <string name="menu_item_poweron">Allumer \"%s\"</string>
     <string name="menu_item_poweroff">Eteindre \"%s\"</string>
     <string name="menu_item_rename">Renommer</string>

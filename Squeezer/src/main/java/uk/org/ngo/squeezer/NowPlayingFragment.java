@@ -67,6 +67,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
+import uk.org.ngo.squeezer.dialog.ConfirmDialog;
 import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ContextMenu;
@@ -139,6 +140,8 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
     private boolean showRemainingTime;
 
     private MenuItem menuItemDisconnect;
+    private MenuItem menuItemStopServer;
+    private MenuItem menuItemRestartServer;
 
     private JiveItem topBarSearch;
     private MenuItem menuItemSearch;
@@ -937,10 +940,6 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         return null;
     }
 
-    private void disconnect() {
-        if (mService != null) mService.disconnect();
-    }
-
     private void setSecondsElapsed(int seconds) {
         if (mService != null) mService.setSecondsElapsed(seconds);
     }
@@ -1011,6 +1010,8 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
         menuItemSearch = menu.findItem(R.id.menu_item_search);
         menuItemPlaylist = menu.findItem(R.id.menu_item_playlist);
         menuItemDisconnect = menu.findItem(R.id.menu_item_disconnect);
+        menuItemStopServer = menu.findItem(R.id.menu_item_stop_server);
+        menuItemRestartServer = menu.findItem(R.id.menu_item_restart_server);
 
         menuItemTogglePower = menu.findItem(R.id.toggle_power);
         menuItemSleep = menu.findItem(R.id.sleep);
@@ -1034,6 +1035,8 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             // Set visibility and enabled state of menu items that are not player-specific.
             menuItemSearch.setVisible(topBarSearch != null);
             menuItemDisconnect.setVisible(connected);
+            menuItemStopServer.setVisible(connected);
+            menuItemRestartServer.setVisible(connected);
 
             // Set visibility and enabled state of menu items that are player-specific and
             // require a connection to the server.
@@ -1084,7 +1087,13 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             SettingsActivity.show(mActivity);
             return true;
         } else if (itemId == R.id.menu_item_disconnect) {
-            disconnect();
+            requireService().disconnect();
+            return true;
+        } else if (itemId == R.id.menu_item_stop_server) {
+            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_stop_server, requireService()::stopServer);
+            return true;
+        } else if (itemId == R.id.menu_item_restart_server) {
+            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_restart_server, requireService()::restartServer);
             return true;
         } else if (itemId == R.id.menu_item_players) {
             PlayerListActivity.show(mActivity);

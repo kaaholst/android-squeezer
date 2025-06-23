@@ -125,6 +125,8 @@
     <string name="settings_customize_home_menu_locked">Wyłączone, ale zachowaj istniejące archwium</string>
     <string name="menu_item_disconnect">Rozłącz</string>
     <string name="menu_item_connect">Połącz</string>
+    <string name="menu_item_stop_server">Zatrzymaj program Lyrion Music Server</string>
+    <string name="menu_item_restart_server">Uruchom ponownie program Lyrion Music Server</string>
     <string name="settings_customize_home_menu_info">Długie naciśnięcie na odpowiednie elementu menu umieszcza je w archwium</string>
     <string name="settings_customize_home_menu_archive">Włączone</string>
     <string name="settings_customize_home_menu_disabled">Wyłączone</string>

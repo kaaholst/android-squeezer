@@ -48,6 +48,14 @@
         android:icon="@drawable/ic_action_disconnect"
         android:title="@string/menu_item_disconnect"/>
 
+    <item
+        android:id="@+id/menu_item_stop_server"
+        android:title="@string/menu_item_stop_server"/>
+
+    <item
+        android:id="@+id/menu_item_restart_server"
+        android:title="@string/menu_item_restart_server"/>
+
     <!-- Force these to the bottom of the menu. -->
 
     <item

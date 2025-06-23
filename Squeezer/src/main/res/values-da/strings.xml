@@ -101,6 +101,8 @@
 
     <string name="menu_item_disconnect">Afbryd</string>
     <string name="menu_item_connect">Forbind</string>
+    <string name="menu_item_stop_server">Stop Lyrion Music Server</string>
+    <string name="menu_item_restart_server">Genstart Lyrion Music Server</string>
     <string name="menu_item_poweron">Tænd \"%s\"</string>
     <string name="menu_item_poweroff">Sluk \"%s\"</string>
     <string name="menu_item_rename">Omdøb</string>

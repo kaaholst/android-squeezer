@@ -35,6 +35,8 @@ public interface ISqueezeService {
     // hostPort is the port of the CLI interface.
     void startConnect(boolean autoConnect);
     void disconnect();
+    void stopServer();
+    void restartServer();
     boolean isConnected();
     boolean isConnectInProgress();
     boolean canAutoConnect();

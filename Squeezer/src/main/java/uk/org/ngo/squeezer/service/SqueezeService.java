@@ -1019,10 +1019,20 @@ public class SqueezeService extends Service {
 
         @Override
         public void disconnect() {
-            if (!isConnected()) {
-                return;
-            }
+            if (!isConnected()) return;
             SqueezeService.this.disconnect(true);
+        }
+
+        @Override
+        public void stopServer() {
+            if (!isConnected()) return;
+            mDelegate.command().cmd("stopserver").exec();
+        }
+
+        @Override
+        public void restartServer() {
+            if (!isConnected()) return;
+            mDelegate.command().cmd("restartserver").exec();
         }
 
         @Override
