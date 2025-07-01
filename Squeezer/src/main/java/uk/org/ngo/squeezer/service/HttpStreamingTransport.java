@@ -180,6 +180,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             String channel = message.getChannel();
 
             if (Channel.META_HANDSHAKE.equals(channel)) {
+                // Make sure we get a new client id if this is a reconnect / rehandshake
+                if (message.getClientId() != null) {
+                    Log.v(TAG, "Reset client id");
+                    message.setClientId(null);
+                }
+
                 if (_delegate.isConnected()) {
                     _delegate.disconnect("Disconnect to prepare for a new handshake");
                 }
