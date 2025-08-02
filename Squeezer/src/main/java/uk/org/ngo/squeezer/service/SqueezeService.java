@@ -123,7 +123,7 @@ public class SqueezeService extends Service {
     private volatile boolean mHandshakeComplete = false;
 
     /** Media session to associate with ongoing notifications. */
-    private MediaSessionCompat mMediaSession;
+    private MediaSessionCompat mediaSession;
 
     /** Are the service currently in the foregrund */
     private volatile boolean foreGround;
@@ -186,6 +186,8 @@ public class SqueezeService extends Service {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
 
+        mediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
+
         repository.observeForever(this::onConnectionChanged);
         repository.observeForever(this::onHandshakeComplete);
         repository.observeForever(this::onPlayerVolume);
@@ -236,30 +238,25 @@ public class SqueezeService extends Service {
         mVolumeProvider = new SqueezerVolumeProvider(preferences.getVolumeIncrements());
         if (squeezeService.isConnected()) {
             if (preferences.isBackgroundVolume()) {
-                mMediaSession.setPlaybackToRemote(mVolumeProvider);
+                mediaSession.setPlaybackToRemote(mVolumeProvider);
             } else {
-                mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+                mediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
             }
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        mMediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
         return (IBinder) squeezeService;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (mMediaSession != null) {
-            mMediaSession.release();
-        }
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         disconnect(false);
         repository.removeObserver(this::onConnectionChanged);
         repository.removeObserver(this::onHandshakeComplete);
@@ -270,6 +267,8 @@ public class SqueezeService extends Service {
         repository.removeObserver(this::onActivePlayerChanged);
         repository.removeObserver(this::onPlayersChanged);
         repository.removeObserver(this::onLastscanChanged);
+        mediaSession.release();
+        super.onDestroy();
     }
 
     @Override
@@ -396,8 +395,8 @@ public class SqueezeService extends Service {
     private void updateMediaSession() {
         Player player = mDelegate.getActivePlayer();
         if (player == null) {
-            mMediaSession.setMetadata(null);
-            mMediaSession.setPlaybackState(null);
+            mediaSession.setMetadata(null);
+            mediaSession.setPlaybackState(null);
             notify(null);
             return;
         }
@@ -420,7 +419,7 @@ public class SqueezeService extends Service {
             metaBuilder.putLong(MediaMetadata.METADATA_KEY_DURATION, player.getPlayerState().getCurrentTrackDuration()*1000L);
             metaBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, player.getPlayerState().getCurrentPlaylistIndex() + 1);
             metaBuilder.putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, player.getPlayerState().getCurrentPlaylistTracksNum());
-            mMediaSession.setMetadata(metaBuilder.build());
+            mediaSession.setMetadata(metaBuilder.build());
         }
 
         int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
@@ -436,7 +435,7 @@ public class SqueezeService extends Service {
                 .addCustomAction(ACTION_POWER, getString(player.getPlayerState().isPoweredOn() ? R.string.menu_item_power_off :  R.string.menu_item_power_on), R.drawable.power)
                 .addCustomAction(ACTION_DISCONNECT, getString(R.string.menu_item_disconnect), R.drawable.ic_action_disconnect)
                 .build();
-        mMediaSession.setPlaybackState(playbackState);
+        mediaSession.setPlaybackState(playbackState);
 
         ImageFetcher.getInstance(this).loadImage(song != null ? song.getIcon() : null,
                 getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
@@ -445,7 +444,7 @@ public class SqueezeService extends Service {
                     if (bitmap != null) {
                         metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
                         metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
-                        mMediaSession.setMetadata(metaBuilder.build());
+                        mediaSession.setMetadata(metaBuilder.build());
                     }
                     notify(bitmap);
                 });
@@ -514,7 +513,7 @@ public class SqueezeService extends Service {
     private MediaStyle getMediaStyle() {
         MediaStyle mediaStyle = new MediaStyle();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) mediaStyle.setShowActionsInCompactView(2, 3);
-        mediaStyle.setMediaSession(mMediaSession.getSessionToken());
+        mediaStyle.setMediaSession(mediaSession.getSessionToken());
         return mediaStyle;
     }
 
@@ -545,11 +544,11 @@ public class SqueezeService extends Service {
                 wifiLock.acquire();
             }
 
-            mMediaSession.setCallback(new SqueezerMediaSessionCallback());
+            mediaSession.setCallback(new SqueezerMediaSessionCallback());
             if (Squeezer.getPreferences().isBackgroundVolume()) {
-                mMediaSession.setPlaybackToRemote(mVolumeProvider);
+                mediaSession.setPlaybackToRemote(mVolumeProvider);
             }
-            mMediaSession.setActive(true);
+            mediaSession.setActive(true);
 
             Notification notification = notificationData().build();
 
@@ -576,8 +575,8 @@ public class SqueezeService extends Service {
             wifiLock.release();
         }
 
-        mMediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
-        mMediaSession.setActive(false);
+        mediaSession.setPlaybackToLocal(AudioManager.STREAM_MUSIC);
+        mediaSession.setActive(false);
 
         stopForeground(true);
         stopSelf();
