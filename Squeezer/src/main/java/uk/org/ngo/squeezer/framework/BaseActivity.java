@@ -40,6 +40,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -54,7 +55,6 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
-import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.dialog.DownloadDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
@@ -71,7 +71,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.UndoBarController;
-import uk.org.ngo.squeezer.widget.VolumeKeysDelegate;
+import uk.org.ngo.squeezer.volume.VolumeKeysDelegate;
 
 /**
  * Common base class for all activities in Squeezer.
@@ -93,15 +93,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     /** Whether volume keys shall be handled. */
     private boolean handleVolumeKeys = true;
 
-    /** If we handle volume keys, whether to notify to volume panel. */
-    private boolean notifyVolumePanel = true;
-
     /** True if bindService() completed. */
     private boolean boundService = false;
-
-    /** Volume control panel. */
-    @Nullable
-    private VolumePanel volumePanel;
 
     private Toast lastShownToast;
 
@@ -155,8 +148,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(TAG, "did bindService; serviceStub = " + getService());
-
-        volumePanel = new VolumePanel(this);
 
         if (savedInstanceState != null) {
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
@@ -244,9 +235,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @CallSuper
     public void onDestroy() {
         super.onDestroy();
-
-        volumePanel.dismiss();
-
         if (boundService) {
             unbindService(serviceConnection);
         }
@@ -304,18 +292,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         return super.onOptionsItemSelected(item);
     }
 
+    @NonNull
+    public final <T extends View> T requireView(@IdRes int id) {
+        T v = findViewById(id);
+        if (v == null) {
+            throw new IllegalArgumentException("View " + id + " must be present");
+        }
+        return v;
+    }
+
 
     @Override
     @CallSuper
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, getService())) {
-            if (notifyVolumePanel) {
-                ISqueezeService.VolumeInfo volume = requireService().getVolume();
-                volumePanel.postVolumeChanged(volume.muted, volume.volume, volume.name);
-            }
-
-            return true;
-        }
+        if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, getService())) return true;
         return super.onKeyDown(keyCode, event);
     }
 
@@ -328,10 +318,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     public void setHandleVolumeKeys(boolean handleVolumeKeys) {
         this.handleVolumeKeys = handleVolumeKeys;
-    }
-
-    public void setNotifyVolumePanel(boolean notifyVolumePanel) {
-        this.notifyVolumePanel = notifyVolumePanel;
     }
 
     private static final int INACTIVITY_TIME = 5 * 60 * 1000;

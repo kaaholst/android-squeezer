@@ -37,7 +37,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/muteButton"
-        app:layout_constraintEnd_toStartOf="@id/volume"
+        app:layout_constraintEnd_toStartOf="@id/volumeToggleButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:progress="50"
@@ -46,7 +46,7 @@
         />
 
     <Button style="@style/ImageButton"
-        android:id="@+id/volume"
+        android:id="@+id/volumeToggleButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="48dp"

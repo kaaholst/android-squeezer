@@ -70,14 +70,22 @@ public class RadialSeekBar extends View {
 
     RectF oval;
 
-    private onProgressChangedListener progressChangedListener;
+    private OnProgressChangedListener progressChangedListener;
     private OnRadialSeekBarChangeListener seekBarChangeListener;
 
-    public interface onProgressChangedListener {
+    public interface OnProgressChangedListener {
         void onProgressChanged(int progress);
     }
 
-    public void setOnProgressChangedListener(onProgressChangedListener mProgressChangeListener) {
+    public interface OnRadialSeekBarChangeListener {
+        void onProgressChanged(RadialSeekBar seekBar, int progress);
+
+        void onStartTrackingTouch(RadialSeekBar seekBar);
+
+        void onStopTrackingTouch(RadialSeekBar seekBar);
+    }
+
+    public void setOnProgressChangedListener(OnProgressChangedListener mProgressChangeListener) {
         this.progressChangedListener = mProgressChangeListener;
     }
 

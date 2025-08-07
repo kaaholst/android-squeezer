@@ -338,12 +338,9 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setCurrentVolume(int value) {
-        if (value == currentVolume)
-            return false;
-
-        int current = currentVolume;
+        if (value == currentVolume) return false;
         currentVolume = value;
-        return (current != 101); // Do not report a change if previous volume was unknown
+        return true;
     }
 
     public int getSleepDuration() {

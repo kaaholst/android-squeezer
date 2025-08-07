@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -31,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -44,8 +42,10 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RefreshEvent;
 import uk.org.ngo.squeezer.util.RetainFragment;
+import uk.org.ngo.squeezer.volume.VolumeBar;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 /**
@@ -56,7 +56,7 @@ import uk.org.ngo.squeezer.widget.ViewUtilities;
  */
 public abstract class ItemListActivity extends BaseActivity implements ItemAdapter.PageOrderer {
 
-    private static final String TAG = ItemListActivity.class.getName();
+    private static final String TAG = ItemListActivity.class.getSimpleName();
 
     /**
      * The list is being actively scrolled by the user
@@ -86,7 +86,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
     private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<>();
 
     /**
-     * Progress bar (spinning) while items are loading.
+     * Progress bar while items are loading.
      */
     private View loadingProgress;
 
@@ -105,6 +105,9 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
      */
     private RecyclerView listView;
 
+    /** Volume bar */
+    private VolumeBar volumeBar;
+
     /**
      * Tag for mReceivedPages in mRetainFragment.
      */
@@ -122,20 +125,16 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
 
     @Override
     public void setContentView(int layoutResID) {
-        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout, findViewById(R.id.activity_layout));
+        View fullLayout = getLayoutInflater().inflate(R.layout.item_list_activity_layout, findViewById(R.id.activity_layout));
         subActivityContent = fullLayout.findViewById(R.id.content_frame);
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
 
-        loadingProgress = Objects.requireNonNull(findViewById(R.id.loading_label),
-                "activity layout did not return a view containing R.id.loading_label");
-
-        emptyView = Objects.requireNonNull(findViewById(R.id.empty_view),
-                "activity layout did not return a view containing R.id.empty_view");
-
-        listView = Objects.requireNonNull(subActivityContent.findViewById(R.id.item_list),
-                "getContentView() did not return a view containing R.id.item_list");
+        loadingProgress = requireView(R.id.loading_label);
+        emptyView = requireView(R.id.empty_view);
+        listView = requireView(R.id.item_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
+        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, null);
     }
 
     /**
@@ -163,7 +162,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         setContentView(getContentView());
         setSupportActionBar(findViewById(R.id.toolbar));
         ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
-        ViewUtilities.setInsetsListener(subActivityContent, false, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.coordinator), false, false, false);
         ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
 
         mReceivedPages = getRetainedValue(TAG_RECEIVED_PAGES);
@@ -198,6 +197,11 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
         repository().observe(this, this::onActivePlayerChanged);
         repository().observe(this, (RefreshEvent event) -> clearAndReOrderItems());
+        repository().observe(this, (PlayerVolume event) -> {
+            if (event.player == requireService().getActivePlayer()) {
+                volumeBar.update(requireService().getVolume());
+            }
+        });
     }
 
     private void showLoading() {
@@ -297,10 +301,11 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
                 clearAndReOrderItems();
             }
         }
+        if (event.player != null) volumeBar.update(requireService().getVolume());
     }
 
     private void onHandshakeComplete() {
-        Log.d(TAG, "Handshake complete");
+        Log.i(TAG, "Handshake complete");
         String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
         Player activePlayer = requireService().getActivePlayer();
         String activePlayerId = (activePlayer != null ? activePlayer.getId() : "");
@@ -313,6 +318,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
                 maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
             }
         }
+        if (activePlayer != null) volumeBar.update(requireService().getVolume());
     }
 
     /**

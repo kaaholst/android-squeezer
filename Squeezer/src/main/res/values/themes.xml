@@ -36,12 +36,11 @@
     </style>
 
     <style name="AppBarStyle">
-        <item name="android:elevation">4dp</item>
         <item name="android:background">?attr/colorAppBar</item>
         <item name="titleTextColor">?attr/colorControlNormal</item>
         <item name="subtitleTextColor">@color/material_on_primary_emphasis_medium</item>
 
-        <item name="android:theme">@style/ThemeOverlay.MaterialComponents.Toolbar.Primary</item>
+        <item name="android:theme">@style/ThemeOverlay.MaterialComponents.Toolbar.Surface</item>
         <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Toolbar.Popup.Primary</item>
     </style>
 

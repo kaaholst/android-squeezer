@@ -40,10 +40,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,7 +49,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -64,6 +61,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
@@ -100,12 +98,12 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.volume.VolumeBar;
+import uk.org.ngo.squeezer.volume.VolumeWheel;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
-import uk.org.ngo.squeezer.widget.RadialSeekBar;
-import uk.org.ngo.squeezer.widget.OnRadialSeekBarChangeListener;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
-public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChangeListener, CallStateDialog.CallStateDialogHost {
+public class NowPlayingFragment extends Fragment  implements CallStateDialog.CallStateDialogHost {
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -181,14 +179,10 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
     private boolean updateSeekBar = true;
 
     // For the large artwork layout
-    private MaterialButton muteButton;
-    private SeekBar volumeBar;
+    private VolumeBar volumeBar;
 
     // For the small artwork layout
-    private CheckBox muteToggle;
-    private RadialSeekBar volumeWheel;
-    private int currentProgress = 0;
-    private boolean trackingTouch;
+    private VolumeWheel volumeWheel;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -285,7 +279,7 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v;
 
-        mFullHeightLayout = (container.getLayoutParams().height == ViewGroup.LayoutParams.MATCH_PARENT);
+        mFullHeightLayout = (container.getLayoutParams().height != ViewGroup.LayoutParams.WRAP_CONTENT);
         Preferences preferences = Squeezer.getPreferences();
         boolean largeArtwork = preferences.isLargeArtwork();
 
@@ -307,12 +301,21 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
-                muteButton = v.findViewById(R.id.muteButton);
-                volumeBar = v.findViewById(R.id.volume_slider);
+                volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, () -> {
+                    preferences.setLargeArtwork(false);
+                    mActivity.recreate();
+                });
             } else {
                 albumArt = v.findViewById(R.id.icon);
-                volumeWheel = v.findViewById(R.id.level);
-                muteToggle = v.findViewById(R.id.muteToggle);
+                volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
+                    preferences.setLargeArtwork(true);
+                    mActivity.recreate();
+                }, () -> {
+                    if (requireService().getActivePlayer() != null) {
+                        FragmentManager fragmentManager = getParentFragmentManager();
+                        new VolumeSettings().show(fragmentManager, VolumeSettings.class.getName());
+                    }
+                });
             }
 
             final ViewParamItemView<JiveItem> viewHolder = new ViewParamItemView<>(mActivity, v);
@@ -393,69 +396,10 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
                     return true;
                 }
             });
-            albumArt.setOnTouchListener((view, event) -> {
-                return detector.onTouchEvent(event);
-            });
+            albumArt.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
 
             shuffleButton.setOnClickListener(view -> requireService().toggleShuffle());
-
             repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
-
-            mActivity.setNotifyVolumePanel(false);
-            if (largeArtwork) {
-                View volumeButton = v.findViewById(R.id.volume);
-                TextView volumeLabel = v.findViewById(R.id.label);
-
-                volumeButton.setOnClickListener(view -> {
-                    preferences.setLargeArtwork(false);
-                    mActivity.recreate();
-
-                });
-
-                muteButton.setOnClickListener(view -> requireService().toggleMute());
-                volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        trackingTouch = true;
-                        volumeButton.setVisibility(View.INVISIBLE);
-                        volumeLabel.setVisibility(View.VISIBLE);
-                        volumeLabel.setText(String.valueOf(seekBar.getProgress()));
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        trackingTouch = false;
-                        volumeButton.setVisibility(View.VISIBLE);
-                        volumeLabel.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        if (fromUser) {
-                            volumeLabel.setText(String.valueOf(progress));
-                            requireService().setVolumeTo(progress);
-                        }
-                    }
-                });
-            } else {
-                v.findViewById(R.id.down).setOnClickListener(view -> {
-                    preferences.setLargeArtwork(true);
-                    mActivity.recreate();
-                });
-
-                volumeWheel.setOnRadialSeekBarChangeListener(this);
-                muteToggle.setOnClickListener(view -> requireService().toggleMute());
-
-                v.findViewById(R.id.settings).setOnClickListener(view1 -> {
-                    if (requireService().getActivePlayer() != null) {
-                        FragmentManager fragmentManager = getParentFragmentManager();
-                        new VolumeSettings().show(fragmentManager, VolumeSettings.class.getName());
-                    }
-                });
-
-                v.findViewById(R.id.volume_down).setOnClickListener(view -> requireService().adjustVolume(-1));
-                v.findViewById(R.id.volume_up).setOnClickListener(view -> requireService().adjustVolume(1));
-            }
 
             // Update the time indicator to reflect the dragged thumb position.
             slider.addOnChangeListener((s, value, fromUser) -> {
@@ -653,10 +597,8 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             }
         });
         repository.observe(this, (PlayerVolume event) -> {
-            if (!trackingTouch) {
-                if (event.player == requireService().getActivePlayer()) {
-                    updateVolumeInfo();
-                }
+            if (event.player == requireService().getActivePlayer()) {
+                updateVolumeInfo();
             }
         });
         repository.observe(this, (MusicChanged event) -> {
@@ -908,24 +850,8 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
 
     private void updateVolumeInfo() {
         if (mFullHeightLayout) {
-            ISqueezeService.VolumeInfo volumeInfo = requireService().getVolume();
-            if (Squeezer.getPreferences().isLargeArtwork()) {
-                muteButton.setIconResource(volumeInfo.muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
-                volumeBar.setEnabled(!volumeInfo.muted);
-                volumeBar.setProgress(volumeInfo.volume);
-            } else {
-                muteToggle.setChecked(volumeInfo.muted);
-                currentProgress = volumeInfo.volume;
-                volumeWheel.setProgress(volumeInfo.volume);
-                volumeWheel.setLabel(String.valueOf(volumeInfo.volume));
-                // label.setText(volumeInfo.name);
-
-                volumeWheel.setIndicatorColor(ColorUtils.setAlphaComponent(volumeWheel.getIndicatorColor(), volumeInfo.muted ? 63 : 255));
-                volumeWheel.setProgressPrimaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressPrimaryColor(), volumeInfo.muted ? 63 : 255));
-                volumeWheel.setProgressSecondaryColor(ColorUtils.setAlphaComponent(volumeWheel.getProgressSecondaryColor(), volumeInfo.muted ? 63 : 255));
-                volumeWheel.setOnRadialSeekBarChangeListener(volumeInfo.muted ? null : this);
-                volumeWheel.setOnTouchListener(volumeInfo.muted ? (view, motionEvent) -> true : null);
-            }
+            Consumer<ISqueezeService.VolumeInfo> updater = Squeezer.getPreferences().isLargeArtwork() ? volumeBar::update : volumeWheel::update;
+            updater.accept(requireService().getVolume());
         }
     }
 
@@ -1212,25 +1138,6 @@ public class NowPlayingFragment extends Fragment  implements OnRadialSeekBarChan
             if ("myMusicSearch".equals(menuItem.getId())) menuItem.input = new Input();
         }
         if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
-    }
-
-    @Override
-    public void onProgressChanged(RadialSeekBar seekBar, int progress) {
-        if (currentProgress != progress) {
-            currentProgress = progress;
-            volumeWheel.setLabel(String.valueOf(progress));
-            requireService().setVolumeTo(progress);
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(RadialSeekBar seekBar) {
-        trackingTouch = true;
-    }
-
-    @Override
-    public void onStopTrackingTouch(RadialSeekBar seekBar) {
-        trackingTouch = false;
     }
 
 }

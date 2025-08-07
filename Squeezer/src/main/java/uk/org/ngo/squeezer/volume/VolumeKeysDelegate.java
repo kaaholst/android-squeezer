@@ -1,4 +1,4 @@
-package uk.org.ngo.squeezer.widget;
+package uk.org.ngo.squeezer.volume;
 
 import android.view.KeyEvent;
 
