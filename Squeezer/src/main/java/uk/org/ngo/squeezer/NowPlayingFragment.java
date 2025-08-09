@@ -402,9 +402,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
 
             // Update the time indicator to reflect the dragged thumb position.
-            slider.addOnChangeListener((s, value, fromUser) -> {
+            slider.addOnChangeListener((slider, value, fromUser) -> {
                 if (fromUser) {
                     currentTime.setText(Util.formatElapsedTime((int)value));
+                    if (showRemainingTime) totalTime.setText(Util.formatElapsedTime((int)slider.getValueTo() - (int)value));
                 }
             });
 
