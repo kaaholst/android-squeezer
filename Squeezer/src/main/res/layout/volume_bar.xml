@@ -45,7 +45,7 @@
         android:max="100"
         />
 
-    <Button style="@style/ImageButton"
+    <com.google.android.material.button.MaterialButton style="@style/ImageButton"
         android:id="@+id/volumeToggleButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

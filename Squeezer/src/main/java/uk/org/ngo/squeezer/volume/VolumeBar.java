@@ -1,8 +1,11 @@
 package uk.org.ngo.squeezer.volume;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.core.util.Pair;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -17,17 +20,18 @@ public class VolumeBar {
 
     private boolean trackingTouch;
 
-    public VolumeBar(View v, Supplier<ISqueezeService> serviceSupplier, Runnable volumeToggleListener) {
+    public VolumeBar(View v, Supplier<ISqueezeService> serviceSupplier, Pair<Drawable, Runnable> volumeToggleListener) {
         muteButton = v.findViewById(R.id.muteButton);
         volumeBar = v.findViewById(R.id.volume_slider);
 
-        View volumeToggleButton = v.findViewById(R.id.volumeToggleButton);
+        MaterialButton volumeToggleButton = v.findViewById(R.id.volumeToggleButton);
         TextView volumeLabel = v.findViewById(R.id.label);
 
         muteButton.setOnClickListener(view -> serviceSupplier.get().toggleMute());
-        if (volumeToggleListener != null)
-            volumeToggleButton.setOnClickListener(view -> volumeToggleListener.run());
-        else
+        if (volumeToggleListener != null) {
+            volumeToggleButton.setIcon(volumeToggleListener.first);
+            volumeToggleButton.setOnClickListener(view -> volumeToggleListener.second.run());
+        } else
             volumeToggleButton.setVisibility(View.INVISIBLE);
         volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

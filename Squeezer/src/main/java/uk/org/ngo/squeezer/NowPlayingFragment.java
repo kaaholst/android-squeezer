@@ -49,9 +49,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.util.Pair;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -301,10 +301,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
-                volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, () -> {
+                volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
                     preferences.setLargeArtwork(false);
                     mActivity.recreate();
-                });
+                }));
             } else {
                 albumArt = v.findViewById(R.id.icon);
                 volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
@@ -312,8 +312,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                     mActivity.recreate();
                 }, () -> {
                     if (requireService().getActivePlayer() != null) {
-                        FragmentManager fragmentManager = getParentFragmentManager();
-                        new VolumeSettings().show(fragmentManager, VolumeSettings.class.getName());
+                        new VolumeSettings().show(getParentFragmentManager(), VolumeSettings.class.getName());
                     }
                 });
             }

@@ -25,6 +25,8 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,6 +37,7 @@ import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
@@ -134,7 +137,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         emptyView = requireView(R.id.empty_view);
         listView = requireView(R.id.item_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
-        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, null);
+        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> new VolumeSettings().show(getSupportFragmentManager(), VolumeSettings.class.getName())));
     }
 
     /**
