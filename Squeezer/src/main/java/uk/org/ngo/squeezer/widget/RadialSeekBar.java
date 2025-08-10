@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 
 import uk.org.ngo.squeezer.R;
 
@@ -33,12 +34,6 @@ public class RadialSeekBar extends View {
     private int progressPrimaryColor = Color.parseColor("#FFA036");
     private int progressSecondaryColor = Color.parseColor("#111111");
 
-    private int backCircleDisabledColor = Color.parseColor("#82222222");
-    private int mainCircleDisabledColor = Color.parseColor("#82000000");
-    private int indicatorDisabledColor = Color.parseColor("#82FFA036");
-    private int progressPrimaryDisabledColor = Color.parseColor("#82FFA036");
-    private int progressSecondaryDisabledColor = Color.parseColor("#82111111");
-
     private float progressPrimaryCircleSize = -1;
     private float progressSecondaryCircleSize = -1;
 
@@ -56,8 +51,6 @@ public class RadialSeekBar extends View {
     private String labelFont;
     private int labelStyle = 0;
     private int labelColor = Color.WHITE;
-
-    private int labelDisabledColor = Color.BLACK;
 
     private int startOffset = 30;
     private int sweepAngle = -1;
@@ -79,9 +72,7 @@ public class RadialSeekBar extends View {
 
     public interface OnRadialSeekBarChangeListener {
         void onProgressChanged(RadialSeekBar seekBar, int progress);
-
         void onStartTrackingTouch(RadialSeekBar seekBar);
-
         void onStopTrackingTouch(RadialSeekBar seekBar);
     }
 
@@ -111,7 +102,6 @@ public class RadialSeekBar extends View {
     }
 
     private void init() {
-
         textPaint = new Paint();
         textPaint.setAntiAlias(true);
         textPaint.setStyle(Paint.Style.FILL);
@@ -133,17 +123,10 @@ public class RadialSeekBar extends View {
         linePaint = new Paint();
         linePaint.setAntiAlias(true);
 
-        if (isEnabled) {
-            circlePaint2.setColor(progressPrimaryColor);
-            circlePaint.setColor(progressSecondaryColor);
-            linePaint.setColor(indicatorColor);
-            textPaint.setColor(labelColor);
-        } else {
-            circlePaint2.setColor(progressPrimaryDisabledColor);
-            circlePaint.setColor(progressSecondaryDisabledColor);
-            linePaint.setColor(indicatorDisabledColor);
-            textPaint.setColor(labelDisabledColor);
-        }
+        circlePaint2.setColor(progressPrimaryColor);
+        circlePaint.setColor(progressSecondaryColor);
+        linePaint.setColor(indicatorColor);
+        textPaint.setColor(labelColor);
 
         oval = new RectF();
     }
@@ -192,14 +175,7 @@ public class RadialSeekBar extends View {
             setProgressPrimaryColor(a.getColor(R.styleable.RadialSeekBar_progress_primary_color, progressPrimaryColor));
             setProgressSecondaryColor(a.getColor(R.styleable.RadialSeekBar_progress_secondary_color, progressSecondaryColor));
 
-            setBackCircleDisabledColor(a.getColor(R.styleable.RadialSeekBar_back_circle_disable_color, backCircleDisabledColor));
-            setMainCircleDisabledColor(a.getColor(R.styleable.RadialSeekBar_main_circle_disable_color, mainCircleDisabledColor));
-            setIndicatorDisabledColor(a.getColor(R.styleable.RadialSeekBar_indicator_disable_color, indicatorDisabledColor));
-            setProgressPrimaryDisabledColor(a.getColor(R.styleable.RadialSeekBar_progress_primary_disable_color, progressPrimaryDisabledColor));
-            setProgressSecondaryDisabledColor(a.getColor(R.styleable.RadialSeekBar_progress_secondary_disable_color, progressSecondaryDisabledColor));
-
             setLabelColor(a.getColor(R.styleable.RadialSeekBar_label_color, labelColor));
-            setlabelDisabledColor(a.getColor(R.styleable.RadialSeekBar_label_disabled_color, labelDisabledColor));
             setLabelFont(a.getString(R.styleable.RadialSeekBar_label_font));
             setLabelStyle(a.getInt(R.styleable.RadialSeekBar_label_style, 0));
             setIsContinuous(a.getBoolean(R.styleable.RadialSeekBar_is_continuous, false));
@@ -289,17 +265,10 @@ public class RadialSeekBar extends View {
         if (seekBarChangeListener != null)
             seekBarChangeListener.onProgressChanged(this, (int) (deg - 2));
 
-        if (isEnabled) {
-            circlePaint2.setColor(progressPrimaryColor);
-            circlePaint.setColor(progressSecondaryColor);
-            linePaint.setColor(indicatorColor);
-            textPaint.setColor(labelColor);
-        } else {
-            circlePaint2.setColor(progressPrimaryDisabledColor);
-            circlePaint.setColor(progressSecondaryDisabledColor);
-            linePaint.setColor(indicatorDisabledColor);
-            textPaint.setColor(labelDisabledColor);
-        }
+        circlePaint2.setColor(ColorUtils.setAlphaComponent(progressPrimaryColor, isEnabled ? 255 : 63));
+        circlePaint.setColor(ColorUtils.setAlphaComponent(progressSecondaryColor, isEnabled ? 255 : 63));
+        linePaint.setColor(ColorUtils.setAlphaComponent(indicatorColor, isEnabled ? 255 : 63));
+        textPaint.setColor(ColorUtils.setAlphaComponent(labelColor, isEnabled ? 255 : 63));
 
         if (!isContinuous) {
             int startOffset2 = startOffset - 15;
@@ -366,16 +335,11 @@ public class RadialSeekBar extends View {
             float x2 = midx + (float) (radius * ((float) 3 / 5) * Math.sin(2 * Math.PI * (1.0 - tmp2)));
             float y2 = midy + (float) (radius * ((float) 3 / 5) * Math.cos(2 * Math.PI * (1.0 - tmp2)));
 
-            if (isEnabled)
-                circlePaint.setColor(backCircleColor);
-            else
-                circlePaint.setColor(backCircleDisabledColor);
+            circlePaint.setColor(backCircleColor);
             canvas.drawCircle(midx, midy, backCircleRadius, circlePaint);
-            if (isEnabled)
-                circlePaint.setColor(mainCircleColor);
-            else
-                circlePaint.setColor(mainCircleDisabledColor);
+            circlePaint.setColor(mainCircleColor);
             canvas.drawCircle(midx, midy, mainCircleRadius, circlePaint);
+
             canvas.drawText(label, midx, midy + (float) (radius * 1.1)-textPaint.getFontMetrics().descent, textPaint);
             canvas.drawLine(x1, y1, x2, y2, linePaint);
 
@@ -427,17 +391,11 @@ public class RadialSeekBar extends View {
             float y2 = midy + (float) (radius * ((float) 3 / 5) * Math.cos(2 * Math.PI * (1.0 - tmp2)));
 
             circlePaint.setStyle(Paint.Style.FILL);
-
-            if (isEnabled)
-                circlePaint.setColor(backCircleColor);
-            else
-                circlePaint.setColor(backCircleDisabledColor);
+            circlePaint.setColor(backCircleColor);
             canvas.drawCircle(midx, midy, backCircleRadius, circlePaint);
-            if (isEnabled)
-                circlePaint.setColor(mainCircleColor);
-            else
-                circlePaint.setColor(mainCircleDisabledColor);
+            circlePaint.setColor(mainCircleColor);
             canvas.drawCircle(midx, midy, mainCircleRadius, circlePaint);
+
             canvas.drawText(label, midx, midy + (float) (radius * 1.1)-textPaint.getFontMetrics().descent, textPaint);
             canvas.drawLine(x1, y1, x2, y2, linePaint);
         }
@@ -619,66 +577,12 @@ public class RadialSeekBar extends View {
         invalidate();
     }
 
-    public int getBackCircleDisabledColor() {
-        return backCircleDisabledColor;
-    }
-
-    public void setBackCircleDisabledColor(int backCircleDisabledColor) {
-        this.backCircleDisabledColor = backCircleDisabledColor;
-        invalidate();
-    }
-
-    public int getMainCircleDisabledColor() {
-        return mainCircleDisabledColor;
-    }
-
-    public void setMainCircleDisabledColor(int mainCircleDisabledColor) {
-        this.mainCircleDisabledColor = mainCircleDisabledColor;
-        invalidate();
-    }
-
-    public int getIndicatorDisabledColor() {
-        return indicatorDisabledColor;
-    }
-
-    public void setIndicatorDisabledColor(int indicatorDisabledColor) {
-        this.indicatorDisabledColor = indicatorDisabledColor;
-        invalidate();
-    }
-
-    public int getProgressPrimaryDisabledColor() {
-        return progressPrimaryDisabledColor;
-    }
-
-    public void setProgressPrimaryDisabledColor(int progressPrimaryDisabledColor) {
-        this.progressPrimaryDisabledColor = progressPrimaryDisabledColor;
-        invalidate();
-    }
-
-    public int getProgressSecondaryDisabledColor() {
-        return progressSecondaryDisabledColor;
-    }
-
-    public void setProgressSecondaryDisabledColor(int progressSecondaryDisabledColor) {
-        this.progressSecondaryDisabledColor = progressSecondaryDisabledColor;
-        invalidate();
-    }
-
     public int getLabelColor() {
         return labelColor;
     }
 
     public void setLabelColor(int labelColor) {
         this.labelColor = labelColor;
-        invalidate();
-    }
-
-    public int getlabelDisabledColor() {
-        return labelDisabledColor;
-    }
-
-    public void setlabelDisabledColor(int labelDisabledColor) {
-        this.labelDisabledColor = labelDisabledColor;
         invalidate();
     }
 
