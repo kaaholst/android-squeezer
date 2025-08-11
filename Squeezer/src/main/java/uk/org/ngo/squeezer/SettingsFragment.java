@@ -87,9 +87,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         fillScrobblePreferences(sharedPreferences);
 
         fillDownloadPreferences(preferences);
-
-        SwitchPreferenceCompat startSqueezePlayerPref = requirePreference(Preferences.KEY_SQUEEZEPLAYER_ENABLED);
-        startSqueezePlayerPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
     private void fillScrobblePreferences(SharedPreferences preferences) {

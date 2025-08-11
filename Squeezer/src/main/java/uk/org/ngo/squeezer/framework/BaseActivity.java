@@ -68,7 +68,7 @@ import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.SqueezePlayer;
+import uk.org.ngo.squeezer.util.DevicePlayers;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 import uk.org.ngo.squeezer.volume.VolumeKeysDelegate;
@@ -88,7 +88,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     private final ThemeManager themeManager = new ThemeManager();
 
-    private SqueezePlayer squeezePlayer;
+    /** Control device  players */
+    private DevicePlayers devicePlayers;
 
     /** Whether volume keys shall be handled. */
     private boolean handleVolumeKeys = true;
@@ -163,6 +164,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
                 }
             }
         });
+
+        devicePlayers = new DevicePlayers(this);
     }
 
     @Override
@@ -181,8 +184,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             setInactivityTimer();
         }
 
-        // If SqueezePlayer is installed, start it
-        squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
+        devicePlayers.onResume();
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
@@ -200,16 +202,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             inactivityHandler.removeCallbacks(inactivityAction);
         }
 
-        if (squeezePlayer != null) {
-            squeezePlayer.stopControllingSqueezePlayer();
-            squeezePlayer = null;
-        }
-
-        // If we are not bound to the service, it's process is no longer
-        // running, so the callbacks are already cleaned up.
-        if (mService != null) {
-            mService.cancelItemListRequests(this);
-        }
+        devicePlayers.onPause();
 
         // Ensure that any pending image fetching tasks are unpaused, and finish quickly.
         ImageFetcher imageFetcher = ImageFetcher.getInstance(this);
@@ -235,6 +228,13 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @CallSuper
     public void onDestroy() {
         super.onDestroy();
+
+        // If we are not bound to the service, it's process is no longer
+        // running, so the callbacks are already cleaned up.
+        if (mService != null) {
+            mService.cancelItemListRequests(this);
+        }
+
         if (boundService) {
             unbindService(serviceConnection);
         }
@@ -263,6 +263,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             if (!event.isShown) showDisplayMessage(event.message);
             event.isShown = true;
         });
+
+        devicePlayers.onCreate();
     }
 
     public SqueezerRepository repository() {

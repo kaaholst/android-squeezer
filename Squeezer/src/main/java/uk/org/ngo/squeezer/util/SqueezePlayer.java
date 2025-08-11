@@ -6,20 +6,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 
-public class SqueezePlayer extends Handler {
+class SqueezePlayer extends Handler {
     private static final int MSG_STOP = 0;
     private static final int MSG_TIMEOUT = 1;
     private static final long TIMEOUT_DELAY = 10 * 60 * 1000; // 10 minutes in milliseconds
 
-    private static final String SQUEEZEPLAYER_PACKAGE = "de.bluegaspode.squeezeplayer";
-    private static final String SQUEEZEPLAYER_SERVICE = "de.bluegaspode.squeezeplayer.playback.service.PlaybackService";
+    private static final String PACKAGE = "de.bluegaspode.squeezeplayer";
+    private static final String SERVICE = "de.bluegaspode.squeezeplayer.playback.service.PlaybackService";
     private static final String HAS_SERVER_SETTINGS_EXTRA = "intentHasServerSettings";
     private static final String FORCE_SERVER_SETTINGS_EXTRA = "forceSettingsFromIntent";
     private static final String SERVER_URL_EXTRA = "serverURL";
@@ -33,9 +33,10 @@ public class SqueezePlayer extends Handler {
     private final String serverName;
     private final String username;
     private final String password;
-    private final AppCompatActivity context;
+    private final Context context;
 
-    private SqueezePlayer(AppCompatActivity context, Preferences.ServerAddress serverAddress) {
+    private SqueezePlayer(Context context, Preferences.ServerAddress serverAddress) {
+        super(Looper.getMainLooper());
         this.context = context;
 
         serverUrl = serverAddress.address();
@@ -47,11 +48,10 @@ public class SqueezePlayer extends Handler {
         startControllingSqueezePlayer();
     }
 
-    public static SqueezePlayer maybeStartControllingSqueezePlayer(AppCompatActivity context) {
-        Preferences preferences = Squeezer.getPreferences();
-        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-
-        if (hasSqueezePlayer(context) && preferences.controlSqueezePlayer()) {
+    public static SqueezePlayer maybeStartControllingSqueezePlayer(Context context) {
+        if (hasSqueezePlayer(context)) {
+            Preferences preferences = Squeezer.getPreferences();
+            Preferences.ServerAddress serverAddress = preferences.getServerAddress();
             return new SqueezePlayer(context, serverAddress);
         }
 
@@ -60,7 +60,7 @@ public class SqueezePlayer extends Handler {
 
     private static boolean hasSqueezePlayer(Context context) {
         final PackageManager packageManager = context.getPackageManager();
-        Intent intent = packageManager.getLaunchIntentForPackage(SQUEEZEPLAYER_PACKAGE);
+        Intent intent = packageManager.getLaunchIntentForPackage(PACKAGE);
         return (intent != null);
     }
 
@@ -75,7 +75,7 @@ public class SqueezePlayer extends Handler {
     }
 
     private Intent getSqueezePlayerIntent() {
-        final ComponentName component = new ComponentName(SQUEEZEPLAYER_PACKAGE, SQUEEZEPLAYER_SERVICE);
+        final ComponentName component = new ComponentName(PACKAGE, SERVICE);
         Intent intent = new Intent().setComponent(component);
         if (serverUrl != null) {
             intent.putExtra(FORCE_SERVER_SETTINGS_EXTRA, true);

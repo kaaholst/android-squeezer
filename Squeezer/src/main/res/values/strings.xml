@@ -88,9 +88,6 @@
     <string name="settings_scrobble_noapp">No apps that can scrobble are installed</string>
     <string name="settings_market_not_found">Could not start Google Play, is it installed?</string>
 
-    <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
-    <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
-
     <string name="settings_category_display">Display</string>
     <string name="settings_category_ui">Shortcuts, etc.</string>
     <string name="settings_customize_home_menu_mode">Archive</string>
