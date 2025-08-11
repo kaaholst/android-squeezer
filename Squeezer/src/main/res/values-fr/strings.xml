@@ -156,4 +156,5 @@
     <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">n\'a pas pu être ajouté à la base de données multimédia de l\'appareil</string>
     <string name="pref_cat_third_party">Intégration tierce</string>
     <string name="continue_playback">Continuer la lecture</string>
+    <string name="volume">Volume</string>
 </resources>

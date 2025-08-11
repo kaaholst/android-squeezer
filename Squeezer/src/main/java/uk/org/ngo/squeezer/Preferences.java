@@ -154,6 +154,9 @@ public final class Preferences {
     // Preferred maximum info per item for a given list layout
     public static final String KEY_MAX_LINES_FORMAT = "squeezer.%s.maxLines";
 
+    // Show volume control on now playing screen
+    public static final String KEY_NOW_PLAYING_VOLUME = "squeezer.now_playing_volume";
+
     // Show current track and queue length on now playing screen
     public static final String KEY_TRACK_COUNT = "squeezer.show_track_count";
 
@@ -643,6 +646,14 @@ public final class Preferences {
 
     public void setMaxLines(ArtworkListLayout listLayout, int maxLines) {
         sharedPreferences.edit().putInt(String.format(KEY_MAX_LINES_FORMAT, listLayout.name()), maxLines).apply();
+    }
+
+    public boolean nowPlayingVolume() {
+        return sharedPreferences.getBoolean(KEY_NOW_PLAYING_VOLUME, true);
+    }
+
+    public void nowPlayingVolume(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_NOW_PLAYING_VOLUME, b).apply();
     }
 
     public boolean showTrackCount() {

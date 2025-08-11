@@ -281,7 +281,8 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
         mFullHeightLayout = (container.getLayoutParams().height != ViewGroup.LayoutParams.WRAP_CONTENT);
         Preferences preferences = Squeezer.getPreferences();
-        boolean largeArtwork = preferences.isLargeArtwork();
+        boolean showVolume = preferences.nowPlayingVolume();
+        boolean largeArtwork = !showVolume || preferences.isLargeArtwork();
 
         if (mFullHeightLayout) {
             v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
@@ -301,10 +302,14 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
-                volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
-                    preferences.setLargeArtwork(false);
-                    mActivity.recreate();
-                }));
+                if (showVolume) {
+                    volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
+                        preferences.setLargeArtwork(false);
+                        mActivity.recreate();
+                    }));
+                } else {
+                    v.findViewById(R.id.volume_bar).setVisibility(View.GONE);
+                }
             } else {
                 albumArt = v.findViewById(R.id.icon);
                 volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
@@ -849,8 +854,9 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
     private void updateVolumeInfo() {
-        if (mFullHeightLayout) {
-            Consumer<ISqueezeService.VolumeInfo> updater = Squeezer.getPreferences().isLargeArtwork() ? volumeBar::update : volumeWheel::update;
+        Preferences preferences = Squeezer.getPreferences();
+        if (mFullHeightLayout && preferences.nowPlayingVolume()) {
+            Consumer<ISqueezeService.VolumeInfo> updater = preferences.isLargeArtwork() ? volumeBar::update : volumeWheel::update;
             updater.accept(requireService().getVolume());
         }
     }

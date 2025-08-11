@@ -271,5 +271,6 @@
     <string name="player_group_volume_off">Lautstärke für ausgewählte Player anpassen</string>
     <string name="set_sleep_timer">Einschlaftimer setzen</string>
     <string name="continue_playback">Wiedergabe fortsetzen</string>
+    <string name="volume">Lautstärke</string>
 
 </resources>

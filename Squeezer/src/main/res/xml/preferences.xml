@@ -50,6 +50,12 @@
         android:title="@string/settings_category_nowplaying_trackinfo">
 
         <SwitchPreferenceCompat
+            android:key="squeezer.now_playing_volume"
+            android:summaryOff="@string/don_t_show_volume_control"
+            android:summaryOn="@string/show_volume_control"
+            android:title="@string/volume"/>
+
+        <SwitchPreferenceCompat
             android:key="squeezer.show_track_count"
             android:summaryOff="@string/settings_show_track_number_off"
             android:summaryOn="@string/settings_show_track_number_on"

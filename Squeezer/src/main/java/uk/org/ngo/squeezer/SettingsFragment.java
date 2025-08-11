@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -73,7 +72,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Preferences preferences = new Preferences(getActivity(), sharedPreferences);
 
-        fadeInPref = findPreference(Preferences.KEY_FADE_IN_SECS);
+        fadeInPref = requirePreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
         updateFadeInSecondsSummary(preferences.getFadeInSecs());
 
@@ -89,13 +88,12 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         fillDownloadPreferences(preferences);
 
-        SwitchPreferenceCompat startSqueezePlayerPref = findPreference(
-                Preferences.KEY_SQUEEZEPLAYER_ENABLED);
+        SwitchPreferenceCompat startSqueezePlayerPref = requirePreference(Preferences.KEY_SQUEEZEPLAYER_ENABLED);
         startSqueezePlayerPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
     private void fillScrobblePreferences(SharedPreferences preferences) {
-        SwitchPreferenceCompat scrobblePref = findPreference(Preferences.KEY_SCROBBLE_ENABLED);
+        SwitchPreferenceCompat scrobblePref = requirePreference(Preferences.KEY_SCROBBLE_ENABLED);
         scrobblePref.setOnPreferenceChangeListener(this);
 
         if (!Scrobble.canScrobble()) {
@@ -122,21 +120,17 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     private void fillDownloadPreferences(Preferences preferences) {
-        final ListPreference pathStructurePreference = findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
-        final ListPreference filenameStructurePreference = findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
-
-        fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
-        fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
-
+        fillEnumPreference(requirePreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE), DownloadPathStructure.class, preferences.getDownloadPathStructure());
+        fillEnumPreference(requirePreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE), DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
         updateDownloadPreferences(preferences);
     }
 
     private void updateDownloadPreferences(Preferences preferences) {
-        final SwitchPreferenceCompat downloadEnabled = findPreference(Preferences.KEY_DOWNLOAD_ENABLED);
-        final CheckBoxPreference downloadConfirmation = findPreference(Preferences.KEY_DOWNLOAD_CONFIRMATION);
-        final CheckBoxPreference useServerPathPreference = findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);
-        final ListPreference pathStructurePreference = findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
-        final ListPreference filenameStructurePreference = findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+        final SwitchPreferenceCompat downloadEnabled = requirePreference(Preferences.KEY_DOWNLOAD_ENABLED);
+        final CheckBoxPreference downloadConfirmation = requirePreference(Preferences.KEY_DOWNLOAD_CONFIRMATION);
+        final CheckBoxPreference useServerPathPreference = requirePreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);
+        final ListPreference pathStructurePreference = requirePreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = requirePreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
         final boolean enabled = preferences.isDownloadEnabled();
         final boolean useServerPath = preferences.isDownloadUseServerPath();
 
@@ -151,24 +145,22 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     private void fillIncomingCallPreferences(Preferences preferences) {
-        ListPreference incomingCallPref = findPreference(Preferences.KEY_ACTION_ON_INCOMING_CALL);
-        fillEnumPreference(incomingCallPref, Preferences.IncomingCallAction.class, preferences.getActionOnIncomingCall());
+        fillEnumPreference(requirePreference(Preferences.KEY_ACTION_ON_INCOMING_CALL), Preferences.IncomingCallAction.class, preferences.getActionOnIncomingCall());
         updateIncomingCallPreferences(preferences);
     }
 
     private void updateIncomingCallPreferences(Preferences preferences) {
-        final CheckBoxPreference restoreMusicPreference = findPreference(Preferences.KEY_RESTORE_MUSIC_AFTER_CALL);
-        restoreMusicPreference.setEnabled(preferences.getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE);
+        this.<CheckBoxPreference>requirePreference(Preferences.KEY_RESTORE_MUSIC_AFTER_CALL).setEnabled(preferences.getActionOnIncomingCall() != Preferences.IncomingCallAction.NONE);
     }
 
     private void fillDisplayPreferences(Preferences preferences) {
-        ListPreference onSelectThemePref = findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ListPreference onSelectThemePref = requirePreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
         ArrayList<String> entryValues = new ArrayList<>();
         ArrayList<String> entries = new ArrayList<>();
 
         for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
             entryValues.add(theme.name());
-            entries.add(theme.getText(getActivity()));
+            entries.add(theme.getText(requireActivity()));
         }
 
         onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
@@ -185,39 +177,27 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         }
         onSelectThemePref.setOnPreferenceChangeListener(this);
 
-        ListPreference screensaverPref = findPreference(Preferences.KEY_SCREENSAVER);
-        fillEnumPreference(screensaverPref, Preferences.ScreensaverMode.class, preferences.getScreensaverMode());
+        fillEnumPreference(requirePreference(Preferences.KEY_SCREENSAVER), Preferences.ScreensaverMode.class, preferences.getScreensaverMode());
     }
 
     private void fillNowPlayingPreferences(Preferences preferences) {
-        final SwitchPreferenceCompat trackCount = findPreference(Preferences.KEY_TRACK_COUNT);
-        trackCount.setChecked(preferences.showTrackCount());
-
-        final SwitchPreferenceCompat teachnicalInfo = findPreference(Preferences.KEY_TECHNICAL_INFO);
-        teachnicalInfo.setChecked(preferences.showTechnicalInfo());
-
-        final SwitchPreferenceCompat addComposerLine = findPreference(Preferences.KEY_COMPOSER_LINE);
-        addComposerLine.setChecked(preferences.addComposerLine());
-
-        final SwitchPreferenceCompat addConductorLine = findPreference(Preferences.KEY_CONDUCTOR_LINE);
-        addConductorLine.setChecked(preferences.addConductorLine());
-
-        final SwitchPreferenceCompat displayClassicalMusicAppearance = findPreference(Preferences.KEY_CLASSICAL_MUSIC_TAGS);
-        displayClassicalMusicAppearance.setChecked(preferences.displayClassicalMusicTags());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_NOW_PLAYING_VOLUME).setChecked(preferences.nowPlayingVolume());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_TRACK_COUNT).setChecked(preferences.showTrackCount());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_TECHNICAL_INFO).setChecked(preferences.showTechnicalInfo());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_COMPOSER_LINE).setChecked(preferences.addComposerLine());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CONDUCTOR_LINE).setChecked(preferences.addConductorLine());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CLASSICAL_MUSIC_TAGS).setChecked(preferences.displayClassicalMusicTags());
     }
 
     private void fillUserInterfacePreferences(Preferences preferences) {
-        final SwitchPreferenceCompat clearPlaylistConfirmation = findPreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION);
-        clearPlaylistConfirmation.setChecked(preferences.isClearPlaylistConfirmation());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION).setChecked(preferences.isClearPlaylistConfirmation());
+        fillEnumPreference(requirePreference(Preferences.KEY_TOP_BAR_SEARCH), Preferences.TopBarSearch.class, preferences.getTopBarSearch());
+        fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE), Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
+        fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE), Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
+    }
 
-        ListPreference topBarSearchPref = findPreference(Preferences.KEY_TOP_BAR_SEARCH);
-        fillEnumPreference(topBarSearchPref, Preferences.TopBarSearch.class, preferences.getTopBarSearch());
-
-        ListPreference customizeHomePref = findPreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE);
-        fillEnumPreference(customizeHomePref, Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
-
-        ListPreference customizeShortcutsPref = findPreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE);
-        fillEnumPreference(customizeShortcutsPref, Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
+    private <T extends Preference> T requirePreference(String key) {
+        return findPreference(key);
     }
 
     private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {
@@ -305,7 +285,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
             return;
         }
 
-        Preferences preferences = new Preferences(getActivity(), sharedPreferences);
+        Preferences preferences = new Preferences(requireActivity(), sharedPreferences);
 
         if (key.equals(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
                 key.equals(Preferences.KEY_DOWNLOAD_ENABLED)
@@ -314,7 +294,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         }
 
         if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
-            ListPreference incomingCallPref = findPreference(Preferences.KEY_ACTION_ON_INCOMING_CALL);
+            ListPreference incomingCallPref = requirePreference(Preferences.KEY_ACTION_ON_INCOMING_CALL);
             incomingCallPref.setValue(sharedPreferences.getString(Preferences.KEY_ACTION_ON_INCOMING_CALL, null));
             updateIncomingCallPreferences(preferences);
         }
@@ -343,8 +323,8 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
                     R.drawable.ic_launcher_scrobbledroid, R.drawable.ic_launcher_sls
             };
 
-            final View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.scrobbler_choice_dialog, null);
-            AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity())
+            final View dialogView = getLayoutInflater().inflate(R.layout.scrobbler_choice_dialog, null);
+            AlertDialog dialog = new MaterialAlertDialogBuilder(requireActivity())
                     .setView(dialogView)
                     .setTitle("Scrobbling applications")
                     .create();

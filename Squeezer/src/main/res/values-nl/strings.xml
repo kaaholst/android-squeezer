@@ -83,4 +83,5 @@
     </plurals>
 
     <string name="confirm_cancel_downloads">Downloaden afbreken?</string>
+    <string name="volume">Volume</string>
 </resources>

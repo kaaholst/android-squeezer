@@ -264,6 +264,7 @@
     <string name="alarm_snooze_duration_text">Czas drzemki</string>
     <string name="alarm_timeout_hint_text_zero">Alarmy grają bez ograniczenia</string>
     <string name="DONT_ASK_AGAIN">Nie pytaj ponownie</string>
+    <string name="volume">Głośność</string>
     <plurals name="alarm_timeout_hint_text">
         <item quantity="one">Alarmy wyłaczają się po %d minucie</item>
         <item quantity="few">Alarmy wyłaczają się po %d minutach</item>
