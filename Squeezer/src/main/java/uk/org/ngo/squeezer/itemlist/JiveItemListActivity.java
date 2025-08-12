@@ -21,6 +21,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -71,6 +74,7 @@ import uk.org.ngo.squeezer.model.RefreshWindow;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
+import uk.org.ngo.squeezer.util.AfterTextChangedLister;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
 
@@ -141,24 +145,6 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
         if (hasInputField()) {
             final EditText inputText = findViewById(R.id.plugin_input);
             TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
-            int inputType = EditorInfo.TYPE_CLASS_TEXT;
-            int inputImage = R.drawable.keyboard_return;
-
-            switch (action.getInputType()) {
-                case TEXT:
-                    break;
-                case SEARCH:
-                    inputImage = R.drawable.search;
-                    break;
-                case EMAIL:
-                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
-                    break;
-                case PASSWORD:
-                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
-                    break;
-            }
-            inputText.setInputType(inputType);
-            inputTextLayout.setEndIconDrawable(inputImage);
             inputTextLayout.setHint(TextUtils.isEmpty(parent.input.title) ? this.window.text : parent.input.title);
             inputText.setText(parent.input.initialText);
             parent.inputValue = parent.input.initialText;
@@ -172,11 +158,37 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                 return false;
             });
 
-            inputTextLayout.setEndIconOnClickListener(v -> {
-                if (getService() != null) {
-                    clearAndReOrderItems(inputText.getText().toString(), inputText);
+            if (action.getInputType() == Action.InputType.SEARCH) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                final Runnable[] job = {null};
+
+                inputText.addTextChangedListener(new AfterTextChangedLister() {
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (job[0] != null) handler.removeCallbacks(job[0]);
+                        if (TextUtils.isEmpty(s)) {
+                            clearItems();
+                        } else {
+                            job[0] = () -> clearAndReOrderItems(inputText.getText().toString(), inputText);
+                            handler.postDelayed(job[0], 1000);
+                        }
+                    }
+                });
+                inputTextLayout.setEndIconMode(TextInputLayout.END_ICON_CLEAR_TEXT);
+            } else {
+                int inputType = EditorInfo.TYPE_CLASS_TEXT;
+                switch (action.getInputType()) {
+                    case EMAIL:
+                        inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                        break;
+                    case PASSWORD:
+                        inputType |= EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
+                        break;
                 }
-            });
+                inputText.setInputType(inputType);
+                inputTextLayout.setEndIconDrawable(R.drawable.keyboard_return);
+                inputTextLayout.setEndIconOnClickListener(v -> clearAndReOrderItems(inputText.getText().toString(), inputText));
+            }
         }
     }
 

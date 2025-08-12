@@ -55,7 +55,6 @@
         android:id="@+id/plugin_input_til"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:endIconDrawable="@drawable/keyboard_return"
         app:endIconTint="?attr/colorPrimary"
         app:endIconMode="custom"
         android:visibility="gone"

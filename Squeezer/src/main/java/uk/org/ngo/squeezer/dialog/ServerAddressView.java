@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.dialog;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -43,6 +42,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.util.AfterTextChangedLister;
 import uk.org.ngo.squeezer.util.ScanNetworkTask;
 
 /**
@@ -119,15 +119,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                         checkMac();
                     }
                 });
-                macEditText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    }
-
+                macEditText.addTextChangedListener(new AfterTextChangedLister() {
                     @Override
                     public void afterTextChanged(Editable editable) {
                         if (macDirty) {
