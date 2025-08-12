@@ -802,7 +802,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
-                        artistItem = findBrowseAction(items, "artist_ids");
+                        artistItem = findBrowseAction(items, "artist_ids", "artist_id");
                         composerItem = findBrowseAction(items, "composer_ids");
                         conductorItem = findBrowseAction(items, "conductor_ids");
                     }
@@ -861,12 +861,14 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         }
     }
 
-    private JiveItem findBrowseAction(List<JiveItem> items, String idParam) {
-        for (JiveItem item : items) {
-            if (item.goAction != null && item.goAction.action != null &&
-                    item.goAction.action.cmd.equals(Arrays.asList("browselibrary", "items")) &&
-                    item.goAction.action.params.containsKey(idParam)) {
-                return item;
+    private JiveItem findBrowseAction(List<JiveItem> items, String ... idParams) {
+        for (String idParam : idParams) {
+            for (JiveItem item : items) {
+                if (item.goAction != null && item.goAction.action != null &&
+                        item.goAction.action.cmd.equals(Arrays.asList("browselibrary", "items")) &&
+                        item.goAction.action.params.containsKey(idParam)) {
+                    return item;
+                }
             }
         }
         return null;
