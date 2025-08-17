@@ -158,7 +158,7 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
                 return false;
             });
 
-            if (action.getInputType() == Action.InputType.SEARCH) {
+            if (action.getInputType() == Action.InputType.SEARCH || isGrouped()) {
                 Handler handler = new Handler(Looper.getMainLooper());
                 final Runnable[] job = {null};
 
