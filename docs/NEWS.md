@@ -4,6 +4,28 @@ title: Changelog
 permalink: /changelog/
 ---
 
+2.3.10
+======
+
+*   Keep connection when device is in doze mode
+
+*   Display name of radio station
+
+*   Volume slider is accessible from all screens. Drag down to show the slider
+
+*   Optionally hide volume slider on Now Playing screen
+
+*   Automatic search
+
+*   Possibility to stop and restart server
+
+*   Update remaining time when dragging song slider
+
+*   Integrate with Squeezelite for Android
+
+*   Bug and stability fixes
+
+
 2.3.9
 =====
 

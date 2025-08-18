@@ -2,6 +2,29 @@
 
 <changelog>
     <release
+        version="2.3.10"
+        versioncode="148">
+
+        <change>Keep connection when device is in doze mode</change>
+
+        <change>Display name of radio station</change>
+
+        <change>Volume slider is accessible from all screens. Drag down to show the slider</change>
+
+        <change>Optionally hide volume slider on Now Playing screen</change>
+
+        <change>Automatic search</change>
+
+        <change>Possibility to stop and restart server</change>
+
+        <change>Update remaining time when dragging song slider</change>
+
+        <change>Integrate with Squeezelite for Android</change>
+
+        <change>Bug and stability fixes</change>
+    </release>
+
+    <release
         version="2.3.9"
         versioncode="144">
 

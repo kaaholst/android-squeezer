@@ -1,11 +1,17 @@
-&bull; Add Polish translation. Contributed by Michał Szkutnik
+&bull; Keep connection when device is in doze mode
 
-&bull; Remove the obsolete possibility to connect to mysqueezebox.com
+&bull; Display name of radio station
 
-&bull; Embed icon for Disk and folders Plugin
+&bull; Volume slider is accessible from all screens. Drag down to show the slider
 
-&bull; Target Android 15 and enable EdgeToEdge
+&bull; Optionally hide volume slider on Now Playing screen
 
-&bull; Don't display scanning progress popup messages
+&bull; Automatic search
 
-&bull; Fixed various minor issues
+&bull; Possibility to stop and restart server
+
+&bull; Update remaining time when dragging song slider
+
+&bull; Integrate with Squeezelite for Android
+
+&bull; Bug and stability fixes
