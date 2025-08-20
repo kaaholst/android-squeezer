@@ -27,6 +27,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -164,6 +165,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
         setContentView(getContentView());
         setSupportActionBar(findViewById(R.id.toolbar));
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.collapsing_toolbar), null);
         ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
         ViewUtilities.setInsetsListener(findViewById(R.id.coordinator), false, false, false);
         ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
