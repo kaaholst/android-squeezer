@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -35,6 +36,9 @@ public class SettingsActivity extends AppCompatActivity {
         mThemeManager.onCreate(this);
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
         setContentView(R.layout.settings);
         setSupportActionBar(findViewById(R.id.toolbar));
         ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);

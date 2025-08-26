@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -156,9 +155,6 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            getWindow().setNavigationBarContrastEnforced(false);
-        }
 
         mPageSize = getResources().getInteger(R.integer.PageSize);
 

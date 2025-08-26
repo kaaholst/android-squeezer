@@ -145,6 +145,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         themeManager.onCreate(this);
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
 
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
