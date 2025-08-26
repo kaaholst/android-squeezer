@@ -167,7 +167,8 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         setSupportActionBar(findViewById(R.id.toolbar));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.collapsing_toolbar), null);
         ViewUtilities.setInsetsListener(findViewById(R.id.toolbar), true, false, false);
-        ViewUtilities.setInsetsListener(findViewById(R.id.coordinator), false, false, false);
+        ViewUtilities.setInsetsListener(findViewById(R.id.top_app_bar), false, false, false);
+        ViewUtilities.setInsetsListener(subActivityContent, false, false, false);
         ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
 
         mReceivedPages = getRetainedValue(TAG_RECEIVED_PAGES);
