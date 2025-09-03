@@ -25,6 +25,7 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     public static final String PLAYER_ID = "playerId";
 
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+    private boolean isBound = false;
 
     /**
      * Returns number of cells needed for given size of the widget.
@@ -43,6 +44,7 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     protected void runOnService(final Context context, final ServiceHandler handler) {
         boolean bound = context.getApplicationContext().bindService(new Intent(context, SqueezeService.class), new ServiceConnection() {
             public void onServiceConnected(ComponentName name, IBinder service1) {
+                isBound = true;
                 final ServiceConnection serviceConnection = this;
 
                 if (name != null && service1 instanceof ISqueezeService) {
@@ -55,7 +57,8 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
                         uiThreadHandler.post(() -> {
                             showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
                             // Handler was called successfully; service no longer needed
-                            context.unbindService(serviceConnection);
+                            if (isBound) context.unbindService(serviceConnection);
+                            isBound = false;
                             // TODO remove observer
                         });
                     });
@@ -70,6 +73,7 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
 
             public void onServiceDisconnected(ComponentName name) {
                 Log.i(SqueezerHomeScreenWidget.TAG, "service disconnected");
+                isBound = false;
             }
         }, Context.BIND_AUTO_CREATE);
 
