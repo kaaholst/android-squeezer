@@ -47,7 +47,6 @@ import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RefreshEvent;
-import uk.org.ngo.squeezer.util.RetainFragment;
 import uk.org.ngo.squeezer.volume.VolumeBar;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
@@ -121,11 +120,6 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
      */
     private static final String TAG_PLAYER_ID = "PlayerId";
 
-    /**
-     * Fragment to retain information across the activity lifecycle.
-     */
-    private RetainFragment mRetainFragment;
-
     @Override
     public void setContentView(int layoutResID) {
         View fullLayout = getLayoutInflater().inflate(R.layout.item_list_activity_layout, findViewById(R.id.activity_layout));
@@ -158,7 +152,6 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
 
         mPageSize = getResources().getInteger(R.integer.PageSize);
 
-        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
         setContentView(getContentView());
         setSupportActionBar(findViewById(R.id.toolbar));
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.collapsing_toolbar), null);
@@ -172,15 +165,6 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
             mReceivedPages = new HashSet<>();
             putRetainedValue(TAG_RECEIVED_PAGES, mReceivedPages);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T getRetainedValue(String key) {
-        return (T) mRetainFragment.get(key);
-    }
-
-    protected Object putRetainedValue(String key, Object value) {
-        return mRetainFragment.put(key, value);
     }
 
     @Override

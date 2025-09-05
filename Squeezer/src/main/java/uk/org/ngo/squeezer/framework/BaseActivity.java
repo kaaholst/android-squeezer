@@ -69,6 +69,7 @@ import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.DevicePlayers;
+import uk.org.ngo.squeezer.util.RetainFragment;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 import uk.org.ngo.squeezer.volume.VolumeKeysDelegate;
@@ -98,6 +99,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     private boolean boundService = false;
 
     private Toast lastShownToast;
+
+    /**
+     * Fragment to retain information across the activity lifecycle.
+     */
+    private RetainFragment mRetainFragment;
 
     /**
      * @return The {@link ISqueezeService}, or null if not bound
@@ -169,6 +175,16 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         });
 
         devicePlayers = new DevicePlayers(this);
+        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T getRetainedValue(String key) {
+        return (T) mRetainFragment.get(key);
+    }
+
+    protected Object putRetainedValue(String key, Object value) {
+        return mRetainFragment.put(key, value);
     }
 
     @Override

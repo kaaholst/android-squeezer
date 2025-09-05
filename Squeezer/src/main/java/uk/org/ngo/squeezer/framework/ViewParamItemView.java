@@ -114,11 +114,6 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
         itemViewParams = viewParams;
     }
 
-    @Override
-    public ItemListActivity getActivity() {
-        return (ItemListActivity) super.getActivity();
-    }
-
     /**
      * Binds the item's name to {@link #text1}, and set up the context menu.
      */

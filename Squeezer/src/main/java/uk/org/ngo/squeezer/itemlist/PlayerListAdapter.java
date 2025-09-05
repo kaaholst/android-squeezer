@@ -41,7 +41,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.CurrentTrack;
@@ -95,17 +94,22 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
      * A list adapter for a synchronization group, containing players.
      * This class is comparable and it has a name for the synchronization group.
      */
-    class SyncGroup extends ItemAdapter<PlayerView, Player> implements Comparable<SyncGroup> {
+    class SyncGroup extends RecyclerView.Adapter<PlayerView> implements Comparable<SyncGroup> {
 
-        public String syncGroupName; // the name of the synchronization group as displayed in the players screen
+        private String syncGroupName; // the name of the synchronization group as displayed in the players screen
+        private List<Player> players;
 
-        public SyncGroup() {
-            super(mActivity);
+        @NonNull
+        @Override
+        public final PlayerView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_player, parent, false);
+            return new PlayerView(mActivity, view);
         }
 
         @Override
-        public PlayerView createViewHolder(View view, int viewType) {
-            return new PlayerView((PlayerListActivity) getActivity(), view);
+        public void onBindViewHolder(@NonNull PlayerView holder, int position) {
+            Player item = getItem(position);
+            holder.bindView(item);
         }
 
         @Override
@@ -118,8 +122,12 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         }
 
         @Override
-        protected int getItemViewType(Player item) {
-            return R.layout.list_item_player;
+        public int getItemCount() {
+            return players.size();
+        }
+
+        public Player getItem(int i) {
+            return players.get(i);
         }
 
         @Override
@@ -128,12 +136,11 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             return this.syncGroupName.compareToIgnoreCase((otherSyncGroup).syncGroupName);
         }
 
-        @Override
-        public void update(int count, int start, List<Player> syncedPlayersList) {
+        public void update(List<Player> syncedPlayersList) {
             Collections.sort(syncedPlayersList); // first order players in sync group alphabetically
 
             // add the list
-            super.update(count, start, syncedPlayersList);
+            players = syncedPlayersList;
 
             // determine and set synchronization group name (player names divided by commas)
             List<String> playerNames = new ArrayList<>();
@@ -191,7 +198,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             SyncGroup syncGroup = new SyncGroup();
             mPlayerCount += slaves.size();
             // add the slaves (the players) to the synchronization group
-            syncGroup.update(slaves.size(), 0, new ArrayList<>(slaves));
+            syncGroup.update(new ArrayList<>(slaves));
             // add synchronization group to the child adapters
             childAdapters.add(syncGroup);
         }

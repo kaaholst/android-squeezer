@@ -61,7 +61,7 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
         imageAdapter = new ImageAdapter();
 
         setContentView(R.layout.item_list);
-        RecyclerView listView = findViewById(R.id.item_list);
+        RecyclerView listView = requireView(R.id.item_list);
         listView.setAdapter(imageAdapter);
         listView.setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
         ViewUtilities.setInsetsListener(listView, true, true, false);

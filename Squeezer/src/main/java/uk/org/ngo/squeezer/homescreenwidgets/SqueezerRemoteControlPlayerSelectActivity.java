@@ -69,7 +69,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
             return;
         }
 
-        RecyclerView listView = findViewById(R.id.item_list);
+        RecyclerView listView = requireView(R.id.item_list);
         listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(this));
     }

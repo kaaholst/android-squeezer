@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,14 +30,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
-import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -43,9 +45,10 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 
-public class PlayerListActivity extends ItemListActivity implements
+public class PlayerListActivity extends BaseActivity implements
         PlayerSyncDialog.PlayerSyncDialogHost,
         PlayTrackAlbumDialog.PlayTrackAlbumDialogHost,
         DefeatDestructiveTouchToPlayDialog.DefeatDestructiveTouchToPlayDialogHost,
@@ -62,6 +65,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * An update arrived while tracking touches. UI should be re-synced.
      */
     protected boolean mUpdateWhileTracking = false;
+    private RecyclerView listView;
     PlayerListAdapter adapter;
 
     private Player currentPlayer;
@@ -80,16 +84,18 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    protected boolean needPlayer() {
-        return false;
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.list_activity_layout);
 
         adapter = new PlayerListAdapter(this);
-        getListView().setAdapter(adapter);
+        listView = requireView(R.id.item_list);
+        listView.setAdapter(adapter);
+        listView.setLayoutManager(new LinearLayoutManager(this));
+
+        setSupportActionBar(requireView(R.id.toolbar));
+        ViewUtilities.setInsetsListener(requireView(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(listView, false, true, false);
 
         setHandleVolumeKeys(false);
 
@@ -111,6 +117,10 @@ public class PlayerListActivity extends ItemListActivity implements
         repository().observe(this, (SleepTimeChanged event) -> maybeUpdateAndExpandPlayerList());
     }
 
+    public RecyclerView getListView() {
+        return listView;
+    }
+
     @Override
     public Player getCurrentPlayer() {
         return currentPlayer;
@@ -120,7 +130,7 @@ public class PlayerListActivity extends ItemListActivity implements
         this.currentPlayer = currentPlayer;
     }
 
-    public void setCurrentSyncGroup(PlayerListAdapter.SyncGroup currentSyncGroup) {
+    void setCurrentSyncGroup(PlayerListAdapter.SyncGroup currentSyncGroup) {
         this.currentSyncGroup = currentSyncGroup;
     }
 
@@ -208,10 +218,6 @@ public class PlayerListActivity extends ItemListActivity implements
         return 0;
     }
 
-    @Override
-    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
-    }
-
     /**
      * Updates the adapter with the current players, and ensures that the list view is
      * expanded.
@@ -219,12 +225,6 @@ public class PlayerListActivity extends ItemListActivity implements
     protected void updateAndExpandPlayerList() {
         updateSyncGroups(requireService().getPlayers());
         adapter.setSyncGroups(mPlayerSyncGroups);
-    }
-
-    @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
-        // Do nothing -- the service has been tracking players from the time it
-        // initially connected to the server.
     }
 
     private void maybeUpdateAndExpandPlayerList() {
@@ -256,7 +256,6 @@ public class PlayerListActivity extends ItemListActivity implements
         // Iterate over all the connected players to build the list of master players.
         for (Player player : players) {
             String playerId = player.getId();
-            String name = player.getName();
             PlayerState playerState = player.getPlayerState();
             String syncMaster = playerState.getSyncMaster();
 
@@ -284,10 +283,5 @@ public class PlayerListActivity extends ItemListActivity implements
     @NonNull
     public Map<String, Collection<Player>> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
-    }
-
-    @Override
-    protected void clearItemAdapter() {
-        adapter.clear();
     }
 }
