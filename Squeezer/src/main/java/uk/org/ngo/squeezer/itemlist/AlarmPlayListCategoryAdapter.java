@@ -1,7 +1,9 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.os.Parcel;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,20 +17,20 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Item;
 
-public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCategoryAdapter.ViewHolder, AlarmPlayListCategoryAdapter.PlayListCategory> {
+public class AlarmPlayListCategoryAdapter extends RecyclerView.Adapter<AlarmPlayListCategoryAdapter.ViewHolder> {
+    private final BaseActivity activity;
     private final List<ChildAdapterHolder> childAdapterHolders = new ArrayList<>();
+    private final List<PlayListCategory> categories;
 
-    public AlarmPlayListCategoryAdapter(ItemListActivity activity, Alarm alarm, List<AlarmPlaylist> alarmPlaylists) {
-        super(activity);
+    public AlarmPlayListCategoryAdapter(BaseActivity activity, Alarm alarm, List<AlarmPlaylist> alarmPlaylists) {
+        this.activity = activity;
         PlayListCategory currentCategory = null;
-        List<PlayListCategory> categories = new ArrayList<>();
+        categories = new ArrayList<>();
         for (int position = 0; position < alarmPlaylists.size(); position++) {
             AlarmPlaylist alarmPlaylist = alarmPlaylists.get(position);
             if (currentCategory == null || !alarmPlaylist.getCategory().equals(currentCategory.category)) {
@@ -40,22 +42,26 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
                 childAdapterHolders.get(childAdapterHolders.size()-1).visible = true;
             }
         }
-        update(categories.size(), 0, categories);
         for (int i = 0; i < categories.size(); i++) {
             PlayListCategory category = categories.get(i);
-            List<AlarmPlaylist> playlists = category.playlists;
-            childAdapterHolders.get(i).adapter.update(playlists.size(), 0, playlists);
+            childAdapterHolders.get(i).adapter.setItems(category.playlists);
         }
     }
 
     @Override
-    public ViewHolder createViewHolder(View view, int viewType) {
-        return new ViewHolder(getActivity(), view);
+    public int getItemCount() {
+        return categories.size();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(activity, LayoutInflater.from(parent.getContext()).inflate(R.layout.group_item, parent, false));
     }
 
     @Override
-    protected int getItemViewType(PlayListCategory item) {
-        return R.layout.group_item;
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bindView(categories.get(position));
     }
 
     public class ViewHolder extends ItemViewHolder<PlayListCategory> {
@@ -99,7 +105,7 @@ public class AlarmPlayListCategoryAdapter extends ItemAdapter<AlarmPlayListCateg
         boolean visible = false;
         private final AlarmPlaylistAdapter adapter;
 
-        public ChildAdapterHolder(ItemListActivity activity, Alarm alarm) {
+        public ChildAdapterHolder(BaseActivity activity, Alarm alarm) {
             adapter = new AlarmPlaylistAdapter(activity, alarm);
         }
     }
