@@ -25,6 +25,7 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 /**
  * The configuration screen for the {@link SqueezerRemoteControl SqueezerRemoteControl} AppWidget.
@@ -43,17 +44,12 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
     public void onCreate(Bundle icicle) {
         adapter = new PlayerAdapter();
         super.onCreate(icicle);
-        setContentView(R.layout.slim_browser_layout);
+        setContentView(R.layout.widget_list_activity_layout);
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if the user presses the back button.
         // Actual result, when successful is below in the onGroupSelected handler
         setResult(RESULT_CANCELED);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(R.string.configure_select_player);
-        }
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -72,6 +68,15 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         RecyclerView listView = requireView(R.id.item_list);
         listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(this));
+
+        setSupportActionBar(requireView(R.id.toolbar));
+        ViewUtilities.setInsetsListener(requireView(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(listView, false, true, false);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.configure_select_player);
+        }
     }
 
     @Override

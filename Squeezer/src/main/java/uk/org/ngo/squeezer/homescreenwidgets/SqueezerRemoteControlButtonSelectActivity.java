@@ -24,6 +24,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
 
@@ -43,14 +44,25 @@ public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
 
         Log.d(TAG, "onCreate");
 
+        setContentView(R.layout.widget_list_activity_layout);
+
+        remoteButtonListView = findViewById(R.id.item_list);
+        remoteButtonListView.setLayoutManager(new LinearLayoutManager(this));
+        remoteButtonListAdapter = new ItemAdapter(
+                Arrays.stream(remoteButtonListItems).filter(b -> b != RemoteButton.UNKNOWN).toArray(RemoteButton[]::new),
+                this::finish);
+
+        remoteButtonListView.setAdapter(remoteButtonListAdapter);
+
+        setSupportActionBar(requireView(R.id.toolbar));
+        ViewUtilities.setInsetsListener(requireView(R.id.toolbar), true, false, false);
+        ViewUtilities.setInsetsListener(remoteButtonListView, false, true, false);
+
         setResult(RESULT_CANCELED);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.configure_select_button);
         }
-
-        setContentView(R.layout.squeezer_remote_control_button_select);
-
 
         // Find the widget id from the intent.
         Intent intent = getIntent();
@@ -66,16 +78,6 @@ public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
             finish();
             return;
         }
-
-        remoteButtonListView = findViewById(R.id.remoteButtonList);
-        remoteButtonListView.setLayoutManager(new LinearLayoutManager(this));
-        remoteButtonListAdapter = new ItemAdapter(
-                Arrays.stream(remoteButtonListItems).filter(b -> b != RemoteButton.UNKNOWN).toArray(RemoteButton[]::new),
-                this::finish);
-
-        remoteButtonListView.setAdapter(remoteButtonListAdapter);
-
-
     }
 
     private class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
