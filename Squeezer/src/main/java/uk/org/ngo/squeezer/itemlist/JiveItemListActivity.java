@@ -60,9 +60,9 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ContextMenu;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
@@ -82,7 +82,7 @@ import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
  * spatial component to navigation.
  */
-public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveItem>, JiveItem>
+public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveItem>, JiveItem>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
     private static final String FINISH = "FINISH";
@@ -350,15 +350,10 @@ public class JiveItemListActivity extends BaseListActivity<ItemViewHolder<JiveIt
     }
 
     @Override
-    protected boolean needPlayer() {
-        return true;
-    }
-
-    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (parent != null) {
             if (parent.hasSubItems()) {
-                onItemsReceived(parent.subItems.size(), 0, parent.subItems, JiveItem.class);
+                onItemsReceived(parent.subItems.size(), 0, parent.subItems);
             } else if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
             } else

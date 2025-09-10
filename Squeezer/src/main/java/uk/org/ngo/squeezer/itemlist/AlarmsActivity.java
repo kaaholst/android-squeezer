@@ -39,8 +39,8 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlarmSettingsDialog;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
@@ -49,7 +49,7 @@ import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 
-public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implements AlarmSettingsDialog.HostActivity {
+public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implements AlarmSettingsDialog.HostActivity {
     /** The most recent active player. */
     private Player mActivePlayer;
 
@@ -161,11 +161,6 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
     }
 
     @Override
-    protected boolean needPlayer() {
-        return true;
-    }
-
-    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.alarms(start, this);
         if (start == 0) {
@@ -245,7 +240,7 @@ public class AlarmsActivity extends BaseListActivity<AlarmView, Alarm> implement
         }
     }
 
-    public static void showTimePicker(BaseListActivity activity, boolean is24HourMode) {
+    public static void showTimePicker(AlarmsActivity activity, boolean is24HourMode) {
         Preferences preferences = Squeezer.getPreferences();
         // Use the current time as the default values for the picker
         final Calendar c = Calendar.getInstance();

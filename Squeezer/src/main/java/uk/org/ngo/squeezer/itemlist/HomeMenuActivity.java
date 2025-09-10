@@ -92,7 +92,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
         }
 
         List<JiveItem> menu = getMenuNode(parent.getId(), event.menuItems);
-        onItemsReceived(menu.size(), 0, menu, JiveItem.class);
+        onItemsReceived(menu.size(), 0, menu);
     }
 
     /**

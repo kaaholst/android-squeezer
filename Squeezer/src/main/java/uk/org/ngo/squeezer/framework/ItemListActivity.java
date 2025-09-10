@@ -32,12 +32,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.dialog.VolumeSettings;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
@@ -47,16 +49,25 @@ import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RefreshEvent;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.volume.VolumeBar;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 /**
- * This class defines the common minimum, which any activity browsing the slimserver's database
- * must implement.
+ * A generic base class for an activity to list items of a particular slimserver data type. The
+ * data type is defined by the generic type argument, and must be an extension of {@link Item}. You
+ * must provide an {@link ItemAdapter} to provide the view logic used by this activity. This is done by
+ * implementing {@link #createItemListAdapter()}}.
+ * <p>
+ * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemAdapter}
+ * is created.
+ *
+ * @param <VH> {@link ItemViewHolder} View holder for items
+ * @param <T> Denotes the class of the items this class should list
  *
  * @author Kurt Aaholst
  */
-public abstract class ItemListActivity extends BaseActivity implements ItemAdapter.PageOrderer {
+public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends Item> extends BaseActivity implements IServiceItemListCallback<T>, ItemAdapter.PageOrderer {
 
     private static final String TAG = ItemListActivity.class.getSimpleName();
 
@@ -120,6 +131,18 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
      */
     private static final String TAG_PLAYER_ID = "PlayerId";
 
+    /**
+     * Tag for first visible position in mRetainFragment.
+     */
+    private static final String TAG_POSITION = "position";
+
+    /**
+     * Tag for itemAdapter in mRetainFragment.
+     */
+    public static final String TAG_ADAPTER = "adapter";
+
+    private ItemAdapter<VH, T> itemAdapter;
+
     @Override
     public void setContentView(int layoutResID) {
         View fullLayout = getLayoutInflater().inflate(R.layout.item_list_activity_layout, findViewById(R.id.activity_layout));
@@ -132,6 +155,10 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         listView = requireView(R.id.item_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
         volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> new VolumeSettings().show(getSupportFragmentManager(), VolumeSettings.class.getName())));
+
+        getListView().addOnScrollListener(new ScrollListener());
+
+        setupAdapter(getListView());
     }
 
     /**
@@ -168,6 +195,20 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (itemAdapter != null) {
+            itemAdapter.setActivity(null);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveVisiblePosition();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
 
@@ -196,7 +237,7 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         emptyView.setVisibility(View.GONE);
     }
 
-    void showEmptyView() {
+    private void showEmptyView() {
         subActivityContent.setVisibility(View.GONE);
         loadingProgress.setVisibility(View.GONE);
         emptyView.setVisibility(View.VISIBLE);
@@ -207,11 +248,6 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         loadingProgress.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
     }
-
-    /**
-     * @return True if the LMS command issued by {@link #orderPage(ISqueezeService, int)} requires a player
-     */
-    protected abstract boolean needPlayer();
 
     /**
      * Starts an asynchronous fetch of items from the server. Will only be called after the
@@ -234,17 +270,42 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         return listView;
     }
 
+    protected abstract ItemAdapter<VH, T> createItemListAdapter();
+
+    /**
+     * @return The current {@link ItemAdapter}, creating it if necessary.
+     */
+    public ItemAdapter<VH, T> getItemAdapter() {
+        if (itemAdapter == null) {
+            itemAdapter = getRetainedValue(TAG_ADAPTER);
+            if (itemAdapter == null) {
+                itemAdapter = createItemListAdapter();
+                putRetainedValue(TAG_ADAPTER, itemAdapter);
+            } else {
+                itemAdapter.setActivity(this);
+                // Update views with the count from the retained item adapter
+                itemAdapter.onCountUpdated();
+            }
+        }
+
+        return itemAdapter;
+    }
+
     /**
      * List can clear any information about which items have been received and ordered, by calling
      * {@link #clearAndReOrderItems()}. This will call back to this method, which must clear any
      * adapters holding items.
      */
-    protected abstract void clearItemAdapter();
+    protected void clearItemAdapter() {
+        getItemAdapter().clear();
+    }
 
     /**
-     * Call back from {@link #onItemsReceived(int, int, List, Class)}
+     * Call back from {@link #onItemsReceived(int, int, List)}
      */
-     protected abstract <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType);
+    protected void updateAdapter(int count, int start, List<T> items) {
+        getItemAdapter().update(count, start, items);
+    }
 
     /**
      * Orders a page worth of data, starting at the specified position, if it has not already been
@@ -280,12 +341,10 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         String activePlayerId = (event.player != null ? event.player.getId() : "");
         putRetainedValue(TAG_PLAYER_ID, activePlayerId);
         supportInvalidateOptionsMenu();
-        if (needPlayer()) {
-            if (event.player == null) {
-                showEmptyView();
-            } else {
-                clearAndReOrderItems();
-            }
+        if (event.player == null) {
+            showEmptyView();
+        } else {
+            clearAndReOrderItems();
         }
         if (event.player != null) volumeBar.update(requireService().getVolume());
     }
@@ -304,7 +363,45 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
                 maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
             }
         }
-        if (activePlayer != null) volumeBar.update(requireService().getVolume());
+
+        if (activePlayer != null) {
+            volumeBar.update(requireService().getVolume());
+            maybeOrderVisiblePages(getListView());
+        } else {
+            showEmptyView();
+        }
+    }
+
+    /**
+     * Store the first visible position of {@link #getListView()}, in the retain fragment, so
+     * we can later retrieve it.
+     *
+     * @see android.widget.AbsListView#getFirstVisiblePosition()
+     */
+    private void saveVisiblePosition() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) getListView().getLayoutManager();
+        putRetainedValue(TAG_POSITION, layoutManager.findFirstVisibleItemPosition());
+    }
+
+    /**
+     * Set our adapter on the list view.
+     * <p>
+     * This can't be done in {@link #onCreate(android.os.Bundle)} because getView might be called
+     * before the handshake is complete, so we need to delay it.
+     * <p>
+     * However when we set the adapter after onCreate the list is scrolled to top, so we retain the
+     * visible position.
+     * <p>
+     * Call this method after the handshake is complete.
+     */
+    private void setupAdapter(RecyclerView listView) {
+        listView.setAdapter(getItemAdapter());
+        // TODO call setHasFixedSize (not for grid)
+
+        Integer position = getRetainedValue(TAG_POSITION);
+        if (position != null) {
+            listView.scrollToPosition(position);
+        }
     }
 
     /**
@@ -337,14 +434,14 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
      * Subclasses <b>must</b> call this method when receiving data from the server to ensure that
      * internal bookkeeping about pages that have/have not been ordered is kept consistent.
      * <p>
-     * This will call back to {@link #updateAdapter(int, int, List, Class)} on the UI thread
+     * This will call back to {@link #updateAdapter(int, int, List)} on the UI thread
      *
      * @param count The total number of items known by the server.
      * @param start The start position of this update.
      * @param items The items received in this update
      */
     @CallSuper
-    protected <T extends Item> void onItemsReceived(final int count, final int start, final List<T> items, final Class<T> dataType) {
+    protected void onItemsReceived(final int count, final int start, final List<T> items) {
         int size = items.size();
         Log.d(TAG, "onItemsReceived(" + count + ", " + start + ", " + size + ")");
 
@@ -362,15 +459,20 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
 
         runOnUiThread(() -> {
             showContent();
-            updateAdapter(count, start, items, dataType);
+            updateAdapter(count, start, items);
         });
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
+        onItemsReceived(count, start, items);
     }
 
     /**
      * Empties the variables that track which pages have been requested, and orders page 0.
      */
     public void clearAndReOrderItems() {
-        if (!(needPlayer() && requireService().getActivePlayer() == null)) {
+        if (requireService().getActivePlayer() != null) {
             Log.i(TAG, "clearAndReOrderItems()");
             showLoading();
             clearItems();
@@ -393,12 +495,17 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
         mOrderedPages.clear();
     }
 
+    @Override
+    public Object getClient() {
+        return this;
+    }
+
     /**
      * Tracks scrolling activity.
      * <p>
      * When the list is idle, new pages of data are fetched from the server.
      */
-    protected class ScrollListener extends RecyclerView.OnScrollListener {
+    private class ScrollListener extends RecyclerView.OnScrollListener {
 
         private int mPrevScrollState = RecyclerView.SCROLL_STATE_IDLE;
 
@@ -421,6 +528,13 @@ public abstract class ItemListActivity extends BaseActivity implements ItemAdapt
             }
 
             mPrevScrollState = scrollState;
+
+            /*
+             * Pauses cache disk fetches if the user is flinging the list, or if their finger is still
+             * on the screen.
+             */
+            ImageFetcher.getInstance(ItemListActivity.this).setPauseWork(scrollState == RecyclerView.SCROLL_STATE_SETTLING ||
+                    scrollState == RecyclerView.SCROLL_STATE_DRAGGING);
         }
     }
 }
