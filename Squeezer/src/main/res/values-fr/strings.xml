@@ -48,6 +48,9 @@
     <string name="settings_scrobble_noapp">Aucune application pouvant faire du scrobble n\'est installée</string>
     <string name="settings_market_not_found">Impossible de démarrer Google Play, est-il installé?</string>
 
+    <string name="settings_squeezeplayer_title">Démarrer SqueezePlayer</string>
+    <string name="settings_squeezeplayer_summary">Cochez cette option pour vous assurer que SqueezePlayer est en cours d’exécution lorsque vous utilisez Squeezer.</string>
+
     <string name="menu_item_disconnect">Déconnecter</string>
     <string name="menu_item_connect">Connexion</string>
     <string name="menu_item_stop_server">Arrêter le Lyrion Music Server</string>

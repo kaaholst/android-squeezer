@@ -13,7 +13,7 @@ import android.util.Log;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 
-class SqueezePlayer extends Handler {
+public class SqueezePlayer extends Handler {
     private static final int MSG_STOP = 0;
     private static final int MSG_TIMEOUT = 1;
     private static final long TIMEOUT_DELAY = 10 * 60 * 1000; // 10 minutes in milliseconds
@@ -48,17 +48,13 @@ class SqueezePlayer extends Handler {
         startControllingSqueezePlayer();
     }
 
-    public static SqueezePlayer maybeStartControllingSqueezePlayer(Context context) {
-        if (hasSqueezePlayer(context)) {
-            Preferences preferences = Squeezer.getPreferences();
-            Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-            return new SqueezePlayer(context, serverAddress);
-        }
-
-        return null;
+    public static SqueezePlayer startControllingSqueezePlayer(Context context) {
+        Preferences preferences = Squeezer.getPreferences();
+        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+        return new SqueezePlayer(context, serverAddress);
     }
 
-    private static boolean hasSqueezePlayer(Context context) {
+    public static boolean has(Context context) {
         final PackageManager packageManager = context.getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(PACKAGE);
         return (intent != null);

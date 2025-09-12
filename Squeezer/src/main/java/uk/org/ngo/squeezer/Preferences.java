@@ -179,7 +179,10 @@ public final class Preferences {
     private static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
 
     // Start SqueezePlayer automatically if installed.
-    private static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
+    public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
+
+    // Start squeezelite automatically if installed.
+    public static final String KEY_SQUEEZELITE_ENABLED = "squeezer.squeezelite.enabled";
 
     // Preferred UI theme.
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
@@ -593,6 +596,14 @@ public final class Preferences {
 
     public boolean restoreMusicAfterCall() {
         return sharedPreferences.getBoolean(KEY_RESTORE_MUSIC_AFTER_CALL, false);
+    }
+
+    public boolean controlSqueezePlayer() {
+        return (sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true));
+    }
+
+    public boolean controlSqueezelite() {
+        return (sharedPreferences.getBoolean(KEY_SQUEEZELITE_ENABLED, true));
     }
 
     /** Get the preferred album list layout. */

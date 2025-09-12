@@ -34,6 +34,8 @@ import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+import uk.org.ngo.squeezer.util.SqueezeLite;
+import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
 
@@ -85,6 +87,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         fillUserInterfacePreferences(preferences);
 
         fillScrobblePreferences(sharedPreferences);
+        fillDevicePlayerPreferences(preferences);
 
         fillDownloadPreferences(preferences);
     }
@@ -114,6 +117,18 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
                 editor.apply();
             }
         }
+    }
+
+    private void fillDevicePlayerPreferences(Preferences preferences) {
+        SwitchPreferenceCompat switchPreference;
+
+        switchPreference = requirePreference(Preferences.KEY_SQUEEZEPLAYER_ENABLED);
+        switchPreference.setVisible(SqueezePlayer.has(getContext()));
+        switchPreference.setChecked(preferences.controlSqueezePlayer());
+
+        switchPreference = requirePreference(Preferences.KEY_SQUEEZELITE_ENABLED);
+        switchPreference.setVisible(SqueezeLite.has(getContext()));
+        switchPreference.setChecked(preferences.controlSqueezelite());
     }
 
     private void fillDownloadPreferences(Preferences preferences) {

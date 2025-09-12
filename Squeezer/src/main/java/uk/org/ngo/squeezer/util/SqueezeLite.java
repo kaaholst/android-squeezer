@@ -6,7 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
-class SqueezeLite {
+public class SqueezeLite {
     private static final String PACKAGE = "org.lyrion.squeezelite";
     private static final String SERVICE = "org.lyrion.squeezelite.PlayerService";
 
@@ -16,10 +16,14 @@ class SqueezeLite {
         this.context = context;
     }
 
-    public boolean has() {
+    public static boolean has(Context context) {
         final PackageManager packageManager = context.getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(PACKAGE);
         return (intent != null);
+    }
+
+    public boolean has() {
+        return has(context);
     }
 
     public void start() {

@@ -121,6 +121,16 @@
             android:summaryOff="@string/settings_scrobble_off"
             android:summaryOn="@string/settings_scrobble_on"
             android:title="@string/settings_scrobble_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.squeezeplayer.enabled"
+            android:summary="@string/settings_squeezeplayer_summary"
+            android:title="@string/settings_squeezeplayer_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.squeezelite.enabled"
+            android:summary="@string/settings_squeezelite_summary"
+            android:title="@string/settings_squeezelite_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory

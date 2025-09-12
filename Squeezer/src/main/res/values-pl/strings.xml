@@ -89,6 +89,8 @@
     <string name="settings_customize_home_menu_mode">Archiwizacja</string>
     <string name="settings_scrobble_noapp">Żadne aplikacje zapisujące listę słuchanych utwórów nie są zainstalowane</string>
     <string name="settings_market_not_found">Nie udało się uruchomić Google Play, czy jest zainstalowany?</string>
+    <string name="settings_squeezeplayer_summary">Zaznacz tę opcję by SqueezePlayer był uruchamiany podczas używania Squeezera</string>
+    <string name="settings_squeezeplayer_title">Uruchom SqueezePlayer</string>
     <string name="settings_theme_title">Motyw</string>
     <string name="settings_theme_dark">Ciemny</string>
     <string name="settings_theme_light">Jasny</string>

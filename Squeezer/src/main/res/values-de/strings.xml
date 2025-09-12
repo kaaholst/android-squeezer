@@ -68,6 +68,10 @@
     <string name="settings_scrobble_off">Lied-Informationen werden nicht an Last.fm gesendet.</string>
     <string name="settings_scrobble_noapp">Keine Scrobble-Anwendung installiert</string>
     <string name="settings_market_not_found">Konnte Google Play nicht starten. Ist es installiert?</string>
+
+    <string name="settings_squeezeplayer_title">SqueezePlayer starten</string>
+    <string name="settings_squeezeplayer_summary">Auswählen, um sicherzustellen, dass SqueezePlayer
+        läuft, wenn Squeezer verwendet wird.</string>
     <string name="settings_category_ui">Shortcuts, Archivfunktion, etc.</string>
     <string name="settings_customize_home_menu_mode">Archivfunktion</string>
     <string name="settings_customize_home_menu_info">Langes Drücken auf bspw. \'Einstellungen\' archiviert den Eintrag</string>
