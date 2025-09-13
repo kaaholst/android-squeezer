@@ -279,5 +279,6 @@
     <string name="RANDOM_PLAY_STARTED">Tilfældig afspilning er start</string>
     <string name="continue_playback">Fortsæt afspilning</string>
     <string name="volume">Lydstyrke</string>
-
+    <string name="don_t_show_volume_control">Vis ikke lydstyrkeskyder</string>
+    <string name="show_volume_control">Vis lydstyrkeskyder</string>
 </resources>

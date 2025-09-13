@@ -466,6 +466,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="RANDOM_PLAY_STARTED">Random Play started</string>
     <string name="continue_playback">Continue playback</string>
     <string name="volume">Volume</string>
-    <string name="don_t_show_volume_control">Don\'t show volume control</string>
-    <string name="show_volume_control">Show volume control</string>
+    <string name="don_t_show_volume_control">Don\'t show volume slider</string>
+    <string name="show_volume_control">Show volume slider</string>
 </resources>

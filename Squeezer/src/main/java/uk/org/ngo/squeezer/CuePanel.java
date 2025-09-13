@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -66,22 +65,18 @@ public class CuePanel extends Handler {
         ((Button)view.findViewById(R.id.forward)).setText(activity.getString(R.string.forward, forwardSeconds));
         view.findViewById(R.id.forward).setOnClickListener(view1 -> adjustSecondsElapsed(service, forwardSeconds));
         view.findViewById(R.id.settings).setOnClickListener(view1 -> new CuePanelSettings().show(activity.getSupportFragmentManager(), CuePanelSettings.class.getName()));
+        view.findViewById(R.id.volume).setVisibility(preferences.isLargeArtwork() ? View.VISIBLE : View.INVISIBLE);
+        view.findViewById(R.id.volume).setOnClickListener(v -> {
+            dismiss();
+            preferences.setLargeArtwork(false);
+            activity.recreate();
+        });
+        view.setOnClickListener(v -> dismiss());
 
-        dialog = new Dialog(view.getContext(), R.style.VolumePanel) { //android.R.style.Theme_Panel) {
-            @Override
-            public boolean onTouchEvent(@NonNull MotionEvent event) {
-                if (isShowing() && event.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                    forceTimeout();
-                    return true;
-                }
-                return false;
-            }
-        };
+        dialog = new Dialog(view.getContext(), R.style.VolumePanel);
         dialog.setContentView(view);
-
-        int horizontal = (int) (parent.getWidth() * 0.1);
-        int top = (int) (parent.getHeight() * 0.6);
-        view.setPadding(horizontal, top, horizontal, 0);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setOnDismissListener(d -> fadeParent(0.4, 1.0));
 
         int[] location = new int[2];
         parent.getLocationOnScreen(location);
@@ -95,9 +90,6 @@ public class CuePanel extends Handler {
         lp.width = parent.getWidth();
         lp.height = parent.getHeight();
         window.setAttributes(lp);
-        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
         dialog.show();
 
         fadeParent(1.0, 0.4);
@@ -112,13 +104,11 @@ public class CuePanel extends Handler {
 
     public void dismiss() {
         removeMessages(MSG_TIMEOUT);
-        if (!activity.isDestroyed() && dialog.isShowing()) {
-            dialog.dismiss();
-            fadeParent(0.4, 1.0);
-        }
+        if (!activity.isDestroyed() && dialog.isShowing()) dialog.dismiss();
     }
 
     private void fadeParent(double from, double to) {
+        if (activity.isDestroyed()) return;
         ObjectAnimator parentAnimator = ObjectAnimator.ofPropertyValuesHolder(parent, PropertyValuesHolder.ofFloat("alpha", (float) from, (float)to));
         parentAnimator.setTarget(parent);
         parentAnimator.setDuration(FADE_IN_TIME);
@@ -128,11 +118,6 @@ public class CuePanel extends Handler {
     private void resetTimeout() {
         removeMessages(MSG_TIMEOUT);
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
-    }
-
-    private void forceTimeout() {
-        removeMessages(MSG_TIMEOUT);
-        sendMessage(obtainMessage(MSG_TIMEOUT));
     }
 
     @Override

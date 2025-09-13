@@ -281,8 +281,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
         mFullHeightLayout = (container.getLayoutParams().height != ViewGroup.LayoutParams.WRAP_CONTENT);
         Preferences preferences = Squeezer.getPreferences();
-        boolean showVolume = preferences.nowPlayingVolume();
-        boolean largeArtwork = !showVolume || preferences.isLargeArtwork();
+        boolean largeArtwork = preferences.isLargeArtwork();
 
         if (mFullHeightLayout) {
             v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
@@ -302,7 +301,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
-                if (showVolume) {
+                if (preferences.nowPlayingVolume()) {
                     volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
                         preferences.setLargeArtwork(false);
                         mActivity.recreate();
@@ -854,10 +853,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
     private void updateVolumeInfo() {
-        Preferences preferences = Squeezer.getPreferences();
-        if (mFullHeightLayout && preferences.nowPlayingVolume()) {
-            Consumer<ISqueezeService.VolumeInfo> updater = preferences.isLargeArtwork() ? volumeBar::update : volumeWheel::update;
-            updater.accept(requireService().getVolume());
+        if (mFullHeightLayout) {
+            Preferences preferences = Squeezer.getPreferences();
+            Consumer<ISqueezeService.VolumeInfo> updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar::update : null : volumeWheel::update;
+            if (updater != null) updater.accept(requireService().getVolume());
         }
     }
 
