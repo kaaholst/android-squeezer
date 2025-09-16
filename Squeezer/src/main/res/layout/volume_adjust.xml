@@ -69,6 +69,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:back_circle_color="?attr/volume_panel_back_circle_color"
         app:indicator_color="?attr/colorPrimary"
+        app:label_color="?attr/colorControlNormal"
         app:is_continuous="false"
         app:label=""
         tools:label="50"
