@@ -1,5 +1,3 @@
-# Squeezer
-
 Control your Lyrion Music Server and players from your Android phone.
 
 [<img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height='80'/>](http://play.google.com/store/apps/details?id=uk.org.ngo.squeezer)

@@ -1,8 +1,7 @@
 ---
-layout: default
-title: Beta Testing
 permalink: /beta/
 ---
+# Beta Testing
 
 Squeezer's beta test programme uses the normal Google mechanism for enrolling and managing beta testers (https://support.google.com/googleplay/android-developer/answer/3131213?hl=en).
 
