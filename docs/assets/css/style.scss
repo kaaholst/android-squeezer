@@ -1,0 +1,11 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+
+.project-name {
+  a {
+    color: $header-heading-color;
+  }
+}
