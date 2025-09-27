@@ -63,9 +63,9 @@ class WhatsNewPlugin implements Plugin<Project> {
                         new File(project.whatsnew.changelogPath).getText('UTF-8'))
 
                 String content = '---\n' +
+                        'description: Changelog\n' +
                         'permalink: /changelog/\n' +
-                        '---\n\n' +
-                        '# Changelog'
+                        '---\n\n'
                 changeLog.release.each { release ->
                     content += release.@version.text() + '\n'
                     content += ('=' * release.@version.text().size()) + '\n\n'

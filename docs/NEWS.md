@@ -1,4 +1,5 @@
 ---
+description: Changelog
 permalink: /changelog/
 ---
 

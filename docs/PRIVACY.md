@@ -1,8 +1,7 @@
 ---
+description: Privacy Policy
 permalink: /privacy/
 ---
-
-# Squeezer Privacy Policy
 
 This Application collects some Personal Data from its Users.
 
