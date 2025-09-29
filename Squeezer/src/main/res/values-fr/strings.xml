@@ -34,7 +34,7 @@
     <string name="settings_theme_light">Clair</string>
     <string name="settings_add_composer_line">Présenter le compositeur</string>
     <string name="settings_band_instead_album">Présenter information pour musique classique</string>
-    <string name="settings_add_conductor_line">Présenter l\'orchestre e le chef</string>
+    <string name="settings_add_conductor_line">Présenter l\'orchestre et le chef</string>
     <string name="settings_use_flat_icons">Flache Icons</string>
     <string name="settings_username_hint">Nom d\'utilisateur (facultatif)</string>
     <string name="settings_password_hint">Mot de passe (optionnel)</string>
@@ -56,7 +56,7 @@
     <string name="menu_item_stop_server">Arrêter le Lyrion Music Server</string>
     <string name="menu_item_restart_server">Redémarrer le Lyrion Music Server</string>
     <string name="menu_item_poweron">Allumer \"%s\"</string>
-    <string name="menu_item_poweroff">Eteindre \"%s\"</string>
+    <string name="menu_item_poweroff">Éteindre \"%s\"</string>
     <string name="menu_item_rename">Renommer</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlist_clear">Effacer la playlist</string>
@@ -136,7 +136,7 @@
         <item quantity="other">secondes</item>
     </plurals>
 
-    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente?</string>
+    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente ?</string>
 
     <string name="settings_category_download">Télécharger</string>
     <string name="settings_download_use_server_path">Utiliser le chemin du serveur et le nom du fichier</string>
