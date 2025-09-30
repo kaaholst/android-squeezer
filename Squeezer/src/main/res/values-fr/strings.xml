@@ -21,27 +21,38 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="undo">Annuler</string>
     <string name="disabled">Désactivé</string>
+    <string name="minutes">minutes</string>
     <string name="menu_item_players">Platine</string>
     <string name="menu_item_settings_label">Paramètres</string>
     <string name="menu_item_about_label">À propos</string>
-    <string name="menu_item_view">Vue</string>
+    <string name="menu_item_view">Affichage</string>
     <string name="menu_nowplaying_trackinfo">Information sur la piste</string>
     <string name="activity_settings_name">Paramètres</string>
     <string name="settings_serveraddr_hint">Nom ou adresse IP du serveur</string>
+    <string name="settings_manual_server_addr">Entrez l\'adresse manuellement</string>
     <string name="settings_server_prompt">Choisissez un serveur</string>
     <string name="settings_theme_title">Thème</string>
     <string name="settings_theme_dark">Sombre</string>
     <string name="settings_theme_light">Clair</string>
+    <string name="settings_show_technical_info">Informations techniques (débit, etc)</string>
     <string name="settings_add_composer_line">Présenter le compositeur</string>
-    <string name="settings_band_instead_album">Présenter information pour musique classique</string>
-    <string name="settings_add_conductor_line">Présenter l\'orchestre e le chef</string>
-    <string name="settings_use_flat_icons">Flache Icons</string>
-    <string name="settings_username_hint">Nom d\'utilisateur (facultatif)</string>
+    <string name="settings_band_instead_album">Information pour la musique classique</string>
+    <string name="settings_add_conductor_line">Présenter l\'orchestre et le chef</string>
+    <string name="settings_use_flat_icons">Icônes plates</string>
+    <string name="settings_clear_current_playlist_confirmation_on">Demander une confirmation</string>
+    <string name="settings_username_hint">Nom d\'utilisateur (optionnel)</string>
     <string name="settings_password_hint">Mot de passe (optionnel)</string>
+    <string name="settings_MAC_info">"<![CDATA[Si activé, envoie un message Wake-on-LAN (WoL) avant de se connecter.
+         <p>Wake-on-LAN est un standard réseau qui permet d'allumer ou de réveiller une machine par un message réseau.</p>
+         <p>Cela nécessite que le serveur Lyrion soit configuré pour utiliser le Wake-on-LAN.</p>]]>     "</string>
     <string name="settings_server_scan_progress">Recherche de serveurs…</string>
+    <string name="settings_volume_increment_summary">Régler les incréments de volume par les boutons du téléphone</string>
     <string name="settings_fadeinsecs_title">Temps d\'ouverture en fondu</string>
     <string name="settings_fadeinsecs_summary">Entrez la durée d\'ouverture en fondu, en secondes, quand en pause. Entrez 0 pour désactiver l\'ouverture en fondu.</string>
 
+    <string name="call_state_permission_message">Squeezer peut mettre la musique en pause quand vous recevez ou lancez un appel téléphonique.
+        Cela nécessite l\'autorisation de notification quand un appel est reçu ou lancé.</string>
+    <string name="request_permission">Demander l\'autorisation</string>
     <string name="settings_scrobble_title">Faire du scrobble par Last.fm</string>
     <string name="settings_scrobble_on">Les informations sur le morceau sont envoyées à Last.fm</string>
     <string name="settings_scrobble_off">Les informations sur le morceau ne sont pas envoyées à Last.fm</string>
@@ -51,12 +62,13 @@
     <string name="settings_squeezeplayer_title">Démarrer SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Cochez cette option pour vous assurer que SqueezePlayer est en cours d’exécution lorsque vous utilisez Squeezer.</string>
 
+    <string name="settings_customize_home_menu_locked">Désactivé, mais conserve une archive</string>
     <string name="menu_item_disconnect">Déconnecter</string>
     <string name="menu_item_connect">Connexion</string>
     <string name="menu_item_stop_server">Arrêter le Lyrion Music Server</string>
     <string name="menu_item_restart_server">Redémarrer le Lyrion Music Server</string>
     <string name="menu_item_poweron">Allumer \"%s\"</string>
-    <string name="menu_item_poweroff">Eteindre \"%s\"</string>
+    <string name="menu_item_poweroff">Éteindre \"%s\"</string>
     <string name="menu_item_rename">Renommer</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlist_clear">Effacer la playlist</string>
@@ -67,6 +79,7 @@
     <string name="connecting_to_text">Connexion à la SqueezeBox CLI à %s</string>
     <string name="connection_failed_text">La connexion a échoué.</string>
     <string name="login_failed_text">Échec de la connexion. Assurez-vous que le nom d\'utilisateur et le mot de passe corrects sont entrés.</string>
+    <string name="invalid_url_text">Entrez une adresse valide svp.</string>
     <string name="disconnected_text">Débranché.</string>
     <string name="save_playlist_title">Enregistrer la playlist</string>
     <string name="save_playlist_hint">Entrez le nom de la playlist</string>
@@ -74,10 +87,11 @@
     <string name="sync_title">Synchroniser %s sur…</string>
 
     <string name="player_group_header">Groupe: %s</string>
+    <string name="player_group_volume_off">Ajuster uniquement le volume de la platine sélectionnée</string>
     <string name="menu_item_player_sync">Synchroniser…</string>
     <string name="menu_item_player_unsync">Pas de synchronisation</string>
 
-    <string name="no_players_connected">Aucune platine n\'est connecté.</string>
+    <string name="no_players_connected">Aucune platine n\'est connectée.</string>
     <string name="player_list_changed">Les platines connectées ont changé alors que le menu contextuel était ouvert, demande ignorée</string>
 
     <string name="unknown_track">Piste inconnue</string>
@@ -89,6 +103,7 @@
     <string name="soloist">Soliste: %s</string>
     <string name="soloists">Solistes: %s</string>
 
+    <string name="settings_classical_music_tags_title">Apparence de l\'information sur la piste</string>
     <string name="all_alarms_on_hint">Des alarmes individuelles peuvent être activées</string>
     <string name="all_alarms_off_hint">Toutes les alarmes sont désactivées</string>
 
@@ -115,7 +130,7 @@
     <string name="alarm_fade_off_text">Sans volume progressif</string>
 
     <string name="tips_title">Conseils</string>
-    <string name="tip_volume">Utilisez les commandes de volume du matériel de votre appareil pour modifier le volume.\n\nEssayez-le maintenant.</string>
+    <string name="tip_volume">Utilisez les commandes de volume de votre appareil pour modifier le volume.  Essayez maintenant.</string>
 
     
     <string name="server_error">%1$s a signalé une erreur: \"%2$s\".</string>
@@ -129,16 +144,17 @@
     <string name="PLAY_NEXT">Jouer après le morceau en cours</string>
     <string name="DOWNLOAD">Télécharger</string>
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Téléchargement annulé car nous n’avons pas l’autorisation de sauvegarder les fichiers téléchargés</string>
-
+    <string name="DONT_ASK_AGAIN">Ne plus demander</string>
 
     <plurals name="seconds" tools:ignore="MissingQuantity">
         <item quantity="one" tools:ignore="ImpliedQuantity">seconde</item>
         <item quantity="other">secondes</item>
     </plurals>
 
-    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente?</string>
+    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente ?</string>
 
     <string name="settings_category_download">Télécharger</string>
+    <string name="settings_download_confirmation">Demander une confirmation avant de télécharger</string>
     <string name="settings_download_use_server_path">Utiliser le chemin du serveur et le nom du fichier</string>
     <string name="settings_download_path_structure">Hiérarchie des dossiers</string>
     <string name="settings_download_filename_structure">Nom de fichier</string>
@@ -155,6 +171,101 @@
     <string name="download_filename_structure_number_dot_artist_title">Nombre. Artiste - Titre</string>
     <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">n\'a pas pu être ajouté à la base de données multimédia de l\'appareil</string>
     <string name="pref_cat_third_party">Intégration tierce</string>
+    <string name="backward_seconds">Recul en secondes</string>
+    <string name="forward_seconds">Avance en secondes</string>
+    <string name="RANDOM_PLAY_UNABLE">Impossible de démarrer la lecture aléatoire</string>
+    <string name="RANDOM_PLAY_STARTED">Lecture aléatoire démarrée</string>
     <string name="continue_playback">Continuer la lecture</string>
     <string name="volume">Volume</string>
+    <string name="mute">Mute</string>
+    <string name="pause_active">Mettre en pause la platine active</string>
+    <string name="pause_all">Mettre en pause toutes les platines</string>
+    <string name="mute_active">Mettre la platine active en mute</string>
+    <string name="mute_all">Mettre toutes les platines en mute</string>
+    <string name="settings_screensaver_title">Garder l\'écran allumé</string>
+    <string name="settings_screensaver_off">Non</string>
+    <string name="settings_screensaver_on">Oui</string>
+    <string name="settings_screensaver_clock">Montrer l\'heure si inactif</string>
+    <string name="settings_show_track_number">Numéro de piste</string>
+    <string name="settings_top_bar_search">Barre de recherche supérieure</string>
+    <string name="settings_top_bar_search_global">Barre de recherche globale</string>
+    <string name="settings_top_bar_search_my_music">Ma musique</string>
+    <string name="settings_clear_current_playlist_confirmation">Quand la playlist est vidée</string>
+    <string name="settings_clear_current_playlist_confirmation_off">Ne pas demander de confirmation</string>
+    <string name="settings_use_wake_on_lan">Réveiller le server (Wake-on-LAN)</string>
+    <string name="settings_MAC_label">adresse MAC</string>
+    <string name="settings_invalid_MAC">adresse MAC invalide, format: 01:23:45:67:89:AB</string>
+    <string name="settings_MAC_help">Exemple: 01:23:45:67:89:AB</string>
+    <string name="settings_volume_title">Paramètres de volume</string>
+    <string name="settings_background_volume_title">Volume d\'arrière-plan</string>
+    <string name="settings_background_volume_off">Contrôler le volume uniquement quand l\'appli est visible</string>
+    <string name="settings_background_volume_on">Contrôle du volume actif même quand l\'appli n\'est pas visible</string>
+    <string name="settings_volume_increment_title">Incréments de volume plus/moins</string>
+    <string name="settings_action_on_incoming_call_title">Action quand vous recevez ou lancez un appel</string>
+    <string name="settings_no_action_on_incoming_call">Aucune action</string>
+    <string name="settings_restore_after_call">Retourner à la musique après un appel téléphonique</string>
+    <string name="call_state_permission_title">Autorisation d\'accès : appel en cours</string>
+    <string name="settings_squeezelite_title">Démarrer squeezelite</string>
+    <string name="settings_squeezelite_summary">Si activé, démarre squeezelite automatiquement quand Squeezer démarre</string>
+    <string name="settings_category_display">Affichage</string>
+    <string name="settings_category_ui">Raccourcis, etc.</string>
+    <string name="settings_customize_home_menu_mode">Archive</string>
+    <string name="settings_customize_home_menu_info">Un appui long sur un menu le met dans une archive</string>
+    <string name="settings_customize_home_menu_archive">Activé</string>
+    <string name="settings_customize_home_menu_disabled">Désactivé</string>
+    <string name="player_group_volume">Volume du groupe</string>
+    <string name="player_group_volume_on">Ajuster le volume des platines synchronisées</string>
+    <string name="settings_category_nowplaying_trackinfo">NowPlaying information sur la piste</string>
+    <string name="settings_show_track_number_title">Numéro de piste</string>
+    <string name="settings_show_track_number_off">Ne pas montrer le numéro de piste</string>
+    <string name="settings_show_track_number_on">Montrer le numéro de piste au dessus du temps</string>
+    <string name="settings_show_technical_info_title">Informations techniques (débit, etc.)</string>
+    <string name="settings_show_technical_info_off">Ne pas afficher les informations techniques</string>
+    <string name="settings_show_technical_info_on">Afficher les informations techniques au dessus du temps</string>
+    <string name="settings_add_composer_line_off">Ne pas afficher le compositeur</string>
+    <string name="settings_add_composer_line_on">Afficher le compositeur en face du titre de la piste</string>
+    <string name="settings_add_composer_line_title">Information sur le compositeur</string>
+    <string name="settings_add_conductor_line_off">Ne pas afficher le groupe / l\'orchestre ni le chef</string>
+    <string name="settings_add_conductor_line_on">Afficher le groupe / l\'orchestre au lieu de l\'album et afficher le chef sur une ligne séparée</string>
+    <string name="settings_add_conductor_line_title">Information sur le groupe / l\'orchestre et le chef</string>
+    <string name="settings_classical_music_tags_off">Comportement normal</string>
+    <string name="settings_classical_music_tags_on">Adaptée à la musique classique, avec le chef d\'orchestre et les solistes</string>
+    <string name="set_sleep_timer">Définir la durée de veille</string>
+    <string name="dialog_license">Licence</string>
+    <string name="settings_download_enabled">Autoriser les téléchargements</string>
+    <string name="download_item">Télécharger %s</string>
+    <string name="disable_downloads">Désactiver les téléchargements</string>
+    <string name="configure_select_player">Choisir la platine à contrôler</string>
+    <string name="configure_select_button">Action du widget</string>
+    <string name="remote_unknownDescription">Inconnu</string>
+    <string name="remote_openPlayer">Ouvrir la platine dans Squeezer</string>
+    <string name="remote_nextDescription">Morceau suivant</string>
+    <string name="remote_previousDescription">Morceau précédent</string>
+    <string name="ITEM_CANNOT_BE_SHORTCUT">Impossible de créer un raccourci vers cet item !</string>
+    <string name="PLAY_RANDOM_FOLDER">Lecture aléatoire</string>
+    <string name="settings_custom_shortcut_locked">Désactivé, mais affiche les raccourcis existants</string>
+    <string name="settings_customize_customShortcut_mode">Raccourcis</string>
+    <string name="ITEM_CAN_NOT_BE_SHORTCUT_OR_ARCHIVED">Impossible de créer un raccourci ou une archive !</string>
+    <string name="settings_custom_shortcut_enabled">Activé</string>
+    <string name="settings_custom_shortcut_disabled">Désactivé</string>
+    <string name="don_t_show_volume_control">Masquer le réglage de volume</string>
+    <string name="show_volume_control">Afficher le réglage de volume</string>
+    <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Cette archive ne peut pas être archivée !</string>
+    <string name="ARCHIVE_NODE_REMOVED">Archive vide supprimée</string>
+    <string name="ITEM_CANNOT_BE_ARCHIVED">Cet item ne peut pas être archivé !</string>
+    <string name="CUSTOM_SHORTCUT_REMOVED">Raccourci supprimé de l\'écran d\'accueil</string>
+    <string name="ITEM_IS_ALREADY_A_SHORTCUT">Raccourci déjà utilisé !</string>
+    <string name="remote_preset6Description">Favori 6</string>
+    <string name="ARCHIVE_NODE">Archive</string>
+    <string name="remote_preset1Description">Favori 1</string>
+    <string name="remote_preset2Description">Favori 2</string>
+    <string name="remote_preset3Description">Favori 3</string>
+    <string name="remote_preset4Description">Favori 4</string>
+    <string name="remote_preset5Description">Favori 5</string>
+    <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Raccourci ajouté à l\'écran d\'accueil</string>
+    <string name="remote_openNowPlaying">Ouvrir Now Playing pour la platine</string>
+    <string name="remote_openCurrentPlaylist">Ouvrir la playlist courante pour la platine</string>
+    <string name="settings_customize_customShortcut_info">Un appui long place le raccourci sur l\'écran d\'accueil</string>
+    <string name="MENU_ITEM_MOVED">"Item ajouté (ou retiré) de l'archive "</string>
+    <string name="MENU_IS_SUBMENU_IN_ARCHIVE">Vous êtes déjà dans une archive !</string>
 </resources>
