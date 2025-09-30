@@ -29,3 +29,4 @@ Squeezer is free, and open source.
 * [Privacy Policy](PRIVACY.md).
 * [Contributing](https://github.com/kaaholst/android-squeezer/blob/develop/CONTRIBUTING.md) if you want to help develop or translating Squeezer.
 * [Changelog](NEWS.md).
+* [License](LICENSE.md).
