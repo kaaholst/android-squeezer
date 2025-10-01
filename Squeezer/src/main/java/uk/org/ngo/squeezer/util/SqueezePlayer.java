@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
@@ -61,10 +62,14 @@ public class SqueezePlayer extends Handler {
     }
 
     private void startControllingSqueezePlayer() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(getSqueezePlayerIntent());
-        } else {
-            context.startService(getSqueezePlayerIntent());
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(getSqueezePlayerIntent());
+            } else {
+                context.startService(getSqueezePlayerIntent());
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         removeMessages(MSG_TIMEOUT);
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
