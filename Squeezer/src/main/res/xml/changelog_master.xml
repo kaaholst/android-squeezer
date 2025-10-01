@@ -2,6 +2,15 @@
 
 <changelog>
     <release
+        version="2.3.11"
+        versioncode="150">
+
+        <change>Update French translations, thanks to Guiv42</change>
+
+        <change>Show error if device player cannot be started</change>
+    </release>
+
+    <release
         version="2.3.10"
         versioncode="148">
 

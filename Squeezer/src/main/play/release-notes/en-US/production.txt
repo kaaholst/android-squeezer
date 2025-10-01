@@ -1,17 +1,3 @@
-&bull; Keep connection when device is in doze mode
+&bull; Update French translations, thanks to Guiv42
 
-&bull; Display name of radio station
-
-&bull; Volume slider is accessible from all screens. Drag down to show the slider
-
-&bull; Optionally hide volume slider on Now Playing screen
-
-&bull; Automatic search
-
-&bull; Possibility to stop and restart server
-
-&bull; Update remaining time when dragging song slider
-
-&bull; Integrate with Squeezelite for Android
-
-&bull; Bug and stability fixes
+&bull; Show error if device player cannot be started

@@ -3,6 +3,14 @@ description: Changelog
 permalink: /changelog/
 ---
 
+2.3.11
+======
+
+*   Update French translations, thanks to Guiv42
+
+*   Show error if device player cannot be started
+
+
 2.3.10
 ======
 
