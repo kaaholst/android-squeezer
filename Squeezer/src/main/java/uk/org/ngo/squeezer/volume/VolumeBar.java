@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
-public class VolumeBar {
+public class VolumeBar implements VolumeUpdater {
     private final MaterialButton muteButton;
     private final SeekBar volumeBar;
 

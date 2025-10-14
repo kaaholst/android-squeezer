@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.CallStateDialog;
@@ -99,6 +98,7 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.volume.VolumeBar;
+import uk.org.ngo.squeezer.volume.VolumeUpdater;
 import uk.org.ngo.squeezer.volume.VolumeWheel;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
@@ -855,8 +855,8 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     private void updateVolumeInfo() {
         if (mFullHeightLayout) {
             Preferences preferences = Squeezer.getPreferences();
-            Consumer<ISqueezeService.VolumeInfo> updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar::update : null : volumeWheel::update;
-            if (updater != null) updater.accept(requireService().getVolume());
+            VolumeUpdater updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar : null : volumeWheel;
+            if (updater != null) updater.update(requireService().getVolume());
         }
     }
 

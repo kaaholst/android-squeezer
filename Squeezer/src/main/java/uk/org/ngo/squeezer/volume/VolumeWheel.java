@@ -9,7 +9,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.widget.RadialSeekBar;
 
-public class VolumeWheel {
+public class VolumeWheel implements VolumeUpdater{
     private final CheckBox muteToggle;
     private final RadialSeekBar volumeWheel;
     private int currentProgress = 0;
