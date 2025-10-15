@@ -110,10 +110,12 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             subList = view.findViewById(R.id.list);
             itemView.setOnClickListener(v -> {
                 int position = getBindingAdapterPosition();
-                ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(position);
-                childAdapterHolder.visible = !childAdapterHolder.visible;
+                if (position != RecyclerView.NO_POSITION) {
+                    ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(position);
+                    childAdapterHolder.visible = !childAdapterHolder.visible;
 
-                notifyItemChanged(position);
+                    notifyItemChanged(position);
+                }
             });
         }
 
