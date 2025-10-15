@@ -154,7 +154,11 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         emptyView = requireView(R.id.empty_view);
         listView = requireView(R.id.item_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
-        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> new VolumeSettings().show(getSupportFragmentManager(), VolumeSettings.class.getName())));
+        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> {
+            if (requireService().getActivePlayer() != null) {
+                new VolumeSettings().show(getSupportFragmentManager(), VolumeSettings.class.getName());
+            }
+        }));
 
         getListView().addOnScrollListener(new ScrollListener());
 
