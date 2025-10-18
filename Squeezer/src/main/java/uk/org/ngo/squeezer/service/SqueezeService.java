@@ -82,7 +82,6 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.LastscanChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -119,9 +118,6 @@ public class SqueezeService extends Service {
 
     private SqueezerRepository repository;
 
-    /** True if the handshake with the server has completed, otherwise false. */
-    private volatile boolean mHandshakeComplete = false;
-
     /** Media session to associate with ongoing notifications. */
     private MediaSessionCompat mediaSession;
 
@@ -155,16 +151,6 @@ public class SqueezeService extends Service {
 
     private SqueezerVolumeProvider mVolumeProvider;
 
-    /**
-     * Thrown when the service is asked to send a command to the server before the server
-     * handshake completes.
-     */
-    public static class HandshakeNotCompleteException extends IllegalStateException {
-        public HandshakeNotCompleteException(String message) {
-            super(message);
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -189,7 +175,6 @@ public class SqueezeService extends Service {
         mediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
 
         repository.observeForever(this::onConnectionChanged);
-        repository.observeForever(this::onHandshakeComplete);
         repository.observeForever(this::onPlayerVolume);
         repository.observeForever(this::onMusicChanged);
         repository.observeForever(this::onPlayStatusChanged);
@@ -259,7 +244,6 @@ public class SqueezeService extends Service {
     public void onDestroy() {
         disconnect(false);
         repository.removeObserver(this::onConnectionChanged);
-        repository.removeObserver(this::onHandshakeComplete);
         repository.removeObserver(this::onPlayerVolume);
         repository.removeObserver(this::onMusicChanged);
         repository.removeObserver(this::onPlayStatusChanged);
@@ -677,7 +661,6 @@ public class SqueezeService extends Service {
             registerCallStateListener();
         } else {
             unregisterCallStateListener();
-            mHandshakeComplete = false;
             stopForeground();
         }
         mutedPlayers.clear();
@@ -687,11 +670,6 @@ public class SqueezeService extends Service {
         if (event.player == mDelegate.getActivePlayer()) {
             mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
         }
-    }
-
-    private void onHandshakeComplete(HandshakeComplete event) {
-        Log.d("SqueezeService", "Handshake complete");
-        mHandshakeComplete = true;
     }
 
     private void onActivePlayerChanged(ActivePlayerChanged event) {
@@ -1084,10 +1062,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public String getServerVersion() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
+        public String getServerVersion() {
             return mDelegate.getServerVersion();
         }
 
@@ -1450,24 +1425,18 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the slimserver generic menu items */
         @Override
-        public void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
+        public void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) {
             mDelegate.requestItems(getActivePlayer(), start, callback).cmd(cmd).param("menu", "menu").exec();
         }
 
         /* Start an asynchronous fetch of the slimserver generic menu items */
         @Override
-        public void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
+        public void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem>  callback) {
             mDelegate.requestItems(getActivePlayer(), start, callback).cmd(action.action.cmd).params(action.action.params(item.inputValue)).exec();
         }
 
         @Override
-        public void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) throws HandshakeNotCompleteException {
+        public void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) {
             // We cant use paging for context menu items as LMS does some "magic"
             // See XMLBrowser.pm ("xmlBrowseInterimCM" and  "# Cannot do this if we might screw up paging")
             mDelegate.requestItems(getActivePlayer(), callback).cmd(action.action.cmd).params(action.action.params).exec();
@@ -1490,7 +1459,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void downloadItem(JiveItem item) throws HandshakeNotCompleteException {
+        public void downloadItem(JiveItem item) {
             Log.i(TAG, "downloadItem(" + item + ")");
             SlimCommand command = item.downloadCommand();
             IServiceItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;

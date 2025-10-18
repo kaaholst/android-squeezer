@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -44,7 +43,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
@@ -90,13 +88,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * The pages that have been received from the server
      */
     private Set<Integer> mReceivedPages;
-
-    /**
-     * Pages requested before the handshake completes. A stack on the assumption
-     * that once the service is bound the most recently requested pages should be ordered
-     * first.
-     */
-    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<>();
 
     /**
      * Progress bar while items are loading.
@@ -318,22 +309,10 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * @param pagePosition position in the list to start the fetch.
      */
     public void maybeOrderPage(int pagePosition) {
-        if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages
-                .contains(pagePosition) && !mOrderedPagesBeforeHandshake.contains(pagePosition)) {
-            ISqueezeService service = getService();
-
-            // If the service connection hasn't happened yet then store the page
-            // request where it can be used in mHandshakeComplete.
-            if (service == null) {
-                mOrderedPagesBeforeHandshake.push(pagePosition);
-            } else {
-                try {
-                    orderPage(service, pagePosition);
-                    mOrderedPages.add(pagePosition);
-                } catch (SqueezeService.HandshakeNotCompleteException e) {
-                    mOrderedPagesBeforeHandshake.push(pagePosition);
-                }
-            }
+        if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages.contains(pagePosition) ) {
+            ISqueezeService service = requireService();
+            orderPage(service, pagePosition);
+            mOrderedPages.add(pagePosition);
         }
     }
 
@@ -361,11 +340,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         putRetainedValue(TAG_PLAYER_ID, activePlayerId);
         if (oldPlayerId != null && !oldPlayerId.equals(activePlayerId)) {
             onActivePlayerChanged(new ActivePlayerChanged(activePlayer));
-        } else {
-            // Order any pages that were requested before the handshake complete.
-            while (!mOrderedPagesBeforeHandshake.empty()) {
-                maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
-            }
         }
 
         if (activePlayer != null) {
@@ -486,7 +460,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
 
     /** Empty the variables that track which pages have been requested. */
     public void clearItems() {
-        mOrderedPagesBeforeHandshake.clear();
         mOrderedPages.clear();
         mReceivedPages.clear();
         clearItemAdapter();

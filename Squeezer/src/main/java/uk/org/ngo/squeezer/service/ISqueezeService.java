@@ -96,7 +96,7 @@ public interface ISqueezeService {
     ////////////////////
     // Depends on active player:
 
-    String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
+    String getServerVersion();
     boolean togglePausePlay();
     boolean togglePausePlay(Player player);
     boolean play();
@@ -154,7 +154,7 @@ public interface ISqueezeService {
 
 
     // Plugins (Radios/Apps (music services)/Favorites)
-    void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback);
 
     /**
      * Start an asynchronous fetch of the slimserver generic menu items.
@@ -165,9 +165,8 @@ public interface ISqueezeService {
      * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
      * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
      * @param callback This will be called as the items arrive.
-     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem> callback);
 
     /**
      * Start an asynchronous fetch of the slimserver generic menu items with no paging nor extra parameters.
@@ -176,9 +175,8 @@ public interface ISqueezeService {
      *
      * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
      * @param callback This will be called as the items arrive.
-     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback);
 
     /**
      * Perform the supplied SBS <code>do</code> <code>action</code> using parameters in <code>item</code>.
@@ -210,7 +208,7 @@ public interface ISqueezeService {
      *
      * @param item Song or item with songs to download
      */
-    void downloadItem(JiveItem item) throws SqueezeService.HandshakeNotCompleteException;
+    void downloadItem(JiveItem item);
 
     /**
      * Put menu item into the Archive node
