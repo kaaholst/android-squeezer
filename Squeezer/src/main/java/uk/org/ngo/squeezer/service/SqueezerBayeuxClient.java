@@ -27,6 +27,7 @@ import org.cometd.common.HashMapMessage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -43,6 +44,10 @@ class SqueezerBayeuxClient extends BayeuxClient {
     SqueezerBayeuxClient(ConnectionState connectionState, String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
         this.connectionState = connectionState;
+    }
+
+    public ConcurrentMap<String, AbstractSessionChannel> getChannels() {
+        return super.getChannels();
     }
 
     @Override

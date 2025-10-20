@@ -300,8 +300,7 @@ class CometClient extends BaseClient {
         mCommandQueue.clear();
         mCurrentCommand = false;
         if (mBayeuxClient != null) {
-            for (String channelId: List.of(Channel.META_HANDSHAKE, Channel.META_CONNECT)) {
-                ClientSessionChannel channel = mBayeuxClient.getChannel(channelId);
+            for (ClientSessionChannel channel: mBayeuxClient.getChannels().values()) {
                 for (ClientSessionChannel.ClientSessionChannelListener listener : channel.getListeners()) channel.removeListener(listener);
                 channel.unsubscribe();
             }
