@@ -47,7 +47,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
 
         versionCode 150
-        versionName "2.3.11"
+        versionName "2.3.12-beta-0"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
