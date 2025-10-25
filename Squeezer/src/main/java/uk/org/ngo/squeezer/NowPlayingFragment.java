@@ -1141,8 +1141,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
         topBarSearch = null;
         for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {
-            if (searchKey.equals(menuItem.getId())) topBarSearch = menuItem;
-            if (menuItem.input == null) menuItem.input = new Input();
+            if (searchKey.equals(menuItem.getId())) {
+                topBarSearch = menuItem;
+                if (topBarSearch.input == null) topBarSearch.input = new Input();
+            }
         }
         if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
     }
