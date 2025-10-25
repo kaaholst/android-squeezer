@@ -60,7 +60,7 @@ public class JiveItem extends Item {
 
     /**
      * Information that will be requested about songs.
-     * <p>
+     * <pre>
      A 	<role> 	For every artist role (one of "artist", "composer", "conductor", "band", "albumartist" or "trackartist"), a comma and space (', ') separated list of names.
      AA 	<role> 	This is like "A", but without the space after the comma. This should simplify parsing/splitting when required.
      B 	buttons 	A hash with button definitions. Only available for certain plugins such as Pandora.
@@ -76,8 +76,10 @@ public class JiveItem extends Item {
      T 	samplerate 	Song sample rate (in KHz)
      u 	url 	Song file url.
      x 	remote 	If 1, this is a remote track.
+     y  year 	Song year. Only if known.
+     * </pre>
      */
-    public static final String SONG_TAGS = "ABdejJKlrStTux";
+    public static final String SONG_TAGS = "ABdejJKlrStTuxy";
 
     public static final Creator<JiveItem> CREATOR = new Creator<>() {
         @Override

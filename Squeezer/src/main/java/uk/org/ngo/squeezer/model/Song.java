@@ -33,9 +33,10 @@ public class Song  implements Parcelable {
     @NonNull public final String[] bandIds;
     @NonNull public final String[] albumArtists;
     @NonNull public final String[] albumArtistIds;
-    @NonNull public final String bitRate;
-    @NonNull public final String sampleRate;
+    @NonNull private final String bitRate;
+    @NonNull private final String sampleRate;
     public int duration;
+    @NonNull public final String year;
 
     @NonNull
     public Uri url;
@@ -76,6 +77,7 @@ public class Song  implements Parcelable {
         bitRate = Util.getStringOrEmpty(record, "bitrate");
         sampleRate = Util.getStringOrEmpty(record, "samplerate");
         duration = Util.getInt(record, "duration");
+        year = Util.getStringOrEmpty(record, "year");
 
         url = Uri.parse(Util.getStringOrEmpty(record, "url"));
     }
@@ -99,6 +101,7 @@ public class Song  implements Parcelable {
         bitRate = source.readString();
         sampleRate = source.readString();
         duration = source.readInt();
+        year = source.readString();
     }
 
     @Override
@@ -121,6 +124,7 @@ public class Song  implements Parcelable {
         dest.writeString(bitRate);
         dest.writeString(sampleRate);
         dest.writeInt(duration);
+        dest.writeString(year);
     }
 
     public String getArtist() {
@@ -157,6 +161,7 @@ public class Song  implements Parcelable {
     public String getBitRate() {
         return "0".equals(bitRate) ? "" : bitRate;
     }
+
 
     @Override
     public String toString() {
