@@ -40,6 +40,8 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuActivity extends JiveItemListActivity {
+    protected List<JiveItem> homeMenu;
+
     @Override
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         super.onServiceConnected(service);
@@ -77,6 +79,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
     }
 
     public void onHomeMenuEvent(HomeMenuEvent event) {
+        homeMenu = event.menuItems;
         getItemAdapter().clear();
 
         ActionBar actionBar = getSupportActionBar();
@@ -99,7 +102,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
      * Return a list of menu items filtered by the given node and player specific items, and ordered
      * by weight, name.
      */
-    private List<JiveItem> getMenuNode(String node, List<JiveItem> homeMenu) {
+    protected List<JiveItem> getMenuNode(String node, List<JiveItem> homeMenu) {
         ArrayList<JiveItem> menu = new ArrayList<>();
         for (JiveItem item : homeMenu) {
             if (node.equals(item.getNode()) && (item.goAction == null || forActivePlayer(item.goAction))) {
@@ -123,7 +126,6 @@ public class HomeMenuActivity extends JiveItemListActivity {
 
     @Override
     protected ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> createItemListAdapter() {
-
         return new JiveItemAdapter(this) {
             @Override
             public ItemViewHolder<JiveItem> createViewHolder(View view, int viewType) {

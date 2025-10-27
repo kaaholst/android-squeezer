@@ -37,6 +37,7 @@
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light">Light</string>
+    <string name="settings_layout_grouped">Grouped</string>
     <string name="settings_screensaver_title">Keep screen on</string>
     <string name="settings_screensaver_off">No</string>
     <string name="settings_screensaver_on">Yes</string>
@@ -274,6 +275,7 @@
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Archive cannot be archived!</string>
     <string name="ARCHIVE_NODE_REMOVED">Removed empty Archive</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">This item can not be archived!</string>
+    <string name="SHORTCUTS">Shortcuts</string>
     <string name="CUSTOM_SHORTCUT_REMOVED">Shortcut removed from home menu</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Is already a shortcut!</string>
     <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Shortcut put on home menu</string>

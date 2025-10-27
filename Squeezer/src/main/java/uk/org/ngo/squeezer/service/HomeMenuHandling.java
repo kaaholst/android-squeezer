@@ -2,10 +2,10 @@ package uk.org.ngo.squeezer.service;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
@@ -16,13 +16,16 @@ import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuHandling {
-    private static final String CUSTOM_SHORTCUT_NODE = JiveItem.HOME.getId();
+    private static final List<JiveItem> SPECIAL_NODES = List.of(JiveItem.EXTRAS, JiveItem.ARCHIVE, JiveItem.SHORTCUTS, JiveItem.SETTINGS, JiveItem.ADVANCED_SETTINGS);
 
     /**
      * Home menu tree as received from slimserver
      */
     private final List<JiveItem> homeMenu = new CopyOnWriteArrayList<>();
+
+    private final Set<String> archivedItems = new HashSet<>();
     private final List<JiveItem> customShortcuts = new CopyOnWriteArrayList<>();
+    private boolean grouped;
 
     public HomeMenuHandling(@NonNull SqueezerRepository repository) {
         this.repository = repository;
@@ -30,15 +33,24 @@ public class HomeMenuHandling {
 
     private final SqueezerRepository repository;
 
+    private JiveItem customShortcutNode(boolean grouped) {
+        return grouped ? JiveItem.SHORTCUTS : JiveItem.HOME;
+    }
+
+    private void setExtraNode(boolean grouped, JiveItem item) {
+        item.setNode(grouped ? JiveItem.EXTRAS.getId() : item.getOriginalNode());
+    }
+
     boolean isInArchive(JiveItem toggledItem) {
         return getParents(toggledItem.getNode()).contains(JiveItem.ARCHIVE) ? Boolean.TRUE : Boolean.FALSE;
     }
 
-    void cleanupArchive(JiveItem toggledItem) {
+    private void cleanupArchive(JiveItem toggledItem) {
         for (JiveItem archiveItem : homeMenu) {
             if (archiveItem.getNode().equals(JiveItem.ARCHIVE.getId())) {
                 Set<JiveItem> parents = getOriginalParents(archiveItem.getOriginalNode());
                 if (parents.contains(toggledItem)) {
+                    archivedItems.remove(archiveItem.getId());
                     archiveItem.setNode(archiveItem.getOriginalNode());
                 }
             }
@@ -47,16 +59,10 @@ public class HomeMenuHandling {
 
     public void handleMenuStatusEvent(MenuStatusMessage event) {
         for (JiveItem serverItem : event.menuItems) {
-            JiveItem item = null;
-            for (JiveItem clientItem : homeMenu) {
-                if (serverItem.getId().equals(clientItem.getId())) {
-                    item = clientItem;
-                    break;
-                }
-            }
-            if (item != null) {
-                homeMenu.remove(item);
-                serverItem.setNode(item.getNode());  // for Archive
+            Optional<JiveItem> item = homeMenu.stream().filter(clientItem -> serverItem.getId().equals(clientItem.getId())).findFirst();
+            if (item.isPresent()) {
+                homeMenu.remove(item.get());
+                serverItem.setNode(item.get().getNode());  // for Archive
             }
             if (MenuStatusMessage.ADD.equals(event.menuDirective)) {
                 homeMenu.add(serverItem);
@@ -65,26 +71,21 @@ public class HomeMenuHandling {
         triggerHomeMenuEvent();
     }
 
-    public void triggerHomeMenuEvent() {
+    private void triggerHomeMenuEvent() {
         repository.post(new HomeMenuEvent(homeMenu));
     }
 
-    List<String> toggleArchiveItem(JiveItem toggledItem) {
+    Set<String> toggleArchiveItem(JiveItem toggledItem) {
         if (toggledItem.getNode().equals(JiveItem.ARCHIVE.getId())) {
             toggledItem.setNode(toggledItem.getOriginalNode());
-            List<String> archivedItems = getArchivedItems();
-            if (archivedItems.isEmpty()) {
-                homeMenu.remove(JiveItem.ARCHIVE);
-            }
-            return archivedItems;
+            archivedItems.remove(toggledItem.getId());
+        } else {
+            cleanupArchive(toggledItem);
+            toggledItem.setNode(JiveItem.ARCHIVE.getId());
+            archivedItems.add(toggledItem.getId());
         }
-
-        cleanupArchive(toggledItem);
-        toggledItem.setNode(JiveItem.ARCHIVE.getId());
-        if (!homeMenu.contains(JiveItem.ARCHIVE)) {
-            homeMenu.add(JiveItem.ARCHIVE);
-        }
-        return getArchivedItems();
+        customizeHomeMenu();
+        return archivedItems;
     }
 
     public Set<JiveItem> getOriginalParents(String node) {
@@ -112,62 +113,54 @@ public class HomeMenuHandling {
         }
     }
 
-    public List<String> getArchivedItems() {
-        List<String> archivedItems = new ArrayList<>();
-        for (JiveItem item : homeMenu) {
-            if (item.getNode().equals(JiveItem.ARCHIVE.getId())) {
-                archivedItems.add(item.getId());
-            }
-        }
-        return archivedItems;
+    private boolean hasNode(String node) {
+        return homeMenu.stream().anyMatch(item -> item.getNode().equals(node));
     }
 
-    private void addArchivedItems(List<String> archivedItems) {
-        if (!(archivedItems.isEmpty()) && (!homeMenu.contains(JiveItem.ARCHIVE))) {
-            homeMenu.add(JiveItem.ARCHIVE);
-        }
-        for (String s : archivedItems) {
-            for (JiveItem item : homeMenu) {
-                if (item.getId().equals(s)) {
-                    item.setNode(JiveItem.ARCHIVE.getId());
-                }
-            }
-        }
+    private void setArchivedItems(Set<String> archivedItems) {
+        this.archivedItems.clear();
+        this.archivedItems.addAll(archivedItems);
     }
 
-    public void setHomeMenu(List<String> archivedItems) {
-        homeMenu.remove(JiveItem.ARCHIVE);
-        homeMenu.stream().forEach(item -> item.setNode(item.getOriginalNode()));
-        customizeHomeMenu(archivedItems);
+    public void updateArchivedItems(Set<String> archivedItems) {
+        homeMenu.stream().filter(item -> archivedItems.contains(item.getId())).forEach(item -> item.setNode(item.getOriginalNode()));
+        setArchivedItems(archivedItems);
+        customizeHomeMenu();
     }
 
-    public void setHomeMenu(List<JiveItem> items, List<String> archivedItems) {
+    private void setExtraItems() {
+        homeMenu.stream()
+                .filter(item -> (JiveItem.HOME.getId().equals(item.getOriginalNode()) && (item.doAction || item.hasInput())))
+                .forEach(item -> setExtraNode(grouped, item));
+    }
+
+    public void setHomeMenu(List<JiveItem> items, Set<String> archivedItems, boolean grouped) {
+        this.grouped = grouped;
+        setArchivedItems(archivedItems);
         homeMenu.clear();
         homeMenu.addAll(items);
-        jiveMainNodes();
-        customizeHomeMenu(archivedItems);
+        homeMenu.addAll(customShortcuts);
+        customizeHomeMenu();
     }
 
-    private void customizeHomeMenu(List<String> archivedItems) {
-        addArchivedItems(archivedItems);
-        homeMenu.addAll(customShortcuts);
+    private void customizeHomeMenu() {
+        setExtraItems();
+        homeMenu.stream().filter(item -> archivedItems.contains(item.getId())).forEach(item -> item.setNode(JiveItem.ARCHIVE.getId()));
+        SPECIAL_NODES.stream().forEach(item -> item.setNode(archivedItems.contains(item.getId()) ? JiveItem.ARCHIVE.getId() : item.getOriginalNode()));
+        SPECIAL_NODES.stream().forEach(this::optionalNode);
         triggerHomeMenuEvent();
     }
 
-    private void jiveMainNodes() {
-        addNode(JiveItem.EXTRAS, homeMenu);
-        addNode(JiveItem.SETTINGS, homeMenu);
-        addNode(JiveItem.ADVANCED_SETTINGS, homeMenu);
-    }
-
-    private void addNode(JiveItem jiveItem, List<JiveItem> homeMenu) {
-        if (!homeMenu.contains(jiveItem)) {
-            jiveItem.setNode(jiveItem.getOriginalNode());
-            homeMenu.add(jiveItem);
+    private void optionalNode(JiveItem jiveItem) {
+        if (hasNode(jiveItem.getId())) {
+            if (!homeMenu.contains(jiveItem)) homeMenu.add(jiveItem);
+        } else {
+            homeMenu.remove(jiveItem);
         }
     }
 
-    public void setCustomShortcuts(List<Map<String, Object>> shortcuts) {
+    public void setCustomShortcuts(boolean grouped, List<Map<String, Object>> shortcuts) {
+        this.grouped = grouped;
         customShortcuts.clear();
         shortcuts.stream().forEach(shortcut -> customShortcuts.add(shortcut(shortcut)));
     }
@@ -180,16 +173,42 @@ public class HomeMenuHandling {
         return customShortcuts.contains(item);
     }
 
+    public void updateShortcuts(boolean grouped, List<Map<String, Object>> shortcuts) {
+        customShortcuts.stream().forEach(homeMenu::remove);
+        setCustomShortcuts(grouped, shortcuts);
+        homeMenu.addAll(customShortcuts);
+        customizeHomeMenu();
+    }
+
     public boolean addShortcut(JiveItem item, JiveItem parent, int shortcutWeight) {
         if (shortcutAlreadyAdded(item)) return false;
         addShortcut(item.getRecord(), parent, shortcutWeight);
+        triggerHomeMenuEvent();
         return true;
     }
 
     public List<JiveItem> updateShortcut(JiveItem item, Map<String, Object> record) {
         removeCustomShortcut(item);
         addShortcut(record, item, item.getWeight());
+        triggerHomeMenuEvent();
         return customShortcuts;
+    }
+
+    public void removeShortcut(JiveItem item) {
+        removeCustomShortcut(item);
+        triggerHomeMenuEvent();
+    }
+
+    public void removeAllShortcuts() {
+        customShortcuts.stream().forEach(homeMenu::remove);
+        customizeHomeMenu();
+    }
+
+    private boolean shortcutAlreadyAdded(JiveItem itemToShortcut) {
+        return customShortcuts.stream()
+                .filter(item -> item.getName().equals(itemToShortcut.getName()))
+                .findFirst()
+                .isPresent();
     }
 
     private void addShortcut(Map<String, Object> record, JiveItem parent, int shortcutWeight) {
@@ -205,28 +224,19 @@ public class HomeMenuHandling {
         }
         customShortcuts.add(template);
         homeMenu.add(template);
-    }
-
-    private boolean shortcutAlreadyAdded(JiveItem itemToShortcut) {
-        for (JiveItem item : customShortcuts) {
-            if (item.getName().equals(itemToShortcut.getName())) return true;
-        }
-        return false;
+        optionalNode(JiveItem.SHORTCUTS);
     }
 
     private JiveItem shortcut(Map<String, Object> shortcut) {
         JiveItem item = new JiveItem(shortcut);
-        item.setNode(CUSTOM_SHORTCUT_NODE);
+        item.setNode(customShortcutNode(grouped).getId());
         if (item.getId() == null) item.setId("customShortcut_" + customShortcuts.size());
         return item;
     }
 
-    public void removeCustomShortcut(JiveItem item) {
+    private void removeCustomShortcut(JiveItem item) {
         customShortcuts.remove(item);
         homeMenu.remove(item);
-    }
-
-    public void removeAllShortcuts() {
-        for (JiveItem item : customShortcuts) removeCustomShortcut(item);
+        optionalNode(JiveItem.SHORTCUTS);
     }
 }

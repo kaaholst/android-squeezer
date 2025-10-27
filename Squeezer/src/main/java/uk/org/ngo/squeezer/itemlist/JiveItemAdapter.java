@@ -15,7 +15,7 @@ import uk.org.ngo.squeezer.model.Window;
 
 class JiveItemAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> implements RecyclerViewFastScroller.OnPopupTextUpdate {
     private Window.WindowStyle windowStyle = Window.WindowStyle.TEXT_ONLY;
-    private ArtworkListLayout listLayout = ArtworkListLayout.list;
+    protected ArtworkListLayout listLayout = ArtworkListLayout.list;
 
     public JiveItemAdapter(JiveItemListActivity activity) {
         super(activity);

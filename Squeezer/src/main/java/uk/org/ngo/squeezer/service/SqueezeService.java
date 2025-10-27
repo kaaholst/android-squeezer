@@ -166,7 +166,7 @@ public class SqueezeService extends Service {
 
         Squeezer.getPreferences(preferences -> {
             cachePreferences(preferences);
-            homeMenuHandling.setCustomShortcuts(preferences.getCustomShortcuts());
+            homeMenuHandling.setCustomShortcuts(preferences.homeGroups(), preferences.getCustomShortcuts());
         });
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -302,11 +302,11 @@ public class SqueezeService extends Service {
             if (homeMenu.size() == count) {
                 Preferences preferences = Squeezer.getPreferences();
                 boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
-                List<String> archivedMenuItems = Collections.emptyList();
+                Set<String> archivedMenuItems = Collections.emptySet();
                 if ((useArchive) && (mDelegate.getActivePlayer() != null)) {
                     archivedMenuItems = preferences.getArchivedMenuItems(mDelegate.getActivePlayer());
                 }
-                homeMenuHandling.setHomeMenu(homeMenu, archivedMenuItems);
+                homeMenuHandling.setHomeMenu(homeMenu, archivedMenuItems, preferences.homeGroups());
             }
         }
 
@@ -321,9 +321,9 @@ public class SqueezeService extends Service {
     }
 
     public void updateShortCut(JiveItem item, Map<String, Object> record) {
+        Preferences preferences = Squeezer.getPreferences();
         List<JiveItem> shortcuts = homeMenuHandling.updateShortcut(item, record);
-        Squeezer.getPreferences().saveShortcuts(shortcuts);
-        homeMenuHandling.triggerHomeMenuEvent();
+        preferences.saveShortcuts(shortcuts);
     }
 
     private void requestPlayerData() {
@@ -1311,11 +1311,11 @@ public class SqueezeService extends Service {
             Log.i(TAG, "Preference changed: " + key);
             if (Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE.equals(key)) {
                 boolean useArchive = preferences.getCustomizeHomeMenuMode() != Preferences.CustomizeHomeMenuMode.DISABLED;
-                List<String> archivedMenuItems = Collections.emptyList();
+                Set<String> archivedMenuItems = Collections.emptySet();
                 if ((useArchive) && (getActivePlayer() != null)) {
                     archivedMenuItems = preferences.getArchivedMenuItems(getActivePlayer());
                 }
-                homeMenuHandling.setHomeMenu(archivedMenuItems);
+                homeMenuHandling.updateArchivedItems(archivedMenuItems);
             } else if (Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE.equals(key)) {
                 if (preferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.DISABLED) {
                     homeMenuHandling.removeAllShortcuts();
@@ -1473,20 +1473,14 @@ public class SqueezeService extends Service {
             return true;
         }
 
-        public boolean toggleArchiveItem(JiveItem item) {
-            List<String> menu = homeMenuHandling.toggleArchiveItem(item);
-            Squeezer.getPreferences().setArchivedMenuItems(menu, getActivePlayer());
-            triggerHomeMenuEvent();
-            return menu.isEmpty();
+        public void toggleArchiveItem(JiveItem item) {
+            Set<String> archive = homeMenuHandling.toggleArchiveItem(item);
+            Squeezer.getPreferences().setArchivedMenuItems(archive, getActivePlayer());
         }
 
         @Override
         public boolean isInArchive(JiveItem item) {
            return homeMenuHandling.isInArchive(item);
-        }
-
-        public void triggerHomeMenuEvent() {
-            homeMenuHandling.triggerHomeMenuEvent();
         }
 
         @Override
@@ -1495,17 +1489,25 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void setCustomShortcuts() {
+            Preferences preferences = Squeezer.getPreferences();
+            homeMenuHandling.updateShortcuts(preferences.homeGroups(), preferences.getCustomShortcuts());
+        }
+
+        @Override
         public void removeCustomShortcut(JiveItem item) {
-            homeMenuHandling.removeCustomShortcut(item);
+            homeMenuHandling.removeShortcut(item);
             Squeezer.getPreferences().saveShortcuts(homeMenuHandling.getCustomShortcuts());
         }
 
         @Override
         public boolean addCustomShortcut(JiveItem item, JiveItem parent, int shortcutWeight) {
-            boolean result = homeMenuHandling.addShortcut(item, parent, shortcutWeight);
-            Squeezer.getPreferences().saveShortcuts(homeMenuHandling.getCustomShortcuts());
-            triggerHomeMenuEvent();
-            return result;
+            Preferences preferences = Squeezer.getPreferences();
+            if (homeMenuHandling.addShortcut(item, parent, shortcutWeight)) {
+                preferences.saveShortcuts(homeMenuHandling.getCustomShortcuts());
+                return true;
+            }
+            return false;
         }
     }
 

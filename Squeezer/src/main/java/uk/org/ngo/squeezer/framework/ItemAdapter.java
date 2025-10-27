@@ -28,9 +28,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.util.Reflection;
 
@@ -46,7 +48,7 @@ import uk.org.ngo.squeezer.util.Reflection;
  * @author Kurt Aaholst
  * @see ItemViewHolder
  */
-public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> extends RecyclerView.Adapter<VH> {
+public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> extends RecyclerView.Adapter<VH> implements IServiceItemListCallback<T> {
 
     /**
      * Activity which hosts this adapter
@@ -152,9 +154,23 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         return activity;
     }
 
+    public void setOrderer(PageOrderer orderer) {
+        this.orderer = orderer;
+    }
+
     public void setActivity(ItemListActivity<VH, T> activity) {
         this.activity = activity;
         this.orderer = activity == null ? null : activity::maybeOrderPage;
+    }
+
+    @Override
+    public Object getClient() {
+        return activity;
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
+        activity.runOnUiThread(() -> update(count, start, items));
     }
 
     @Override
@@ -245,6 +261,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         } else {
             notifyItemRangeChanged(start, items.size());
         }
+    }
+
+    public void update(List<T> items) {
+        update(items.size(), 0, items);
     }
 
     /**

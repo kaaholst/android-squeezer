@@ -46,6 +46,14 @@
                 android:id="@+id/menu_group_artwork"
                 android:checkableBehavior="single">
                 <item
+                    android:id="@+id/menu_item_grouped"
+                    android:title="@string/settings_layout_grouped"
+                    android:icon="@drawable/ic_action_view_as_list"
+                    app:showAsAction="never"
+                    android:visible="false"
+                    />
+
+                <item
                     android:id="@+id/menu_item_list"
                     android:title="@string/SWITCH_TO_EXTENDED_LIST"
                     android:icon="@drawable/ic_action_view_as_list"

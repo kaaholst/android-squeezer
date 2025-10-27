@@ -102,8 +102,9 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     private Menu viewMenu;
     private MenuItem menuItemLight;
     private MenuItem menuItemDark;
-    private MenuItem menuItemList;
-    private MenuItem menuItemGrid;
+    protected MenuItem menuItemGrouped;
+    protected MenuItem menuItemList;
+    protected MenuItem menuItemGrid;
     private MenuItem menuItemOneLine;
     private MenuItem menuItemTwoLines;
     private MenuItem menuItemAllInfo;
@@ -223,11 +224,6 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
         fastScroller = findViewById(R.id.fastscroller);
@@ -240,7 +236,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         if (listLayout == ArtworkListLayout.grid && !(layoutManager instanceof GridLayoutManager)) {
             list.setLayoutManager(new GridAutofitLayoutManager(this, R.dimen.grid_column_width));
         }
-        if (listLayout == ArtworkListLayout.list && (layoutManager instanceof GridLayoutManager)) {
+        if ((listLayout == ArtworkListLayout.list || listLayout == ArtworkListLayout.grouped) && (layoutManager instanceof GridLayoutManager)) {
             list.setLayoutManager(new LinearLayoutManager(this));
         }
     }
@@ -329,7 +325,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             if (windowStyle != Window.WindowStyle.TEXT_ONLY) {
                 parentViewHolder.icon.setVisibility(View.GONE);
             }
-            adapter.notifyDataSetChanged();
+            adapter.notifyItemRangeChanged(0, adapter.getItemCount());
         }
         if (listLayout != prevListLayout) {
             setupListView(getListView(), listLayout);
@@ -530,12 +526,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     private void setTheme(ThemeManager.Theme theme) {
         if (getThemeId() != theme.themeId) {
             Squeezer.getPreferences().setTheme(theme);
-
-            Intent intent = getIntent();
-            finish();
-            overridePendingTransition(0, 0);
-            startActivity(intent);
-            overridePendingTransition(0, 0);
+            recreate();
         }
     }
 
@@ -578,6 +569,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         MenuCompat.setGroupDividerEnabled(viewMenu, true);
         menuItemLight = viewMenu.findItem(R.id.menu_item_light);
         menuItemDark = viewMenu.findItem(R.id.menu_item_dark);
+        menuItemGrouped = viewMenu.findItem(R.id.menu_item_grouped);
         menuItemList = viewMenu.findItem(R.id.menu_item_list);
         menuItemGrid = viewMenu.findItem(R.id.menu_item_grid);
         menuItemOneLine = viewMenu.findItem(R.id.menu_item_one_line);
@@ -631,7 +623,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         getListView().setAdapter(getListView().getAdapter());
     }
 
-    private void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
+    protected void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
         if (menuItemList != null) {
             Preferences preferences = Squeezer.getPreferences();
 
@@ -640,6 +632,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             boolean canChangeListLayout = JiveItemView.canChangeListLayout(windowStyle);
             viewMenu.setGroupVisible(R.id.menu_group_artwork, canChangeListLayout);
             (listLayout == ArtworkListLayout.list ? menuItemList : menuItemGrid).setChecked(true);
+            menuItemGrouped.setVisible(false);
 
             (switch (preferences.getMaxLines(listLayout)) {
                 case 1 -> menuItemOneLine;

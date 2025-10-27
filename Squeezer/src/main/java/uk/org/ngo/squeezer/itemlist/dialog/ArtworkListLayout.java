@@ -11,6 +11,7 @@ import uk.org.ngo.squeezer.framework.EnumWithText;
  * Supported list layouts.
  */
 public enum ArtworkListLayout implements EnumWithText {
+    grouped(R.string.settings_layout_grouped),
     grid(R.string.SWITCH_TO_GALLERY),
     list(R.string.SWITCH_TO_EXTENDED_LIST);
 

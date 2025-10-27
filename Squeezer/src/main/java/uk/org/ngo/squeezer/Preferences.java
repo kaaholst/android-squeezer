@@ -151,6 +151,9 @@ public final class Preferences {
     // Preferred home menu layout.
     private static final String KEY_HOME_MENU_LAYOUT = "squeezer.home.menu.layout";
 
+    // Preferred home layout.
+    private static final String KEY_HOME_LAYOUT = "squeezer.home.layout";
+
     // Preferred maximum info per item for a given list layout
     public static final String KEY_MAX_LINES_FORMAT = "squeezer.%s.maxLines";
 
@@ -624,6 +627,20 @@ public final class Preferences {
         setListLayout(KEY_HOME_MENU_LAYOUT, artworkListLayout);
     }
 
+    public boolean homeGroups() {
+        return getHomeLayout() == ArtworkListLayout.grouped;
+    }
+
+    /** Get the preferred home menu layout. */
+    public ArtworkListLayout getHomeLayout() {
+        String listLayoutString = sharedPreferences.getString(KEY_HOME_LAYOUT, null);
+        return listLayoutString != null ? ArtworkListLayout.valueOf(listLayoutString) : getHomeMenuLayout();
+    }
+
+    public void setHomeLayout(ArtworkListLayout artworkListLayout) {
+        setListLayout(KEY_HOME_LAYOUT, artworkListLayout);
+    }
+
     /**
      * Get the preferred layout for the specified preference
      * <p>
@@ -722,19 +739,19 @@ public final class Preferences {
     }
 
     @NonNull
-    public List<String> getArchivedMenuItems(Player player) {
-        List<String> list = new ArrayList<>();
+    public Set<String> getArchivedMenuItems(Player player) {
+        Set<String> items = new HashSet<>();
         String string = sharedPreferences.getString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), null);
-        if ( TextUtils.isEmpty(string)) {
-            return list;
+        if (TextUtils.isEmpty(string)) {
+            return items;
         }
-        Collections.addAll(list, string.split(";"));
-        return list;
+        Collections.addAll(items, string.split(";"));
+        return items;
     }
 
-    public void setArchivedMenuItems(List<String> list, Player player) {
+    public void setArchivedMenuItems(Set<String> items, Player player) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), TextUtils.join(";", list));
+        editor.putString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), TextUtils.join(";", items));
         editor.apply();
     }
 

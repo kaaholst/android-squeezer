@@ -37,6 +37,7 @@
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_dark">Mørk</string>
     <string name="settings_theme_light">Lys</string>
+    <string name="settings_layout_grouped">Grupperet</string>
     <string name="settings_screensaver_title">Hold skærmen tændt</string>
     <string name="settings_screensaver_off">Nej</string>
     <string name="settings_screensaver_on">Ja</string>
@@ -262,6 +263,7 @@
     <string name="ARCHIVE_CANNOT_BE_ARCHIVED">Arkivet kan ikke arkiveres!</string>
     <string name="ARCHIVE_NODE_REMOVED">Fjernet tomt arkiv</string>
     <string name="ITEM_CANNOT_BE_ARCHIVED">Dette element kan ikke arkiveres!</string>
+    <string name="SHORTCUTS">Genveje</string>
     <string name="CUSTOM_SHORTCUT_REMOVED">Genvej er fjernet fra startskærmen</string>
     <string name="ITEM_IS_ALREADY_A_SHORTCUT">Er allerede en genvej!</string>
     <string name="ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU">Genvej sat på startmenuen</string>

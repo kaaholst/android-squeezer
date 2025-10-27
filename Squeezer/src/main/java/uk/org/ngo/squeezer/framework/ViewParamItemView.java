@@ -79,6 +79,7 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
     public Button contextMenuButton;
     protected CheckBox contextMenuCheckbox;
     protected RadioButton contextMenuRadio;
+    protected ImageView contextMenuIcon;
 
     private @ViewParam int viewParams;
 
@@ -92,6 +93,7 @@ public class ViewParamItemView<T extends Item> extends ItemViewHolder<T> {
             contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
             contextMenuCheckbox = contextMenuButtonHolder.findViewById(R.id.checkbox);
             contextMenuRadio = contextMenuButtonHolder.findViewById(R.id.radio);
+            contextMenuIcon = contextMenuButtonHolder.findViewById(R.id.icon);
         }
     }
 

@@ -213,19 +213,19 @@ public interface ISqueezeService {
     /**
      * Put menu item into the Archive node
      */
-    boolean toggleArchiveItem(JiveItem item);
+    void toggleArchiveItem(JiveItem item);
 
     /**
      * Check if this is a sub item in the archive
      */
     boolean isInArchive(JiveItem item);
 
-    /**
-     * Trigger the event from another class
-     */
-    void triggerHomeMenuEvent();
-
     HomeMenuHandling getHomeMenuHandling();
+
+    /**
+     * Add the presisted custom shortcuts to the home menu
+     */
+    void setCustomShortcuts();
 
     /**
      * Remove the item after it was long pressed on the home menu screen

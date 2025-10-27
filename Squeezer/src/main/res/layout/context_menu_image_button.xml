@@ -44,5 +44,14 @@ limitations under the License.
         android:clickable="false"
         android:visibility="gone"/>
 
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_keyboard_arrow_right"
+        android:visibility="gone"/>
+
 
 </RelativeLayout>

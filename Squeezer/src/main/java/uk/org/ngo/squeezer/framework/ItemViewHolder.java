@@ -51,6 +51,11 @@ public abstract class ItemViewHolder<T extends Item> extends RecyclerView.ViewHo
         return activity;
     }
 
+    @SuppressWarnings("unchecked")
+    public ItemAdapter<ItemViewHolder<T>, T> getAdapter() {
+        return (ItemAdapter<ItemViewHolder<T>, T>) getBindingAdapter();
+    }
+
 
     /**
      * Display the item's data in this view holders item view.

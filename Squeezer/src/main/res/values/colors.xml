@@ -87,6 +87,8 @@
     <color name="amberLight">#c43e00</color> <!-- + -->
     <color name="amberLightVariant">#c43e00</color>
 
+    <color name="orangeBlack">#241C15</color>
+    <color name="orangeWhite">#F2EEEB</color>
     <color name="orangeDark">#F57C00</color> <!-- ++ -->
     <color name="orangeDarkVariant">#ca9b52</color>
     <color name="orangeLight">#bb4d00</color> <!-- + -->
@@ -127,7 +129,11 @@
     <color name="colorPrimaryVariantLight">@color/lightBlueLightVariant</color>
     <color name="colorSecondaryLight">@color/amberLight</color>
     <color name="colorSecondaryVariantLight">@color/amberLightVariant</color>
+<!--
     <color name="colorAppBarDark">#222222</color>
     <color name="colorAppBarLight">#f6f6f6</color>
+-->
+    <color name="colorAppBarDark">@color/orangeBlack</color>
+    <color name="colorAppBarLight">@color/orangeWhite </color>
 
 </resources>
