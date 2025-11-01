@@ -368,7 +368,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             trackText.setOnClickListener(v13 -> {
                 CurrentTrack song = getCurrentTrack();
                 if (song != null && topBarSearch != null) {
-                    topBarSearch.input.initialText = song.getName();
+                    setTopBarSearchDefaultText(song.getName());
                     JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
                 }
             });
@@ -1009,7 +1009,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         int itemId = item.getItemId();
         if (itemId == R.id.menu_item_search) {
             if (topBarSearch != null) {
-                topBarSearch.input.initialText = "";
+                setTopBarSearchDefaultText("");
                 JiveItemListActivity.show(mActivity, topBarSearch, topBarSearch.goAction);
             }
             return true;
@@ -1040,6 +1040,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+        private void setTopBarSearchDefaultText(String initialText) {
+        if (topBarSearch.input == null) topBarSearch.input = new Input();
+        topBarSearch.input.initialText = initialText;
     }
 
     public void startVisibleConnection(boolean autoConnect) {
@@ -1141,10 +1146,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
         topBarSearch = null;
         for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {
-            if (searchKey.equals(menuItem.getId())) {
-                topBarSearch = menuItem;
-                if (topBarSearch.input == null) topBarSearch.input = new Input();
-            }
+            if (searchKey.equals(menuItem.getId())) topBarSearch = menuItem;
         }
         if (menuItemSearch != null) menuItemSearch.setVisible(topBarSearch != null);
     }

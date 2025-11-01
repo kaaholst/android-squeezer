@@ -68,6 +68,7 @@ import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.RefreshWindow;
@@ -141,6 +142,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         Window window = (savedInstanceState != null ? savedInstanceState.getParcelable("window") : null);
         updateHeader(window);
 
+        if (isGrouped() && !parent.hasInputField()) parent.input = new Input();
         findViewById(R.id.plugin_input_til).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
         if (hasInputField()) {
             final EditText inputText = findViewById(R.id.plugin_input);
