@@ -62,4 +62,14 @@ class JiveItemAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> im
         JiveItem item = getItem(position);
         return (item != null ? item.textkey : "");
     }
+
+    @Override
+    public int getActiveCount() {
+        int n = 0;
+        for (int p = 0; p < getItemCount(); p++) {
+            JiveItem item = item(p);
+            if (item == null || item.isSelectable()) n++;
+        }
+        return n;
+    }
 }

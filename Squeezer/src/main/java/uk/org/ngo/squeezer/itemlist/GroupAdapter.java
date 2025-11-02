@@ -125,7 +125,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getBindingAdapterPosition());
 
             text1.setText(item.getName());
-            text2.setText(String.valueOf(childAdapterHolder.adapter.getItemCount()));
+            text2.setText(String.valueOf(childAdapterHolder.adapter.getActiveCount()));
 
             @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_up : R.drawable.ic_keyboard_arrow_down);
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), drawableRes));

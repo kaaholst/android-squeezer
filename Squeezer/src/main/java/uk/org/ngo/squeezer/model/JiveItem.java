@@ -133,6 +133,7 @@ public class JiveItem extends Item {
     public Input input;
     public String inputValue;
     public Window window;
+    private boolean empty;
     public boolean doAction;
     public Action goAction;
     public Action playAction;
@@ -227,11 +228,11 @@ public class JiveItem extends Item {
 
 
     public boolean isSelectable() {
-        return (goAction != null || nextWindow != null || hasSubItems()|| node != null || checkbox != null || !webLink.equals(Uri.EMPTY));
+        return !empty && (goAction != null || nextWindow != null || hasSubItems() || node != null || checkbox != null || !webLink.equals(Uri.EMPTY));
     }
 
     public boolean hasContextMenu() {
-        return (playAction != null || addAction != null || insertAction != null || moreAction != null || checkbox != null || radio != null);
+        return !empty && (playAction != null || addAction != null || insertAction != null || moreAction != null || checkbox != null || radio != null);
     }
 
     public Map<String, Object> getRecord() {
@@ -259,6 +260,9 @@ public class JiveItem extends Item {
         onClick = RefreshWindow.fromString(getString(record, baseRecord, "onClick"));
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"), baseWindow);
+
+        // Check for empty items
+        empty = "none".equals(getString(record, "action")) && "itemNoAction".equals(getString(record, "style"));
 
         // do takes precedence over go
         goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
@@ -332,6 +336,7 @@ public class JiveItem extends Item {
         insertAction = source.readParcelable(getClass().getClassLoader());
         moreAction = source.readParcelable(getClass().getClassLoader());
         subItems = source.createTypedArrayList(JiveItem.CREATOR);
+        empty = (source.readByte() != 0);
         doAction = (source.readByte() != 0);
         showBigArtwork = (source.readByte() != 0);
         selectedIndex = source.readInt();
@@ -373,6 +378,7 @@ public class JiveItem extends Item {
         dest.writeParcelable(insertAction, flags);
         dest.writeParcelable(moreAction, flags);
         dest.writeTypedList(subItems);
+        dest.writeByte((byte) (empty ? 1 : 0));
         dest.writeByte((byte) (doAction ? 1 : 0));
         dest.writeByte((byte) (showBigArtwork ? 1 : 0));
         dest.writeInt(selectedIndex);

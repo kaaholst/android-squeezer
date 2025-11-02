@@ -136,6 +136,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         return count;
     }
 
+    public int getActiveCount() {
+        return count;
+    }
+
     private T[] getPage(int position) {
         int pageNumber = pageNumber(position);
         T[] page = pages.get(pageNumber);
@@ -158,8 +162,12 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         }
     }
 
+    protected T item(int position) {
+        return getPage(position)[position % pageSize];
+    }
+
     public T getItem(int position) {
-        T item = getPage(position)[position % pageSize];
+        T item = item(position);
         if (item == null) {
             orderer.maybeOrderPage(pageNumber(position) * pageSize);
         }
