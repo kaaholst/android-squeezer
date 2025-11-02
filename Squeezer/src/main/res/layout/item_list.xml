@@ -16,23 +16,39 @@
  limitations under the License.
 -->
 
-<com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fastscroller"
-    app:handleDrawable="@drawable/thumb_drawable"
-    app:handleHeight="32dp"
-    app:handleVisibilityDuration="1000"
-    app:popupDrawable="@drawable/popup_drawable"
-    app:popupTextStyle="@style/SqueezerTextAppearance.ItemList.Popup"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/item_list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:clipToPadding="false"
-        tools:listitem="@layout/list_item"/>
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loading_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true" />
 
-</com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+    <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+        android:id="@+id/fastscroller"
+        app:handleDrawable="@drawable/thumb_drawable"
+        app:handleHeight="32dp"
+        app:handleVisibilityDuration="1000"
+        app:popupDrawable="@drawable/popup_drawable"
+        app:popupTextStyle="@style/SqueezerTextAppearance.ItemList.Popup"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/item_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:clipToPadding="false"
+            tools:listitem="@layout/list_item"/>
+
+    </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+
+</LinearLayout>

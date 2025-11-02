@@ -128,21 +128,6 @@
         android:layout_height="fill_parent"
         android:layout_weight="1"/>
 
-    <LinearLayout
-        android:id="@+id/loading_label"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/empty_view"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

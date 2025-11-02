@@ -148,13 +148,18 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             final EditText inputText = findViewById(R.id.plugin_input);
             TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             inputTextLayout.setHint(TextUtils.isEmpty(parent.input.title) ? this.window.text : parent.input.title);
+            inputText.post(() -> {
+                inputText.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                imm.showSoftInput(inputText, InputMethodManager.SHOW_IMPLICIT);
+            });
             inputText.setText(parent.input.initialText);
             parent.inputValue = parent.input.initialText;
 
             inputText.setOnKeyListener((v, keyCode, event) -> {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN)
                         && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    clearAndReOrderItems(inputText.getText().toString(), inputText);
+                    clearAndReOrderItems(inputText.getText().toString());
                     return true;
                 }
                 return false;
@@ -171,7 +176,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
                         if (TextUtils.isEmpty(s)) {
                             clearItems();
                         } else {
-                            job[0] = () -> clearAndReOrderItems(inputText.getText().toString(), inputText);
+                            job[0] = () -> clearAndReOrderItems(inputText.getText().toString());
                             handler.postDelayed(job[0], 1000);
                         }
                     }
@@ -189,7 +194,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
                 }
                 inputText.setInputType(inputType);
                 inputTextLayout.setEndIconDrawable(R.drawable.keyboard_return);
-                inputTextLayout.setEndIconOnClickListener(v -> clearAndReOrderItems(inputText.getText().toString(), inputText));
+                inputTextLayout.setEndIconOnClickListener(v -> clearAndReOrderItems(inputText.getText().toString()));
             }
         }
     }
@@ -336,14 +341,10 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
 
-    private void clearAndReOrderItems(String inputString, View focusView) {
+    private void clearAndReOrderItems(String inputString) {
         if (getService() != null && !TextUtils.isEmpty(inputString)) {
             parent.inputValue = inputString;
             clearAndReOrderItems();
-
-            focusView.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
         }
     }
 
@@ -423,7 +424,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         super.onItemsReceived(count, start, parameters, items, dataType);
 
         boolean hasTextKey = items.stream().anyMatch(item -> !TextUtils.isEmpty(item.textkey));
-        fastScroller.popupTextView.setVisibility(hasTextKey ? View.VISIBLE : View.GONE);
+        runOnUiThread(() -> fastScroller.popupTextView.setVisibility(hasTextKey ? View.VISIBLE : View.GONE));
     }
 
     @Override

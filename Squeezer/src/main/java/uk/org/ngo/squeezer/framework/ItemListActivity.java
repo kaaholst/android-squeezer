@@ -227,7 +227,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     }
 
     private void showLoading() {
-        subActivityContent.setVisibility(View.GONE);
+        subActivityContent.setVisibility(View.VISIBLE);
         loadingProgress.setVisibility(View.VISIBLE);
         emptyView.setVisibility(View.GONE);
     }
