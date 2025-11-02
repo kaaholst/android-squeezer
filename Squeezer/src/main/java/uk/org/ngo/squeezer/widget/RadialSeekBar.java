@@ -146,19 +146,10 @@ public class RadialSeekBar extends View {
         }
 
         switch (getLabelStyle()) {
-            case 0:
-                textPaint.setTypeface(plainLabel);
-                break;
-            case 1:
-                textPaint.setTypeface(Typeface.create(plainLabel, Typeface.BOLD));
-                break;
-            case 2:
-                textPaint.setTypeface(Typeface.create(plainLabel, Typeface.ITALIC));
-                break;
-            case 3:
-                textPaint.setTypeface(Typeface.create(plainLabel, Typeface.BOLD_ITALIC));
-                break;
-
+            case 0 -> textPaint.setTypeface(plainLabel);
+            case 1 -> textPaint.setTypeface(Typeface.create(plainLabel, Typeface.BOLD));
+            case 2 -> textPaint.setTypeface(Typeface.create(plainLabel, Typeface.ITALIC));
+            case 3 -> textPaint.setTypeface(Typeface.create(plainLabel, Typeface.BOLD_ITALIC));
         }
 
     }

@@ -128,17 +128,10 @@ public class ConnectActivity extends BaseActivity {
         serverAddress.setError(null);
         userName.setError(null);
 
-
         switch (disconnectionReason) {
-            case CONNECTION_FAILED:
-                serverAddress.setError(getString(R.string.connection_failed_text));
-                break;
-            case LOGIN_FAILED:
-                userName.setError(getString(R.string.login_failed_text));
-                break;
-            case INVALID_URL:
-                serverAddress.setError(getString(R.string.invalid_url_text));
-                break;
+            case CONNECTION_FAILED -> serverAddress.setError(getString(R.string.connection_failed_text));
+            case LOGIN_FAILED -> userName.setError(getString(R.string.login_failed_text));
+            case INVALID_URL -> serverAddress.setError(getString(R.string.invalid_url_text));
         }
     }
 

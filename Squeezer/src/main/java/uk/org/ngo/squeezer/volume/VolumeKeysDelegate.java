@@ -15,24 +15,18 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 public class VolumeKeysDelegate {
 
     public static boolean onKeyDown(int keyCode, ISqueezeService service) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                return adjustVolume(1, service);
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                return adjustVolume(-1, service);
-            default:
-                return false;
-        }
+        return switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP -> adjustVolume(1, service);
+            case KeyEvent.KEYCODE_VOLUME_DOWN -> adjustVolume(-1, service);
+            default -> false;
+        };
     }
 
     public static boolean onKeyUp(int keyCode) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                return true;
-            default:
-                return false;
-        }
+        return switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> true;
+            default -> false;
+        };
     }
 
     private static boolean adjustVolume(int direction, ISqueezeService service) {

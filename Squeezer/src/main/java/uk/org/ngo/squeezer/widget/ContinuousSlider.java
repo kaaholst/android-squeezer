@@ -41,12 +41,12 @@ public class ContinuousSlider extends AppCompatSeekBar {
     public boolean onTouchEvent(MotionEvent event) {
         if (!isEnabled()) return false;
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN -> {
                 lastValue = calculateValue(event);
                 listener.onStartTrackingTouch(this);
                 lastPointerId = event.getPointerId(event.getActionIndex());
-                break;
-            case MotionEvent.ACTION_MOVE:
+            }
+            case MotionEvent.ACTION_MOVE -> {
                 setPressed(true);
 
                 // If pointer id has changed set last value instead of moving
@@ -61,16 +61,16 @@ public class ContinuousSlider extends AppCompatSeekBar {
                 move(value);
                 listener.onProgressChanged(this, getProgress(), true);
                 lastValue = value;
-                break;
-            case MotionEvent.ACTION_UP:
+            }
+            case MotionEvent.ACTION_UP -> {
                 setPressed(false);
                 performClick();
                 listener.onStopTrackingTouch(this);
-                break;
-            case MotionEvent.ACTION_CANCEL:
+            }
+            case MotionEvent.ACTION_CANCEL -> {
                 setPressed(false);
                 listener.onStopTrackingTouch(this);
-                break;
+            }
         }
         return true;
     }

@@ -90,12 +90,12 @@ public class Action implements Parcelable {
         if (action != null && action.params.containsValue(TAGGEDINPUT_PLACEHOLDER)) {
             for (Map.Entry<String, Object> entry : action.params.entrySet()) {
                 if (TAGGEDINPUT_PLACEHOLDER.equals(entry.getValue())) {
-                    switch (entry.getKey()) {
-                        case "search": return InputType.SEARCH;
-                        case "email": return InputType.EMAIL;
-                        case "password": return InputType.PASSWORD;
-                        default: return InputType.TEXT;
-                    }
+                    return switch (entry.getKey()) {
+                        case "search" -> InputType.SEARCH;
+                        case "email" -> InputType.EMAIL;
+                        case "password" -> InputType.PASSWORD;
+                        default -> InputType.TEXT;
+                    };
                 }
             }
         }

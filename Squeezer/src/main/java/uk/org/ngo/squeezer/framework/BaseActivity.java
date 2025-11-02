@@ -486,17 +486,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (currentDownloadItem != null) {
-                        requireService().downloadItem(currentDownloadItem);
-                        currentDownloadItem = null;
-                    } else
-                        Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (currentDownloadItem != null) {
+                    requireService().downloadItem(currentDownloadItem);
+                    currentDownloadItem = null;
                 } else
-                    Toast.makeText(this, R.string.DOWNLOAD_REQUIRES_WRITE_PERMISSION, Toast.LENGTH_LONG).show();
-                break;
+                    Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
+            } else
+                Toast.makeText(this, R.string.DOWNLOAD_REQUIRES_WRITE_PERMISSION, Toast.LENGTH_LONG).show();
         }
     }
 

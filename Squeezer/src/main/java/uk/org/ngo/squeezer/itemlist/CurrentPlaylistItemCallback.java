@@ -54,21 +54,21 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
     public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
         super.onSelectedChanged(viewHolder, actionState);
         switch (actionState) {
-            case ItemTouchHelper.ACTION_STATE_SWIPE:
-                break;
-            case ItemTouchHelper.ACTION_STATE_DRAG:
-                if (viewHolder != null)  {
+            case ItemTouchHelper.ACTION_STATE_SWIPE -> {
+            }
+            case ItemTouchHelper.ACTION_STATE_DRAG -> {
+                if (viewHolder != null) {
                     itemPosition = viewPosition = viewHolder.getBindingAdapterPosition();
                 }
-                break;
-            case ItemTouchHelper.ACTION_STATE_IDLE:
+            }
+            case ItemTouchHelper.ACTION_STATE_IDLE -> {
                 ISqueezeService service = activity.getService();
                 if (viewPosition != itemPosition && service != null) {
                     service.playlistMove(itemPosition, viewPosition);
                     activity.skipPlaylistChanged();
                 }
                 itemPosition = viewPosition = -1;
-                break;
+            }
         }
     }
 

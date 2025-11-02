@@ -183,15 +183,11 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
                 });
                 inputTextLayout.setEndIconMode(TextInputLayout.END_ICON_CLEAR_TEXT);
             } else {
-                int inputType = EditorInfo.TYPE_CLASS_TEXT;
-                switch (action.getInputType()) {
-                    case EMAIL:
-                        inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
-                        break;
-                    case PASSWORD:
-                        inputType |= EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
-                        break;
-                }
+                int inputType = EditorInfo.TYPE_CLASS_TEXT | switch (action.getInputType()) {
+                    case EMAIL -> EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                    case PASSWORD -> EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
+                    default -> 0;
+                };
                 inputText.setInputType(inputType);
                 inputTextLayout.setEndIconDrawable(R.drawable.keyboard_return);
                 inputTextLayout.setEndIconOnClickListener(v -> clearAndReOrderItems(inputText.getText().toString()));
@@ -375,15 +371,9 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         if (parameters.containsKey("goNow")) {
             Action.NextWindow nextWindow = Action.NextWindow.fromString(Util.getString(parameters, "goNow"));
             switch (nextWindow.nextWindow) {
-                case nowPlaying:
-                    NowPlayingActivity.show(this);
-                    break;
-                case playlist:
-                    CurrentPlaylistActivity.show(this);
-                    break;
-                case home:
-                    HomeActivity.show(this);
-                    break;
+                case nowPlaying -> NowPlayingActivity.show(this);
+                case playlist -> CurrentPlaylistActivity.show(this);
+                case home -> HomeActivity.show(this);
             }
             finish();
             return;
@@ -462,66 +452,46 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         if (nextWindow != null) {
             Log.d(TAG, "nextWindow(" + nextWindow.nextWindow +")");
             switch (nextWindow.nextWindow) {
-                case nowPlaying:
+                case nowPlaying -> {
                     // Do nothing as now playing is always available in Squeezer (maybe toast the action)
-                    break;
-                case playlist:
-                    CurrentPlaylistActivity.show(this);
-                    break;
-                case home:
-                    HomeActivity.show(this);
-                    break;
-                case parentNoRefresh:
-                    finish();
-                    break;
-                case grandparent:
+                }
+                case playlist -> CurrentPlaylistActivity.show(this);
+                case home -> HomeActivity.show(this);
+                case parentNoRefresh -> finish();
+                case grandparent -> {
                     setResult(Activity.RESULT_OK, new Intent(RELOAD_PARENT));
                     finish();
-                    break;
-                case refresh:
-                    clearAndReOrderItems();
-                    break;
-                case parent:
-                case refreshOrigin:
+                }
+                case refresh -> clearAndReOrderItems();
+                case parent,
+                     refreshOrigin -> {
                     setResult(Activity.RESULT_OK, new Intent(RELOAD));
                     finish();
-                    break;
-                case windowId:
+                }
+                case windowId -> {
                     setResult(Activity.RESULT_OK, new Intent(WINDOW).putExtra(WINDOW_EXTRA, nextWindow.windowId));
                     finish();
-                    break;
+                }
             }
         }
     }
 
     private Action.NextWindow popNextWindow(Action.NextWindow nextWindow) {
-        switch (nextWindow.nextWindow) {
-            case parent:
-            case parentNoRefresh:
-                return null;
-            case grandparent:
-                return new Action.NextWindow(Action.NextWindowEnum.parentNoRefresh);
-            case refreshOrigin:
-                return new Action.NextWindow(Action.NextWindowEnum.refresh);
-            default:
-                return nextWindow;
-
-        }
+        return switch (nextWindow.nextWindow) {
+            case parent, parentNoRefresh -> null;
+            case grandparent -> new Action.NextWindow(Action.NextWindowEnum.parentNoRefresh);
+            case refreshOrigin -> new Action.NextWindow(Action.NextWindowEnum.refresh);
+            default -> nextWindow;
+        };
     }
 
     private void setRefreshWindow(RefreshWindow refreshWindow) {
         if (refreshWindow != null) {
             Log.i(TAG, "setRefreshWindow: " + refreshWindow);
             switch (refreshWindow) {
-                case refreshMe:
-                    clearAndReOrderItems();
-                    break;
-                case refreshOrigin:
-                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
-                    break;
-                case refreshGrandparent:
-                    setResult(Activity.RESULT_OK, new Intent(RELOAD_ON_FINISH));
-                    break;
+                case refreshMe -> clearAndReOrderItems();
+                case refreshOrigin -> setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                case refreshGrandparent -> setResult(Activity.RESULT_OK, new Intent(RELOAD_ON_FINISH));
             }
         }
     }
@@ -671,17 +641,11 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             viewMenu.setGroupVisible(R.id.menu_group_artwork, canChangeListLayout);
             (listLayout == ArtworkListLayout.list ? menuItemList : menuItemGrid).setChecked(true);
 
-            switch (preferences.getMaxLines(listLayout)) {
-                case 1:
-                    menuItemOneLine.setChecked(true);
-                    break;
-                case 2:
-                    menuItemTwoLines.setChecked(true);
-                    break;
-                default:
-                    menuItemAllInfo.setChecked(true);
-                    break;
-            }
+            (switch (preferences.getMaxLines(listLayout)) {
+                case 1 -> menuItemOneLine;
+                case 2 -> menuItemTwoLines;
+                default -> menuItemAllInfo;
+            }).setChecked(true);
 
             menuItemFlatIcons.setChecked(preferences.useFlatIcons());
         }

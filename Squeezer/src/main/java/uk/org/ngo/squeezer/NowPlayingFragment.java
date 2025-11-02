@@ -1087,32 +1087,21 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         }
 
         switch (event.connectionState) {
-            case MANUAL_DISCONNECT:
-            case DISCONNECTED:
+            case MANUAL_DISCONNECT, DISCONNECTED -> {
                 dismissConnectingDialog();
                 ConnectActivity.show(mActivity);
-                break;
-            case CONNECTION_STARTED:
-                showConnectingDialog();
-                break;
-            case CONNECTION_FAILED:
+            }
+            case CONNECTION_STARTED -> showConnectingDialog();
+            case CONNECTION_FAILED -> {
                 dismissConnectingDialog();
                 switch (event.connectionError) {
-                    case LOGIN_FALIED:
-                        ConnectActivity.showLoginFailed(mActivity);
-                        break;
-                    case INVALID_URL:
-                        ConnectActivity.showInvalidUrl(mActivity);
-                        break;
-                    case START_CLIENT_ERROR:
-                    case CONNECTION_ERROR:
-                        ConnectActivity.showConnectionFailed(mActivity);
-                        break;
+                    case LOGIN_FALIED -> ConnectActivity.showLoginFailed(mActivity);
+                    case INVALID_URL -> ConnectActivity.showInvalidUrl(mActivity);
+                    case START_CLIENT_ERROR, CONNECTION_ERROR -> ConnectActivity.showConnectionFailed(mActivity);
                 }
-                break;
-            case CONNECTION_COMPLETED:
-            case REHANDSHAKING:
-                break;
+            }
+            case CONNECTION_COMPLETED, REHANDSHAKING -> {
+            }
         }
      }
 

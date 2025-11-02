@@ -409,15 +409,12 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
             }
 
             switch (scrollState) {
-                case RecyclerView.SCROLL_STATE_IDLE:
+                case RecyclerView.SCROLL_STATE_IDLE -> {
                     mListScrolling = false;
                     maybeOrderVisiblePages(listView);
-                    break;
-
-                case RecyclerView.SCROLL_STATE_SETTLING:
-                case RecyclerView.SCROLL_STATE_DRAGGING:
+                }
+                case RecyclerView.SCROLL_STATE_SETTLING, RecyclerView.SCROLL_STATE_DRAGGING ->
                     mListScrolling = true;
-                    break;
             }
 
             mPrevScrollState = scrollState;

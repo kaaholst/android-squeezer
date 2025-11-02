@@ -190,21 +190,11 @@ public class SqueezeService extends Service {
         try{
             if(intent != null && intent.getAction()!= null ) {
                 switch (intent.getAction()) {
-                    case ACTION_NEXT_TRACK:
-                        squeezeService.nextTrack();
-                        break;
-                    case ACTION_PREV_TRACK:
-                        squeezeService.previousTrack();
-                        break;
-                    case ACTION_PLAY:
-                        squeezeService.play();
-                        break;
-                    case ACTION_PAUSE:
-                        squeezeService.pause();
-                        break;
-                    case ACTION_CLOSE:
-                        disconnect(true);
-                        break;
+                    case ACTION_NEXT_TRACK -> squeezeService.nextTrack();
+                    case ACTION_PREV_TRACK -> squeezeService.previousTrack();
+                    case ACTION_PLAY -> squeezeService.play();
+                    case ACTION_PAUSE -> squeezeService.pause();
+                    case ACTION_CLOSE -> disconnect(true);
                 }
             }
         } catch(Exception e) {
@@ -1097,19 +1087,16 @@ public class SqueezeService extends Service {
                 return false;
 
             switch (playStatus) {
-                case PlayerState.PLAY_STATE_PLAY:
+                case PlayerState.PLAY_STATE_PLAY ->
                     // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
                     // because then we'd get confused when they came back in to us, not being
                     // able to differentiate ours coming back on the listen channel vs. those
                     // of those idiots at the dinner party messing around.
-                    mDelegate.command(player).cmd("pause", "1").exec();
-                    return true;
-                case PlayerState.PLAY_STATE_STOP:
-                    mDelegate.command(player).cmd("play", fadeInSecs()).exec();
-                    return true;
-                case PlayerState.PLAY_STATE_PAUSE:
-                    mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
-                    return true;
+                        mDelegate.command(player).cmd("pause", "1").exec();
+                case PlayerState.PLAY_STATE_STOP ->
+                        mDelegate.command(player).cmd("play", fadeInSecs()).exec();
+                case PlayerState.PLAY_STATE_PAUSE ->
+                        mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
             }
 
             return true;
