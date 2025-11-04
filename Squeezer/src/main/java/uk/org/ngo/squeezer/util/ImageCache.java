@@ -23,12 +23,9 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 import androidx.collection.LruCache;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -100,33 +97,6 @@ public class ImageCache {
      */
     public ImageCache(Context context, String uniqueName) {
         init(new ImageCacheParams(context, uniqueName));
-    }
-
-    /**
-     * Find and return an existing ImageCache stored in a {@link RetainFragment}, if not found a new
-     * one is created using the supplied params and saved to a {@link RetainFragment}.
-     *
-     * @param fragmentManager The fragment manager to use when dealing with the retained fragment.
-     * @param cacheParams The cache parameters to use if creating the ImageCache
-     *
-     * @return An existing retained ImageCache object or a new one if one did not exist
-     */
-    public static ImageCache findOrCreateCache(
-            FragmentManager fragmentManager, ImageCacheParams cacheParams) {
-
-        // Search for, or create an instance of the non-UI RetainFragment
-        final RetainFragment mRetainFragment = RetainFragment.getInstance(TAG, fragmentManager);
-
-        // See if we already have an ImageCache stored in RetainFragment
-        ImageCache imageCache = (ImageCache) mRetainFragment.get(TAG);
-
-        // No existing ImageCache, create one and store it in RetainFragment
-        if (imageCache == null) {
-            imageCache = new ImageCache(cacheParams);
-            mRetainFragment.put(TAG, imageCache);
-        }
-
-        return imageCache;
     }
 
     /**

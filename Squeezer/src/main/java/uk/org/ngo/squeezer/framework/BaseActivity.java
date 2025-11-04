@@ -47,6 +47,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -69,7 +70,6 @@ import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.DevicePlayers;
-import uk.org.ngo.squeezer.util.RetainFragment;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 import uk.org.ngo.squeezer.volume.VolumeKeysDelegate;
@@ -100,10 +100,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     private Toast lastShownToast;
 
-    /**
-     * Fragment to retain information across the activity lifecycle.
-     */
-    private RetainFragment mRetainFragment;
+    /** Holds information to be retained across activity lifecycle */
+    private StateHolder stateHolder;
 
     /**
      * @return The {@link ISqueezeService}, or null if not bound
@@ -175,16 +173,15 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         });
 
         devicePlayers = new DevicePlayers(this);
-        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
+        stateHolder = new ViewModelProvider(this).get(StateHolder.class);
     }
 
-    @SuppressWarnings("unchecked")
     protected <T> T getRetainedValue(String key) {
-        return (T) mRetainFragment.get(key);
+        return stateHolder.get(key);
     }
 
-    protected Object putRetainedValue(String key, Object value) {
-        return mRetainFragment.put(key, value);
+    protected <T> void putRetainedValue(String key, T value) {
+        stateHolder.put(key, value);
     }
 
     @Override
