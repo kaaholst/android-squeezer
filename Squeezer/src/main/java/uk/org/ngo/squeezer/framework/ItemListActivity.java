@@ -217,7 +217,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         super.onServiceConnected(service);
         repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
-        repository().observe(this, this::onActivePlayerChanged);
+        repository().observe(this, (ActivePlayerChanged event) -> setPlayer(event.player));
         repository().observe(this, (RefreshEvent event) -> clearAndReOrderItems());
         repository().observe(this, (PlayerVolume event) -> {
             if (event.player == requireService().getActivePlayer()) {
@@ -316,32 +316,27 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         }
     }
 
-    /**
-     * Update the UI with the player change
-     */
-    private void onActivePlayerChanged(ActivePlayerChanged event) {
-        Log.i(TAG, "ActivePlayerChanged: " + event.player);
-        String activePlayerId = (event.player != null ? event.player.getId() : "");
-        putRetainedValue(TAG_PLAYER_ID, activePlayerId);
-        supportInvalidateOptionsMenu();
-        if (event.player == null) {
-            showEmptyView();
-        } else {
-            clearAndReOrderItems();
+    /** Update the UI if the player changed */
+    private void setPlayer(Player player) {
+        String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
+        String activePlayerId = (player != null ? player.getId() : "");
+        if (!activePlayerId.equals(oldPlayerId)) {
+            Log.i(TAG, "setPlayer(" + player + ")");
+            putRetainedValue(TAG_PLAYER_ID, activePlayerId);
+            supportInvalidateOptionsMenu();
+            if (player == null) {
+                showEmptyView();
+            } else {
+                clearAndReOrderItems();
+                volumeBar.update(requireService().getVolume());
+            }
         }
-        if (event.player != null) volumeBar.update(requireService().getVolume());
     }
 
     private void onHandshakeComplete() {
         Log.i(TAG, "Handshake complete");
-        String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
         Player activePlayer = requireService().getActivePlayer();
-        String activePlayerId = (activePlayer != null ? activePlayer.getId() : "");
-        putRetainedValue(TAG_PLAYER_ID, activePlayerId);
-        if (oldPlayerId != null && !oldPlayerId.equals(activePlayerId)) {
-            onActivePlayerChanged(new ActivePlayerChanged(activePlayer));
-        }
-
+        setPlayer(activePlayer);
         if (activePlayer != null) {
             volumeBar.update(requireService().getVolume());
             maybeOrderVisiblePages(getListView());
@@ -394,7 +389,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         LinearLayoutManager layoutManager = (LinearLayoutManager) listView.getLayoutManager();
         int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
         if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
-            clearAndReOrderItems();
+            maybeOrderPage(0);
         } else {
             int pos = (firstVisibleItemPosition / mPageSize) * mPageSize;
             int end = firstVisibleItemPosition + listView.getChildCount();
