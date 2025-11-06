@@ -174,7 +174,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
                     public void afterTextChanged(Editable s) {
                         if (job[0] != null) handler.removeCallbacks(job[0]);
                         if (TextUtils.isEmpty(s)) {
-                            clearItems();
+                            getItemAdapter().clear();
                         } else {
                             job[0] = () -> clearAndReOrderItems(inputText.getText().toString());
                             handler.postDelayed(job[0], 1000);
@@ -353,14 +353,14 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
+    protected void orderPage(int start) {
         if (parent != null) {
             if (parent.hasSubItems()) {
                 onItemsReceived(parent.subItems.size(), 0, parent.subItems);
             } else if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
             } else
-                service.pluginItems(start, parent, action, this);
+                requireService().pluginItems(start, parent, action, this);
         }
     }
 
@@ -696,7 +696,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
      * When input is ready or the action does not require input, items are ordered asynchronously
      * via {@link ISqueezeService#pluginItems(int, JiveItem, Action, IServiceItemListCallback)}
      *
-     * @see #orderPage(ISqueezeService, int)
+     * @see #orderPage(int)
      */
     public static void show(Activity activity, JiveItem parent, Action action) {
         if (activity instanceof JiveItemListActivity) {

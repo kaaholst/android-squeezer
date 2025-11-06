@@ -26,7 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Item;
@@ -51,6 +53,12 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      */
     private BaseActivity activity;
     private PageOrderer orderer;
+
+    /** The pages that have been requested from the server. */
+    private final Set<Integer> orderedPages = new HashSet<>();
+
+    /** The pages that have been received from the server */
+    private final Set<Integer> receivedPages = new HashSet<>();
 
     /**
      * List of items, possibly headed with an empty item.
@@ -83,8 +91,8 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     /**
      * @see #ItemAdapter(BaseActivity, PageOrderer)
      * */
-    public ItemAdapter(ItemListActivity activity) {
-        this(activity, activity);
+    public ItemAdapter(ItemListActivity<VH, T> activity) {
+        this(activity, activity::maybeOrderPage);
     }
 
     private int pageNumber(int position) {
@@ -92,11 +100,29 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     }
 
     /**
-     * Removes all items from this adapter leaving it empty.
+     * Orders a page worth of data, starting at the specified position, if it has not already been
+     * ordered, and if the service is connected and the handshake has completed.
+     *
+     * @param pagePosition position in the list to start the fetch.
      */
+    public void maybeOrderPage(int pagePosition) {
+        if (!receivedPages.contains(pagePosition) && !orderedPages.contains(pagePosition) ) {
+            orderer.orderPage(pagePosition);
+            orderedPages.add(pagePosition);
+        }
+    }
+
+    /** Removes any outstanding requests from mOrderedPages. */
+    public void cancelOrders() {
+        orderedPages.clear();
+    }
+
+    /** Removes all items from this adapter leaving it empty. */
     public void clear() {
         count = 0;
         pages.clear();
+        orderedPages.clear();
+        receivedPages.clear();
         notifyDataSetChanged();
     }
 
@@ -126,9 +152,9 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         return activity;
     }
 
-    public void setActivity(ItemListActivity activity) {
+    public void setActivity(ItemListActivity<VH, T> activity) {
         this.activity = activity;
-        this.orderer = activity;
+        this.orderer = activity == null ? null : activity::maybeOrderPage;
     }
 
     @Override
@@ -169,7 +195,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     public T getItem(int position) {
         T item = item(position);
         if (item == null) {
-            orderer.maybeOrderPage(pageNumber(position) * pageSize);
+            maybeOrderPage(pageNumber(position) * pageSize);
         }
         return item;
     }
@@ -196,6 +222,19 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * @param items New items to insert in the main list
      */
     public void update(int count, int start, List<T> items) {
+        int size = items.size();
+        // If this doesn't add any items, then don't register the page as received
+        if (start < count && size != 0) {
+            // Because we might receive a page in chunks, we test if this is the end of a page
+            // before we register the page as received.
+            if (((start + size) % pageSize == 0) || (start + size == count)) {
+                // Add this page of data to mReceivedPages and remove from mOrderedPages.
+                int pageStart = (start / pageSize) * pageSize;
+                receivedPages.add(pageStart);
+                orderedPages.remove(pageStart);
+            }
+        }
+
         boolean countUpdated = (count == 0 || count != getItemCount());
 
         setItems(start, items);
@@ -317,7 +356,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     }
 
     public interface PageOrderer {
-        void maybeOrderPage(int pagePosition);
+        void orderPage(int pagePosition);
     }
 
 }

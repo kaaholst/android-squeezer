@@ -32,7 +32,7 @@ import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
-public class ContextMenu extends BottomSheetDialogFragmentWithService implements IServiceItemListCallback<JiveItem>, ItemAdapter.PageOrderer {
+public class ContextMenu extends BottomSheetDialogFragmentWithService implements IServiceItemListCallback<JiveItem> {
     public static final String TAG = ContextMenu.class.getSimpleName();
 
     private Stack<Pair<JiveItem, Action>> contextStack;
@@ -65,7 +65,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        Squeezer.getInstance().repository().observe(this, (HandshakeComplete event) -> maybeOrderPage(0));
+        Squeezer.getInstance().repository().observe(this, (HandshakeComplete event) -> orderPage(0));
     }
 
     public void show(JiveItem item, Action action) {
@@ -76,7 +76,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
     private void show() {
         updateHeader(requireView());
         adapter.clear();
-        maybeOrderPage(0);
+        orderPage(0);
     }
 
     private void updateHeader(View view) {
@@ -188,8 +188,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         return this;
     }
 
-    @Override
-    public void maybeOrderPage(int pagePosition) {
+    public void orderPage(int pagePosition) {
         Pair<JiveItem, Action> pair = contextStack.peek();
         if (pair.second != null) {
             divider.setVisibility(View.GONE);
@@ -216,7 +215,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
 
     private class ContextMenuAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         public ContextMenuAdapter(BaseActivity activity) {
-            super(activity, ContextMenu.this);
+            super(activity, ContextMenu.this::orderPage);
         }
 
         @Override

@@ -47,7 +47,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
     }
 
     @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
+    protected void orderPage(int start) {
         // Do nothing we get the home menu from the sticky HomeMenuEvent
     }
 
@@ -77,7 +77,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
     }
 
     public void onHomeMenuEvent(HomeMenuEvent event) {
-        clearItemAdapter();
+        getItemAdapter().clear();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

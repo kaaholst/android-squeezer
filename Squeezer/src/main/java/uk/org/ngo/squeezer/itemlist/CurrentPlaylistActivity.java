@@ -95,8 +95,8 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     }
 
     @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.pluginItems(start, "status", this);
+    protected void orderPage(int start) {
+        requireService().pluginItems(start, "status", this);
     }
 
     @Override
@@ -214,7 +214,6 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         }
         if (event.player.equals(getService().getActivePlayer())) {
             clearAndReOrderItems();
-            getItemAdapter().notifyDataSetChanged();
         }
     }
 

@@ -161,12 +161,12 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
     }
 
     @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.alarms(start, this);
+    protected void orderPage(int start) {
+        requireService().alarms(start, this);
         if (start == 0) {
-            mActivePlayer = service.getActivePlayer();
-            service.alarmPlaylists(alarmPlaylistsCallback);
-            service.requestServerStatus();
+            mActivePlayer = requireService().getActivePlayer();
+            requireService().alarmPlaylists(alarmPlaylistsCallback);
+            requireService().requestServerStatus();
             bindPreferences();
         }
     }

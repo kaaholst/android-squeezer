@@ -30,10 +30,8 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -65,7 +63,7 @@ import uk.org.ngo.squeezer.widget.ViewUtilities;
  *
  * @author Kurt Aaholst
  */
-public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends Item> extends BaseActivity implements IServiceItemListCallback<T>, ItemAdapter.PageOrderer {
+public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends Item> extends BaseActivity implements IServiceItemListCallback<T> {
 
     private static final String TAG = ItemListActivity.class.getSimpleName();
 
@@ -78,16 +76,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * The number of items per page.
      */
     protected int mPageSize;
-
-    /**
-     * The pages that have been requested from the server.
-     */
-    private final Set<Integer> mOrderedPages = new HashSet<>();
-
-    /**
-     * The pages that have been received from the server
-     */
-    private Set<Integer> mReceivedPages;
 
     /**
      * Progress bar while items are loading.
@@ -111,11 +99,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
 
     /** Volume bar */
     private VolumeBar volumeBar;
-
-    /**
-     * Tag for mReceivedPages in mRetainFragment.
-     */
-    private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
 
     /**
      * Tag for player id in mRetainFragment.
@@ -181,12 +164,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         ViewUtilities.setInsetsListener(findViewById(R.id.top_app_bar), false, false, false);
         ViewUtilities.setInsetsListener(subActivityContent, false, false, false);
         ViewUtilities.setInsetsListener(findViewById(R.id.now_playing_fragment), false, true, false);
-
-        mReceivedPages = getRetainedValue(TAG_RECEIVED_PAGES);
-        if (mReceivedPages == null) {
-            mReceivedPages = new HashSet<>();
-            putRetainedValue(TAG_RECEIVED_PAGES, mReceivedPages);
-        }
     }
 
     @Override
@@ -210,7 +187,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         // Any items coming in after callbacks have been unregistered are discarded.
         // We cancel any outstanding orders, so items can be reordered after the
         // activity resumes.
-        cancelOrders();
+        getItemAdapter().cancelOrders();
     }
 
     @Override
@@ -248,11 +225,9 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * Starts an asynchronous fetch of items from the server. Will only be called after the
      * service connection has been bound.
      *
-     * @param service The connection to the bound service.
-     * @param start Position in list to start the fetch. Pass this on to {@link
-     *     uk.org.ngo.squeezer.service.SqueezeService}
+     * @param start Position in list to start the fetch. Pass this on to {@link ISqueezeService}
      */
-    protected abstract void orderPage(@NonNull ISqueezeService service, int start);
+    protected abstract void orderPage(int start);
 
     public ArtworkListLayout getPreferredListLayout() {
         return Squeezer.getPreferences().getAlbumListLayout();
@@ -286,34 +261,8 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         return itemAdapter;
     }
 
-    /**
-     * List can clear any information about which items have been received and ordered, by calling
-     * {@link #clearAndReOrderItems()}. This will call back to this method, which must clear any
-     * adapters holding items.
-     */
-    protected void clearItemAdapter() {
-        getItemAdapter().clear();
-    }
-
-    /**
-     * Call back from {@link #onItemsReceived(int, int, List)}
-     */
-    protected void updateAdapter(int count, int start, List<T> items) {
-        getItemAdapter().update(count, start, items);
-    }
-
-    /**
-     * Orders a page worth of data, starting at the specified position, if it has not already been
-     * ordered, and if the service is connected and the handshake has completed.
-     *
-     * @param pagePosition position in the list to start the fetch.
-     */
     public void maybeOrderPage(int pagePosition) {
-        if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages.contains(pagePosition) ) {
-            ISqueezeService service = requireService();
-            orderPage(service, pagePosition);
-            mOrderedPages.add(pagePosition);
-        }
+        if (!mListScrolling) orderPage(pagePosition);
     }
 
     /** Update the UI if the player changed */
@@ -389,13 +338,13 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         LinearLayoutManager layoutManager = (LinearLayoutManager) listView.getLayoutManager();
         int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
         if (firstVisibleItemPosition == RecyclerView.NO_POSITION) {
-            maybeOrderPage(0);
+            getItemAdapter().maybeOrderPage(0);
         } else {
             int pos = (firstVisibleItemPosition / mPageSize) * mPageSize;
             int end = firstVisibleItemPosition + listView.getChildCount();
 
             while (pos < end) {
-                maybeOrderPage(pos);
+                getItemAdapter().maybeOrderPage(pos);
                 pos += mPageSize;
             }
         }
@@ -407,7 +356,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * Subclasses <b>must</b> call this method when receiving data from the server to ensure that
      * internal bookkeeping about pages that have/have not been ordered is kept consistent.
      * <p>
-     * This will call back to {@link #updateAdapter(int, int, List)} on the UI thread
+     * This will call back to {@link ItemAdapter#update(int, int, List)} on the UI thread
      *
      * @param count The total number of items known by the server.
      * @param start The start position of this update.
@@ -415,24 +364,10 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      */
     @CallSuper
     protected void onItemsReceived(final int count, final int start, final List<T> items) {
-        int size = items.size();
-        Log.d(TAG, "onItemsReceived(" + count + ", " + start + ", " + size + ")");
-
-        // If this doesn't add any items, then don't register the page as received
-        if (start < count && size != 0) {
-            // Because we might receive a page in chunks, we test if this is the end of a page
-            // before we register the page as received.
-            if (((start + size) % mPageSize == 0) || (start + size == count)) {
-                // Add this page of data to mReceivedPages and remove from mOrderedPages.
-                int pageStart = (start / mPageSize) * mPageSize;
-                mReceivedPages.add(pageStart);
-                mOrderedPages.remove(pageStart);
-            }
-        }
-
+        Log.d(TAG, "onItemsReceived(" + count + ", " + start + ", " + items.size() + ")");
         runOnUiThread(() -> {
             showContent();
-            updateAdapter(count, start, items);
+            getItemAdapter().update(count, start, items);
         });
     }
 
@@ -448,23 +383,9 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         if (requireService().getActivePlayer() != null) {
             Log.i(TAG, "clearAndReOrderItems()");
             showLoading();
-            clearItems();
-            maybeOrderPage(0);
+            getItemAdapter().clear();
+            getItemAdapter().maybeOrderPage(0);
         }
-    }
-
-    /** Empty the variables that track which pages have been requested. */
-    public void clearItems() {
-        mOrderedPages.clear();
-        mReceivedPages.clear();
-        clearItemAdapter();
-    }
-
-    /**
-     * Removes any outstanding requests from mOrderedPages.
-     */
-    private void cancelOrders() {
-        mOrderedPages.clear();
     }
 
     @Override
