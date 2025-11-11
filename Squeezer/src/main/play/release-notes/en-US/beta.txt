@@ -1,3 +1,9 @@
-&bull; Update French translations, thanks to Guiv42
+&bull; Fix artist displayed twice on now playing bottom section
 
-&bull; Show error if device player cannot be started
+&bull; Orientation change does not reload items
+
+&bull; Empty items in search results, are not selectable and not counted
+
+&bull; Show keyboard and keep it up in search pages
+
+&bull; Fix assorted potential crashes

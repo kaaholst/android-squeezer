@@ -2,6 +2,21 @@
 
 <changelog>
     <release
+        version="2.3.12"
+        versioncode="152">
+
+        <change>Fix artist displayed twice on now playing bottom section</change>
+
+        <change>Orientation change does not reload items</change>
+
+        <change>Empty items in search results, are not selectable and not counted</change>
+
+        <change>Show keyboard and keep it up in search pages</change>
+
+        <change>Fix assorted potential crashes</change>
+    </release>
+
+    <release
         version="2.3.11"
         versioncode="150">
 

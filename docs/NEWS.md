@@ -3,6 +3,20 @@ description: Changelog
 permalink: /changelog/
 ---
 
+2.3.12
+======
+
+*   Fix artist displayed twice on now playing bottom section
+
+*   Orientation change does not reload items
+
+*   Empty items in search results, are not selectable and not counted
+
+*   Show keyboard and keep it up in search pages
+
+*   Fix assorted potential crashes
+
+
 2.3.11
 ======
 
