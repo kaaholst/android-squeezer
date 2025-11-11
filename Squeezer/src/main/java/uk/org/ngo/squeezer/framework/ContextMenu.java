@@ -85,8 +85,8 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
 
         JiveItem item = contextStack.peek().first;
         text1.setText(item.getName());
-        text2.setText(item.text2);
-        text2.setVisibility(TextUtils.isEmpty(item.text2) ? View.GONE : View.VISIBLE);
+        text2.setText(item.text2());
+        text2.setVisibility(TextUtils.isEmpty(item.text2()) ? View.GONE : View.VISIBLE);
         if (contextStack.size() > 1) {
             icon.setVisibility(View.VISIBLE);
             icon.setImageResource(R.drawable.ic_keyboard_arrow_left);

@@ -117,7 +117,7 @@ public class JiveItem extends Item {
 
     private String record;
     @NonNull private String name = "";
-    public String text2;
+    private String text2;
     @NonNull public String textkey = "";
     @NonNull private Uri icon = Uri.EMPTY;
     public String iconStyle;

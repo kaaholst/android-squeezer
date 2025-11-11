@@ -52,11 +52,11 @@ public class CurrentTrack extends JiveItem {
 
     @Override
     public String text2() {
-        return songInfo.album.isEmpty() ? super.text2() : songInfo.album;
+        return songInfo.album.isEmpty() ? super.text2() : Util.joinSkipEmpty(" - ", songInfo.getArtist(), songInfo.album);
     }
 
-    public String artistAlbum() {
-        return Util.joinSkipEmpty(" - ", songInfo.getArtist(), text2);
+    public String album() {
+        return songInfo.album.isEmpty() ? super.text2() : songInfo.album;
     }
 
     @Override

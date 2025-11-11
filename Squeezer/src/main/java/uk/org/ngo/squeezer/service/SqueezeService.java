@@ -470,7 +470,7 @@ public class SqueezeService extends Service {
                 CurrentTrack song = player.getPlayerState().getCurrentTrack();
                 if (song != null) {
                     builder.setContentTitle(song.getName());
-                    builder.setContentText(song.artistAlbum());
+                    builder.setContentText(song.text2());
                 }
                 builder.setSubText(notificationSubtext(player));
             }

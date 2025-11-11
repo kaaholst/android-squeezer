@@ -771,7 +771,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 }
                 else {
                     // standard view
-                    albumText.setText(song.text2());
+                    albumText.setText(song.album());
                     albumText.setVisibility(View.VISIBLE);
                 }
 
@@ -816,7 +816,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                     artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.getBand(),song.songInfo.getConductor()));
                 }
                 else {
-                    artistAlbumText.setText(song.artistAlbum());
+                    artistAlbumText.setText(song.text2());
                 }
                 artistAlbumText.setSelected(true);
             }

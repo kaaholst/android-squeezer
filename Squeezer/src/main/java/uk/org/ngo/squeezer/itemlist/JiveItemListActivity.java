@@ -280,9 +280,9 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             parentViewHolder.text1.setText(window.text);
         }
 
-        if (parent != null && !TextUtils.isEmpty(parent.text2)) {
+        if (parent != null && !TextUtils.isEmpty(parent.text2())) {
             parentViewHolder.text2.setVisibility(View.VISIBLE);
-            parentViewHolder.text2.setText(parent.text2);
+            parentViewHolder.text2.setText(parent.text2());
         }
 
         if (parent != null && parent.hasIcon()) {
