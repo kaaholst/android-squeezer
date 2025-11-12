@@ -321,8 +321,8 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         ArtworkListLayout listLayout = JiveItemView.listLayout(getPreferredListLayout(), windowStyle);
         updateViewMenuItems(listLayout, windowStyle);
         ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter = getItemAdapter();
-        if (windowStyle != null && adapter instanceof JiveItemAdapter) {
-            ((JiveItemAdapter)adapter).setWindowStyle(getPreferredListLayout(), windowStyle);
+        if (windowStyle != null && adapter instanceof JiveItemAdapter jiveItemAdapter) {
+            jiveItemAdapter.setWindowStyle(getPreferredListLayout(), windowStyle);
         }
         if (windowStyle != window.windowStyle || listLayout != prevListLayout) {
             window.windowStyle = windowStyle;
@@ -663,8 +663,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
      * @see #orderPage(int)
      */
     public static void show(Activity activity, JiveItem parent, Action action) {
-        if (activity instanceof JiveItemListActivity) {
-            JiveItemListActivity jiveItemListActivity = (JiveItemListActivity) activity;
+        if (activity instanceof JiveItemListActivity jiveItemListActivity) {
             Action parentAction = jiveItemListActivity.action;
             if (parentAction != null && parentAction.isPlayerSpecific() && !action.isPlayerSpecific()) {
                 Player player = jiveItemListActivity.requireService().getActivePlayer();

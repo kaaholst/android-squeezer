@@ -143,7 +143,7 @@ public class Util {
     }
 
     public static double getDouble(Object value, double defaultValue) {
-        return (value instanceof Number) ? ((Number) value).doubleValue() : parseDouble((String) value, defaultValue);
+        return (value instanceof Number number) ? number.doubleValue() : parseDouble((String) value, defaultValue);
     }
 
     public static long getLong(Map<String, Object> record, String fieldName) {
@@ -155,7 +155,7 @@ public class Util {
     }
 
     public static long getLong(Object value, long defaultValue) {
-        return (value instanceof Number) ? ((Number) value).intValue() : parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number number) ? number.intValue() : parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Map<String, Object> record, String fieldName) {
@@ -167,7 +167,7 @@ public class Util {
     }
 
     public static int getInt(Object value, int defaultValue) {
-        return (value instanceof Number) ? ((Number) value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number number) ? number.intValue() : (int) parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Object value) {
@@ -194,7 +194,7 @@ public class Util {
 
     public static String getString(Object value, String defaultValue) {
         if (value == null) return defaultValue;
-        return (value instanceof String) ? (String) value : value.toString();
+        return (value instanceof String s) ? s : value.toString();
     }
 
     public static String[] getCommaSeparatedStringArray(Map<String, Object> record, String fieldName) {
@@ -394,8 +394,7 @@ public class Util {
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+        if (drawable instanceof BitmapDrawable bitmapDrawable) {
             if(bitmapDrawable.getBitmap() != null) {
                 return bitmapDrawable.getBitmap();
             }

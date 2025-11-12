@@ -260,8 +260,8 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         context.startActivity(intent);
-        if (context instanceof Activity) {
-            ((Activity) context).overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+        if (context instanceof Activity activity) {
+            activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
         }
     }
 

@@ -124,15 +124,13 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 json(sb, indent+1, null, o);
             }
             json(sb, indent, null, "]");
-        } else if (object instanceof List) {
-            List<?> list = (List<?>) object;
+        } else if (object instanceof List<?> list) {
             sb.append("[\n");
             for (Object o : list) {
                 json(sb, indent+1, null, o);
             }
             json(sb, indent, null, "]");
-        } else if (object instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) object;
+        } else if (object instanceof Map<?, ?> map) {
             sb.append("{\n");
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 json(sb, indent+1, entry.getKey() + ": ", entry.getValue());

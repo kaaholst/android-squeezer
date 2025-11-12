@@ -81,8 +81,8 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
             final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
-            if (window != null && window.windowStyle != null && adapter instanceof JiveItemAdapter) {
-                ((JiveItemAdapter)adapter).setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
+            if (window != null && window.windowStyle != null && adapter instanceof JiveItemAdapter jiveItemAdapter) {
+                jiveItemAdapter.setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
             }
             activity.runOnUiThread(() -> {
                 adapter.update(count, start, items);
@@ -130,7 +130,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_up : R.drawable.ic_keyboard_arrow_down);
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), drawableRes));
             subList.setAdapter(childAdapterHolder.adapter);
-            ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof JiveItemAdapter) ? ((JiveItemAdapter) childAdapterHolder.adapter).getListLayout() : ArtworkListLayout.list;
+            ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof JiveItemAdapter jiveItemAdapter) ? jiveItemAdapter.getListLayout() : ArtworkListLayout.list;
             getActivity().setupListView(subList, listLayout);
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
             if (childAdapterHolder.visible && !childAdapterHolder.ordered) {

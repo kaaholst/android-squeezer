@@ -423,8 +423,7 @@ public abstract class ImageWorker {
     private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+            if (drawable instanceof AsyncDrawable asyncDrawable) {
                 return asyncDrawable.getBitmapWorkerTask();
             }
         }

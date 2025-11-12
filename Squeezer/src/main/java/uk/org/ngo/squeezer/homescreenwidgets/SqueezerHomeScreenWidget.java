@@ -47,9 +47,8 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
                 isBound = true;
                 final ServiceConnection serviceConnection = this;
 
-                if (name != null && service1 instanceof ISqueezeService) {
+                if (name != null && service1 instanceof ISqueezeService squeezeService) {
                     Log.i(SqueezerHomeScreenWidget.TAG, "onServiceConnected connected to ISqueezeService");
-                    final ISqueezeService squeezeService = (ISqueezeService) service1;
 
                     // Wait for the PlayersChanged event
                     Squeezer.getInstance().repository().observeForever((PlayersChanged event) -> {

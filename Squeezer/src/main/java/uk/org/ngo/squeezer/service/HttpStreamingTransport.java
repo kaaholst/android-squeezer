@@ -489,8 +489,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     advice = _advice;
                 if (advice != null) {
                     Object timeout = advice.get(Message.TIMEOUT_FIELD);
-                    if (timeout instanceof Number)
-                        maxNetworkDelay += ((Number) timeout).intValue();
+                    if (timeout instanceof Number number)
+                        maxNetworkDelay += number.intValue();
                     else if (timeout != null)
                         maxNetworkDelay += Integer.parseInt(timeout.toString());
                 }

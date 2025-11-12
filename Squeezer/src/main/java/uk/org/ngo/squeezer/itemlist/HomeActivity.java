@@ -94,8 +94,8 @@ public class HomeActivity extends HomeMenuActivity {
             intent = intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         context.startActivity(intent);
-        if (context instanceof Activity) {
-            ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        if (context instanceof Activity activity) {
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
     }
 

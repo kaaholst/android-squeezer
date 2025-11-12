@@ -101,8 +101,8 @@ public class ConnectActivity extends BaseActivity {
     private static void show(Activity activity, @DisconnectionReasons int disconnectionReason) {
         // If the activity is already running then make sure the header message is appropriate
         // and stop, as there's no need to start another instance of the activity.
-        if (activity instanceof ConnectActivity) {
-            ((ConnectActivity) activity).setErrorMessageFromReason(disconnectionReason);
+        if (activity instanceof ConnectActivity connectActivity) {
+            connectActivity.setErrorMessageFromReason(disconnectionReason);
             return;
         }
 

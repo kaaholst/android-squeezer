@@ -48,9 +48,7 @@ public class Reflection {
         Type type = genericArgumentNumber < genericTypes.length
                 ? genericTypes[genericArgumentNumber] : null;
 
-        if (type instanceof Class<?>) {
-            return (Class<?>) type;
-        }
+        if (type instanceof Class<?> aClass) return aClass;
         return null;
     }
 
@@ -120,9 +118,8 @@ public class Reflection {
             Type[] actualTypeArguments = mapTypeArguments(currentClass, genericInterfaces[ifno],
                     pActualTypeArguments);
 
-            if (genericInterfaces[ifno] instanceof ParameterizedType) {
-                if (baseInterface
-                        .equals(((ParameterizedType) genericInterfaces[ifno]).getRawType())) {
+            if (genericInterfaces[ifno] instanceof ParameterizedType parameterizedType) {
+                if (baseInterface.equals(parameterizedType.getRawType())) {
                     return actualTypeArguments;
                 }
             }
@@ -149,9 +146,7 @@ public class Reflection {
      */
     private static Type[] mapTypeArguments(Class<?> currentClass, Type type,
             Type[] actualTypeArguments) {
-        if (type instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) type;
-
+        if (type instanceof ParameterizedType pType) {
             if (actualTypeArguments == null) {
                 return pType.getActualTypeArguments();
             }
