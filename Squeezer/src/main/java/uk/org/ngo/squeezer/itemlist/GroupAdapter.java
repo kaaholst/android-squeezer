@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
 
 class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
+    private static final int SUBLIST_UPDATED = 1;
     private final List<ChildAdapterHolder> childAdapterHolders = new ArrayList<>();
 
     public GroupAdapter(JiveItemListActivity activity) {
@@ -37,7 +38,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
 
     @Override
     protected int getItemViewType(JiveItem item) {
-        return item == null ? R.layout.list_item_pending : R.layout.group_item;
+        return R.layout.group_item;
     }
 
     @Override
@@ -46,12 +47,21 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ItemViewHolder<JiveItem> holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.contains(SUBLIST_UPDATED)) {
+            ((GroupView)holder).updateCount(childAdapterHolders.get(position).adapter);
+        } else {
+            onBindViewHolder(holder, position);
+        }
+    }
+
+    @Override
     public void update(int count, int start, List<JiveItem> items) {
         super.update(count, start, items);
         for (int i = 0; i < items.size(); i++) {
             JiveItem item = items.get(i);
             ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> childAdapter = ("opml".equals(item.getType())) ? new GroupAdapter(getActivity()) : new JiveItemAdapter(getActivity());
-            ChildAdapterHolder childAdapterHolder = new ChildAdapterHolder(getActivity(), this, i, childAdapter);
+            ChildAdapterHolder childAdapterHolder = new ChildAdapterHolder(childAdapter, this, i);
             childAdapterHolders.add(childAdapterHolder);
             item.inputValue = getActivity().parent.inputValue;
         }
@@ -63,36 +73,22 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
         childAdapterHolders.clear();
     }
 
-    static class ChildAdapterHolder implements IServiceItemListCallback<JiveItem> {
+    static class ChildAdapterHolder {
         boolean ordered = false;
         boolean visible = false;
-        private final JiveItemListActivity activity;
-        private final GroupAdapter parent;
         private final ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter;
-        private final int position;
 
-        public ChildAdapterHolder(JiveItemListActivity activity, GroupAdapter parent, int position, ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter) {
-            this.activity = activity;
-            this.parent = parent;
-            this.position = position;
+        public ChildAdapterHolder(ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter, GroupAdapter parent, int position) {
             this.adapter = adapter;
-        }
-
-        @Override
-        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
-            final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
-            if (window != null && window.windowStyle != null && adapter instanceof JiveItemAdapter jiveItemAdapter) {
-                jiveItemAdapter.setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
-            }
-            activity.runOnUiThread(() -> {
-                adapter.update(count, start, items);
-                parent.notifyItemChanged(position);
+            adapter.setItemReceiver((int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) -> {
+                if (adapter instanceof JiveItemAdapter jiveItemAdapter) {
+                    final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
+                    if (window != null && window.windowStyle != null) {
+                        jiveItemAdapter.setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
+                    }
+                }
+                parent.notifyItemChanged(position, SUBLIST_UPDATED);
             });
-        }
-
-        @Override
-        public Object getClient() {
-            return activity;
         }
     }
 
@@ -113,29 +109,34 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
                 if (position != RecyclerView.NO_POSITION) {
                     ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(position);
                     childAdapterHolder.visible = !childAdapterHolder.visible;
-
                     notifyItemChanged(position);
                 }
             });
+        }
+
+        public void updateCount(ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter) {
+            ArtworkListLayout listLayout = (adapter instanceof JiveItemAdapter jiveItemAdapter) ? jiveItemAdapter.getListLayout() : ArtworkListLayout.list;
+            getActivity().setupListView(subList, listLayout);
+            text2.setText(String.valueOf(adapter.getActiveCount()));
+            subList.setAdapter(adapter);
         }
 
         @Override
         public void bindView(JiveItem item) {
             super.bindView(item);
             ChildAdapterHolder childAdapterHolder = childAdapterHolders.get(getBindingAdapterPosition());
+            ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> adapter = childAdapterHolder.adapter;
 
             text1.setText(item.getName());
-            text2.setText(String.valueOf(childAdapterHolder.adapter.getActiveCount()));
+            updateCount(adapter);
 
             @DrawableRes int drawableRes = (childAdapterHolder.visible ? R.drawable.ic_keyboard_arrow_up : R.drawable.ic_keyboard_arrow_down);
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), drawableRes));
-            subList.setAdapter(childAdapterHolder.adapter);
-            ArtworkListLayout listLayout = (childAdapterHolder.adapter instanceof JiveItemAdapter jiveItemAdapter) ? jiveItemAdapter.getListLayout() : ArtworkListLayout.list;
-            getActivity().setupListView(subList, listLayout);
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
             if (childAdapterHolder.visible && !childAdapterHolder.ordered) {
                 childAdapterHolder.ordered = true;
-                getActivity().requireService().pluginItems(0, item, item.goAction, childAdapterHolder);
+                adapter.setOrderer(pagePosition -> getActivity().requireService().pluginItems(pagePosition, item, item.goAction, adapter));
+                adapter.maybeOrderPage(0);
             }
             text2.setVisibility(childAdapterHolder.ordered ? View.VISIBLE : View.GONE);
         }

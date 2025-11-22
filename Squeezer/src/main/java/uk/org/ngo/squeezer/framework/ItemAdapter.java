@@ -33,6 +33,7 @@ import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemReceiver;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.util.Reflection;
 
@@ -55,6 +56,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      */
     private BaseActivity activity;
     private PageOrderer orderer;
+    private ItemReceiver<T> itemReceiver;
 
     /** The pages that have been requested from the server. */
     private final Set<Integer> orderedPages = new HashSet<>();
@@ -158,6 +160,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
         this.orderer = orderer;
     }
 
+    public void setItemReceiver(ItemReceiver<T> handler) {
+        this.itemReceiver = handler;
+    }
+
     public void setActivity(ItemListActivity<VH, T> activity) {
         this.activity = activity;
         this.orderer = activity == null ? null : activity::maybeOrderPage;
@@ -170,7 +176,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
-        activity.runOnUiThread(() -> update(count, start, items));
+        activity.runOnUiThread(() -> {
+            if (itemReceiver != null) itemReceiver.onItemsReceived(count, start, parameters, items, dataType);
+            update(count, start, items);
+        });
     }
 
     @Override
