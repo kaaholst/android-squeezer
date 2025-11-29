@@ -57,6 +57,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
     private BaseActivity activity;
     private PageOrderer orderer;
     private ItemReceiver<T> itemReceiver;
+    private boolean listScrolling;
 
     /** The pages that have been requested from the server. */
     private final Set<Integer> orderedPages = new HashSet<>();
@@ -96,7 +97,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * @see #ItemAdapter(BaseActivity, PageOrderer)
      * */
     public ItemAdapter(ItemListActivity<VH, T> activity) {
-        this(activity, activity::maybeOrderPage);
+        this(activity, activity::orderPage);
     }
 
     private int pageNumber(int position) {
@@ -110,7 +111,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
      * @param pagePosition position in the list to start the fetch.
      */
     public void maybeOrderPage(int pagePosition) {
-        if (!receivedPages.contains(pagePosition) && !orderedPages.contains(pagePosition) ) {
+        if (!listScrolling && !receivedPages.contains(pagePosition) && !orderedPages.contains(pagePosition) ) {
             orderer.orderPage(pagePosition);
             orderedPages.add(pagePosition);
         }
@@ -166,7 +167,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     public void setActivity(ItemListActivity<VH, T> activity) {
         this.activity = activity;
-        this.orderer = activity == null ? null : activity::maybeOrderPage;
+        this.orderer = activity == null ? null : activity::orderPage;
     }
 
     @Override
@@ -382,6 +383,10 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
             }
         }
         return _itemCreator;
+    }
+
+    public void setListScrolling(boolean listScrolling) {
+        this.listScrolling = listScrolling;
     }
 
     public interface PageOrderer {

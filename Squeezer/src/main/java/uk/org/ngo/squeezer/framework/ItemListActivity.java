@@ -68,11 +68,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     private static final String TAG = ItemListActivity.class.getSimpleName();
 
     /**
-     * The list is being actively scrolled by the user
-     */
-    private boolean mListScrolling;
-
-    /**
      * The number of items per page.
      */
     protected int mPageSize;
@@ -261,10 +256,6 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         return itemAdapter;
     }
 
-    public void maybeOrderPage(int pagePosition) {
-        if (!mListScrolling) orderPage(pagePosition);
-    }
-
     /** Update the UI if the player changed */
     private void setPlayer(Player player) {
         String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
@@ -330,7 +321,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * Orders pages that correspond to visible rows in the listview.
      * <p>
      * Computes the pages that correspond to the rows that are currently being displayed by the
-     * listview, and calls {@link #maybeOrderPage(int)} to fetch the page if necessary.
+     * listview, and calls {@link ItemAdapter#maybeOrderPage(int)} to fetch the page if necessary.
      *
      * @param listView The listview with visible rows.
      */
@@ -399,32 +390,19 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * When the list is idle, new pages of data are fetched from the server.
      */
     private class ScrollListener extends RecyclerView.OnScrollListener {
-
-        private int mPrevScrollState = RecyclerView.SCROLL_STATE_IDLE;
+        private int prevScrollState = RecyclerView.SCROLL_STATE_IDLE;
 
         @Override
         public void onScrollStateChanged(@NonNull RecyclerView listView, int scrollState) {
-            if (scrollState == mPrevScrollState) {
-                return;
-            }
+            if (scrollState == prevScrollState) return;
+            prevScrollState = scrollState;
 
-            switch (scrollState) {
-                case RecyclerView.SCROLL_STATE_IDLE -> {
-                    mListScrolling = false;
-                    maybeOrderVisiblePages(listView);
-                }
-                case RecyclerView.SCROLL_STATE_SETTLING, RecyclerView.SCROLL_STATE_DRAGGING ->
-                    mListScrolling = true;
-            }
+            boolean listScrolling = (scrollState != RecyclerView.SCROLL_STATE_IDLE);
+            getItemAdapter().setListScrolling(listScrolling);
+            if (!listScrolling) maybeOrderVisiblePages(listView);
 
-            mPrevScrollState = scrollState;
-
-            /*
-             * Pauses cache disk fetches if the user is flinging the list, or if their finger is still
-             * on the screen.
-             */
-            ImageFetcher.getInstance(ItemListActivity.this).setPauseWork(scrollState == RecyclerView.SCROLL_STATE_SETTLING ||
-                    scrollState == RecyclerView.SCROLL_STATE_DRAGGING);
+            // Pauses cache disk fetches if the list is scrolling
+            ImageFetcher.getInstance(ItemListActivity.this).setPauseWork(listScrolling);
         }
     }
 }
