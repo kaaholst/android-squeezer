@@ -711,6 +711,7 @@ class CometClient extends BaseClient {
 
     @Override
     protected  <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
+        if (mBayeuxClient == null) return;;
         Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
         ItemListener<?> listener = mItemRequestMap.get(callbackClass);
         if (listener == null) {
