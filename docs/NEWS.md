@@ -3,6 +3,18 @@ description: Changelog
 permalink: /changelog/
 ---
 
+2.4.0
+=====
+
+*   Home screen optionally organized with a horizontal list for each item.
+
+*   Fix issue where lists are not filled after scrolling
+
+*   Target Android 16
+
+*   Do not attempt pending commands to LMS after disconnect
+
+
 2.3.12
 ======
 

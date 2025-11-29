@@ -21,7 +21,7 @@ values.
 Edit `Squeezer/src/main/res/xml/changelog_master.xml` with the details.
 Run `git log x.y.z..develop` to see what's changed (where x.y.z is previous release)
 
-### Update the `produktion.txt` or `beta.txt` release-note files.
+### Update the `default.txt` release-note files.
 
 Run `./gradlew generateWhatsNew` to update the files.
 
@@ -41,7 +41,8 @@ Squeezer works correctly.
 
 ### Update the screenshots (if necessary).
 
-Take new screenshots for market/screenshots.
+Take new screenshots for market/screenshots, and commit them.
+Run `./gradlew publishListing`
 
 ### Commit the changes
 

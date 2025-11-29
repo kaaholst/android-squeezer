@@ -46,8 +46,8 @@ android {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
 
-        versionCode 152
-        versionName "2.3.12"
+        versionCode 154
+        versionName "2.4.0"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -120,11 +120,7 @@ def publishTrack() {
 whatsnew {
     changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
     newsPath = 'docs/NEWS.md'
-    if (publishTrack() == 'beta') {
-        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/beta.txt'
-    } else {
-        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/production.txt'
-    }
+    whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/default.txt'
 }
 
 play {
