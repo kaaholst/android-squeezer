@@ -342,18 +342,12 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     }
 
     /**
-     * Tracks items that have been received from the server.
-     * <p>
-     * Subclasses <b>must</b> call this method when receiving data from the server to ensure that
-     * internal bookkeeping about pages that have/have not been ordered is kept consistent.
-     * <p>
      * This will call back to {@link ItemAdapter#update(int, int, List)} on the UI thread
      *
      * @param count The total number of items known by the server.
      * @param start The start position of this update.
      * @param items The items received in this update
      */
-    @CallSuper
     protected void onItemsReceived(final int count, final int start, final List<T> items) {
         Log.d(TAG, "onItemsReceived(" + count + ", " + start + ", " + items.size() + ")");
         runOnUiThread(() -> {
