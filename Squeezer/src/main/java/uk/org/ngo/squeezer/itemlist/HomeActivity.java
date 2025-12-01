@@ -73,6 +73,12 @@ public class HomeActivity extends HomeMenuActivity {
     }
 
     @Override
+    public void recreate() {
+        putRetainedValue(TAG_ADAPTER, null);
+        super.recreate();
+    }
+
+    @Override
     protected ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> createItemListAdapter() {
         return new JiveItemAdapter(this) {
             private final List<JiveItemAdapter> childAdapters = new ArrayList<>();

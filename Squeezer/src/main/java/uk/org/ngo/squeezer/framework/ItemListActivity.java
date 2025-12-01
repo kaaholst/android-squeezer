@@ -108,7 +108,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     /**
      * Tag for itemAdapter in mRetainFragment.
      */
-    private static final String TAG_ADAPTER = "adapter";
+    protected static final String TAG_ADAPTER = "adapter";
 
     private ItemAdapter<VH, T> itemAdapter;
 
