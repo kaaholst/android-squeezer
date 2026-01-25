@@ -41,6 +41,8 @@
     <string name="settings_screensaver_title">Keep screen on</string>
     <string name="settings_screensaver_off">No</string>
     <string name="settings_screensaver_on">Yes</string>
+    <string name="settings_fullscreen_off">No</string>
+    <string name="settings_fullscreen_on">Yes</string>
     <string name="settings_screensaver_clock">Show clock when idle</string>
     <string name="settings_show_track_number">Track number</string>
     <string name="settings_show_technical_info">Technical info (bitrate, etc)</string>
@@ -297,4 +299,5 @@
     <string name="volume">Volume</string>
     <string name="don_t_show_volume_control">Don\'t show volume slider</string>
     <string name="show_volume_control">Show volume slider</string>
+    <string name="fullscreen_mode">Fullscreen mode</string>
 </resources>

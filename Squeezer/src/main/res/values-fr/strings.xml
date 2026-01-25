@@ -185,6 +185,8 @@
     <string name="settings_screensaver_title">Garder l\'écran allumé</string>
     <string name="settings_screensaver_off">Non</string>
     <string name="settings_screensaver_on">Oui</string>
+    <string name="settings_fullscreen_off">Non</string>
+    <string name="settings_fullscreen_on">Oui</string>
     <string name="settings_screensaver_clock">Montrer l\'heure si inactif</string>
     <string name="settings_show_track_number">Numéro de piste</string>
     <string name="settings_top_bar_search">Barre de recherche supérieure</string>
@@ -268,4 +270,5 @@
     <string name="settings_customize_customShortcut_info">Un appui long place le raccourci sur l\'écran d\'accueil</string>
     <string name="MENU_ITEM_MOVED">"Item ajouté (ou retiré) de l'archive "</string>
     <string name="MENU_IS_SUBMENU_IN_ARCHIVE">Vous êtes déjà dans une archive !</string>
+    <string name="fullscreen_mode">Mode plein écran</string>
 </resources>

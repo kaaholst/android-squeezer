@@ -193,6 +193,9 @@ public final class Preferences {
     // Screensaver
     public static final String KEY_SCREENSAVER = "squeezer.screensaver";
 
+    // Fullscreen Mode
+    public static final String KEY_FULLSCREEN = "squeezer.fullscreen";
+
     // Which top bar search to use
     static final String KEY_TOP_BAR_SEARCH = "squeezer.top_bar.search";
 
@@ -567,7 +570,10 @@ public final class Preferences {
         String string = sharedPreferences.getString(KEY_SCREENSAVER, null);
         return string == null ? ScreensaverMode.OFF : ScreensaverMode.valueOf(string);
     }
-
+    public FullScreenMode getFullScreenMode() {
+        String string = sharedPreferences.getString(KEY_FULLSCREEN, null);
+        return string == null ? FullScreenMode.OFF : FullScreenMode.valueOf(string);
+    }
     public boolean isScrobbleEnabled() {
         return sharedPreferences.getBoolean(KEY_SCROBBLE_ENABLED, false);
     }
@@ -928,7 +934,18 @@ public final class Preferences {
             return context.getString(labelId);
         }
     }
-
+    public enum FullScreenMode implements EnumWithText {
+        OFF(R.string.settings_fullscreen_off),
+        ON(R.string.settings_fullscreen_on);
+        private final int labelId;
+        FullScreenMode(int labelId) {
+            this.labelId = labelId;
+        }
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
+        }
+    }
     public enum CustomizeHomeMenuMode implements EnumWithText {
         ARCHIVE(R.string.settings_customize_home_menu_archive),
         DISABLED(R.string.settings_customize_home_menu_disabled),

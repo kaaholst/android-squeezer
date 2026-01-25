@@ -97,6 +97,8 @@
     <string name="settings_screensaver_title">Pozostaw włączony ekran</string>
     <string name="settings_screensaver_off">Nie</string>
     <string name="settings_screensaver_on">Tak</string>
+    <string name="settings_fullscreen_off">Nie</string>
+    <string name="settings_fullscreen_on">Tak</string>
     <string name="settings_screensaver_clock">Pokazuj zegar gdy nieaktywny</string>
     <string name="settings_show_track_number">Numer ścieżki</string>
     <string name="settings_show_technical_info">Informacje techniczne</string>
@@ -221,4 +223,5 @@
         <item quantity="few">Alarmy ponawiają się po %d minutach</item>
         <item quantity="many">Alarmy ponawiają się po %d minutach</item>
     </plurals>
+    <string name="fullscreen_mode">Tryb pełnoekranowy</string>
 </resources>

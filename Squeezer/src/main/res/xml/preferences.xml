@@ -44,6 +44,11 @@
             android:key="squeezer.screensaver"
             android:title="@string/settings_screensaver_title"
             android:summary="%s"/>
+        <ListPreference
+            android:key="squeezer.fullscreen"
+            android:title="@string/fullscreen_mode"
+            android:summary="%s"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

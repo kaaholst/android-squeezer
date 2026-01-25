@@ -260,6 +260,8 @@
     <string name="settings_screensaver_title">Display aktiviert lassen</string>
     <string name="settings_screensaver_off">Nein</string>
     <string name="settings_screensaver_on">Ja</string>
+    <string name="settings_fullscreen_off">Nein</string>
+    <string name="settings_fullscreen_on">Ja</string>
     <string name="settings_screensaver_clock">Uhr zeigen bei Inaktivität</string>
     <string name="settings_volume_title">Einstellungen für Lautstärkeregelung</string>
     <string name="settings_restore_after_call">Nach Beendigung wieder starten</string>
@@ -272,5 +274,6 @@
     <string name="set_sleep_timer">Einschlaftimer setzen</string>
     <string name="continue_playback">Wiedergabe fortsetzen</string>
     <string name="volume">Lautstärke</string>
+    <string name="fullscreen_mode">Vollbildmodus</string>
 
 </resources>
