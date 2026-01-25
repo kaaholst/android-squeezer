@@ -41,6 +41,8 @@
     <string name="settings_screensaver_title">Hold skærmen tændt</string>
     <string name="settings_screensaver_off">Nej</string>
     <string name="settings_screensaver_on">Ja</string>
+    <string name="settings_fullscreen_off">Nej</string>
+    <string name="settings_fullscreen_on">Ja</string>
     <string name="settings_screensaver_clock">Vis ur ved inaktivitet</string>
     <string name="settings_show_track_number">Spornummer</string>
     <string name="settings_show_technical_info">Teknisk information (bithastighed, m.v)</string>
@@ -283,4 +285,5 @@
     <string name="volume">Lydstyrke</string>
     <string name="don_t_show_volume_control">Vis ikke lydstyrkeskyder</string>
     <string name="show_volume_control">Vis lydstyrkeskyder</string>
+    <string name="fullscreen_mode">Fuldskærmstilstand</string>
 </resources>

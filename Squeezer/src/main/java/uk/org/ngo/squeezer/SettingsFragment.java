@@ -190,6 +190,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         onSelectThemePref.setOnPreferenceChangeListener(this);
 
         fillEnumPreference(requirePreference(Preferences.KEY_SCREENSAVER), Preferences.ScreensaverMode.class, preferences.getScreensaverMode());
+        fillEnumPreference(requirePreference(Preferences.KEY_FULLSCREEN), Preferences.FullScreenMode.class,preferences.getFullScreenMode());
     }
 
     private void fillNowPlayingPreferences(Preferences preferences) {

@@ -24,6 +24,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.core.view.MenuCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
@@ -146,5 +149,22 @@ public class NowPlayingActivity extends BaseActivity {
         }
         super.onPause();
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        applyFullScreenPreference();
+    }
 
+    private void applyFullScreenPreference() {
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+
+        if (Squeezer.getPreferences().getFullScreenMode() == Preferences.FullScreenMode.ON) {
+            controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            controller.hide(WindowInsetsCompat.Type.systemBars());
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars());
+            controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_DEFAULT);
+        }
+    }
 }
