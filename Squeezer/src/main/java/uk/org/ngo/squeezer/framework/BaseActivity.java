@@ -47,6 +47,10 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Arrays;
@@ -191,10 +195,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            applyFullScreenPreference();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
         themeManager.onResume(this);
+        applyFullScreenPreference();
 
         if (inactivityHandler != null) {
             setInactivityTimer();
@@ -204,6 +217,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
+    }
+
+    private void applyFullScreenPreference() {
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+
+        if (Squeezer.getPreferences().getFullScreenMode() == Preferences.FullScreenMode.ON) {
+            controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            controller.hide(WindowInsetsCompat.Type.systemBars());
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars());
+            controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_DEFAULT);
+        }
+        ViewCompat.requestApplyInsets(getWindow().getDecorView());
     }
 
     private void setInactivityTimer() {
