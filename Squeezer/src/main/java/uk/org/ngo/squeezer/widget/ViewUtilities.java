@@ -7,11 +7,23 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
+
 public class ViewUtilities {
 
     public static void setInsetsListener(View view, boolean top, boolean bottom, boolean ime) {
         ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout() | (ime ? WindowInsetsCompat.Type.ime() : 0 ));
+            boolean isFullScreen = Squeezer.getPreferences().getFullScreenMode() == Preferences.FullScreenMode.ON;
+
+            // We always want to account for the IME (keyboard) and display cutouts (notches).
+            // We only account for system bars (status/nav) if we are NOT in full screen mode.
+            int types = WindowInsetsCompat.Type.displayCutout() | (ime ? WindowInsetsCompat.Type.ime() : 0);
+            if (!isFullScreen) {
+                types |= WindowInsetsCompat.Type.systemBars();
+            }
+
+            Insets bars = insets.getInsets(types);
             v.setPadding(bars.left, top ? bars.top : 0, bars.right, bottom ? bars.bottom : 0);
             return insets;
         });
