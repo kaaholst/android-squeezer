@@ -195,7 +195,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 if (!isConnected()) {
                     // Requires a serviceStub. Else we'll do this on the service
                     // connection callback.
-                    if (canAutoConnect()) {
+                    if (!isConnectInProgress()) {
                         Log.v(TAG, "Initiated connect on WIFI connected");
                         startVisibleConnection(true);
                     }

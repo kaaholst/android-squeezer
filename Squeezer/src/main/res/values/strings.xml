@@ -53,6 +53,8 @@
     <string name="settings_top_bar_search">Top bar search</string>
     <string name="settings_top_bar_search_global">All places</string>
     <string name="settings_top_bar_search_my_music">My music</string>
+    <string name="settings_launcher_title">Launcher mode</string>
+    <string name="settings_launcher_summary">Use Squeezer as your device\'s home screen</string>
     <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
     <string name="settings_clear_current_playlist_confirmation_off">Do not ask for confirmation</string>
     <string name="settings_clear_current_playlist_confirmation_on">Ask for confirmation</string>

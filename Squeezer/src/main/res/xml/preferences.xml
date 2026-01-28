@@ -101,6 +101,11 @@
             android:summary="%s"/>
 
         <SwitchPreferenceCompat
+            android:key="squeezer.launcher.enabled"
+            android:title="@string/settings_launcher_title"
+            android:summary="@string/settings_launcher_summary"/>
+
+        <SwitchPreferenceCompat
             android:key="squeezer.clear.current_playlist.confirmation"
             android:summaryOff="@string/settings_clear_current_playlist_confirmation_off"
             android:summaryOn="@string/settings_clear_current_playlist_confirmation_on"
