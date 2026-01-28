@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -203,10 +204,23 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     private void fillUserInterfacePreferences(Preferences preferences) {
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_LAUNCHER_ENABLED).setChecked(isLauncherEnabled());
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION).setChecked(preferences.isClearPlaylistConfirmation());
         fillEnumPreference(requirePreference(Preferences.KEY_TOP_BAR_SEARCH), Preferences.TopBarSearch.class, preferences.getTopBarSearch());
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE), Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE), Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
+    }
+
+    private boolean isLauncherEnabled() {
+        ComponentName componentName = new ComponentName(requireContext(), "uk.org.ngo.squeezer.HomeLauncherActivity");
+        int setting = requireContext().getPackageManager().getComponentEnabledSetting(componentName);
+        return setting == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+    }
+
+    private void updateLauncherMode(boolean enabled) {
+        ComponentName componentName = new ComponentName(requireContext(), "uk.org.ngo.squeezer.HomeLauncherActivity");
+        int setting = enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        requireContext().getPackageManager().setComponentEnabledSetting(componentName, setting, PackageManager.DONT_KILL_APP);
     }
 
     private <T extends Preference> T requirePreference(String key) {
@@ -304,6 +318,10 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
                 key.equals(Preferences.KEY_DOWNLOAD_ENABLED)
         ) {
             updateDownloadPreferences(preferences);
+        }
+
+        if (key.equals(Preferences.KEY_LAUNCHER_ENABLED)) {
+            updateLauncherMode(sharedPreferences.getBoolean(key, false));
         }
 
         if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {

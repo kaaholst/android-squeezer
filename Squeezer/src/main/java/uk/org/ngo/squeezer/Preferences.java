@@ -199,6 +199,9 @@ public final class Preferences {
     // Which top bar search to use
     static final String KEY_TOP_BAR_SEARCH = "squeezer.top_bar.search";
 
+    // Use Squeezer as launcher
+    public static final String KEY_LAUNCHER_ENABLED = "squeezer.launcher.enabled";
+
     // Clear playlist confirmation
     static final String KEY_CLEAR_PLAYLIST_CONFIRMATION = "squeezer.clear.current_playlist.confirmation";
 

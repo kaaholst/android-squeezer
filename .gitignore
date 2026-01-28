@@ -21,3 +21,4 @@ keystore
 .gradle
 com_crashlytics_export_strings.xml
 .directory
+.vscode/

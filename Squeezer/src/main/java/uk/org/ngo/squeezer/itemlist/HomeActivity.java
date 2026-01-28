@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -44,17 +45,25 @@ import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 
 public class HomeActivity extends HomeMenuActivity {
     public static final String TAG = "HomeActivity";
+
+    private static final String TAG_FIRST_CONNECTION = "firstConnection";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         getIntent().putExtra(JiveItem.class.getName(), JiveItem.HOME);
         super.onCreate(savedInstanceState);
+
+        if (getRetainedValue(TAG_FIRST_CONNECTION) == null) {
+            putRetainedValue(TAG_FIRST_CONNECTION, true);
+        }
 
         // Show the change log if necessary.
         Squeezer.getInstance().doInBackground(() -> {
@@ -172,6 +181,17 @@ public class HomeActivity extends HomeMenuActivity {
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         super.onServiceConnected(service);
         repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+        repository().observe(this, (PlayerStateChanged event) -> onPlayerStateChanged(event));
+    }
+
+    private void onPlayerStateChanged(PlayerStateChanged event) {
+        Boolean isFirstConnection = getRetainedValue(TAG_FIRST_CONNECTION);
+        if (isFirstConnection != null && isFirstConnection && event.player.equals(getService().getActivePlayer())) {
+            putRetainedValue(TAG_FIRST_CONNECTION, false);
+            if (event.player.getPlayerState().isPlaying()) {
+                NowPlayingActivity.show(this);
+            }
+        }
     }
 
     private void onHandshakeComplete() {
