@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -204,7 +205,9 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
     }
 
     private void fillUserInterfacePreferences(Preferences preferences) {
-        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_LAUNCHER_ENABLED).setChecked(isLauncherEnabled());
+        SwitchPreferenceCompat launcherPref = requirePreference(Preferences.KEY_LAUNCHER_ENABLED);
+        launcherPref.setChecked(isLauncherEnabled());
+        launcherPref.setOnPreferenceChangeListener(this);
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION).setChecked(preferences.isClearPlaylistConfirmation());
         fillEnumPreference(requirePreference(Preferences.KEY_TOP_BAR_SEARCH), Preferences.TopBarSearch.class, preferences.getTopBarSearch());
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE), Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
@@ -288,6 +291,37 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         if (Preferences.KEY_ACTION_ON_INCOMING_CALL.equals(key)) {
             requestCallStateLauncher.trySetAction(Preferences.IncomingCallAction.valueOf((String) newValue));
             return false;
+        }
+
+        if (Preferences.KEY_LAUNCHER_ENABLED.equals(key)) {
+            if (newValue.equals(true)) {
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.settings_launcher_title)
+                        .setMessage(R.string.settings_launcher_explanation)
+                        .setPositiveButton(R.string.settings_launcher_open_system_settings, (dialog, which) -> {
+                            updateLauncherMode(true);
+                            ((SwitchPreferenceCompat) preference).setChecked(true);
+                            SharedPreferences.Editor editor = preference.getSharedPreferences().edit();
+                            editor.putBoolean(Preferences.KEY_LAUNCHER_ENABLED, true);
+                            editor.apply();
+
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_HOME_SETTINGS);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                try {
+                                    Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                                    startActivity(intent);
+                                } catch (Exception ex) {
+                                    // ignore
+                                }
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return false;
+            }
         }
 
         return true;
