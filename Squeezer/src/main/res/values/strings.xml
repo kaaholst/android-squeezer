@@ -55,6 +55,8 @@
     <string name="settings_top_bar_search_my_music">My music</string>
     <string name="settings_launcher_title">Launcher mode</string>
     <string name="settings_launcher_summary">Use Squeezer as your device\'s home screen</string>
+    <string name="settings_launcher_explanation">Launcher mode allows Squeezer to be your device\'s home screen.\n\nThis will replace your current home screen, wallpaper and all other launcher functionality.\n\nTo use this feature, you must enable it here and then select Squeezer as the Home app in your device\'s system settings.</string>
+    <string name="settings_launcher_open_system_settings">Open system settings</string>
     <string name="settings_clear_current_playlist_confirmation">When clearing a playlist</string>
     <string name="settings_clear_current_playlist_confirmation_off">Do not ask for confirmation</string>
     <string name="settings_clear_current_playlist_confirmation_on">Ask for confirmation</string>
