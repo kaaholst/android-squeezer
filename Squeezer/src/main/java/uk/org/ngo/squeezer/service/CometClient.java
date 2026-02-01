@@ -202,7 +202,7 @@ class CometClient extends BaseClient {
 
         // Set connection state in main thread to be able to test it immediately
         if (autoConnect) mConnectionState.setAutoConnect();
-        mConnectionState.setConnectionState(ConnectionState.State.CONNECTION_STARTED);
+        mConnectionState.setState(ConnectionState.State.CONNECTION_STARTED);
 
         // Start the background connect
         mBackgroundHandler.post(() -> {
@@ -312,10 +312,7 @@ class CometClient extends BaseClient {
     private void onConnected() {
         Log.i(TAG, "Connected, start learning server capabilities");
 
-        // If this is a rehandshake we may already have players.
-        boolean rehandshake = !mConnectionState.isRehandshaking();
-
-        mConnectionState.setConnectionState(ConnectionState.State.CONNECTION_COMPLETED);
+        mConnectionState.setState(ConnectionState.State.CONNECTION_COMPLETED);
 
         // Set a timeout for the handshake
         if (mConnectionState.getServerVersion() == null) {
@@ -337,12 +334,6 @@ class CometClient extends BaseClient {
         {
             Request request = serverStatusRequest().param("subscribe", String.valueOf(SERVER_STATUS_INTERVAL));
             publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
-        }
-
-        if (rehandshake) {
-            // Make sure we reorder subscriptions on rehandshake
-            mConnectionState.getPlayers().values().stream().forEach(player -> player.getPlayerState().setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE));
-            mConnectionState.setServerVersion(null);
         }
     }
 
@@ -652,7 +643,7 @@ class CometClient extends BaseClient {
     @Override
     public void disconnect(boolean fromUser) {
         if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
-        mConnectionState.setConnectionState(fromUser ? ConnectionState.State.MANUAL_DISCONNECT : ConnectionState.State.DISCONNECTED);
+        mConnectionState.setState(fromUser ? ConnectionState.State.MANUAL_DISCONNECT : ConnectionState.State.DISCONNECTED);
     }
 
     private void disconnect(ConnectionError connectionError) {
@@ -711,7 +702,7 @@ class CometClient extends BaseClient {
 
     @Override
     protected  <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
-        if (mBayeuxClient == null) return;;
+        if (mBayeuxClient == null) return;
         Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
         ItemListener<?> listener = mItemRequestMap.get(callbackClass);
         if (listener == null) {
@@ -807,7 +798,7 @@ class CometClient extends BaseClient {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_PUBLISH:
-                    if (mConnectionState.isConnected()) {
+                    if (mConnectionState.getState().isConnected()) {
                         PublishMessage message = (PublishMessage) msg.obj;
                         _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
                     }
@@ -823,7 +814,7 @@ class CometClient extends BaseClient {
                     break;
                 case MSG_SERVER_STATUS_TIMEOUT:
                     Log.w(TAG, "Server status timeout: initiate a new handshake");
-                    if (mConnectionState.isConnected()) mBayeuxClient.rehandshake();
+                    if (mConnectionState.getState().isConnected()) mBayeuxClient.rehandshake();
                     break;
                 case MSG_PUBLISH_RESPONSE_RECIEVED: {
                     mCurrentCommand = false;
@@ -852,7 +843,7 @@ class CometClient extends BaseClient {
                     break;
                 }
                 case MSG_REFRESH_SERVER_STATUS:
-                    if (mConnectionState.isConnected()) requestServerStatus();
+                    if (mConnectionState.getState().isConnected()) requestServerStatus();
                     break;
             }
         }

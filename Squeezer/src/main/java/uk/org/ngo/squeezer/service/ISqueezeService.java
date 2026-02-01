@@ -37,6 +37,7 @@ public interface ISqueezeService {
     void disconnect();
     void stopServer();
     void restartServer();
+    boolean isManualDisconnect();
     boolean isConnected();
     boolean isConnectInProgress();
     boolean canAutoConnect();

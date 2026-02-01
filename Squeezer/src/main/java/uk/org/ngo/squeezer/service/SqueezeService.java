@@ -967,13 +967,18 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public boolean isManualDisconnect() {
+            return mDelegate.getConnectionState().isManualDisconnect();
+        }
+
+        @Override
         public boolean isConnected() {
-            return mDelegate.isConnected();
+            return mDelegate.getConnectionState().isConnected();
         }
 
         @Override
         public boolean isConnectInProgress() {
-            return mDelegate.isConnectInProgress();
+            return mDelegate.getConnectionState().isConnectInProgress();
         }
 
         @Override

@@ -70,12 +70,8 @@ class SlimDelegate {
     }
 
 
-    boolean isConnected() {
-        return mClient.getConnectionState().isConnected();
-    }
-
-    boolean isConnectInProgress() {
-        return mClient.getConnectionState().isConnectInProgress();
+    ConnectionState.State getConnectionState() {
+        return mClient.getConnectionState().getState();
     }
 
     boolean canAutoConnect() {
@@ -129,10 +125,6 @@ class SlimDelegate {
 
     public Map<String, Player> getPlayers() {
         return mClient.getConnectionState().getPlayers();
-    }
-
-    public Set<Player> getSyncGroup() {
-        return mClient.getConnectionState().getSyncGroup();
     }
 
     public Set<Player> getVolumeSyncGroup(boolean groupVolume) {

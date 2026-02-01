@@ -75,6 +75,10 @@ public class ConnectionState {
         /** Currently trying to reestablish a previously working connection. */
         REHANDSHAKING;
 
+        boolean isManualDisconnect() {
+            return (this == MANUAL_DISCONNECT);
+        }
+
         boolean isConnected() {
             return (this == CONNECTION_COMPLETED);
         }
@@ -83,11 +87,6 @@ public class ConnectionState {
             return (this == CONNECTION_STARTED);
         }
 
-
-        /**
-         * @return True if the socket connection to the server has started, but not yet
-         *     completed (successfully or unsuccessfully).
-         */
         boolean isRehandshaking() {
             return (this == REHANDSHAKING);
         }
@@ -126,27 +125,31 @@ public class ConnectionState {
         this.autoConnect = SystemClock.elapsedRealtime();
     }
 
+    State getState() {
+        return state;
+    }
+
     /**
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
      *
      * @param connectionState The new connection state.
      */
-    void setConnectionState(State connectionState) {
+    void setState(State connectionState) {
         Log.i(TAG, "setConnectionState(" + state + " => " + connectionState + ")");
-        updateConnectionState(connectionState);
+        updateState(connectionState);
         repository.post(new ConnectionChanged(connectionState));
     }
 
     void setConnectionError(ConnectionError connectionError) {
         Log.i(TAG, "setConnectionError(" + state + " => " + connectionError + ")");
-        updateConnectionState(State.CONNECTION_FAILED);
+        updateState(State.CONNECTION_FAILED);
         repository.post(new ConnectionChanged(connectionError));
     }
 
-    private void updateConnectionState(State connectionState) {
+    private void updateState(State newState) {
         // Clear data if we were previously connected
-        if (isConnected() && !connectionState.isConnected()) {
+        if (state.isConnected() && !newState.isConnected()) {
             repository.removeEvents();
             setServerVersion(null);
             mPlayers.clear();
@@ -154,11 +157,11 @@ public class ConnectionState {
         }
 
         // Start timer for rehandshake
-        if (connectionState == State.REHANDSHAKING) {
+        if (newState == State.REHANDSHAKING) {
             rehandshake = SystemClock.elapsedRealtime();
         }
 
-        state = connectionState;
+        state = newState;
     }
 
     public void setPlayers(Map<String, Player> players) {
@@ -180,7 +183,7 @@ public class ConnectionState {
         return mActivePlayer.get();
     }
 
-    @NonNull Set<Player> getSyncGroup() {
+    @NonNull private Set<Player> getSyncGroup() {
         Set<Player> out = new HashSet<>();
 
         Player player = getActivePlayer();
@@ -279,20 +282,8 @@ public class ConnectionState {
         return mediaDirs.get();
     }
 
-    boolean isConnected() {
-        return state.isConnected();
-    }
-
-    boolean isConnectInProgress() {
-        return state.isConnectInProgress();
-    }
-
-    boolean isRehandshaking() {
-        return state.isRehandshaking();
-    }
-
     boolean canRehandshake() {
-        return isRehandshaking()
+        return state.isRehandshaking()
                 && ((SystemClock.elapsedRealtime() - rehandshake) < REHANDSHAKE_TIMEOUT);
     }
 

@@ -192,13 +192,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (networkInfo.isConnected()) {
                 Log.v(TAG, "Received WIFI connected broadcast");
-                if (!isConnected()) {
-                    // Requires a serviceStub. Else we'll do this on the service
-                    // connection callback.
-                    if (!isConnectInProgress()) {
-                        Log.v(TAG, "Initiated connect on WIFI connected");
-                        startVisibleConnection(true);
-                    }
+                // Requires a serviceStub. Else we'll do this on the service connection callback.
+                if (mService != null && !(mService.isConnected() || mService.isManualDisconnect())) {
+                    Log.v(TAG, "Initiated connect on WIFI connected");
+                    startVisibleConnection(true);
                 }
             }
         }
@@ -628,7 +625,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         repository.observe(this, (PlayersChanged event) -> updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer()));
 
         // Assume they want to connect
-        if (canAutoConnect()) {
+        if (mService != null && mService.canAutoConnect()) {
             startVisibleConnection(true);
         }
     }
@@ -896,18 +893,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         return playerState != null ? playerState.getCurrentTrack() : null;
     }
 
-    private boolean isConnected() {
-        return mService != null && mService.isConnected();
-    }
-
-    private boolean isConnectInProgress() {
-        return mService != null && mService.isConnectInProgress();
-    }
-
-    private boolean canAutoConnect() {
-        return mService != null && mService.canAutoConnect();
-    }
-
     @Override
     public void onPause() {
         Log.d(TAG, "onPause...");
@@ -961,7 +946,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
      */
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        boolean connected = isConnected();
+        boolean connected = (mService != null) && mService.isConnected();
 
         // These are all set at the same time, so one check is sufficient
         if (menuItemDisconnect != null) {
@@ -1062,7 +1047,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 return;
             }
 
-            if (isConnectInProgress()) {
+            if (requireService().isConnectInProgress()) {
                 Log.v(TAG, "Connection is already in progress, connecting aborted");
                 return;
             }

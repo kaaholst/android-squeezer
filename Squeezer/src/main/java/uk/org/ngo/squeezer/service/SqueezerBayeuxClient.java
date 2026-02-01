@@ -78,14 +78,14 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 Log.v(TAG, "FAIL: " + message.getJSON(), failure);
             }
         }
-        if (failure instanceof IOException && connectionState.isConnected()) {
+        if (failure instanceof IOException && connectionState.getState().isConnected()) {
             rehandshake();
         }
     }
 
     public void rehandshake() {
         Log.i(TAG, "rehandshake()");
-        connectionState.setConnectionState(ConnectionState.State.REHANDSHAKING);
+        connectionState.setState(ConnectionState.State.REHANDSHAKING);
         HashMapMessage message = new HashMapMessage();
         message.setId(newMessageId());
         message.setSuccessful(false);
