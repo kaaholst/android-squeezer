@@ -146,7 +146,6 @@ public class SqueezeService extends Service {
     private static final String ACTION_PLAY = "uk.org.ngo.squeezer.service.ACTION_PLAY";
     private static final String ACTION_PAUSE = "uk.org.ngo.squeezer.service.ACTION_PAUSE";
     private static final String ACTION_CLOSE = "uk.org.ngo.squeezer.service.ACTION_CLOSE";
-    public static final String ACTION_AUTO_CONNECT = "uk.org.ngo.squeezer.service.ACTION_AUTO_CONNECT";
     private static final String ACTION_POWER = "power";
     private static final String ACTION_DISCONNECT = "disconnect";
 
@@ -196,7 +195,6 @@ public class SqueezeService extends Service {
                     case ACTION_PLAY -> squeezeService.play();
                     case ACTION_PAUSE -> squeezeService.pause();
                     case ACTION_CLOSE -> disconnect(true);
-                    case ACTION_AUTO_CONNECT -> squeezeService.startConnect(true);
                 }
             }
         } catch(Exception e) {
