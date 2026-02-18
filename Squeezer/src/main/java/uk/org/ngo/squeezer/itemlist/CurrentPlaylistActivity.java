@@ -101,9 +101,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CurrentPlaylistItemCallback(this));
-        itemTouchHelper.attachToRecyclerView(getListView());
+        super.setContentView(layoutResID, new CurrentPlaylistItemCallback(this));
     }
 
     @Override

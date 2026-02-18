@@ -41,6 +41,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.webkit.WebSettingsCompat;
@@ -225,10 +226,17 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
+        setContentView(layoutResID, new JiveItemCallback(this));
+    }
+
+    public void setContentView(@LayoutRes int layoutResID, ItemTouchHelper.Callback callback) {
         super.setContentView(layoutResID);
         fastScroller = findViewById(R.id.fastscroller);
 
         setupListView(getListView(), getListLayout());
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(getListView());
     }
 
     public void setupListView(RecyclerView list, ArtworkListLayout listLayout) {

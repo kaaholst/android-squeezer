@@ -67,4 +67,7 @@ public abstract class ItemViewHolder<T extends Item> extends RecyclerView.ViewHo
         this.item = item;
     }
 
+    public T getItem() {
+        return item;
+    }
 }
