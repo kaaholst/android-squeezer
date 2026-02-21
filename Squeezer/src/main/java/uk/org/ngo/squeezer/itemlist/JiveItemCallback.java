@@ -11,17 +11,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.PlayableItemAction;
 
 public class JiveItemCallback extends ItemTouchHelper.Callback {
     private final JiveItemListActivity activity;
+    private final PlayableItemAction swipeRightAction;
+    private final PlayableItemAction swipeLeftAction;
     private final int margin;
     private final TextPaint textPaint;
 
     public JiveItemCallback(@NonNull JiveItemListActivity activity) {
         this.activity = activity;
+        Preferences preferences = Squeezer.getPreferences();
+        swipeRightAction = preferences.getSwipeRightAction();
+        swipeLeftAction = preferences.getSwipeLeftAction();
         DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
         float textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 15, displayMetrics);
         margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, displayMetrics);
@@ -32,10 +40,10 @@ public class JiveItemCallback extends ItemTouchHelper.Callback {
 
     @Override
     public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-        JiveItemView itemView = (JiveItemView) viewHolder;
+        JiveItem item = ((JiveItemView) viewHolder).getItem();
         int swipeFlags = 0;
-        if (activity.getListLayout() == ArtworkListLayout.list && itemView.getItem().insertAction != null) swipeFlags |= ItemTouchHelper.RIGHT;
-        if (activity.getListLayout() == ArtworkListLayout.list && itemView.getItem().addAction != null) swipeFlags |= ItemTouchHelper.LEFT;
+        if (activity.getListLayout() == ArtworkListLayout.list && swipeRightAction.action(item) != null) swipeFlags |= ItemTouchHelper.RIGHT;
+        if (activity.getListLayout() == ArtworkListLayout.list && swipeLeftAction.action(item) != null) swipeFlags |= ItemTouchHelper.LEFT;
         return makeMovementFlags(0, swipeFlags);
     }
 
@@ -47,8 +55,9 @@ public class JiveItemCallback extends ItemTouchHelper.Callback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int direction) {
         JiveItemView itemView = (JiveItemView) vh;
-        Action action = direction == ItemTouchHelper.RIGHT ? itemView.getItem().insertAction : itemView.getItem().addAction;
-        activity.action(itemView.getItem(), action);
+        PlayableItemAction a = (direction == ItemTouchHelper.RIGHT ? swipeRightAction : swipeLeftAction);
+        JiveItem item = itemView.getItem();
+        activity.action(item, a.action(item));
         itemView.getAdapter().notifyItemChanged(itemView.getBindingAdapterPosition());
     }
 
@@ -58,8 +67,8 @@ public class JiveItemCallback extends ItemTouchHelper.Callback {
             var itemView = viewHolder.itemView;
             int textLeft = (dX > 0 ? itemView.getLeft() + margin : itemView.getRight() + (int) dX - margin);
             int textTop = (itemView.getTop() + (itemView.getBottom() - itemView.getTop()) / 2 + (int) textPaint.getTextSize() / 2);
-            String s = activity.getString(dX > 0 ? R.string.PLAY_NEXT : R.string.ADD_TO_END);
-            CharSequence ellipsized = TextUtils.ellipsize(s, textPaint, Math.abs(dX), TextUtils.TruncateAt.END);
+            PlayableItemAction a = (dX > 0 ? swipeRightAction : swipeLeftAction);
+            CharSequence ellipsized = TextUtils.ellipsize(a.getText(activity), textPaint, Math.abs(dX), TextUtils.TruncateAt.END);
             c.drawText(ellipsized, 0, ellipsized.length(), textLeft, textTop, textPaint);
         }
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

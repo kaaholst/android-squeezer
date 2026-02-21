@@ -108,6 +108,11 @@
     <string name="settings_customize_home_menu_disabled">Disabled</string>
     <string name="settings_customize_home_menu_locked">Disabled, but keep archive</string>
 
+    <string name="settings_swipe_right_action">Swipe right action</string>
+    <string name="settings_swipe_right_action_summary">What to do when swiping right on a playable item</string>
+    <string name="settings_swipe_left_action">Swipe left action</string>
+    <string name="settings_swipe_left_action_summary">What to do when swiping left on a playable item</string>
+
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_stop_server">Stop Lyrion Music Server</string>

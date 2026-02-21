@@ -50,6 +50,7 @@ import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -141,6 +142,12 @@ public final class Preferences {
 
     // What do to when a song is selected in the list view
     private static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
+
+    // What do to when an item is swiped right in the list view
+    public static final String KEY_ON_SWIPE_RIGHT_ACTION = "squeezer.action.onswipe.right";
+
+    // What do to when an item is swiped left in the list view
+    public static final String KEY_ON_SWIPE_LEFT_ACTION = "squeezer.action.onswipe.left";
 
     // Preferred album list layout.
     private static final String KEY_LARGE_ARTWORK = "squeezer.large_artwork";
@@ -518,6 +525,16 @@ public final class Preferences {
         }
 
         editor.apply();
+    }
+
+    public PlayableItemAction getSwipeRightAction() {
+        String actionType = sharedPreferences.getString(Preferences.KEY_ON_SWIPE_RIGHT_ACTION, PlayableItemAction.PLAY_NEXT.name());
+        return PlayableItemAction.valueOf(actionType);
+    }
+
+    public PlayableItemAction getSwipeLeftAction() {
+        String actionType = sharedPreferences.getString(Preferences.KEY_ON_SWIPE_LEFT_ACTION, PlayableItemAction.ADD_TO_END.name());
+        return PlayableItemAction.valueOf(actionType);
     }
 
     public boolean isLargeArtwork() {

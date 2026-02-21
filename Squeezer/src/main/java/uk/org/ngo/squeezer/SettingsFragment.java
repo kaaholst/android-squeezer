@@ -33,6 +33,7 @@ import uk.org.ngo.squeezer.dialog.CallStateDialog;
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
+import uk.org.ngo.squeezer.model.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
@@ -210,8 +211,12 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         launcherPref.setOnPreferenceChangeListener(this);
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_CLEAR_PLAYLIST_CONFIRMATION).setChecked(preferences.isClearPlaylistConfirmation());
         fillEnumPreference(requirePreference(Preferences.KEY_TOP_BAR_SEARCH), Preferences.TopBarSearch.class, preferences.getTopBarSearch());
+
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE), Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE), Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
+
+        fillEnumPreference(requirePreference(Preferences.KEY_ON_SWIPE_RIGHT_ACTION), PlayableItemAction.class, preferences.getSwipeRightAction());
+        fillEnumPreference(requirePreference(Preferences.KEY_ON_SWIPE_LEFT_ACTION), PlayableItemAction.class, preferences.getSwipeLeftAction());
     }
 
     private boolean isLauncherEnabled() {

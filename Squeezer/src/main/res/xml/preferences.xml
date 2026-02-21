@@ -121,6 +121,17 @@
             android:title="@string/settings_customize_customShortcut_mode"
             android:dialogTitle="@string/settings_customize_customShortcut_info"
             android:summary="%s"/>
+
+        <ListPreference
+            android:key="squeezer.action.onswipe.right"
+            android:title="@string/settings_swipe_right_action"
+            android:dialogTitle="@string/settings_swipe_right_action_summary"
+            android:summary="%s"/>
+        <ListPreference
+            android:key="squeezer.action.onswipe.left"
+            android:title="@string/settings_swipe_left_action"
+            android:dialogTitle="@string/settings_swipe_left_action_summary"
+            android:summary="%s"/>
     </PreferenceCategory>
 
     <PreferenceCategory
