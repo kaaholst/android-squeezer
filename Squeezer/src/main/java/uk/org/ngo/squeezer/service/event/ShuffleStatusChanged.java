@@ -18,19 +18,19 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 /** Event sent when the shuffle status of the player has changed. */
 public class ShuffleStatusChanged {
     /** The player with changed state. */
-    @NonNull public final Player player;
+    @NonNull public final LyrionPlayer player;
 
     /** The new shuffle status. */
     @NonNull
     public final PlayerState.ShuffleStatus shuffleStatus;
 
-    public ShuffleStatusChanged(@NonNull Player player, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
+    public ShuffleStatusChanged(@NonNull LyrionPlayer player, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
         this.player = player;
         this.shuffleStatus = shuffleStatus;
     }

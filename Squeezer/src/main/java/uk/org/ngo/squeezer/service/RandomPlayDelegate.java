@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.Random;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 public class RandomPlayDelegate {
 
@@ -31,7 +31,7 @@ public class RandomPlayDelegate {
         return track;
     }
 
-    void fillPlaylist(Set<String> unplayed, Player player, String ignore) {
+    void fillPlaylist(Set<String> unplayed, LyrionPlayer player, String ignore) {
         String nextTrack = pickTrack(unplayed, ignore);
         slimDelegate.command(player).cmd("playlistcontrol")
                 .param("cmd", "add").param("track_id", nextTrack).exec();

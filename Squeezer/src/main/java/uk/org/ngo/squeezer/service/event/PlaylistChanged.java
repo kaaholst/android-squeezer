@@ -18,15 +18,15 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /** Event sent when a player's play status changes. */
 public class PlaylistChanged {
     /** The affected player. */
     @NonNull
-    public final Player player;
+    public final LyrionPlayer player;
 
-    public PlaylistChanged(@NonNull Player player) {
+    public PlaylistChanged(@NonNull LyrionPlayer player) {
         this.player = player;
     }
 

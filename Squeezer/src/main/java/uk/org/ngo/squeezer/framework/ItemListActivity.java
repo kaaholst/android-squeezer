@@ -22,7 +22,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
@@ -39,7 +38,7 @@ import uk.org.ngo.squeezer.dialog.VolumeSettings;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -257,7 +256,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     }
 
     /** Update the UI if the player changed */
-    private void setPlayer(Player player) {
+    private void setPlayer(LyrionPlayer player) {
         String oldPlayerId = getRetainedValue(TAG_PLAYER_ID);
         String activePlayerId = (player != null ? player.getId() : "");
         if (!activePlayerId.equals(oldPlayerId)) {
@@ -275,7 +274,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
 
     private void onHandshakeComplete() {
         Log.i(TAG, "Handshake complete");
-        Player activePlayer = requireService().getActivePlayer();
+        LyrionPlayer activePlayer = requireService().getActivePlayer();
         setPlayer(activePlayer);
         if (activePlayer != null) {
             volumeBar.update(requireService().getVolume());

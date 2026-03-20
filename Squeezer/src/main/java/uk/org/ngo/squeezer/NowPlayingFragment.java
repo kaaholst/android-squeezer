@@ -78,7 +78,7 @@ import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
 import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
@@ -511,7 +511,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             return;
         }
 
-        Player player = getActivePlayer();
+        LyrionPlayer player = getActivePlayer();
         PlayerState playerState = player != null ? player.getPlayerState() : null;
         String playerName = player != null ? player.getName() : "";
 
@@ -540,7 +540,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
      * @param activePlayer The currently active player. May be null.
      */
     @UiThread
-    private void updatePlayerDropDown(@NonNull List<Player> connectedPlayers, @Nullable Player activePlayer) {
+    private void updatePlayerDropDown(@NonNull List<LyrionPlayer> connectedPlayers, @Nullable LyrionPlayer activePlayer) {
         if (!isAdded()) {
             return;
         }
@@ -559,7 +559,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             playerAdapter.notifyDataSetChanged();
             spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
             spinner.setOnItemClickListener((adapterView, parent, position, id) -> {
-                Player selectedItem = playerAdapter.getItem(position);
+                LyrionPlayer selectedItem = playerAdapter.getItem(position);
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem, playerAdapter.continuePlayback());
@@ -889,7 +889,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         return mService.getActivePlayerState();
     }
 
-    private Player getActivePlayer() {
+    private LyrionPlayer getActivePlayer() {
         if (mService == null) {
             return null;
         }

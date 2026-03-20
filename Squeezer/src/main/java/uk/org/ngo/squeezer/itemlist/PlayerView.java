@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -80,7 +80,7 @@ public class PlayerView extends PlayerBaseView {
     }
 
     @Override
-    public void bindView(Player player) {
+    public void bindView(LyrionPlayer player) {
         setItemViewParams(VIEW_PARAM_ICON | viewParamTwoLine(player) | VIEW_PARAM_CONTEXT_BUTTON);
 
         super.bindView(player);
@@ -98,11 +98,11 @@ public class PlayerView extends PlayerBaseView {
         }
     }
 
-    void updateVolume(Player player) {
+    void updateVolume(LyrionPlayer player) {
         volumeBar.setValue(player.getPlayerState().getCurrentVolume());
     }
 
-    private int viewParamTwoLine(Player player) {
+    private int viewParamTwoLine(LyrionPlayer player) {
         return player.getPlayerState().getSleepDuration() > 0 ? VIEW_PARAM_TWO_LINE : 0;
     }
 
@@ -124,9 +124,9 @@ public class PlayerView extends PlayerBaseView {
         // Enable player sync menu options if there's more than one player.
         menu.findItem(R.id.player_sync).setVisible(activity.adapter.mPlayerCount > 1);
 
-        menu.findItem(R.id.play_track_album).setVisible(playerState.prefs.containsKey(Player.Pref.PLAY_TRACK_ALBUM));
+        menu.findItem(R.id.play_track_album).setVisible(playerState.prefs.containsKey(LyrionPlayer.Pref.PLAY_TRACK_ALBUM));
 
-        menu.findItem(R.id.defeat_destructive_ttp).setVisible(playerState.prefs.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
+        menu.findItem(R.id.defeat_destructive_ttp).setVisible(playerState.prefs.containsKey(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP));
 
         popup.setOnMenuItemClickListener(menuItem -> doItemContext(menuItem, item));
 
@@ -134,7 +134,7 @@ public class PlayerView extends PlayerBaseView {
         popup.show();
     }
 
-    private boolean doItemContext(MenuItem menuItem, Player selectedItem) {
+    private boolean doItemContext(MenuItem menuItem, LyrionPlayer selectedItem) {
         if (activity.adapter.mPlayersChanged) {
             Toast.makeText(activity, activity.getText(R.string.player_list_changed),
                     Toast.LENGTH_LONG).show();

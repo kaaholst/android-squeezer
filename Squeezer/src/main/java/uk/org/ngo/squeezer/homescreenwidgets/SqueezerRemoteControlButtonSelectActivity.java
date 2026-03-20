@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
@@ -36,7 +36,7 @@ public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
 
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-    private Player player;
+    private LyrionPlayer player;
 
     @Override
     public void onCreate(Bundle icicle) {

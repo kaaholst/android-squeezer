@@ -60,7 +60,7 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.model.Song;
@@ -163,7 +163,7 @@ class CometClient extends BaseClient {
                 .with("sync", (player, request, message) -> {
                     // LMS does not send new player status for the affected players, even if status
                     // changes are subscribed, so we order them  here
-                    for (Player value : getConnectionState().getPlayers().values()) {
+                    for (LyrionPlayer value : getConnectionState().getPlayers().values()) {
                         requestPlayerStatus(value);
                     }
                 })
@@ -179,12 +179,12 @@ class CometClient extends BaseClient {
                             // Since LMS doesn't send player status when volume is updated via a synced player we order them explicitly
                             if (player.isSyncVolume()) {
                                 List<String> slaves = player.getPlayerState().getSyncSlaves();
-                                Player master = getConnectionState().getPlayer(player.getPlayerState().getSyncMaster());
+                                LyrionPlayer master = getConnectionState().getPlayer(player.getPlayerState().getSyncMaster());
                                 if (master != null && master != player) {
                                     command(master, new String[]{"mixer", "volume", "?"}, Collections.emptyMap());
                                 }
                                 for (String slave : slaves) {
-                                    Player syncSlave = getConnectionState().getPlayer(slave);
+                                    LyrionPlayer syncSlave = getConnectionState().getPlayer(slave);
                                     if (syncSlave != null && syncSlave != player) {
                                         command(syncSlave, new String[]{"mixer", "volume", "?"}, Collections.emptyMap());
                                     }
@@ -373,24 +373,24 @@ class CometClient extends BaseClient {
         mConnectionState.setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
         mConnectionState.setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
-        final HashMap<String, Player> players = new HashMap<>();
+        final HashMap<String, LyrionPlayer> players = new HashMap<>();
         if (item_data != null) {
             for (Object item_d : item_data) {
                 Map<String, Object> record = (Map<String, Object>) item_d;
-                if (!record.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()) &&
-                        data.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())) {
-                    record.put(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName(), data.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()));
+                if (!record.containsKey(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()) &&
+                        data.containsKey(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())) {
+                    record.put(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName(), data.get(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()));
                 }
-                Player player = new Player(record);
+                LyrionPlayer player = new LyrionPlayer(record);
                 players.put(player.getId(), player);
             }
         }
 
-        Map<String, Player> currentPlayers = mConnectionState.getPlayers();
+        Map<String, LyrionPlayer> currentPlayers = mConnectionState.getPlayers();
         if (firstTimePlayersReceived || !players.equals(currentPlayers)) {
             mConnectionState.setPlayers(players);
         } else {
-            for (Player player : players.values()) {
+            for (LyrionPlayer player : players.values()) {
                 PlayerState currentPlayerState = currentPlayers.get(player.getId()).getPlayerState();
                 if (!player.getPlayerState().prefs.equals(currentPlayerState.prefs)) {
                     currentPlayerState.prefs = player.getPlayerState().prefs;
@@ -407,7 +407,7 @@ class CometClient extends BaseClient {
     private void parsePlayerStatus(ClientSessionChannel channel, Message message) {
         String[] channelParts = mSlashSplitPattern.split(message.getChannel());
         String playerId = channelParts[channelParts.length - 1];
-        Player player = mConnectionState.getPlayer(playerId);
+        LyrionPlayer player = mConnectionState.getPlayer(playerId);
 
         // XXX: Can we ever see a status for a player we don't know about?
         // XXX: Maybe the better thing to do is to add it.
@@ -429,7 +429,7 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected void handleChangedSong(Player player) {
+    protected void handleChangedSong(LyrionPlayer player) {
         mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
         mBackgroundHandler.sendEmptyMessageDelayed(MSG_MUSIC_CHANGED, 100);
 
@@ -454,7 +454,7 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected void postSongTimeChanged(Player player) {
+    protected void postSongTimeChanged(LyrionPlayer player) {
         super.postSongTimeChanged(player);
         if (player.getPlayerState().isPlaying()) {
             mBackgroundHandler.removeMessages(MSG_TIME_UPDATE);
@@ -463,7 +463,7 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected void postSleepTimeChanged(Player player) {
+    protected void postSleepTimeChanged(LyrionPlayer player) {
         super.postSleepTimeChanged(player);
         if (player.getPlayerState().getSleepDuration() > 0) {
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_SLEEP_UPDATE, player);
@@ -520,7 +520,7 @@ class CometClient extends BaseClient {
     }
 
     private interface ResponseHandler {
-        void onResponse(Player player, Request request, Message message);
+        void onResponse(LyrionPlayer player, Request request, Message message);
     }
 
     private class PublishListener implements ClientSessionChannel.MessageListener {
@@ -593,21 +593,21 @@ class CometClient extends BaseClient {
 
     private class AlarmsListener extends ItemListener<Alarm> {
         @Override
-        public void onResponse(Player player, Request request, Message message) {
+        public void onResponse(LyrionPlayer player, Request request, Message message) {
             parseMessage("alarms_loop", message);
         }
     }
 
     private class AlarmPlaylistsListener extends ItemListener<AlarmPlaylist> {
         @Override
-        public void onResponse(Player player, Request request, Message message) {
+        public void onResponse(LyrionPlayer player, Request request, Message message) {
             parseMessage("item_loop", message);
         }
     }
 
     private class SongListener extends ItemListener<Song> {
         @Override
-        public void onResponse(Player player, Request request, Message message) {
+        public void onResponse(LyrionPlayer player, Request request, Message message) {
             switch (request.getRequest()) {
                 case "playlists tracks":
                     parseMessage("playlisttracks_loop", message);
@@ -624,14 +624,14 @@ class CometClient extends BaseClient {
 
     private class MusicFolderListener extends ItemListener<MusicFolderItem> {
         @Override
-        public void onResponse(Player player, Request request, Message message) {
+        public void onResponse(LyrionPlayer player, Request request, Message message) {
             parseMessage("folder_loop", message);
         }
     }
 
     private class JiveItemListener extends ItemListener<JiveItem> {
         @Override
-        public void onResponse(Player player, Request request, Message message) {
+        public void onResponse(LyrionPlayer player, Request request, Message message) {
             parseMessage("item_loop", message);
         }
     }
@@ -716,7 +716,7 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void command(Player player, String[] cmd, Map<String, Object> params) {
+    public void command(LyrionPlayer player, String[] cmd, Map<String, Object> params) {
         ResponseHandler callback = mRequestMap.get(cmd[0]);
         exec(request(player, callback, cmd).params(params));
     }
@@ -727,13 +727,13 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void requestPlayerStatus(Player player) {
+    public void requestPlayerStatus(LyrionPlayer player) {
         Request request = statusRequest(player);
         publishMessage(request, CHANNEL_SLIM_REQUEST, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), null);
     }
 
     @Override
-    public void subscribePlayerStatus(final Player player, final PlayerState.PlayerSubscriptionType subscriptionType) {
+    public void subscribePlayerStatus(final LyrionPlayer player, final PlayerState.PlayerSubscriptionType subscriptionType) {
         Request request = statusRequest(player).param("subscribe", subscriptionType.getStatus());
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), new PublishListener() {
             @Override
@@ -747,29 +747,29 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void subscribeDisplayStatus(Player player, boolean subscribe) {
+    public void subscribeDisplayStatus(LyrionPlayer player, boolean subscribe) {
         Request request = request(player, "displaystatus").param("subscribe", subscribe ? "showbriefly" : "");
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_DISPLAY_STATUS_FORMAT), mPublishListener);
     }
 
     @Override
-    public void subscribeMenuStatus(Player player, boolean subscribe) {
+    public void subscribeMenuStatus(LyrionPlayer player, boolean subscribe) {
         if (subscribe)
             subscribeMenuStatus(player);
         else
             unsubscribeMenuStatus(player);
     }
 
-    private void subscribeMenuStatus(Player player) {
+    private void subscribeMenuStatus(LyrionPlayer player) {
         Request request = request(player, "menustatus");
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_MENU_STATUS_FORMAT), null);
     }
 
-    private void unsubscribeMenuStatus(Player player) {
+    private void unsubscribeMenuStatus(LyrionPlayer player) {
         publishMessage(null, CHANNEL_SLIM_UNSUBSCRIBE, subscribeResponseChannel(player, CHANNEL_MENU_STATUS_FORMAT), null);
     }
 
-    private String subscribeResponseChannel(Player player, String format) {
+    private String subscribeResponseChannel(LyrionPlayer player, String format) {
         return String.format(format, mBayeuxClient.getId(), player.getId());
     }
 
@@ -824,19 +824,19 @@ class CometClient extends BaseClient {
                     break;
                 }
                 case MSG_TIME_UPDATE: {
-                    Player activePlayer = mConnectionState.getActivePlayer();
+                    LyrionPlayer activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {
                         postSongTimeChanged(activePlayer);
                     }
                     break;
                 }
                 case MSG_SLEEP_UPDATE: {
-                    Player player = (Player) msg.obj;
+                    LyrionPlayer player = (LyrionPlayer) msg.obj;
                     postSleepTimeChanged(player);
                     break;
                 }
                 case MSG_MUSIC_CHANGED: {
-                    Player activePlayer = mConnectionState.getActivePlayer();
+                    LyrionPlayer activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {
                         repository.post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
                     }
@@ -853,23 +853,23 @@ class CometClient extends BaseClient {
     private Request serverStatusRequest() {
         return request("serverstatus")
                 .defaultPage()
-                .prefs("prefs", ConnectionState.MEDIA_DIRS, Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())
-                .prefs("playerprefs", Arrays.stream(Player.Pref.values()).map(Player.Pref::prefName).toArray(String[]::new));
+                .prefs("prefs", ConnectionState.MEDIA_DIRS, LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())
+                .prefs("playerprefs", Arrays.stream(LyrionPlayer.Pref.values()).map(LyrionPlayer.Pref::prefName).toArray(String[]::new));
     }
 
     @NonNull
-    private Request statusRequest(Player player) {
+    private Request statusRequest(LyrionPlayer player) {
         return request(player, "status")
                 .currentSong()
                 .param("menu", "menu")
                 .param("useContextMenu", "1");
     }
 
-    private Request request(Player player, ResponseHandler callback, String... cmd) {
+    private Request request(LyrionPlayer player, ResponseHandler callback, String... cmd) {
         return new Request(player, callback, cmd);
     }
 
-    private Request request(Player player, String... cmd) {
+    private Request request(LyrionPlayer player, String... cmd) {
         return new Request(player, null, cmd);
     }
 
@@ -883,10 +883,10 @@ class CometClient extends BaseClient {
 
     private static class Request extends SlimCommand {
         private final ResponseHandler callback;
-        private final Player player;
+        private final LyrionPlayer player;
         private PagingParams page;
 
-        private Request(Player player, ResponseHandler callback, String... cmd) {
+        private Request(LyrionPlayer player, ResponseHandler callback, String... cmd) {
             this.player = player;
             this.callback = callback;
             this.cmd(cmd);

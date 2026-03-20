@@ -10,10 +10,10 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
-public abstract class PlayerBaseView extends ViewParamItemView<Player> {
+public abstract class PlayerBaseView extends ViewParamItemView<LyrionPlayer> {
     private static final Map<String, Integer> modelIcons = PlayerBaseView.initializeModelIcons();
 
     public PlayerBaseView(BaseActivity activity, @NonNull View view) {
@@ -45,7 +45,7 @@ public abstract class PlayerBaseView extends ViewParamItemView<Player> {
     }
 
     @Override
-    public void bindView(Player player) {
+    public void bindView(LyrionPlayer player) {
         super.bindView(player);
         icon.setImageResource(getModelIcon(player.getModel()));
 

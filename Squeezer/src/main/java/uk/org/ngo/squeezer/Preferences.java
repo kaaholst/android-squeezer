@@ -51,7 +51,7 @@ import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.PlayableItemAction;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
 public final class Preferences {
@@ -513,7 +513,7 @@ public final class Preferences {
         return getStringPreference(KEY_LAST_PLAYER);
     }
 
-    public void setLastPlayer(@Nullable Player player) {
+    public void setLastPlayer(@Nullable LyrionPlayer player) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         if (player == null) {
@@ -765,7 +765,7 @@ public final class Preferences {
     }
 
     @NonNull
-    public Set<String> getArchivedMenuItems(Player player) {
+    public Set<String> getArchivedMenuItems(LyrionPlayer player) {
         Set<String> items = new HashSet<>();
         String string = sharedPreferences.getString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), null);
         if (TextUtils.isEmpty(string)) {
@@ -775,7 +775,7 @@ public final class Preferences {
         return items;
     }
 
-    public void setArchivedMenuItems(Set<String> items, Player player) {
+    public void setArchivedMenuItems(Set<String> items, LyrionPlayer player) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(String.format(KEY_PLAYER_ARCHIVED_ITEMS_FORMAT, player.getId()), TextUtils.join(";", items));
         editor.apply();

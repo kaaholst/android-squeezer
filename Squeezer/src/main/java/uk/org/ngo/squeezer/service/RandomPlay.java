@@ -11,24 +11,23 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /*
 One instance of class per Player
  */
 public class RandomPlay {
 
-    public RandomPlay(Player player) {
+    public RandomPlay(LyrionPlayer player) {
         this.player = player;
         reset(player);
     }
 
     private static final String TAG = "RandomPlay";
-    private final Player player;
+    private final LyrionPlayer player;
     private String activeFolderID;
 
     private Boolean firstFound;
@@ -37,7 +36,7 @@ public class RandomPlay {
     private BiFunction<Set<String>, Set<String>, Set<String>> mergeSets = (set1, set2) -> set1 == null ?
             set1 : Stream.concat(set1.stream(), set2.stream()).collect(Collectors.toSet());
 
-    void reset(Player player) {
+    void reset(LyrionPlayer player) {
         this.firstFound = false;
         this.nextTrack = "";
         this.activeFolderID = "";

@@ -36,7 +36,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -56,7 +56,7 @@ public class ConnectionState {
 
     private final HomeMenuHandling mHomeMenuHandling;
     private final SqueezerRepository repository;
-    private final Map<Player, RandomPlay> mRandomPlay = new HashMap<>();
+    private final Map<LyrionPlayer, RandomPlay> mRandomPlay = new HashMap<>();
 
 
     public final static String MEDIA_DIRS = "mediadirs";
@@ -106,11 +106,11 @@ public class ConnectionState {
     /** Duration before we give up rehandshake */
     private static final long REHANDSHAKE_TIMEOUT = 15 * 60_000;
 
-    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
+    /** Map Player IDs to the {@link LyrionPlayer} with that ID. */
+    private final Map<String, LyrionPlayer> mPlayers = new ConcurrentHashMap<>();
 
     /** The active player (the player to which commands are sent by default). */
-    private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
+    private final AtomicReference<LyrionPlayer> mActivePlayer = new AtomicReference<>();
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
@@ -164,37 +164,37 @@ public class ConnectionState {
         state = newState;
     }
 
-    public void setPlayers(Map<String, Player> players) {
+    public void setPlayers(Map<String, LyrionPlayer> players) {
         mPlayers.clear();
         mPlayers.putAll(players);
         repository.post(new PlayersChanged());
     }
 
-    Player getPlayer(String playerId) {
+    LyrionPlayer getPlayer(String playerId) {
         if (playerId == null) return null;
         return mPlayers.get(playerId);
     }
 
-    public Map<String, Player> getPlayers() {
+    public Map<String, LyrionPlayer> getPlayers() {
         return mPlayers;
     }
 
-    public Player getActivePlayer() {
+    public LyrionPlayer getActivePlayer() {
         return mActivePlayer.get();
     }
 
-    @NonNull private Set<Player> getSyncGroup() {
-        Set<Player> out = new HashSet<>();
+    @NonNull private Set<LyrionPlayer> getSyncGroup() {
+        Set<LyrionPlayer> out = new HashSet<>();
 
-        Player player = getActivePlayer();
+        LyrionPlayer player = getActivePlayer();
         if (player != null) {
             out.add(player);
 
-            Player master = getPlayer(player.getPlayerState().getSyncMaster());
+            LyrionPlayer master = getPlayer(player.getPlayerState().getSyncMaster());
             if (master != null) out.add(master);
 
             for (String slave : player.getPlayerState().getSyncSlaves()) {
-                Player syncSlave = getPlayer(slave);
+                LyrionPlayer syncSlave = getPlayer(slave);
                 if (syncSlave != null) out.add(syncSlave);
             }
         }
@@ -202,10 +202,10 @@ public class ConnectionState {
         return out;
     }
 
-    @NonNull Set<Player> getVolumeSyncGroup(boolean groupVolume) {
-        Player player = getActivePlayer();
+    @NonNull Set<LyrionPlayer> getVolumeSyncGroup(boolean groupVolume) {
+        LyrionPlayer player = getActivePlayer();
         if (player != null && (player.isSyncVolume() || !groupVolume)) {
-            Set<Player> players = new HashSet<>();
+            Set<LyrionPlayer> players = new HashSet<>();
             players.add(player);
             return players;
         }
@@ -214,12 +214,12 @@ public class ConnectionState {
     }
 
     public @NonNull ISqueezeService.VolumeInfo getVolume(boolean groupVolume) {
-        Set<Player> syncGroup = getVolumeSyncGroup(groupVolume);
+        Set<LyrionPlayer> syncGroup = getVolumeSyncGroup(groupVolume);
         int lowestVolume = 100;
         int higestVolume = 0;
         boolean muted = false;
         List<String> playerNames = new ArrayList<>();
-        for (Player player : syncGroup) {
+        for (LyrionPlayer player : syncGroup) {
             int currentVolume = player.getPlayerState().getCurrentVolume();
             if (currentVolume < lowestVolume) lowestVolume = currentVolume;
             if (currentVolume > higestVolume) higestVolume = currentVolume;
@@ -232,7 +232,7 @@ public class ConnectionState {
         return new ISqueezeService.VolumeInfo(muted, (int) volume, TextUtils.join(", ", playerNames));
     }
 
-    void setActivePlayer(Player player) {
+    void setActivePlayer(LyrionPlayer player) {
         mActivePlayer.set(player);
         repository.post(new ActivePlayerChanged(player));
     }
@@ -255,7 +255,7 @@ public class ConnectionState {
         return mHomeMenuHandling;
     }
 
-    public RandomPlay getRandomPlay(Player player) {
+    public RandomPlay getRandomPlay(LyrionPlayer player) {
         RandomPlay randomPlay = mRandomPlay.get(player);
         if (randomPlay != null) {
             return mRandomPlay.get(player);
@@ -268,7 +268,7 @@ public class ConnectionState {
 
 //    For menu updates sent from LMS, handling of archived nodes needs testing!
     void menuStatusEvent(MenuStatusMessage event) {
-        Player activePlayer = getActivePlayer();
+        LyrionPlayer activePlayer = getActivePlayer();
         if (activePlayer != null && event.playerId.equals(activePlayer.getId())) {
             mHomeMenuHandling.handleMenuStatusEvent(event);
         }

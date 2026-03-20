@@ -19,14 +19,14 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /** Event sent when a player's state has changed. */
 public class PlayerStateChanged {
     /** The player with changed state. */
-    @NonNull public final Player player;
+    @NonNull public final LyrionPlayer player;
 
-    public PlayerStateChanged(@NonNull Player player) {
+    public PlayerStateChanged(@NonNull LyrionPlayer player) {
         this.player = player;
     }
 

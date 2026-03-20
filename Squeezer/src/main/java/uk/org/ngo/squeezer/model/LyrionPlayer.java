@@ -27,7 +27,7 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 
-public class Player extends Item implements Comparable<Player> {
+public class LyrionPlayer extends Item implements Comparable<LyrionPlayer> {
 
     private String mName;
 
@@ -43,7 +43,7 @@ public class Player extends Item implements Comparable<Player> {
     private boolean mConnected;
 
     @Override
-    public int compareTo(@NonNull Player otherPlayer) {
+    public int compareTo(@NonNull LyrionPlayer otherPlayer) {
         return this.mName.compareToIgnoreCase((otherPlayer).mName);
     }
 
@@ -71,7 +71,7 @@ public class Player extends Item implements Comparable<Player> {
         }
     }
 
-    public Player(Map<String, Object> record) {
+    public LyrionPlayer(Map<String, Object> record) {
         setId(getString(record, "playerid"));
         mIp = getString(record, "ip");
         mName = getString(record, "name");
@@ -79,14 +79,14 @@ public class Player extends Item implements Comparable<Player> {
         mCanPowerOff = getInt(record, "canpoweroff") == 1;
         mConnected = getInt(record, "connected") == 1;
 
-        for (Player.Pref pref : Player.Pref.values()) {
+        for (LyrionPlayer.Pref pref : LyrionPlayer.Pref.values()) {
             if (record.containsKey(pref.prefName)) {
                 mPlayerState.prefs.put(pref, Util.getString(record, pref.prefName));
             }
         }
     }
 
-    private Player(Parcel source) {
+    private LyrionPlayer(Parcel source) {
         setId(source.readString());
         mIp = source.readString();
         mName = source.readString();
@@ -101,7 +101,7 @@ public class Player extends Item implements Comparable<Player> {
         return mName;
     }
 
-    public Player setName(@NonNull String name) {
+    public LyrionPlayer setName(@NonNull String name) {
         this.mName = name;
         return this;
     }
@@ -131,15 +131,15 @@ public class Player extends Item implements Comparable<Player> {
         return mPlayerState;
     }
 
-    public static final Creator<Player> CREATOR = new Creator<>() {
+    public static final Creator<LyrionPlayer> CREATOR = new Creator<>() {
         @Override
-        public Player[] newArray(int size) {
-            return new Player[size];
+        public LyrionPlayer[] newArray(int size) {
+            return new LyrionPlayer[size];
         }
 
         @Override
-        public Player createFromParcel(Parcel source) {
-            return new Player(source);
+        public LyrionPlayer createFromParcel(Parcel source) {
+            return new LyrionPlayer(source);
         }
     };
 
@@ -156,7 +156,7 @@ public class Player extends Item implements Comparable<Player> {
     /**
      * Comparator to compare two players by ID.
      */
-    public static final Comparator<Player> compareById = Comparator.comparing(Item::getId);
+    public static final Comparator<LyrionPlayer> compareById = Comparator.comparing(Item::getId);
 
     @Override
     public boolean equals(Object o) {
@@ -165,7 +165,7 @@ public class Player extends Item implements Comparable<Player> {
         }
 
         // super.equals() has already checked that o is not null and is of the same class.
-        Player p = (Player) o;
+        LyrionPlayer p = (LyrionPlayer) o;
 
         return getName().equals(p.getName());
     }
@@ -196,6 +196,6 @@ public class Player extends Item implements Comparable<Player> {
     }
 
     public boolean isSyncVolume() {
-        return "1".equals(getPlayerState().prefs.get(Player.Pref.SYNC_VOLUME));
+        return "1".equals(getPlayerState().prefs.get(LyrionPlayer.Pref.SYNC_VOLUME));
     }
 }

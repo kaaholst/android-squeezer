@@ -18,19 +18,19 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 /** Event sent when the repeat status of the player has changed. */
 public class RepeatStatusChanged {
     /** The player with changed state. */
-    @NonNull public final Player player;
+    @NonNull public final LyrionPlayer player;
 
     /** The new repeat status. */
     @NonNull
     public final PlayerState.RepeatStatus repeatStatus;
 
-    public RepeatStatusChanged(@NonNull Player player, @NonNull PlayerState.RepeatStatus repeatStatus) {
+    public RepeatStatusChanged(@NonNull LyrionPlayer player, @NonNull PlayerState.RepeatStatus repeatStatus) {
         this.player = player;
         this.repeatStatus = repeatStatus;
     }

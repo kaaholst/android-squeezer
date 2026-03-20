@@ -18,14 +18,14 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 /** Event sent when the duration or current play position of the current song has changed. */
 public class SongTimeChanged {
     /** The player with changed state. */
     @NonNull
-    public final Player player;
+    public final LyrionPlayer player;
 
     @PlayerState.PlayState
     public final String playStatus;
@@ -36,7 +36,7 @@ public class SongTimeChanged {
     /** The song's duration, measured in seconds. */
     public final int duration;
 
-    public SongTimeChanged(@NonNull Player player, String playStatus, int currentPosition, int duration) {
+    public SongTimeChanged(@NonNull LyrionPlayer player, String playStatus, int currentPosition, int duration) {
         this.playStatus = playStatus;
         this.player = player;
         this.currentPosition = currentPosition;

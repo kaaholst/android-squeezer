@@ -25,7 +25,7 @@ import androidx.fragment.app.FragmentManager;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSleepDialog;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
@@ -49,7 +49,7 @@ public class PlayerViewLogic {
     /**
      * If menu item is a known player action, perform it and return true.
      */
-    public static boolean doPlayerAction(FragmentManager fragmentManager, ISqueezeService service, MenuItem menuItem, Player selectedItem) {
+    public static boolean doPlayerAction(FragmentManager fragmentManager, ISqueezeService service, MenuItem menuItem, LyrionPlayer selectedItem) {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.sleep) {// This is the start of a context menu.
             // Just return, as we have set the current player.

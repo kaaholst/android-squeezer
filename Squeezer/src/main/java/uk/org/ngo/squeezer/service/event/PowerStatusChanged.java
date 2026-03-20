@@ -18,14 +18,14 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /** Event sent when the power status of the player has changed. */
 public class PowerStatusChanged {
     /** The player with changed state. */
-    @NonNull public final Player player;
+    @NonNull public final LyrionPlayer player;
 
-    public PowerStatusChanged(@NonNull Player player) {
+    public PowerStatusChanged(@NonNull LyrionPlayer player) {
         this.player = player;
     }
 

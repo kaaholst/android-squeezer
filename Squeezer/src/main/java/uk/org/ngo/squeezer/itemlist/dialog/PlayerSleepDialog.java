@@ -6,20 +6,19 @@ import android.text.InputType;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerSleepDialog extends BaseEditTextDialog {
 
     private BaseActivity activity;
-    private Player player;
+    private LyrionPlayer player;
 
-    public PlayerSleepDialog(Player player) {
+    public PlayerSleepDialog(LyrionPlayer player) {
         this.player = player;
     }
 

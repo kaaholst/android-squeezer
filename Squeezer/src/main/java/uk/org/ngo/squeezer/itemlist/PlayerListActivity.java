@@ -38,7 +38,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -59,8 +59,8 @@ public class PlayerListActivity extends BaseActivity implements
     /**
      * Map from player IDs to Players synced to that player ID.
      */
-    private final Map<String, Collection<Player>> mPlayerSyncGroups = new HashMap<>();
-    protected Player mTrackingTouch = null;
+    private final Map<String, Collection<LyrionPlayer>> mPlayerSyncGroups = new HashMap<>();
+    protected LyrionPlayer mTrackingTouch = null;
     /**
      * An update arrived while tracking touches. UI should be re-synced.
      */
@@ -68,7 +68,7 @@ public class PlayerListActivity extends BaseActivity implements
     private RecyclerView listView;
     PlayerListAdapter adapter;
 
-    private Player currentPlayer;
+    private LyrionPlayer currentPlayer;
     private PlayerListAdapter.SyncGroup currentSyncGroup;
 
     public static void show(Context context) {
@@ -122,11 +122,11 @@ public class PlayerListActivity extends BaseActivity implements
     }
 
     @Override
-    public Player getCurrentPlayer() {
+    public LyrionPlayer getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public void setCurrentPlayer(Player currentPlayer) {
+    public void setCurrentPlayer(LyrionPlayer currentPlayer) {
         this.currentPlayer = currentPlayer;
     }
 
@@ -152,7 +152,7 @@ public class PlayerListActivity extends BaseActivity implements
      * @param masterId ID of the player to sync to.
      */
     @Override
-    public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
+    public void syncPlayerToPlayer(@NonNull LyrionPlayer slave, @NonNull String masterId) {
         requireService().syncPlayerToPlayer(slave, masterId);
     }
 
@@ -162,55 +162,55 @@ public class PlayerListActivity extends BaseActivity implements
      * @param player the player to be removed from sync groups.
      */
     @Override
-    public void unsyncPlayer(@NonNull Player player) {
+    public void unsyncPlayer(@NonNull LyrionPlayer player) {
         requireService().unsyncPlayer(player);
     }
 
     @Override
     public String getPlayTrackAlbum() {
-        return currentPlayer.getPlayerState().prefs.get(Player.Pref.PLAY_TRACK_ALBUM);
+        return currentPlayer.getPlayerState().prefs.get(LyrionPlayer.Pref.PLAY_TRACK_ALBUM);
     }
 
     @Override
     public void setPlayTrackAlbum(@NonNull String option) {
-        requireService().playerPref(currentPlayer, Player.Pref.PLAY_TRACK_ALBUM, option);
+        requireService().playerPref(currentPlayer, LyrionPlayer.Pref.PLAY_TRACK_ALBUM, option);
     }
 
     @Override
     public String getDefeatDestructiveTTP() {
-        return currentPlayer.getPlayerState().prefs.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP);
+        return currentPlayer.getPlayerState().prefs.get(LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP);
     }
 
     @Override
     public void setDefeatDestructiveTTP(@NonNull String option) {
-        requireService().playerPref(currentPlayer, Player.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
+        requireService().playerPref(currentPlayer, LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
     }
 
     @Override
     public int getSyncVolume() {
-        return getGroupPref(Player.Pref.SYNC_VOLUME);
+        return getGroupPref(LyrionPlayer.Pref.SYNC_VOLUME);
     }
 
     @Override
     public void setSyncVolume(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_VOLUME, option);
+            requireService().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_VOLUME, option);
         }
     }
 
     @Override
     public int getSyncPower() {
-        return getGroupPref(Player.Pref.SYNC_POWER);
+        return getGroupPref(LyrionPlayer.Pref.SYNC_POWER);
     }
 
     @Override
     public void setSyncPower(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            requireService().playerPref(currentSyncGroup.getItem(i), Player.Pref.SYNC_POWER, option);
+            requireService().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_POWER, option);
         }
     }
 
-    private int getGroupPref(Player.Pref pref) {
+    private int getGroupPref(LyrionPlayer.Pref pref) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
             int prefValue = Util.getInt(currentSyncGroup.getItem(i).getPlayerState().prefs.get(pref), -1);
             if (prefValue != -1) return prefValue;
@@ -235,7 +235,7 @@ public class PlayerListActivity extends BaseActivity implements
         }
     }
 
-    public void setTrackingTouch(Player trackingTouch) {
+    public void setTrackingTouch(LyrionPlayer trackingTouch) {
         mTrackingTouch = trackingTouch;
         if (mTrackingTouch == null) {
             if (mUpdateWhileTracking) {
@@ -250,11 +250,11 @@ public class PlayerListActivity extends BaseActivity implements
      *
      * @param players List of players.
      */
-    public void updateSyncGroups(List<Player> players) {
+    public void updateSyncGroups(List<LyrionPlayer> players) {
         mPlayerSyncGroups.clear();
 
         // Iterate over all the connected players to build the list of master players.
-        for (Player player : players) {
+        for (LyrionPlayer player : players) {
             String playerId = player.getId();
             PlayerState playerState = player.getPlayerState();
             String syncMaster = playerState.getSyncMaster();
@@ -272,8 +272,8 @@ public class PlayerListActivity extends BaseActivity implements
         }
     }
 
-    private void addSyncSlave(String masterId, Player player) {
-        Collection<Player> slaves = mPlayerSyncGroups.get(masterId);
+    private void addSyncSlave(String masterId, LyrionPlayer player) {
+        Collection<LyrionPlayer> slaves = mPlayerSyncGroups.get(masterId);
         if (slaves == null) {
             mPlayerSyncGroups.put(masterId, slaves = new HashSet<>());
         }
@@ -281,7 +281,7 @@ public class PlayerListActivity extends BaseActivity implements
     }
 
     @NonNull
-    public Map<String, Collection<Player>> getPlayerSyncGroups() {
+    public Map<String, Collection<LyrionPlayer>> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
     }
 }

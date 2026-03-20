@@ -16,7 +16,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class VolumeSettings extends DialogFragment {
@@ -46,7 +46,7 @@ public class VolumeSettings extends DialogFragment {
         groupVolume.setOnCheckedChangeListener((buttonView, isChecked) -> groupVolumeHint.setText(isChecked ? R.string.player_group_volume_on : R.string.player_group_volume_off));
         groupVolume.setChecked(preferences.isGroupVolume());
 
-        String digitalVolumeControl = service.getActivePlayerState().prefs.get(Player.Pref.DIGITAL_VOLUME_CONTROL);
+        String digitalVolumeControl = service.getActivePlayerState().prefs.get(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL);
         boolean canFixedVolume = digitalVolumeControl != null; // TODO check for hasDigitalOut
         SwitchMaterial fixedVolume = view.findViewById(R.id.fixed_volume);
         TextView fixedVolumeHint = view.findViewById(R.id.fixed_volume_hint);
@@ -64,7 +64,7 @@ public class VolumeSettings extends DialogFragment {
                     preferences.setVolumeIncrements((int) volumeIncrements.getValue());
                     preferences.setGroupVolume(groupVolume.isChecked());
                     service.preferenceChanged(preferences, null);
-                    service.playerPref(Player.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
+                    service.playerPref(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
                 })
                 .setNegativeButton(android.R.string.cancel, null);
         return builder.create();

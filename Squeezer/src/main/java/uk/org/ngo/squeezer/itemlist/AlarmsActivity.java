@@ -43,7 +43,7 @@ import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlarmSettingsDialog;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -51,7 +51,7 @@ import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 
 public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implements AlarmSettingsDialog.HostActivity {
     /** The most recent active player. */
-    private Player mActivePlayer;
+    private LyrionPlayer mActivePlayer;
 
     /** Toggle/Switch that controls whether all alarms are enabled or disabled. */
     private CompoundButtonWrapper mAlarmsEnabledButton;
@@ -94,7 +94,7 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
         mAlarmsEnabledButton.setOncheckedChangeListener((buttonView, isChecked) -> {
             mAllAlarmsHintView.setText(isChecked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
             if (getService() != null) {
-                getService().playerPref(Player.Pref.ALARMS_ENABLED, isChecked ? "1" : "0");
+                getService().playerPref(LyrionPlayer.Pref.ALARMS_ENABLED, isChecked ? "1" : "0");
             }
         });
     }
@@ -201,8 +201,8 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
     }
 
     private void bindPreferences() {
-        Map<Player.Pref, String> prefs = mActivePlayer.getPlayerState().prefs;
-        boolean alarmsEnabled = "1".equals(prefs.get(Player.Pref.ALARMS_ENABLED));
+        Map<LyrionPlayer.Pref, String> prefs = mActivePlayer.getPlayerState().prefs;
+        boolean alarmsEnabled = "1".equals(prefs.get(LyrionPlayer.Pref.ALARMS_ENABLED));
         mAlarmsEnabledButton.setChecked(alarmsEnabled);
         mAllAlarmsHintView.setText(alarmsEnabled ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
     }
@@ -214,13 +214,13 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
 
     @Override
     @NonNull
-    public Player getPlayer() {
+    public LyrionPlayer getPlayer() {
         return mActivePlayer;
     }
 
     @Override
     @NonNull
-    public String getPlayerPref(@NonNull Player.Pref playerPref, @NonNull String def) {
+    public String getPlayerPref(@NonNull LyrionPlayer.Pref playerPref, @NonNull String def) {
         String ret = mActivePlayer.getPlayerState().prefs.get(playerPref);
         return (ret == null) ? def : ret;
     }
@@ -233,10 +233,10 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
     public void onPositiveClick(int volume, int snooze, int timeout, boolean fade) {
         ISqueezeService service = getService();
         if (service != null) {
-            service.playerPref(Player.Pref.ALARM_DEFAULT_VOLUME, String.valueOf(volume));
-            service.playerPref(Player.Pref.ALARM_SNOOZE_SECONDS, String.valueOf(snooze));
-            service.playerPref(Player.Pref.ALARM_TIMEOUT_SECONDS, String.valueOf(timeout));
-            service.playerPref(Player.Pref.ALARM_FADE_SECONDS, fade ? "1" : "0");
+            service.playerPref(LyrionPlayer.Pref.ALARM_DEFAULT_VOLUME, String.valueOf(volume));
+            service.playerPref(LyrionPlayer.Pref.ALARM_SNOOZE_SECONDS, String.valueOf(snooze));
+            service.playerPref(LyrionPlayer.Pref.ALARM_TIMEOUT_SECONDS, String.valueOf(timeout));
+            service.playerPref(LyrionPlayer.Pref.ALARM_FADE_SECONDS, fade ? "1" : "0");
         }
     }
 

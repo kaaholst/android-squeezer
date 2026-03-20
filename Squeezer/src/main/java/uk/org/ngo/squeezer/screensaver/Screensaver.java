@@ -23,7 +23,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.model.CurrentTrack;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -39,7 +39,7 @@ public class Screensaver extends AppCompatActivity {
     private View clockContainer;
     private ViewGroup screensaverContainer;
     private TextView trackView;
-    private Player activePlayer;
+    private LyrionPlayer activePlayer;
 
     private final Runnable moveRunnable = new Runnable() {
         @Override
@@ -99,7 +99,7 @@ public class Screensaver extends AppCompatActivity {
         moveHandler.postDelayed(moveRunnable, MOVE_INTERVAL);
     }
 
-    private void updateTrack(TextView trackView, Player player) {
+    private void updateTrack(TextView trackView, LyrionPlayer player) {
         CharSequence oldText = trackView.getText();
         int oldVisibility = trackView.getVisibility();
         if (player != null && player.getConnected() && player.getPlayerState().isPoweredOn()) {
