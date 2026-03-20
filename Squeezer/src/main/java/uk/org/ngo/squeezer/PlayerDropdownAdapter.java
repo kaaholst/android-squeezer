@@ -12,13 +12,13 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
-class PlayerDropdownAdapter extends ArrayAdapter<Player> {
-    private final Player activePlayer;
+class PlayerDropdownAdapter extends ArrayAdapter<LyrionPlayer> {
+    private final LyrionPlayer activePlayer;
     private boolean continuePlayback;
 
-    public PlayerDropdownAdapter(Context actionBarContext, List<Player> connectedPlayers, Player activePlayer) {
+    public PlayerDropdownAdapter(Context actionBarContext, List<LyrionPlayer> connectedPlayers, LyrionPlayer activePlayer) {
         super(actionBarContext, 0);
         add(null);
         addAll(connectedPlayers);
@@ -27,7 +27,7 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
 
     @Override
     public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        Player item = getItem(position);
+        LyrionPlayer item = getItem(position);
         if (item == null) {
             View view = LayoutInflater.from(getContext()).inflate(R.layout.continue_playback, parent, false);
             view.setOnClickListener(v -> {
@@ -44,7 +44,7 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
 
     @Override
     public boolean isEnabled(int position) {
-        Player item = getItem(position);
+        LyrionPlayer item = getItem(position);
         return !(item == null || item.equals(activePlayer));
     }
 

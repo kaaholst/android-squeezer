@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /**
  * A dialog that shows sync group options -- either joining an existing group, or
@@ -49,10 +49,10 @@ public class PlayerSyncDialog extends DialogFragment {
      * Activities that host this dialog must implement this interface.
      */
     public interface PlayerSyncDialogHost {
-        Map<String, Collection<Player>> getPlayerSyncGroups();
-        Player getCurrentPlayer();
-        void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
-        void unsyncPlayer(@NonNull Player player);
+        Map<String, Collection<LyrionPlayer>> getPlayerSyncGroups();
+        LyrionPlayer getCurrentPlayer();
+        void syncPlayerToPlayer(@NonNull LyrionPlayer slave, @NonNull String masterId);
+        void unsyncPlayer(@NonNull LyrionPlayer player);
     }
 
     private PlayerSyncDialogHost mHost;
@@ -81,8 +81,8 @@ public class PlayerSyncDialog extends DialogFragment {
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Map<String, Collection<Player>> playerSyncGroups = mHost.getPlayerSyncGroups();
-        final Player currentPlayer = mHost.getCurrentPlayer();
+        Map<String, Collection<LyrionPlayer>> playerSyncGroups = mHost.getPlayerSyncGroups();
+        final LyrionPlayer currentPlayer = mHost.getCurrentPlayer();
 
         /* The names of each sync group. */
         List<String> playerSyncGroupNames = new ArrayList<>();
@@ -112,10 +112,10 @@ public class PlayerSyncDialog extends DialogFragment {
 
             // Collect the player names and master ID for this sync group.
             List<String> playerNames = new ArrayList<>();
-            List<Player> slaves = new ArrayList<>(playerSyncGroups.get(masterId));
-            Collections.sort(slaves, Player.compareById);
+            List<LyrionPlayer> slaves = new ArrayList<>(playerSyncGroups.get(masterId));
+            Collections.sort(slaves, LyrionPlayer.compareById);
 
-            for (Player slave : slaves) {
+            for (LyrionPlayer slave : slaves) {
                 playerNames.add(slave.getName());
             }
             playerSyncGroupNames.add(TextUtils.join(", ", playerNames));

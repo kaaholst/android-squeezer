@@ -21,7 +21,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerBaseView;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -93,7 +93,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
     }
 
     private class PlayerAdapter extends RecyclerView.Adapter<SqueezerRemoteControlConfigureActivityPlayerView> {
-        private List<Player> players = Collections.emptyList();
+        private List<LyrionPlayer> players = Collections.emptyList();
 
         @NonNull
         @Override
@@ -125,7 +125,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
         }
 
         @Override
-        public void bindView(Player player) {
+        public void bindView(LyrionPlayer player) {
             super.bindView(player);
             itemView.setOnClickListener(view -> {
                 final Context context = SqueezerRemoteControlPlayerSelectActivity.this;

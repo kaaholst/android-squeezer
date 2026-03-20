@@ -27,7 +27,7 @@ import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 public interface ISqueezeService {
@@ -54,17 +54,17 @@ public interface ISqueezeService {
      * @param player May be null, in which case no players are controlled.
      * @param continuePlaying Continue playback on the supplied player
      */
-    void setActivePlayer(@NonNull Player player, boolean continuePlaying);
+    void setActivePlayer(@NonNull LyrionPlayer player, boolean continuePlaying);
 
     // Returns the player we are currently controlling
     @Nullable
-    Player getActivePlayer();
+    LyrionPlayer getActivePlayer();
 
     /**
      * @return players that the server knows about (irrespective of power, connection, or
      * other status).
      */
-    List<Player> getPlayers();
+    List<LyrionPlayer> getPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
@@ -73,11 +73,11 @@ public interface ISqueezeService {
     @NonNull VolumeInfo getVolume();
 
     // Player control
-    void togglePower(Player player);
-    void playerRename(Player player, String newName);
-    void sleep(Player player, int duration);
-    void playerPref(Player.Pref playerPref, String value);
-    void playerPref(Player player, Player.Pref playerPref, String value);
+    void togglePower(LyrionPlayer player);
+    void playerRename(LyrionPlayer player, String newName);
+    void sleep(LyrionPlayer player, int duration);
+    void playerPref(LyrionPlayer.Pref playerPref, String value);
+    void playerPref(LyrionPlayer player, LyrionPlayer.Pref playerPref, String value);
 
     /**
      * Synchronises the slave player to the player with masterId.
@@ -85,29 +85,29 @@ public interface ISqueezeService {
      * @param player the player to sync.
      * @param masterId ID of the player to sync to.
      */
-    void syncPlayerToPlayer(@NonNull Player player, @NonNull String masterId);
+    void syncPlayerToPlayer(@NonNull LyrionPlayer player, @NonNull String masterId);
 
     /**
      * Removes the player with playerId from any sync groups.
      *
      * @param player the player to be removed from sync groups.
      */
-    void unsyncPlayer(@NonNull Player player);
+    void unsyncPlayer(@NonNull LyrionPlayer player);
 
     ////////////////////
     // Depends on active player:
 
     String getServerVersion();
     boolean togglePausePlay();
-    boolean togglePausePlay(Player player);
+    boolean togglePausePlay(LyrionPlayer player);
     boolean play();
     boolean pause();
     boolean stop();
-    void pause(Player player, boolean pause);
+    void pause(LyrionPlayer player, boolean pause);
     boolean nextTrack();
-    boolean nextTrack(Player player);
+    boolean nextTrack(LyrionPlayer player);
     boolean previousTrack();
-    boolean previousTrack(Player player);
+    boolean previousTrack(LyrionPlayer player);
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistIndex(int index);
@@ -115,7 +115,7 @@ public interface ISqueezeService {
     boolean playlistMove(int fromIndex, int toIndex);
     boolean playlistClear();
     boolean playlistSave(String name);
-    boolean button(Player player, IRButton button);
+    boolean button(LyrionPlayer player, IRButton button);
 
     void setSecondsElapsed(int seconds);
     void adjustSecondsElapsed(int seconds);
@@ -123,9 +123,9 @@ public interface ISqueezeService {
     String getCurrentPlaylist();
 
     void toggleMute();
-    void mute(Player player, boolean mute);
-    void setVolumeTo(Player player, int newVolume);
-    void toggleMute(Player player);
+    void mute(LyrionPlayer player, boolean mute);
+    void setVolumeTo(LyrionPlayer player, int newVolume);
+    void toggleMute(LyrionPlayer player);
     void setVolumeTo(int newVolume);
     void adjustVolume(int direction);
 
@@ -203,7 +203,7 @@ public interface ISqueezeService {
      * @param playerId id of the player to find
      * @return
      */
-    Player getPlayer(String playerId) throws PlayerNotFoundException;
+    LyrionPlayer getPlayer(String playerId) throws PlayerNotFoundException;
     /**
      * Initiate download of songs for the supplied item.
      *

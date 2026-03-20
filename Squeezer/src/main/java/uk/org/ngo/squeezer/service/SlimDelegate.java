@@ -24,7 +24,7 @@ import java.util.Set;
 
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
 
@@ -53,19 +53,19 @@ class SlimDelegate {
         mClient.requestServerStatus();
     }
 
-    void requestPlayerStatus(Player player) {
+    void requestPlayerStatus(LyrionPlayer player) {
         mClient.requestPlayerStatus(player);
     }
 
-    void subscribePlayerStatus(Player player, PlayerState.PlayerSubscriptionType subscriptionType) {
+    void subscribePlayerStatus(LyrionPlayer player, PlayerState.PlayerSubscriptionType subscriptionType) {
         mClient.subscribePlayerStatus(player, subscriptionType);
     }
 
-    void subscribeDisplayStatus(Player player, boolean subscribe) {
+    void subscribeDisplayStatus(LyrionPlayer player, boolean subscribe) {
         mClient.subscribeDisplayStatus(player, subscribe);
     }
 
-    void subscribeMenuStatus(Player player, boolean subscribe) {
+    void subscribeMenuStatus(LyrionPlayer player, boolean subscribe) {
         mClient.subscribeMenuStatus(player, subscribe);
     }
 
@@ -82,7 +82,7 @@ class SlimDelegate {
         return mClient.getConnectionState().getServerVersion();
     }
 
-    Command command(Player player) {
+    Command command(LyrionPlayer player) {
         return new Command(mClient, player);
     }
 
@@ -90,16 +90,16 @@ class SlimDelegate {
         return new Command(mClient);
     }
 
-    /** If there is an active player call {@link #command(Player)} with the active player */
+    /** If there is an active player call {@link #command(LyrionPlayer)} with the active player */
     Command activePlayerCommand() {
         return new PlayerCommand(mClient, mClient.getConnectionState().getActivePlayer());
     }
 
-    <T> Request<T> requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
+    <T> Request<T> requestItems(LyrionPlayer player, int start, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, start, BaseClient.mPageSize, callback);
     }
 
-    <T> Request<T> requestItems(Player player, IServiceItemListCallback<T> callback) {
+    <T> Request<T> requestItems(LyrionPlayer player, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, 0, BaseClient.mPageSize, callback);
     }
 
@@ -111,23 +111,23 @@ class SlimDelegate {
         return new Request<>(mClient, null, 0, BaseClient.mPageSize, callback);
     }
 
-    public Player getActivePlayer() {
+    public LyrionPlayer getActivePlayer() {
         return mClient.getConnectionState().getActivePlayer();
     }
 
-    void setActivePlayer(Player player) {
+    void setActivePlayer(LyrionPlayer player) {
         mClient.getConnectionState().setActivePlayer(player);
     }
 
-    Player getPlayer(String playerId) {
+    LyrionPlayer getPlayer(String playerId) {
         return mClient.getConnectionState().getPlayer(playerId);
     }
 
-    public Map<String, Player> getPlayers() {
+    public Map<String, LyrionPlayer> getPlayers() {
         return mClient.getConnectionState().getPlayers();
     }
 
-    public Set<Player> getVolumeSyncGroup(boolean groupVolume) {
+    public Set<LyrionPlayer> getVolumeSyncGroup(boolean groupVolume) {
         return mClient.getConnectionState().getVolumeSyncGroup(groupVolume);
     }
 
@@ -156,34 +156,34 @@ class SlimDelegate {
     }
 
     public int addItems(String folderID, Set<String> set) {
-        Player player = mClient.getConnectionState().getActivePlayer();
+        LyrionPlayer player = mClient.getConnectionState().getActivePlayer();
         return mClient.getConnectionState().getRandomPlay(player).addItems(folderID, set);
     }
 
     public Set<String> getTracks(String folderID) {
-        Player player = mClient.getConnectionState().getActivePlayer();
+        LyrionPlayer player = mClient.getConnectionState().getActivePlayer();
         return mClient.getConnectionState().getRandomPlay(player).getTracks(folderID);
     }
 
-    public RandomPlay getRandomPlay(Player player) {
+    public RandomPlay getRandomPlay(LyrionPlayer player) {
         return mClient.getConnectionState().getRandomPlay(player);
     }
 
-    public void setNextTrack(Player player, String nextTrack) {
+    public void setNextTrack(LyrionPlayer player, String nextTrack) {
         mClient.getConnectionState().getRandomPlay(player).setNextTrack(nextTrack);
     }
 
     public void setActiveFolderID(String folderID) {
-        Player player = mClient.getConnectionState().getActivePlayer();
+        LyrionPlayer player = mClient.getConnectionState().getActivePlayer();
         mClient.getConnectionState().getRandomPlay(player).setActiveFolderID(folderID);
     }
 
 
     static class Command extends SlimCommand {
         final SlimClient slimClient;
-        final protected Player player;
+        final protected LyrionPlayer player;
 
-        private Command(SlimClient slimClient, Player player) {
+        private Command(SlimClient slimClient, LyrionPlayer player) {
             this.slimClient = slimClient;
             this.player = player;
         }
@@ -223,7 +223,7 @@ class SlimDelegate {
 
     static class PlayerCommand extends Command {
 
-        private PlayerCommand(SlimClient slimClient, Player player) {
+        private PlayerCommand(SlimClient slimClient, LyrionPlayer player) {
             super(slimClient, player);
         }
 
@@ -238,7 +238,7 @@ class SlimDelegate {
         private final int start;
         private final int pageSize;
 
-        private Request(SlimClient slimClient, Player player, int start, int pageSize, IServiceItemListCallback<T> callback) {
+        private Request(SlimClient slimClient, LyrionPlayer player, int start, int pageSize, IServiceItemListCallback<T> callback) {
             super(slimClient, player);
             this.callback = callback;
             this.start = start;

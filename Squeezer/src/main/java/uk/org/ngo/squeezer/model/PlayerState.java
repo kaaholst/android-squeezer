@@ -157,7 +157,7 @@ public class PlayerState implements Parcelable {
 
     /** Map of current values of our the playerprefs we track. See the specific SlimClient */
     @NonNull
-    public Map<Player.Pref, String> prefs = new HashMap<>();
+    public Map<LyrionPlayer.Pref, String> prefs = new HashMap<>();
 
     public boolean isPlaying() {
         return PLAY_STATE_PLAY.equals(playStatus);

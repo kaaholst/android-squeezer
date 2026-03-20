@@ -26,7 +26,7 @@ import android.view.MenuItem;
 import androidx.core.view.MenuCompat;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
@@ -121,7 +121,7 @@ public class NowPlayingActivity extends BaseActivity {
 
     private void refreshTrackInfo() {
         updateTrackInfoMenuItems();
-        Player activePlayer = getActivePlayer();
+        LyrionPlayer activePlayer = getActivePlayer();
         if (activePlayer != null) {
             repository().post(new MusicChanged(activePlayer, activePlayer.getPlayerState()));
         }

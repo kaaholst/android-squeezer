@@ -31,7 +31,7 @@ import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.CurrentTrack;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -68,7 +68,7 @@ abstract class BaseClient implements SlimClient {
     }
 
     @Override
-    public <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+    public <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
         final BaseClient.BrowseRequest<T> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, start, pageSize, callback);
         internalRequestItems(browseRequest);
     }
@@ -90,7 +90,7 @@ abstract class BaseClient implements SlimClient {
         return mUrlPrefix;
     }
 
-    void parseStatus(final Player player, CurrentTrack currentSong, Map<String, Object> tokenMap) {
+    void parseStatus(final LyrionPlayer player, CurrentTrack currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
         playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
 
@@ -167,17 +167,17 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
-    protected abstract void handleChangedSong(Player player);
+    protected abstract void handleChangedSong(LyrionPlayer player);
 
-    protected void postSongTimeChanged(Player player) {
+    protected void postSongTimeChanged(LyrionPlayer player) {
         repository.post(player.getTrackElapsed());
     }
 
-    protected void postSleepTimeChanged(Player player) {
+    protected void postSleepTimeChanged(LyrionPlayer player) {
         repository.post(new SleepTimeChanged(player));
     }
 
-    protected void postPlayerStateChanged(Player player) {
+    protected void postPlayerStateChanged(LyrionPlayer player) {
         repository.post(new PlayerStateChanged(player));
     }
 
@@ -193,13 +193,13 @@ abstract class BaseClient implements SlimClient {
     }
 
     protected static class BrowseRequest<T> extends SlimCommand {
-        private final Player player;
+        private final LyrionPlayer player;
         private final boolean fullList;
         private int start;
         private int itemsPerResponse;
         private final IServiceItemListCallback<T> callback;
 
-        BrowseRequest(Player player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
+        BrowseRequest(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
             this.player = player;
             this.cmd(cmd);
             this.fullList = (start == ALL_ITEMS);
@@ -215,7 +215,7 @@ abstract class BaseClient implements SlimClient {
             return this;
         }
 
-        public Player getPlayer() {
+        public LyrionPlayer getPlayer() {
             return player;
         }
 

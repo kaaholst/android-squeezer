@@ -30,7 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /**
  * A dialog with controls to manage a player's default alarm preferences (volume, snooze duration,
@@ -49,7 +49,7 @@ public class AlarmSettingsDialog extends DialogFragment {
          * @return The current player.
          */
         @NonNull
-        Player getPlayer();
+        LyrionPlayer getPlayer();
 
         /**
          * @param playerPref the name of the preference to get
@@ -57,7 +57,7 @@ public class AlarmSettingsDialog extends DialogFragment {
          * @return The value of the PlayerPref identified by <code>playerPref</code>
          */
         @NonNull
-        String getPlayerPref(@NonNull Player.Pref playerPref, @NonNull String def);
+        String getPlayerPref(@NonNull LyrionPlayer.Pref playerPref, @NonNull String def);
 
         /**
          * Called when the user selects the dialog's positive button.
@@ -118,10 +118,10 @@ public class AlarmSettingsDialog extends DialogFragment {
 
         alarmFadeToggle.setOnCheckedChangeListener((buttonView, isChecked) -> alarmFadeHint.setText(isChecked ? R.string.alarm_fade_on_text : R.string.alarm_fade_off_text));
 
-        alarmVolume.setValue(Integer.parseInt(mHostActivity.getPlayerPref(Player.Pref.ALARM_DEFAULT_VOLUME, "50")));
-        alarmSnooze.setValue((float) (Integer.parseInt(mHostActivity.getPlayerPref(Player.Pref.ALARM_SNOOZE_SECONDS, "600")) / 60.0));
-        alarmTimeout.setValue((float) (Integer.parseInt(mHostActivity.getPlayerPref(Player.Pref.ALARM_TIMEOUT_SECONDS, "300")) / 60.0));
-        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(Player.Pref.ALARM_FADE_SECONDS, "0")));
+        alarmVolume.setValue(Integer.parseInt(mHostActivity.getPlayerPref(LyrionPlayer.Pref.ALARM_DEFAULT_VOLUME, "50")));
+        alarmSnooze.setValue((float) (Integer.parseInt(mHostActivity.getPlayerPref(LyrionPlayer.Pref.ALARM_SNOOZE_SECONDS, "600")) / 60.0));
+        alarmTimeout.setValue((float) (Integer.parseInt(mHostActivity.getPlayerPref(LyrionPlayer.Pref.ALARM_TIMEOUT_SECONDS, "300")) / 60.0));
+        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(LyrionPlayer.Pref.ALARM_FADE_SECONDS, "0")));
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setView(view);

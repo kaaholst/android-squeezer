@@ -16,18 +16,16 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import java.util.Map;
-
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /**
  * Event sent when the player that is controlled by Squeezer (the "active" player) has changed.
  */
 public class ActivePlayerChanged {
     /** The active player. May be null. */
-    public final Player player;
+    public final LyrionPlayer player;
 
-    public ActivePlayerChanged(Player player) {
+    public ActivePlayerChanged(LyrionPlayer player) {
         this.player = player;
     }
 

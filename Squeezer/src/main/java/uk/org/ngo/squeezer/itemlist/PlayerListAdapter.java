@@ -44,7 +44,7 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.CurrentTrack;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerGroupViewHolder> {
@@ -54,15 +54,15 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
     private final List<SyncGroup> childAdapters = new ArrayList<>();
 
-    public void notifyItemChanged(Player player) {
+    public void notifyItemChanged(LyrionPlayer player) {
         notifyItemChanged(player, null);
     }
 
-    public void notifyVolumeChanged(Player player) {
+    public void notifyVolumeChanged(LyrionPlayer player) {
         notifyItemChanged(player, UPDATE_VOLUME);
     }
 
-    private void notifyItemChanged(Player player, @Nullable Object payload) {
+    private void notifyItemChanged(LyrionPlayer player, @Nullable Object payload) {
         for (SyncGroup childAdapter : childAdapters) {
             for (int i = 0; i < childAdapter.getItemCount(); i++) {
                 if (player == childAdapter.getItem(i)) {
@@ -73,7 +73,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         }
     }
 
-    public void notifyGroupVolumeChanged(Player player) {
+    public void notifyGroupVolumeChanged(LyrionPlayer player) {
         for (int groupPos = 0; groupPos < getItemCount(); groupPos++) {
             SyncGroup syncGroup = childAdapters.get(groupPos);
             for (int playerPos = 0; playerPos < syncGroup.getItemCount(); playerPos++) {
@@ -97,7 +97,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
     class SyncGroup extends RecyclerView.Adapter<PlayerView> implements Comparable<SyncGroup> {
 
         private String syncGroupName; // the name of the synchronization group as displayed in the players screen
-        private List<Player> players;
+        private List<LyrionPlayer> players;
 
         @NonNull
         @Override
@@ -108,7 +108,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         @Override
         public void onBindViewHolder(@NonNull PlayerView holder, int position) {
-            Player item = getItem(position);
+            LyrionPlayer item = getItem(position);
             holder.bindView(item);
         }
 
@@ -126,7 +126,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             return players.size();
         }
 
-        public Player getItem(int i) {
+        public LyrionPlayer getItem(int i) {
             return players.get(i);
         }
 
@@ -136,7 +136,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             return this.syncGroupName.compareToIgnoreCase((otherSyncGroup).syncGroupName);
         }
 
-        public void update(List<Player> syncedPlayersList) {
+        public void update(List<LyrionPlayer> syncedPlayersList) {
             Collections.sort(syncedPlayersList); // first order players in sync group alphabetically
 
             // add the list
@@ -145,7 +145,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
             // determine and set synchronization group name (player names divided by commas)
             List<String> playerNames = new ArrayList<>();
             for (int i = 0; i < this.getItemCount(); i++) {
-                Player p = this.getItem(i);
+                LyrionPlayer p = this.getItem(i);
                 playerNames.add(p.getName());
             }
             syncGroupName = TextUtils.join(", ", playerNames);
@@ -153,7 +153,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
     }
     /** The last set of player sync groups that were provided. */
-    private Map<String, Collection<Player>> prevPlayerSyncGroups;
+    private Map<String, Collection<LyrionPlayer>> prevPlayerSyncGroups;
 
     /** Indicates if the list of players has changed. */
     boolean mPlayersChanged;
@@ -181,7 +181,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
      *     {@link PlayerListActivity#updateSyncGroups(List)} for how this map is
      *     generated.
      */
-    void setSyncGroups(Map<String, Collection<Player>> playerSyncGroups) {
+    void setSyncGroups(Map<String, Collection<LyrionPlayer>> playerSyncGroups) {
         // The players might not have changed (so there's no need to reset the contents of the
         // adapter) but information about an individual player might have done.
         if (prevPlayerSyncGroups != null && prevPlayerSyncGroups.equals(playerSyncGroups)) {
@@ -193,7 +193,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         clear();
 
         // Get a list of slaves for every synchronization group
-        for (Collection<Player> slaves: playerSyncGroups.values()) {
+        for (Collection<LyrionPlayer> slaves: playerSyncGroups.values()) {
             // create a new synchronization group
             SyncGroup syncGroup = new SyncGroup();
             mPlayerCount += slaves.size();

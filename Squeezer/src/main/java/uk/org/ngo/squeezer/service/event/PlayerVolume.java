@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /** Event sent when a player's volume has changed. */
 public class PlayerVolume {
@@ -30,13 +30,13 @@ public class PlayerVolume {
 
     /** The player that was affected. */
     @NonNull
-    public final Player player;
+    public final LyrionPlayer player;
 
-    public PlayerVolume(@NonNull Player player) {
+    public PlayerVolume(@NonNull LyrionPlayer player) {
         this(player.getPlayerState().isMuted(), player.getPlayerState().getCurrentVolume(), player);
     }
 
-    public PlayerVolume(boolean muted, int volume, @NonNull Player player) {
+    public PlayerVolume(boolean muted, int volume, @NonNull LyrionPlayer player) {
         this.muted = muted;
         this.volume = volume;
         this.player = player;

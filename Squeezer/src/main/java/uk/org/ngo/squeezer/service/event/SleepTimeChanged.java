@@ -18,15 +18,15 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 
 /** Event sent when the sleep duration or remaining sleep time of the given song has changed. */
 public class SleepTimeChanged {
     /** The player with changed state. */
     @NonNull
-    public final Player player;
+    public final LyrionPlayer player;
 
-    public SleepTimeChanged(@NonNull Player player) {
+    public SleepTimeChanged(@NonNull LyrionPlayer player) {
         this.player = player;
     }
 

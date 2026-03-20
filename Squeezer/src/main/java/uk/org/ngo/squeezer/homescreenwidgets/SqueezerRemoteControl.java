@@ -12,7 +12,7 @@ import android.widget.RemoteViews;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.util.Intents;
 
 
@@ -105,7 +105,7 @@ public class SqueezerRemoteControl extends SqueezerHomeScreenWidget {
     public static void savePrefs(Context context, Intent intent) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(SqueezerRemoteControl.PREFS_NAME, Context.MODE_PRIVATE).edit();
 
-        Player player = intent.getParcelableExtra(EXTRA_PLAYER);
+        LyrionPlayer player = intent.getParcelableExtra(EXTRA_PLAYER);
         RemoteButton button = (RemoteButton) intent.getSerializableExtra(EXTRA_REMOTE_BUTTON);
 
         int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);

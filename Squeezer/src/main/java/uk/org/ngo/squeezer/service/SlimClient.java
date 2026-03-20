@@ -19,7 +19,7 @@ package uk.org.ngo.squeezer.service;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 /**
@@ -52,7 +52,7 @@ interface SlimClient {
      * @param cmd Array of command terms
      * @param params Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'.
      */
-    void command(Player player, String[] cmd, Map<String, Object> params);
+    void command(LyrionPlayer player, String[] cmd, Map<String, Object> params);
 
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
@@ -80,7 +80,7 @@ interface SlimClient {
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
      */
-    <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
+    <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.
@@ -90,9 +90,9 @@ interface SlimClient {
 
     void requestServerStatus();
 
-    void requestPlayerStatus(Player player);
+    void requestPlayerStatus(LyrionPlayer player);
 
-    void subscribePlayerStatus(Player newActivePlayer, PlayerState.PlayerSubscriptionType subscriptionType);
-    void subscribeDisplayStatus(Player player, boolean subscribe);
-    void subscribeMenuStatus(Player player, boolean subscribe);
+    void subscribePlayerStatus(LyrionPlayer newActivePlayer, PlayerState.PlayerSubscriptionType subscriptionType);
+    void subscribeDisplayStatus(LyrionPlayer player, boolean subscribe);
+    void subscribeMenuStatus(LyrionPlayer player, boolean subscribe);
 }

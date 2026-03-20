@@ -71,7 +71,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.RefreshWindow;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -365,7 +365,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     protected boolean forActivePlayer(Action action) {
-        Player activePlayer = requireService().getActivePlayer();
+        LyrionPlayer activePlayer = requireService().getActivePlayer();
         String playerId = (activePlayer != null ? activePlayer.getId() : null);
         return !action.isPlayerSpecific() || Arrays.asList(action.action.players).contains(playerId);
     }
@@ -667,7 +667,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         if (activity instanceof JiveItemListActivity jiveItemListActivity) {
             Action parentAction = jiveItemListActivity.action;
             if (parentAction != null && parentAction.isPlayerSpecific() && !action.isPlayerSpecific()) {
-                Player player = jiveItemListActivity.requireService().getActivePlayer();
+                LyrionPlayer player = jiveItemListActivity.requireService().getActivePlayer();
                 action.action.players = (player != null ? new String[]{player.getId()} : parentAction.action.players);
             }
         }

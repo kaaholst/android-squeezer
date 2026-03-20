@@ -77,7 +77,7 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentTrack;
-import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
@@ -266,8 +266,8 @@ public class SqueezeService extends Service {
      * @param newActivePlayer The new active player. May be null, in which case no players are controlled.
      * @param continuePlaying Continue playback on the supplied player
      */
-    private void changeActivePlayer(@Nullable final Player newActivePlayer, boolean continuePlaying) {
-        Player prevActivePlayer = mDelegate.getActivePlayer();
+    private void changeActivePlayer(@Nullable final LyrionPlayer newActivePlayer, boolean continuePlaying) {
+        LyrionPlayer prevActivePlayer = mDelegate.getActivePlayer();
 
         // Do nothing if the player hasn't actually changed.
         if (prevActivePlayer == newActivePlayer) {
@@ -288,7 +288,7 @@ public class SqueezeService extends Service {
         Squeezer.getPreferences().setLastPlayer(newActivePlayer);
     }
 
-    private void moveCurrentPlaylist(Player from, Player to) {
+    private void moveCurrentPlaylist(LyrionPlayer from, LyrionPlayer to) {
         squeezeService.syncPlayerToPlayer(to, from.getId());
         squeezeService.unsyncPlayer(from);
     }
@@ -327,7 +327,7 @@ public class SqueezeService extends Service {
     }
 
     private void requestPlayerData() {
-        Player activePlayer = mDelegate.getActivePlayer();
+        LyrionPlayer activePlayer = mDelegate.getActivePlayer();
 
         if (activePlayer != null) {
             mDelegate.subscribeDisplayStatus(activePlayer, true);
@@ -344,7 +344,7 @@ public class SqueezeService extends Service {
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        for (Player player : mDelegate.getPlayers().values()) {
+        for (LyrionPlayer player : mDelegate.getPlayers().values()) {
             updatePlayerSubscription(player);
         }
     }
@@ -354,7 +354,7 @@ public class SqueezeService extends Service {
      *
      * @param player player to manage.
      */
-    private void updatePlayerSubscription(Player player) {
+    private void updatePlayerSubscription(LyrionPlayer player) {
         // Do nothing if the player subscription type hasn't changed.
         if (player.getPlayerState().getSubscriptionType().equals(PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE)) {
             return;
@@ -367,7 +367,7 @@ public class SqueezeService extends Service {
      * Manages the state of any ongoing notification based on the player and connection state.
      */
     private void updateMediaSession() {
-        Player player = mDelegate.getActivePlayer();
+        LyrionPlayer player = mDelegate.getActivePlayer();
         if (player == null) {
             mediaSession.setMetadata(null);
             mediaSession.setPlaybackState(null);
@@ -455,7 +455,7 @@ public class SqueezeService extends Service {
         builder.setShowWhen(false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            Player player = mDelegate.getActivePlayer();
+            LyrionPlayer player = mDelegate.getActivePlayer();
             if (player != null) {
                 CurrentTrack song = player.getPlayerState().getCurrentTrack();
                 if (song != null) {
@@ -491,7 +491,7 @@ public class SqueezeService extends Service {
         return mediaStyle;
     }
 
-    public String notificationSubtext(Player player) {
+    public String notificationSubtext(LyrionPlayer player) {
         PlayerState playerState = player.getPlayerState();
         return player.getName() + " " + (playerState.getCurrentPlaylistIndex()+1) + "/" + playerState.getCurrentPlaylistTracksNum();
     }
@@ -620,12 +620,12 @@ public class SqueezeService extends Service {
                 if (incomingCallAction.isAll()) {
                     squeezeService.getPlayers().stream().filter(player -> player.getPlayerState().isPlaying()).forEach(player -> mutePlayer(player, action, restoreMusic));
                 } else {
-                    Player player = squeezeService.getActivePlayer();
+                    LyrionPlayer player = squeezeService.getActivePlayer();
                     if (player != null && player.getPlayerState().isPlaying()) mutePlayer(player, action, restoreMusic);
                 }
             } else {
                 mutedPlayers.forEach(mutedPlayer -> {
-                    Player player = mDelegate.getPlayer(mutedPlayer);
+                    LyrionPlayer player = mDelegate.getPlayer(mutedPlayer);
                     if (player != null) action.exec(player, false);
                 });
                 mutedPlayers.clear();
@@ -633,13 +633,13 @@ public class SqueezeService extends Service {
         }
     }
 
-    private void mutePlayer(Player player, PerformAction action, boolean restoreMusic) {
+    private void mutePlayer(LyrionPlayer player, PerformAction action, boolean restoreMusic) {
         if (restoreMusic) mutedPlayers.add(player.getId());
         action.exec(player, true);
     }
 
     private interface PerformAction {
-        void exec(Player player, boolean flag);
+        void exec(LyrionPlayer player, boolean flag);
     }
 
     private void onConnectionChanged(ConnectionChanged event) {
@@ -688,7 +688,7 @@ public class SqueezeService extends Service {
         }
     }
 
-    private void handleRandomOnEvent(Player player) {
+    private void handleRandomOnEvent(LyrionPlayer player) {
 
         RandomPlay randomPlay = mDelegate.getRandomPlay(player);
         Preferences preferences = Squeezer.getPreferences();
@@ -747,7 +747,7 @@ public class SqueezeService extends Service {
     }
 
     private void onPlayersChanged(PlayersChanged event) {
-        Player activePlayer = mDelegate.getActivePlayer();
+        LyrionPlayer activePlayer = mDelegate.getActivePlayer();
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
             changeActivePlayer(getPreferredPlayer(mDelegate.getPlayers().values()), false);
@@ -768,12 +768,12 @@ public class SqueezeService extends Service {
      *     last active player (if known), the first player the server knows about if there are
      *     connected players, or null if there are no connected players.
      */
-    private @Nullable Player getPreferredPlayer(Collection<Player> players) {
+    private @Nullable LyrionPlayer getPreferredPlayer(Collection<LyrionPlayer> players) {
         final String lastConnectedPlayer = Squeezer.getPreferences().getLastPlayer();
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
         Log.i(TAG, "players empty?: " + players.isEmpty());
-        for (Player player : players) {
+        for (LyrionPlayer player : players) {
             if (player.getId().equals(lastConnectedPlayer)) {
                 return player;
             }
@@ -884,21 +884,21 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void toggleMute(Player player) {
+        public void toggleMute(LyrionPlayer player) {
             if (player != null) {
                 mute(player, !player.getPlayerState().isMuted());
             }
         }
 
         @Override
-        public void mute(Player player, boolean mute) {
+        public void mute(LyrionPlayer player, boolean mute) {
             if (player != null) {
                 mDelegate.command(player).cmd("mixer", "muting", mute ? "1" : "0").exec();
             }
         }
 
         @Override
-        public void setVolumeTo(Player player, int newVolume) {
+        public void setVolumeTo(LyrionPlayer player, int newVolume) {
             setPlayerVolume(player, newVolume);
         }
 
@@ -909,24 +909,24 @@ public class SqueezeService extends Service {
 
         @Override
         public void setVolumeTo(int percentage) {
-            Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
+            Set<LyrionPlayer> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
 
             int lowestVolume = 100;
             int higestVolume = 0;
-            for (Player player : syncGroup) {
+            for (LyrionPlayer player : syncGroup) {
                 int currentVolume = player.getPlayerState().getCurrentVolume();
                 if (currentVolume < lowestVolume) lowestVolume = currentVolume;
                 if (currentVolume > higestVolume) higestVolume = currentVolume;
             }
             int volumeInRange = (int) Math.round(percentage / 100.0 * (100 - (higestVolume - lowestVolume)));
-            for (Player player : syncGroup) {
+            for (LyrionPlayer player : syncGroup) {
                 int currentVolume = player.getPlayerState().getCurrentVolume();
                 int volumeOffset = currentVolume - lowestVolume;
                 setPlayerVolume(player, volumeOffset + volumeInRange);
             }
         }
 
-        private void setPlayerVolume(Player player, int percentage) {
+        private void setPlayerVolume(LyrionPlayer player, int percentage) {
             int volume = Math.min(100, Math.max(0, percentage));
             mDelegate.command(player).cmd("mixer", "volume", String.valueOf(volume)).exec();
             player.getPlayerState().setCurrentVolume(volume);
@@ -935,15 +935,15 @@ public class SqueezeService extends Service {
 
         @Override
         public void adjustVolume(int direction) {
-            Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
+            Set<LyrionPlayer> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
             int adjust = direction * mVolumeProvider.step;
-            for (Player player : syncGroup) {
+            for (LyrionPlayer player : syncGroup) {
                 int currentVolume = player.getPlayerState().getCurrentVolume();
                 if (currentVolume + adjust < 0) adjust = -currentVolume;
                 if (currentVolume + adjust > 100) adjust = 100 - currentVolume;
             }
             if (adjust != 0) {
-                for (Player player : syncGroup) {
+                for (LyrionPlayer player : syncGroup) {
                     if (player.getPlayerState().isMuted()) {
                         mDelegate.command(player).cmd("mixer", "muting", "0").exec();
                         try {
@@ -957,7 +957,7 @@ public class SqueezeService extends Service {
             }
         }
 
-        private void adjustPlayerVolume(Player player, int adjust) {
+        private void adjustPlayerVolume(LyrionPlayer player, int adjust) {
             mDelegate.command(player).cmd("mixer", "volume", (adjust > 0 ? "+" : "") + adjust).exec();
             int currentVolume = player.getPlayerState().getCurrentVolume();
             player.getPlayerState().setCurrentVolume(currentVolume + adjust);
@@ -1013,28 +1013,28 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void togglePower(Player player) {
+        public void togglePower(LyrionPlayer player) {
             mDelegate.command(player).cmd("power").exec();
         }
 
         @Override
-        public void playerRename(Player player, String newName) {
+        public void playerRename(LyrionPlayer player, String newName) {
             mDelegate.command(player).cmd("name", newName).exec();
         }
 
         @Override
-        public void sleep(Player player, int duration) {
+        public void sleep(LyrionPlayer player, int duration) {
             mDelegate.command(player).cmd("sleep", String.valueOf(duration)).exec();
         }
 
         @Override
-        public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
-            Player master = mDelegate.getPlayer(masterId);
+        public void syncPlayerToPlayer(@NonNull LyrionPlayer slave, @NonNull String masterId) {
+            LyrionPlayer master = mDelegate.getPlayer(masterId);
             mDelegate.command(master).cmd("sync", slave.getId()).exec();
         }
 
         @Override
-        public void unsyncPlayer(@NonNull Player player) {
+        public void unsyncPlayer(@NonNull LyrionPlayer player) {
             mDelegate.command(player).cmd("sync", "-").exec();
         }
 
@@ -1042,17 +1042,17 @@ public class SqueezeService extends Service {
         @Override
         @Nullable
         public PlayerState getActivePlayerState() {
-            Player activePlayer = getActivePlayer();
+            LyrionPlayer activePlayer = getActivePlayer();
             return activePlayer == null ? null : activePlayer.getPlayerState();
         }
 
         @Override
-        public void playerPref(Player.Pref playerPref, String value) {
+        public void playerPref(LyrionPlayer.Pref playerPref, String value) {
             mDelegate.activePlayerCommand().cmd("playerpref", playerPref.prefName(), value).exec();
         }
 
         @Override
-        public void playerPref(Player player, Player.Pref playerPref, String value) {
+        public void playerPref(LyrionPlayer player, LyrionPlayer.Pref playerPref, String value) {
             mDelegate.command(player).cmd("playerpref", playerPref.prefName(), value).exec();
         }
 
@@ -1070,7 +1070,7 @@ public class SqueezeService extends Service {
             return togglePausePlay(getActivePlayer());
         }
         @Override
-        public boolean togglePausePlay(Player player) {
+        public boolean togglePausePlay(LyrionPlayer player) {
             if (!isConnected()) {
                 return false;
             }
@@ -1113,7 +1113,7 @@ public class SqueezeService extends Service {
                 return false;
             }
 
-            Player player = getActivePlayer();
+            LyrionPlayer player = getActivePlayer();
             if (player != null) {
                 String playStatus = player.getPlayerState().getPlayStatus();
                 mDelegate
@@ -1135,7 +1135,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void pause(Player player, boolean pause) {
+        public void pause(LyrionPlayer player, boolean pause) {
             mDelegate.command(player).cmd("pause", pause ? "1" : "0", fadeInSecs()).exec();
         }
 
@@ -1153,7 +1153,7 @@ public class SqueezeService extends Service {
             return nextTrack(getActivePlayer());
         }
         @Override
-        public boolean nextTrack(Player player) {
+        public boolean nextTrack(LyrionPlayer player) {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
@@ -1167,7 +1167,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean previousTrack(Player player) {
+        public boolean previousTrack(LyrionPlayer player) {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
@@ -1244,7 +1244,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean button(Player player, IRButton button) {
+        public boolean button(LyrionPlayer player, IRButton button) {
             if (!isConnected()) {
                 return false;
             }
@@ -1253,24 +1253,24 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void setActivePlayer(@Nullable final Player newActivePlayer, boolean continuePlaying) {
+        public void setActivePlayer(@Nullable final LyrionPlayer newActivePlayer, boolean continuePlaying) {
             changeActivePlayer(newActivePlayer, continuePlaying);
         }
 
         @Override
         @Nullable
-        public Player getActivePlayer() {
+        public LyrionPlayer getActivePlayer() {
             return mDelegate.getActivePlayer();
         }
 
         @Override
-        public List<Player> getPlayers() {
-            return mDelegate.getPlayers().values().stream().filter(Player::getConnected).sorted().collect(Collectors.toList());
+        public List<LyrionPlayer> getPlayers() {
+            return mDelegate.getPlayers().values().stream().filter(LyrionPlayer::getConnected).sorted().collect(Collectors.toList());
         }
 
         @Override
-        public Player getPlayer(String playerId) throws PlayerNotFoundException {
-            Player player = mDelegate.getPlayer(playerId);
+        public LyrionPlayer getPlayer(String playerId) throws PlayerNotFoundException {
+            LyrionPlayer player = mDelegate.getPlayer(playerId);
             if (player == null) {
                 throw new PlayerNotFoundException(SqueezeService.this);
             }
@@ -1466,7 +1466,7 @@ public class SqueezeService extends Service {
                 return false;
             }
             Set<String> played = Squeezer.getPreferences().loadRandomPlayed(folderID);
-            Player player = mDelegate.getActivePlayer();
+            LyrionPlayer player = mDelegate.getActivePlayer();
             RandomPlay randomPlay = mDelegate.getRandomPlay(player);
             randomPlay.reset(player);
             RandomPlay.RandomPlayCallback randomPlayCallback
