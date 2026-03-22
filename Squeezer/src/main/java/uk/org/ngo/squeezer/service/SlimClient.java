@@ -29,13 +29,8 @@ interface SlimClient {
     static final int ALL_ITEMS = -1;
     static final int CURRENT = -2;
 
-    /**
-     * Start a connection LMS. Connection progress/status will be reported via
-     * {@link de.greenrobot.event.EventBus}.
-     *
-     * @param service The service hosting this connection.
-     */
-    void startConnect(final SqueezeService service, boolean autoConnect);
+    /** Start a connection LMS. Connection progress/status will be reported via */
+    void startConnect(boolean autoConnect);
 
     // XXX: Document
     void disconnect(boolean fromUser);

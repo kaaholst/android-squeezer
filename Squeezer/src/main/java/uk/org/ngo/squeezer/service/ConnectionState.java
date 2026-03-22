@@ -183,7 +183,7 @@ public class ConnectionState {
         return mActivePlayer.get();
     }
 
-    @NonNull private Set<LyrionPlayer> getSyncGroup() {
+    @NonNull Set<LyrionPlayer> getSyncGroup() {
         Set<LyrionPlayer> out = new HashSet<>();
 
         LyrionPlayer player = getActivePlayer();

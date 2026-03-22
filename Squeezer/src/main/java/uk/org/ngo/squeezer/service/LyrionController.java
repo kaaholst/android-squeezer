@@ -16,8 +16,11 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,17 +30,35 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
-class SlimDelegate {
+class LyrionController {
+    private static final String TAG = LyrionController.class.getSimpleName();
 
     @NonNull private final SlimClient mClient;
+    private final SqueezerRepository repository;
+    private int fadeInSecs;
+    private boolean groupVolume;
 
-    SlimDelegate(SqueezerRepository repository) {
+    LyrionController(SqueezerRepository repository) {
         mClient = new CometClient(repository);
+        this.repository = repository;
     }
 
-    void startConnect(SqueezeService service, boolean autoConnect) {
-        mClient.startConnect(service, autoConnect);
+    public void setFadeInSecs(int fadeInSecs) {
+        this.fadeInSecs = fadeInSecs;
+    }
+
+    public String fadeInSecs() {
+        return fadeInSecs > 0 ? " " + fadeInSecs : "";
+    }
+
+    public void setGroupVolume(boolean groupVolume) {
+        this.groupVolume = groupVolume;
+    }
+
+    void startConnect(boolean autoConnect) {
+        mClient.startConnect(autoConnect);
     }
 
     void disconnect(boolean fromUser) {
@@ -69,6 +90,129 @@ class SlimDelegate {
         mClient.subscribeMenuStatus(player, subscribe);
     }
 
+    public void togglePower(LyrionPlayer player) {
+        command(player).cmd("power").exec();
+    }
+
+    public boolean play() {
+        if (!isConnected()) {
+            return false;
+        }
+
+        LyrionPlayer player = getActivePlayer();
+        if (player != null) {
+            String playStatus = player.getPlayerState().getPlayStatus();
+            command(player)
+                    .cmd(PlayerState.PLAY_STATE_PAUSE.equals(playStatus) ? List.of("pause", "0") : List.of("play"))
+                    .cmd(fadeInSecs()).exec();
+        }
+
+        return true;
+    }
+
+    public boolean pause() {
+        if(!isConnected()) {
+            return false;
+        }
+        pause(getActivePlayer(), true);
+        return true;
+    }
+
+    public void pause(LyrionPlayer player, boolean pause) {
+        command(player).cmd("pause", pause ? "1" : "0", fadeInSecs()).exec();
+    }
+
+    public void mute(LyrionPlayer player, boolean mute) {
+        if (player != null) {
+            command(player).cmd("mixer", "muting", mute ? "1" : "0").exec();
+        }
+    }
+
+    public void setVolumeTo(int percentage) {
+        Set<LyrionPlayer> syncGroup = getVolumeSyncGroup();
+
+        int lowestVolume = 100;
+        int higestVolume = 0;
+        for (LyrionPlayer player : syncGroup) {
+            int currentVolume = player.getPlayerState().getCurrentVolume();
+            if (currentVolume < lowestVolume) lowestVolume = currentVolume;
+            if (currentVolume > higestVolume) higestVolume = currentVolume;
+        }
+        int volumeInRange = (int) Math.round(percentage / 100.0 * (100 - (higestVolume - lowestVolume)));
+        for (LyrionPlayer player : syncGroup) {
+            int currentVolume = player.getPlayerState().getCurrentVolume();
+            int volumeOffset = currentVolume - lowestVolume;
+            setPlayerVolume(player, volumeOffset + volumeInRange);
+        }
+    }
+
+    public void setPlayerVolume(LyrionPlayer player, int percentage) {
+        int volume = Math.min(100, Math.max(0, percentage));
+        command(player).cmd("mixer", "volume", String.valueOf(volume)).exec();
+        player.getPlayerState().setCurrentVolume(volume);
+        repository.post(new PlayerVolume(player));
+    }
+
+    public void adjustVolume(int adjust) {
+        Set<LyrionPlayer> syncGroup = getVolumeSyncGroup();
+        for (LyrionPlayer player : syncGroup) {
+            int currentVolume = player.getPlayerState().getCurrentVolume();
+            if (currentVolume + adjust < 0) adjust = -currentVolume;
+            if (currentVolume + adjust > 100) adjust = 100 - currentVolume;
+        }
+        if (adjust != 0) {
+            for (LyrionPlayer player : syncGroup) {
+                if (player.getPlayerState().isMuted()) {
+                    command(player).cmd("mixer", "muting", "0").exec();
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Log.i(TAG, "Interupted while pausing between commands");
+                    }
+                }
+                adjustPlayerVolume(player, adjust);
+            }
+        }
+    }
+
+    private void adjustPlayerVolume(LyrionPlayer player, int adjust) {
+        command(player).cmd("mixer", "volume", (adjust > 0 ? "+" : "") + adjust).exec();
+        int currentVolume = player.getPlayerState().getCurrentVolume();
+        player.getPlayerState().setCurrentVolume(currentVolume + adjust);
+        repository.post(new PlayerVolume(player));
+    }
+
+    public boolean nextTrack(LyrionPlayer player) {
+        if (!isConnected() || !isPlaying()) {
+            return false;
+        }
+        command(player).cmd("button", "jump_fwd").exec();
+        return true;
+    }
+
+    public boolean previousTrack(LyrionPlayer player) {
+        if (!isConnected() || !isPlaying()) {
+            return false;
+        }
+        command(player).cmd("button", "jump_rew").exec();
+        return true;
+    }
+
+    public void setSecondsElapsed(int seconds) {
+        if (isConnected() && seconds >= 0) {
+            activePlayerCommand().cmd("time", String.valueOf(seconds)).exec();
+        }
+    }
+
+
+    public boolean isConnected() {
+        return getConnectionState().isConnected();
+    }
+
+    public boolean isPlaying() {
+        PlayerState playerState = getActivePlayerState();
+        return playerState != null && playerState.isPlaying();
+    }
 
     ConnectionState.State getConnectionState() {
         return mClient.getConnectionState().getState();
@@ -96,19 +240,24 @@ class SlimDelegate {
     }
 
     <T> Request<T> requestItems(LyrionPlayer player, int start, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, player, start, BaseClient.mPageSize, callback);
+        return new Request<>(mClient, player, start, CometClient.mPageSize, callback);
     }
 
     <T> Request<T> requestItems(LyrionPlayer player, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, player, 0, BaseClient.mPageSize, callback);
+        return new Request<>(mClient, player, 0, CometClient.mPageSize, callback);
     }
 
     <T> Request<T> requestAllItems(IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, null, BaseClient.ALL_ITEMS, BaseClient.mPageSize, callback);
+        return new Request<>(mClient, null, CometClient.ALL_ITEMS, CometClient.mPageSize, callback);
     }
 
     <T> Request<T> requestItems(IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, null, 0, BaseClient.mPageSize, callback);
+        return new Request<>(mClient, null, 0, CometClient.mPageSize, callback);
+    }
+
+    public PlayerState getActivePlayerState() {
+        LyrionPlayer activePlayer = getActivePlayer();
+        return activePlayer == null ? null : activePlayer.getPlayerState();
     }
 
     public LyrionPlayer getActivePlayer() {
@@ -123,15 +272,19 @@ class SlimDelegate {
         return mClient.getConnectionState().getPlayer(playerId);
     }
 
-    public Map<String, LyrionPlayer> getPlayers() {
-        return mClient.getConnectionState().getPlayers();
+    public Collection<LyrionPlayer> getPlayers() {
+        return mClient.getConnectionState().getPlayers().values();
     }
 
-    public Set<LyrionPlayer> getVolumeSyncGroup(boolean groupVolume) {
+    public Set<LyrionPlayer> getSyncGroup() {
+        return mClient.getConnectionState().getSyncGroup();
+    }
+
+    private Set<LyrionPlayer> getVolumeSyncGroup() {
         return mClient.getConnectionState().getVolumeSyncGroup(groupVolume);
     }
 
-    public @NonNull ISqueezeService.VolumeInfo getVolume(boolean groupVolume) {
+    public @NonNull ISqueezeService.VolumeInfo getVolume() {
         return mClient.getConnectionState().getVolume(groupVolume);
     }
 
@@ -155,9 +308,9 @@ class SlimDelegate {
         return mClient.getConnectionState().getHomeMenuHandling();
     }
 
-    public int addItems(String folderID, Set<String> set) {
+    public void addItems(String folderID, Set<String> set) {
         LyrionPlayer player = mClient.getConnectionState().getActivePlayer();
-        return mClient.getConnectionState().getRandomPlay(player).addItems(folderID, set);
+        mClient.getConnectionState().getRandomPlay(player).addItems(folderID, set);
     }
 
     public Set<String> getTracks(String folderID) {

@@ -22,6 +22,7 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -46,9 +47,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
@@ -69,12 +73,19 @@ import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.service.event.PlaylistChanged;
+import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
+import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
+import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
+import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 import uk.org.ngo.squeezer.util.FluentHashMap;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
 
-class CometClient extends BaseClient {
+class CometClient implements SlimClient {
     private static final String TAG = CometClient.class.getSimpleName();
 
     /** {@link java.util.regex.Pattern} that splits strings on forward slash. */
@@ -111,6 +122,19 @@ class CometClient extends BaseClient {
     public static long SERVER_STATUS_INTERVAL = 60;
     public static final long SERVER_STATUS_TIMEOUT = SERVER_STATUS_INTERVAL * 1_000 + 10_000;
 
+    final static int mPageSize = Squeezer.getInstance().getResources().getInteger(R.integer.PageSize);
+
+    final AtomicReference<String> username = new AtomicReference<>();
+    final AtomicReference<String> password = new AtomicReference<>();
+
+    final ConnectionState mConnectionState;
+
+    /** Shared event bus for status changes. */
+    @NonNull final SqueezerRepository repository;
+
+    /** The prefix for URLs for downloads and cover art. */
+    String mUrlPrefix;
+
     /** Handler for off-main-thread work. */
     @NonNull
     private final Handler mBackgroundHandler;
@@ -139,8 +163,9 @@ class CometClient extends BaseClient {
     // asynchronous responses are received.
     private volatile int mCorrelationId = 0;
 
-    CometClient(SqueezerRepository repository) {
-        super(repository);
+    CometClient(@NonNull SqueezerRepository repository) {
+        this.repository = repository;
+        mConnectionState = new ConnectionState(repository);
 
         HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
         handlerThread.start();
@@ -195,9 +220,35 @@ class CometClient extends BaseClient {
                 });
     }
 
+    @Override
+    public ConnectionState getConnectionState() {
+        return mConnectionState;
+    }
+
+    @Override
+    public <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, params, start, pageSize, callback);
+        internalRequestItems(browseRequest);
+    }
+
+    @Override
+    public String getUsername() {
+        return username.get();
+    }
+
+    @Override
+    public String getPassword() {
+        return password.get();
+    }
+
+    @Override
+    public String getUrlPrefix() {
+        return mUrlPrefix;
+    }
+
     // Shims around ConnectionState methods.
     @Override
-    public void startConnect(final SqueezeService service, boolean autoConnect) {
+    public void startConnect(boolean autoConnect) {
         Log.i(TAG, "startConnect()");
 
         // Set connection state in main thread to be able to test it immediately
@@ -425,17 +476,101 @@ class CometClient extends BaseClient {
             currentSong = new CurrentTrack(record);
             record.remove("base");
         }
-        parseStatus(player, currentSong, messageData);
+
+        PlayerState playerState = player.getPlayerState();
+        playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
+
+        boolean changedPower = playerState.setPoweredOn(Util.getInt(messageData, "power") == 1);
+        boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(messageData, "playlist shuffle"));
+        boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(messageData, "playlist repeat"));
+        boolean changedPlaylist = playerState.setCurrentPlaylistTimestamp(Util.getLong(messageData, "playlist_timestamp"));
+        playerState.setCurrentPlaylistTracksNum(Util.getInt(messageData, "playlist_tracks"));
+        playerState.setCurrentPlaylistIndex(Util.getInt(messageData, "playlist_cur_index"));
+        playerState.setCurrentPlaylist(Util.getString(messageData, "playlist_name"));
+        boolean changedSleep = playerState.setSleep(Util.getInt(messageData, "will_sleep_in"));
+        boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(messageData, "sleep"));
+        if (currentSong == null) currentSong = new CurrentTrack(messageData);
+        boolean changedSong = playerState.setCurrentSong(currentSong);
+        playerState.setRemote(Util.getInt(messageData, "remote") == 1);
+        playerState.waitingToPlay = Util.getInt(messageData, "waitingToPlay") == 1;
+        playerState.rate = Util.getDouble(messageData, "rate");
+        boolean changedSongDuration = playerState.setCurrentSongDuration(Util.getInt(messageData, "duration"));
+        boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getDouble(messageData, "time"));
+        boolean changedVolume = playerState.setCurrentVolume(Util.getInt(messageData, "mixer volume"));
+        boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(messageData, "sync_master"));
+        boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(messageData, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
+        boolean changedPlayStatus = updatePlayStatus(playerState, Util.getStringOrEmpty(messageData, "mode"));
+
+        // Playing status
+        if (changedPlayStatus) {
+            repository.post(new PlayStatusChanged(playerState.getPlayStatus(), player));
+        }
+
+        // Current playlist
+        if (changedPlaylist) {
+            repository.post(new PlaylistChanged(player));
+        }
+
+        if (changedPower || changedSleep || changedSleepDuration || changedVolume
+                || changedSong || changedSongDuration || changedSongTime
+                || changedSyncMaster || changedSyncSlaves) {
+            postPlayerStateChanged(player);
+        }
+
+        // Volume
+        if (changedVolume) {
+            repository.post(new PlayerVolume(player));
+        }
+
+        // Power status
+        if (changedPower) {
+            repository.post(new PowerStatusChanged(player));
+        }
+
+        // Current song
+        if (changedSong) {
+            handleChangedSong(player);
+        }
+
+        // Shuffle status.
+        if (changedShuffleStatus) {
+            repository.post(new ShuffleStatusChanged(player, playerState.getShuffleStatus()));
+        }
+
+        // Repeat status.
+        if (changedRepeatStatus) {
+            repository.post(new RepeatStatusChanged(player, playerState.getRepeatStatus()));
+        }
+
+        // Position in song
+        if (changedSongDuration || changedSongTime || changedPlayStatus) {
+            postSongTimeChanged(player);
+        }
+
+        // Sleep times
+        if (changedSleep || changedSleepDuration) {
+            postSleepTimeChanged(player);
+        }
     }
 
-    @Override
-    protected void handleChangedSong(LyrionPlayer player) {
+    private boolean updatePlayStatus(PlayerState playerState, String playStatus) {
+        // Handle unknown states.
+        if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
+            return false;
+        }
+
+        return playerState.setPlayStatus(playStatus);
+    }
+
+    private void handleChangedSong(LyrionPlayer player) {
         mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
         mBackgroundHandler.sendEmptyMessageDelayed(MSG_MUSIC_CHANGED, 100);
 
         String[] cmd = new String[]{"status"};
         Map<String, Object> params = new FluentHashMap<String, Object>().with("tags", JiveItem.SONG_TAGS);
-        final BaseClient.BrowseRequest<Song> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new IServiceItemListCallback<>() {
+        final BrowseRequest<Song> browseRequest = new BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new IServiceItemListCallback<>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
                 if (!items.isEmpty()) {
@@ -453,23 +588,25 @@ class CometClient extends BaseClient {
         internalRequestItems(browseRequest);
     }
 
-    @Override
-    protected void postSongTimeChanged(LyrionPlayer player) {
-        super.postSongTimeChanged(player);
+    private void postSongTimeChanged(LyrionPlayer player) {
+        repository.post(player.getTrackElapsed());
         if (player.getPlayerState().isPlaying()) {
             mBackgroundHandler.removeMessages(MSG_TIME_UPDATE);
             mBackgroundHandler.sendEmptyMessageDelayed(MSG_TIME_UPDATE, 1000);
         }
     }
 
-    @Override
-    protected void postSleepTimeChanged(LyrionPlayer player) {
-        super.postSleepTimeChanged(player);
+    private void postSleepTimeChanged(LyrionPlayer player) {
+        repository.post(new SleepTimeChanged(player));
         if (player.getPlayerState().getSleepDuration() > 0) {
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_SLEEP_UPDATE, player);
             mBackgroundHandler.removeMessages(MSG_SLEEP_UPDATE);
             mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
+    }
+
+    private void postPlayerStateChanged(LyrionPlayer player) {
+        repository.post(new PlayerStateChanged(player));
     }
 
     private void parseDisplayStatus(ClientSessionChannel channel, Message message) {
@@ -661,10 +798,6 @@ class CometClient extends BaseClient {
         }
     }
 
-    private void exec(ResponseHandler callback, String... cmd) {
-        exec(request(callback, cmd));
-    }
-
     private String exec(Request request) {
         String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
         if (request.callback != null) mPendingRequests.put(responseChannel, request);
@@ -700,8 +833,7 @@ class CometClient extends BaseClient {
             mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
     }
 
-    @Override
-    protected  <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
+    private <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         if (mBayeuxClient == null) return;
         Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
         ItemListener<?> listener = mItemRequestMap.get(callbackClass);
@@ -873,12 +1005,56 @@ class CometClient extends BaseClient {
         return new Request(player, null, cmd);
     }
 
-    private Request request(ResponseHandler callback, String... cmd) {
-        return new Request(null, callback, cmd);
-    }
-
     private Request request(String... cmd) {
         return new Request(null, null, cmd);
+    }
+
+    private static class BrowseRequest<T> extends SlimCommand {
+        private final LyrionPlayer player;
+        private final boolean fullList;
+        private int start;
+        private int itemsPerResponse;
+        private final IServiceItemListCallback<T> callback;
+
+        BrowseRequest(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
+            this.player = player;
+            this.cmd(cmd);
+            this.fullList = (start == ALL_ITEMS);
+            this.start = start;
+            this.itemsPerResponse = itemsPerResponse;
+            this.callback = callback;
+            if (params != null) this.params(params);
+        }
+
+        public BrowseRequest<T> update(int start, int itemsPerResponse) {
+            this.start = start;
+            this.itemsPerResponse = itemsPerResponse;
+            return this;
+        }
+
+        public LyrionPlayer getPlayer() {
+            return player;
+        }
+
+        boolean isFullList() {
+            return (fullList);
+        }
+
+        boolean isCurrent() {
+            return (start == CURRENT);
+        }
+
+        public int getStart() {
+            return (start < 0 ? 0 : start);
+        }
+
+        int getItemsPerResponse() {
+            return itemsPerResponse;
+        }
+
+        public IServiceItemListCallback<T> getCallback() {
+            return callback;
+        }
     }
 
     private static class Request extends SlimCommand {
