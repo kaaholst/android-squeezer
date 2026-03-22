@@ -34,7 +34,7 @@ public interface ISqueezeService {
     // Instructing the service to connect to the Lyrion Music Server
     // hostPort is the port of the CLI interface.
     void startConnect(boolean autoConnect);
-    void disconnect();
+    void disconnect(boolean fromUser);
     void stopServer();
     void restartServer();
     boolean isManualDisconnect();
@@ -100,9 +100,6 @@ public interface ISqueezeService {
     String getServerVersion();
     boolean togglePausePlay();
     boolean togglePausePlay(LyrionPlayer player);
-    boolean play();
-    boolean pause();
-    boolean stop();
     void pause(LyrionPlayer player, boolean pause);
     boolean nextTrack();
     boolean nextTrack(LyrionPlayer player);

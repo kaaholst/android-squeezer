@@ -1013,7 +1013,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             SettingsActivity.show(mActivity);
             return true;
         } else if (itemId == R.id.menu_item_disconnect) {
-            requireService().disconnect();
+            requireService().disconnect(true);
             return true;
         } else if (itemId == R.id.menu_item_stop_server) {
             ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_stop_server, requireService()::stopServer);

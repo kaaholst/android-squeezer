@@ -51,9 +51,8 @@ public class RandomPlay {
         return this.activeFolderID;
     }
     
-    int addItems(String folderID, Set<String> stringSetOfFifty) {
+    void addItems(String folderID, Set<String> stringSetOfFifty) {
         tracks.merge(folderID, stringSetOfFifty, mergeSets);
-        return tracks.get(folderID).size();
     }
 
     Set<String> getTracks(String folderID) {
