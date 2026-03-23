@@ -184,7 +184,7 @@ public class Player extends Item implements Comparable<Player> {
     }
 
     public SongTimeChanged getTrackElapsed() {
-        return new SongTimeChanged(this, mPlayerState.getTrackElapsed(), mPlayerState.getCurrentTrackDuration());
+        return new SongTimeChanged(this, mPlayerState.getPlayStatus(), mPlayerState.getTrackElapsed(), mPlayerState.getCurrentTrackDuration());
     }
 
     public int getSleepingIn() {

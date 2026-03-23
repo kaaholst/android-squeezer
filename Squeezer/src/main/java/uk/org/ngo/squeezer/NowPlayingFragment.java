@@ -614,6 +614,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         });
         repository.observe(this, (SongTimeChanged event) -> {
             if (event.player.equals(requireService().getActivePlayer())) {
+                updatePlayPauseIcon(event.playStatus);
                 updateTimeDisplayTo(event.currentPosition, event.duration);
             }
         });
