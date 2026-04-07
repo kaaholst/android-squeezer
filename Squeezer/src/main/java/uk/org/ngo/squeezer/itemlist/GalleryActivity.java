@@ -40,13 +40,12 @@ import uk.org.ngo.squeezer.itemlist.dialog.SlideShow;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.Image;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.GridAutofitLayoutManager;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
-public class GalleryActivity extends BaseActivity implements IServiceItemListCallback<JiveItem> {
+public class GalleryActivity extends BaseActivity implements ItemListCallback<JiveItem> {
 
     private ImageAdapter imageAdapter;
     private Action action;
@@ -68,9 +67,9 @@ public class GalleryActivity extends BaseActivity implements IServiceItemListCal
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-        repository().observe(this, (HandshakeComplete event) -> requireService().pluginItems(action, this));
+    protected void registerObservers() {
+        super.registerObservers();
+        repository().observe(this, (HandshakeComplete event) -> lyrionController().pluginItems(action, this));
     }
 
     private class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {

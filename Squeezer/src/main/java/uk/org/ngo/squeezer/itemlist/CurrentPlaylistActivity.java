@@ -28,10 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.view.GestureDetectorCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
 
 import java.util.Map;
 
@@ -42,7 +40,7 @@ import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistClearDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
@@ -80,8 +78,8 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, this::onMusicChanged);
         repository().observe(this, this::onPlaylistChanged);
     }
@@ -96,7 +94,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
     @Override
     protected void orderPage(int start) {
-        requireService().pluginItems(start, "status", this);
+        lyrionController().pluginItems(start, "status", this);
     }
 
     @Override
@@ -151,7 +149,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_item_playlist_clear) {
-            if (Squeezer.getPreferences().isClearPlaylistConfirmation()) {
+            if (Squeezer.instance().preferences().isClearPlaylistConfirmation()) {
                 PlaylistClearDialog.show(this);
             } else {
                 clearPlaylist();
@@ -176,25 +174,20 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
 
             @Override
             public void onDone() {
-                if (getService() != null) {
-                    getService().playlistClear();
-                }
+                lyrionController().playlistClear();
             }
         });
     }
 
     private String getCurrentPlaylist() {
-        if (getService() == null) {
-            return null;
-        }
-        return getService().getCurrentPlaylist();
+        return lyrionController().getCurrentPlaylist();
     }
 
     private void onMusicChanged(MusicChanged event) {
-        if (getService() == null) {
+        if (lyrionController() == null) {
             return;
         }
-        if (event.player.equals(getService().getActivePlayer())) {
+        if (event.player.equals(lyrionController().getActivePlayer())) {
             int prevSelectedIndex = getSelectedIndex();
             setSelectedIndex(event.playerState.getCurrentPlaylistIndex());
             getItemAdapter().notifyItemChanged(prevSelectedIndex);
@@ -203,14 +196,14 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
     }
 
     private void onPlaylistChanged(PlaylistChanged event) {
-        if (getService() == null) {
+        if (lyrionController() == null) {
             return;
         }
         if (skipPlaylistChanged > 0) {
             skipPlaylistChanged--;
             return;
         }
-        if (event.player.equals(getService().getActivePlayer())) {
+        if (event.player.equals(lyrionController().getActivePlayer())) {
             clearAndReOrderItems();
         }
     }
@@ -236,16 +229,14 @@ public class CurrentPlaylistActivity extends JiveItemListActivity implements Pla
         }
         super.onItemsReceived(count, start, parameters, playlistItems, dataType);
 
-        ISqueezeService service = getService();
-        if (service != null) {
-            int selectedIndex = service.getActivePlayerState().getCurrentPlaylistIndex();
-            setSelectedIndex(selectedIndex);
-            // Initially position the list at the currently playing song.
-            // Do it again once it has loaded because the newly displayed items
-            // may push the current song outside the displayed area
-            if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
-                runOnUiThread(() -> getListView().scrollToPosition(selectedIndex));
-            }
+        LyrionController lyrionController = lyrionController();
+        int selectedIndex = lyrionController.getActivePlayerState().getCurrentPlaylistIndex();
+        setSelectedIndex(selectedIndex);
+        // Initially position the list at the currently playing song.
+        // Do it again once it has loaded because the newly displayed items
+        // may push the current song outside the displayed area
+        if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
+            runOnUiThread(() -> getListView().scrollToPosition(selectedIndex));
         }
     }
 

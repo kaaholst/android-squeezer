@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.service;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 
@@ -75,7 +75,7 @@ interface SlimClient {
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
      */
-    <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
+    <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, ItemListCallback<T> callback);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.

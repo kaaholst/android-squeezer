@@ -27,7 +27,7 @@ public class InputTimeDialog {
             minute = c.get(Calendar.MINUTE);
         }
 
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour(hour)
                 .setMinute(minute)

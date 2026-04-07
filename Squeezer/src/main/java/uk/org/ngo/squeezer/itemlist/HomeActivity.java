@@ -45,9 +45,7 @@ import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 
@@ -66,7 +64,7 @@ public class HomeActivity extends HomeMenuActivity {
         }
 
         // Show the change log if necessary.
-        Squeezer.getInstance().doInBackground(() -> {
+        Squeezer.instance().doInBackground(() -> {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
             runOnUiThread(() -> {
                 ChangeLogDialog changeLog = new ChangeLogDialog(this, preferences);
@@ -132,7 +130,7 @@ public class HomeActivity extends HomeMenuActivity {
                     List<JiveItem> node = getMenuNode(item.getId(), homeMenu);
                     if (!node.isEmpty()) adapter.update(node);
                     if (node.isEmpty() && !item.doAction && item.goAction != null) {
-                        adapter.setOrderer(pagePosition -> requireService().pluginItems(pagePosition, item, item.goAction, adapter));
+                        adapter.setOrderer(pagePosition -> lyrionController().pluginItems(pagePosition, item, item.goAction, adapter));
                         adapter.maybeOrderPage(0);
                     }
                     childAdapters.add(adapter);
@@ -163,30 +161,30 @@ public class HomeActivity extends HomeMenuActivity {
 
     @Override
     public ArtworkListLayout getPreferredListLayout() {
-        return Squeezer.getPreferences().getHomeLayout();
+        return Squeezer.instance().preferences().getHomeLayout();
     }
 
     @Override
     public void setPreferredListLayout(ArtworkListLayout listLayout) {
         super.setPreferredListLayout(listLayout);
-        requireService().setCustomShortcuts();
+        lyrionController().setCustomShortcuts();
     }
 
     @Override
     protected void saveListLayout(ArtworkListLayout listLayout) {
-        Squeezer.getPreferences().setHomeLayout(listLayout);
+        Squeezer.instance().preferences().setHomeLayout(listLayout);
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
         repository().observe(this, (PlayerStateChanged event) -> onPlayerStateChanged(event));
     }
 
     private void onPlayerStateChanged(PlayerStateChanged event) {
         Boolean isFirstConnection = getRetainedValue(TAG_FIRST_CONNECTION);
-        if (isFirstConnection != null && isFirstConnection && event.player.equals(getService().getActivePlayer())) {
+        if (isFirstConnection != null && isFirstConnection && event.player.equals(lyrionController().getActivePlayer())) {
             putRetainedValue(TAG_FIRST_CONNECTION, false);
             if (event.player.getPlayerState().isPlaying()) {
                 NowPlayingActivity.show(this);
@@ -201,7 +199,7 @@ public class HomeActivity extends HomeMenuActivity {
         // has run. TODO: Add more robust and general 'tips' functionality.
         PackageInfo pInfo;
         try {
-            final Preferences preferences = Squeezer.getPreferences();
+            final Preferences preferences = Squeezer.instance().preferences();
 
             pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
             if (preferences.getLastRunVersionCode() == 0) {

@@ -35,11 +35,11 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.dialog.VolumeSettings;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
@@ -62,7 +62,7 @@ import uk.org.ngo.squeezer.widget.ViewUtilities;
  *
  * @author Kurt Aaholst
  */
-public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends Item> extends BaseActivity implements IServiceItemListCallback<T> {
+public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends Item> extends BaseActivity implements ItemListCallback<T> {
 
     private static final String TAG = ItemListActivity.class.getSimpleName();
 
@@ -122,8 +122,8 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
         emptyView = requireView(R.id.empty_view);
         listView = requireView(R.id.item_list);
         listView.setLayoutManager(new LinearLayoutManager(this));
-        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::requireService, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> {
-            if (requireService().getActivePlayer() != null) {
+        volumeBar = new VolumeBar(requireView(R.id.volume_bar), this::lyrionController, new Pair<>(AppCompatResources.getDrawable(this, R.drawable.ic_settings), () -> {
+            if (lyrionController().getActivePlayer() != null) {
                 new VolumeSettings().show(getSupportFragmentManager(), VolumeSettings.class.getName());
             }
         }));
@@ -185,14 +185,14 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, (HandshakeComplete event) -> onHandshakeComplete());
         repository().observe(this, (ActivePlayerChanged event) -> setPlayer(event.player));
         repository().observe(this, (RefreshEvent event) -> clearAndReOrderItems());
         repository().observe(this, (PlayerVolume event) -> {
-            if (event.player == requireService().getActivePlayer()) {
-                volumeBar.update(requireService().getVolume());
+            if (event.player == lyrionController().getActivePlayer()) {
+                volumeBar.update(lyrionController().getVolume());
             }
         });
     }
@@ -216,15 +216,14 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
     }
 
     /**
-     * Starts an asynchronous fetch of items from the server. Will only be called after the
-     * service connection has been bound.
+     * Starts an asynchronous fetch of items from the server.
      *
-     * @param start Position in list to start the fetch. Pass this on to {@link ISqueezeService}
+     * @param start Position in list to start the fetch. Pass this on to {@link LyrionController}
      */
     protected abstract void orderPage(int start);
 
     public ArtworkListLayout getPreferredListLayout() {
-        return Squeezer.getPreferences().getAlbumListLayout();
+        return Squeezer.instance().preferences().getAlbumListLayout();
     }
 
     /**
@@ -267,17 +266,17 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
                 showEmptyView();
             } else {
                 clearAndReOrderItems();
-                volumeBar.update(requireService().getVolume());
+                volumeBar.update(lyrionController().getVolume());
             }
         }
     }
 
     private void onHandshakeComplete() {
         Log.i(TAG, "Handshake complete");
-        LyrionPlayer activePlayer = requireService().getActivePlayer();
+        LyrionPlayer activePlayer = lyrionController().getActivePlayer();
         setPlayer(activePlayer);
         if (activePlayer != null) {
-            volumeBar.update(requireService().getVolume());
+            volumeBar.update(lyrionController().getVolume());
             maybeOrderVisiblePages(getListView());
         } else {
             showEmptyView();
@@ -364,7 +363,7 @@ public abstract class ItemListActivity<VH extends ItemViewHolder<T>, T extends I
      * Empties the variables that track which pages have been requested, and orders page 0.
      */
     public void clearAndReOrderItems() {
-        if (requireService().getActivePlayer() != null) {
+        if (lyrionController().getActivePlayer() != null) {
             Log.i(TAG, "clearAndReOrderItems()");
             showLoading();
             getItemAdapter().clear();

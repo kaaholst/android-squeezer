@@ -87,7 +87,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private void initialize() {
         inflate(getContext(), R.layout.server_address_view, this);
         if (!isInEditMode()) {
-            Squeezer.getPreferences(prefs -> {
+            Squeezer.instance().preferences(prefs -> {
                 preferences = prefs;
                 serverAddress = preferences.getServerAddress();
                 if (serverAddress.localAddress() == null) {

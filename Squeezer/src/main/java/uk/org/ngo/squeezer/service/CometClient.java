@@ -58,7 +58,7 @@ import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.AlertWindow;
 import uk.org.ngo.squeezer.model.DisplayMessage;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentTrack;
@@ -122,7 +122,7 @@ class CometClient implements SlimClient {
     public static long SERVER_STATUS_INTERVAL = 60;
     public static final long SERVER_STATUS_TIMEOUT = SERVER_STATUS_INTERVAL * 1_000 + 10_000;
 
-    final static int mPageSize = Squeezer.getInstance().getResources().getInteger(R.integer.PageSize);
+    final static int mPageSize = Squeezer.instance().getResources().getInteger(R.integer.PageSize);
 
     final AtomicReference<String> username = new AtomicReference<>();
     final AtomicReference<String> password = new AtomicReference<>();
@@ -167,10 +167,10 @@ class CometClient implements SlimClient {
         this.repository = repository;
         mConnectionState = new ConnectionState(repository);
 
-        HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
+        HandlerThread handlerThread = new HandlerThread(CometClient.class.getSimpleName());
         handlerThread.start();
         mBackgroundHandler = new CliHandler(handlerThread.getLooper());
-        repository.observeForever(this::onHandshakeComplete);
+        Squeezer.instance().postToMainThread(() -> repository.observeForever(this::onHandshakeComplete));
 
         List<ItemListener<?>> itemListeners = Arrays.asList(
                 new AlarmsListener(),
@@ -226,7 +226,7 @@ class CometClient implements SlimClient {
     }
 
     @Override
-    public <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+    public <T> void requestItems(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int pageSize, ItemListCallback<T> callback) {
         final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, params, start, pageSize, callback);
         internalRequestItems(browseRequest);
     }
@@ -259,7 +259,7 @@ class CometClient implements SlimClient {
         mBackgroundHandler.post(() -> {
             cleanupBayeuxClient();
 
-            final Preferences.ServerAddress serverAddress = Squeezer.getPreferences().getServerAddress();
+            final Preferences.ServerAddress serverAddress = Squeezer.instance().preferences().getServerAddress();
             mConnectionState.initLastScan(serverAddress.lastScan);
             final String username = serverAddress.userName;
             final String password = serverAddress.password;
@@ -405,7 +405,7 @@ class CometClient implements SlimClient {
 
         long lastScan = Util.getLong(data, "lastscan");
         if (mConnectionState.setLastScan(lastScan)) {
-            final Preferences preferences = Squeezer.getPreferences();
+            final Preferences preferences = Squeezer.instance().preferences();
             final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
             preferences.saveLastScan(serverAddress, lastScan);
         }
@@ -570,7 +570,7 @@ class CometClient implements SlimClient {
 
         String[] cmd = new String[]{"status"};
         Map<String, Object> params = new FluentHashMap<String, Object>().with("tags", JiveItem.SONG_TAGS);
-        final BrowseRequest<Song> browseRequest = new BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new IServiceItemListCallback<>() {
+        final BrowseRequest<Song> browseRequest = new BrowseRequest<>(player, cmd, params, SlimClient.CURRENT, 1, new ItemListCallback<>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
                 if (!items.isEmpty()) {
@@ -835,7 +835,7 @@ class CometClient implements SlimClient {
 
     private <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         if (mBayeuxClient == null) return;
-        Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
+        Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), ItemListCallback.class, 0);
         ItemListener<?> listener = mItemRequestMap.get(callbackClass);
         if (listener == null) {
             throw new RuntimeException("No handler defined for '" + browseRequest.getCallback().getClass() + "'");
@@ -1014,9 +1014,9 @@ class CometClient implements SlimClient {
         private final boolean fullList;
         private int start;
         private int itemsPerResponse;
-        private final IServiceItemListCallback<T> callback;
+        private final ItemListCallback<T> callback;
 
-        BrowseRequest(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
+        BrowseRequest(LyrionPlayer player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, ItemListCallback<T> callback) {
             this.player = player;
             this.cmd(cmd);
             this.fullList = (start == ALL_ITEMS);
@@ -1052,7 +1052,7 @@ class CometClient implements SlimClient {
             return itemsPerResponse;
         }
 
-        public IServiceItemListCallback<T> getCallback() {
+        public ItemListCallback<T> getCallback() {
             return callback;
         }
     }

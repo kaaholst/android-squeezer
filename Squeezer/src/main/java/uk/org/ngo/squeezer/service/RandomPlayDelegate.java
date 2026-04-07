@@ -69,7 +69,7 @@ class RandomPlayDelegate {
             Log.e(TAG, "randomPlayFolder: No folder_id");
             return false;
         }
-        Set<String> played = Squeezer.getPreferences().loadRandomPlayed(folderID);
+        Set<String> played = Squeezer.instance().preferences().loadRandomPlayed(folderID);
         LyrionPlayer player = lyrionController.getActivePlayer();
         RandomPlay randomPlay = lyrionController.getRandomPlay(player);
         randomPlay.reset(player);
@@ -85,7 +85,7 @@ class RandomPlayDelegate {
 
     void handleRandomOnEvent(LyrionPlayer player) {
         RandomPlay randomPlay = lyrionController.getRandomPlay(player);
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         PlayerState playerState = player.getPlayerState();
 
         int number = playerState.getCurrentPlaylistTracksNum();

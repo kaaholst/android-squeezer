@@ -25,7 +25,7 @@ public class CallStateDialog extends DialogFragment {
                 .setTitle(R.string.call_state_permission_title)
                 .setMessage(R.string.call_state_permission_message)
                 .setPositiveButton(R.string.request_permission, (dialogInterface, i) -> host.requestCallStatePermission())
-                .setNegativeButton(R.string.DISABLE, (dialogInterface, i) -> Squeezer.getPreferences().setActionOnIncomingCall(Preferences.IncomingCallAction.NONE))
+                .setNegativeButton(R.string.DISABLE, (dialogInterface, i) -> Squeezer.instance().preferences().setActionOnIncomingCall(Preferences.IncomingCallAction.NONE))
                 .create();
     }
 }

@@ -19,16 +19,13 @@ package uk.org.ngo.squeezer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.res.ColorStateList;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,6 +55,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +69,7 @@ import uk.org.ngo.squeezer.framework.ContextMenu;
 import uk.org.ngo.squeezer.framework.ViewParamItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
@@ -82,8 +80,7 @@ import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -108,9 +105,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     private static final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
-
-    @Nullable
-    private ISqueezeService mService = null;
 
     private TextView albumText;
 
@@ -192,8 +186,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (networkInfo.isConnected()) {
                 Log.v(TAG, "Received WIFI connected broadcast");
-                // Requires a serviceStub. Else we'll do this on the service connection callback.
-                if (mService != null && !(mService.isConnected() || mService.isManualDisconnect())) {
+                if (!(lyrionController().isConnected() || lyrionController().isManualDisconnect())) {
                     Log.v(TAG, "Initiated connect on WIFI connected");
                     startVisibleConnection(true);
                 }
@@ -210,7 +203,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     @UiThread
     private void showConnectingDialog() {
         if (connectingDialog == null || !connectingDialog.isShowing()) {
-            Squeezer.getPreferences(preferences -> {
+            Squeezer.instance().preferences(preferences -> {
                 // We may no longer be attached to the parent activity. If so, do nothing.
                 if (!isAdded()) {
                     return;
@@ -242,19 +235,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
 
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.v(TAG, "ServiceConnection.onServiceConnected()");
-            NowPlayingFragment.this.onServiceConnected((ISqueezeService) binder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-        }
-    };
-
     private boolean mFullHeightLayout;
 
     @Override
@@ -267,9 +247,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        mActivity.bindService(new Intent(mActivity, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + mService);
     }
 
     @Override
@@ -277,7 +254,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         View v;
 
         mFullHeightLayout = (container.getLayoutParams().height != ViewGroup.LayoutParams.WRAP_CONTENT);
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         boolean largeArtwork = preferences.isLargeArtwork();
 
         if (mFullHeightLayout) {
@@ -303,7 +280,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
                 if (preferences.nowPlayingVolume()) {
-                    volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
+                    volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), this::lyrionController, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
                         preferences.setLargeArtwork(false);
                         mActivity.recreate();
                     }));
@@ -312,11 +289,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 }
             } else {
                 albumArt = v.findViewById(R.id.icon);
-                volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
+                volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), this::lyrionController, () -> {
                     preferences.setLargeArtwork(true);
                     mActivity.recreate();
                 }, () -> {
-                    if (requireService().getActivePlayer() != null) {
+                    if (lyrionController().getActivePlayer() != null) {
                         new VolumeSettings().show(getParentFragmentManager(), VolumeSettings.class.getName());
                     }
                 });
@@ -351,10 +328,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         // Set the text view selected for the marquee effect to work.
         trackText.setSelected(true);
 
-        playPauseButton.setOnClickListener(view -> requireService().togglePausePlay());
+        playPauseButton.setOnClickListener(view -> lyrionController().togglePausePlay());
 
-        nextButton.setOnClickListener(view -> requireService().nextTrack());
-        prevButton.setOnClickListener(view -> requireService().previousTrack());
+        nextButton.setOnClickListener(view -> lyrionController().nextTrack());
+        prevButton.setOnClickListener(view -> lyrionController().previousTrack());
 
         if (mFullHeightLayout) {
             artistText.setOnClickListener(v1 -> {
@@ -399,14 +376,14 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
                     View cueParent = (largeArtwork ? albumArt : v);
-                    if (mService != null) new CuePanel(requireActivity(), cueParent, mService);
+                    new CuePanel(requireActivity(), cueParent, lyrionController());
                     return true;
                 }
             });
             albumArt.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
 
-            shuffleButton.setOnClickListener(view -> requireService().toggleShuffle());
-            repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
+            shuffleButton.setOnClickListener(view -> lyrionController().toggleShuffle());
+            repeatButton.setOnClickListener(view -> lyrionController().toggleRepeat());
 
             // Update the time indicator to reflect the dragged thumb position.
             slider.addOnChangeListener((slider, value, fromUser) -> {
@@ -418,7 +395,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
             totalTime.setOnClickListener(view -> {
                 showRemainingTime = !showRemainingTime;
-                Squeezer.getPreferences().setShowRemainingTime(showRemainingTime);
+                Squeezer.instance().preferences().setShowRemainingTime(showRemainingTime);
                 PlayerState playerState = getPlayerState();
                 if (playerState != null) {
                     updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentTrackDuration());
@@ -476,7 +453,65 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             v.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
         }
 
+        v.post(this::observeLyrionEvents);
+
         return v;
+    }
+
+    private void observeLyrionEvents() {
+        SqueezerRepository repository = mActivity.repository();
+
+        repository.observe(this, this::onConnectionChanged);
+        repository.observe(this, (HandshakeComplete event) -> onHandshakeComplete());
+        repository.observe(this, this::onHomeMenuChange);
+
+        repository.observe(this, (ShuffleStatusChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updateShuffleStatus(event.shuffleStatus);
+            }
+        });
+        repository.observe(this, (RepeatStatusChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updateRepeatStatus(event.repeatStatus);
+            }
+        });
+        repository.observe(this, (PowerStatusChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updatePlayerMenuItems();
+            }
+        });
+        repository.observe(this, (PlayerVolume event) -> {
+            if (event.player == lyrionController().getActivePlayer()) {
+                updateVolumeInfo();
+            }
+        });
+        repository.observe(this, (MusicChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updateSongInfo(event.playerState);
+            }
+        });
+        repository.observe(this, (PlayStatusChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updatePlayPauseIcon(event.playStatus);
+            }
+        });
+        repository.observe(this, (SongTimeChanged event) -> {
+            if (event.player.equals(lyrionController().getActivePlayer())) {
+                updatePlayPauseIcon(event.playStatus);
+                updateTimeDisplayTo(event.currentPosition, event.duration);
+            }
+        });
+
+        repository.observe(this, (ActivePlayerChanged event) -> {
+            updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
+            updatePlayerDropDown(lyrionController().getPlayers(), lyrionController().getActivePlayer());
+        });
+        repository.observe(this, (PlayersChanged event) -> updatePlayerDropDown(lyrionController().getPlayers(), lyrionController().getActivePlayer()));
+
+        // Assume they want to connect
+        if (lyrionController().canAutoConnect()) {
+            startVisibleConnection(true);
+        }
     }
 
     @UiThread
@@ -540,7 +575,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
      * @param activePlayer The currently active player. May be null.
      */
     @UiThread
-    private void updatePlayerDropDown(@NonNull List<LyrionPlayer> connectedPlayers, @Nullable LyrionPlayer activePlayer) {
+    private void updatePlayerDropDown(@NonNull Collection<LyrionPlayer> connectedPlayers, @Nullable LyrionPlayer activePlayer) {
         if (!isAdded()) {
             return;
         }
@@ -562,7 +597,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 LyrionPlayer selectedItem = playerAdapter.getItem(position);
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
-                    requireService().setActivePlayer(selectedItem, playerAdapter.continuePlayback());
+                    lyrionController().setActivePlayer(selectedItem, playerAdapter.continuePlayback());
                 }
             });
         } else {
@@ -572,83 +607,16 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             actionBar.setDisplayShowCustomEnabled(false);
 
             if (connectedPlayers.size() == 1) {
-                actionBar.setTitle(connectedPlayers.get(0).getName());
+                actionBar.setTitle(connectedPlayers.stream().findFirst().get().getName());
             } else {
                 actionBar.setTitle(R.string.app_name);
             }
         }
     }
 
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        Log.v(TAG, "Service bound");
-        mService = service;
-
-        SqueezerRepository repository = mActivity.repository();
-
-        repository.observe(this, this::onConnectionChanged);
-        repository.observe(this, (HandshakeComplete event) -> onHandshakeComplete());
-        repository.observe(this, this::onHomeMenuChange);
-
-        repository.observe(this, (ShuffleStatusChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updateShuffleStatus(event.shuffleStatus);
-            }
-        });
-        repository.observe(this, (RepeatStatusChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updateRepeatStatus(event.repeatStatus);
-            }
-        });
-        repository.observe(this, (PowerStatusChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updatePlayerMenuItems();
-            }
-        });
-        repository.observe(this, (PlayerVolume event) -> {
-            if (event.player == requireService().getActivePlayer()) {
-                updateVolumeInfo();
-            }
-        });
-        repository.observe(this, (MusicChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updateSongInfo(event.playerState);
-            }
-        });
-        repository.observe(this, (PlayStatusChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updatePlayPauseIcon(event.playStatus);
-            }
-        });
-        repository.observe(this, (SongTimeChanged event) -> {
-            if (event.player.equals(requireService().getActivePlayer())) {
-                updatePlayPauseIcon(event.playStatus);
-                updateTimeDisplayTo(event.currentPosition, event.duration);
-            }
-        });
-
-        repository.observe(this, (ActivePlayerChanged event) -> {
-            updateUiFromPlayerState(event.player != null ? event.player.getPlayerState() : new PlayerState());
-            updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer());
-        });
-        repository.observe(this, (PlayersChanged event) -> updatePlayerDropDown(requireService().getPlayers(), requireService().getActivePlayer()));
-
-        // Assume they want to connect
-        if (mService != null && mService.canAutoConnect()) {
-            startVisibleConnection(true);
-        }
-    }
-
-    /**
-     * Return the {@link ISqueezeService} this activity is currently bound to.
-     *
-     * @throws IllegalStateException if service is not bound.
-     */
     @NonNull
-    private ISqueezeService requireService() {
-        if (mService == null) {
-            throw new IllegalStateException(this + " service is not bound");
-        }
-        return mService;
+    private LyrionController lyrionController() {
+        return Squeezer.instance().lyrionController();
     }
 
     @Override
@@ -706,7 +674,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     private void updateSongInfo(@NonNull PlayerState playerState) {
         updateTimeDisplayTo(playerState.getTrackElapsed(), playerState.getCurrentTrackDuration());
 
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         CurrentTrack song = playerState.getCurrentTrack();
         if (song == null) {
             // Create empty song if this is called (via _HandshakeComplete) before status is received
@@ -802,7 +770,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 trackInfo.setText(trackInfoText);
                 trackInfo.setVisibility(!TextUtils.isEmpty(trackInfoText) ? View.VISIBLE : View.GONE);
 
-                requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
+                lyrionController().pluginItems(song.moreAction, new ItemListCallback<>() {
                     @Override
                     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                         albumItem = findBrowseAction(items, "album_id");
@@ -859,9 +827,9 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
     private void updateVolumeInfo() {
         if (mFullHeightLayout) {
-            Preferences preferences = Squeezer.getPreferences();
+            Preferences preferences = Squeezer.instance().preferences();
             VolumeUpdater updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar : null : volumeWheel;
-            if (updater != null) updater.update(requireService().getVolume());
+            if (updater != null) updater.update(lyrionController().getVolume());
         }
     }
 
@@ -879,21 +847,15 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
     private void setSecondsElapsed(int seconds) {
-        if (mService != null) mService.setSecondsElapsed(seconds);
+        lyrionController().setSecondsElapsed(seconds);
     }
 
     private PlayerState getPlayerState() {
-        if (mService == null) {
-            return null;
-        }
-        return mService.getActivePlayerState();
+        return lyrionController().getActivePlayerState();
     }
 
     private LyrionPlayer getActivePlayer() {
-        if (mService == null) {
-            return null;
-        }
-        return mService.getActivePlayer();
+        return lyrionController().getActivePlayer();
     }
 
     private CurrentTrack getCurrentTrack() {
@@ -910,14 +872,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         mActivity.unregisterReceiver(broadcastReceiver);
 
         super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mService != null) {
-            mActivity.unbindService(serviceConnection);
-        }
     }
 
     /**
@@ -954,7 +908,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
      */
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        boolean connected = (mService != null) && mService.isConnected();
+        boolean connected = lyrionController().isConnected();
 
         // These are all set at the same time, so one check is sufficient
         if (menuItemDisconnect != null) {
@@ -966,8 +920,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
             // Set visibility and enabled state of menu items that are player-specific and
             // require a connection to the server.
-            boolean haveConnectedPlayers = connected && mService != null
-                    && !mService.getPlayers().isEmpty();
+            boolean haveConnectedPlayers = connected && !lyrionController().getPlayers().isEmpty();
 
             menuItemPlaylist.setVisible(haveConnectedPlayers);
             menuItemPlayers.setVisible(haveConnectedPlayers);
@@ -995,7 +948,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (PlayerViewLogic.doPlayerAction(getParentFragmentManager(), mService, item, getActivePlayer())) {
+        if (PlayerViewLogic.doPlayerAction(getParentFragmentManager(), lyrionController(), item, getActivePlayer())) {
             return true;
         }
 
@@ -1013,13 +966,13 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             SettingsActivity.show(mActivity);
             return true;
         } else if (itemId == R.id.menu_item_disconnect) {
-            requireService().disconnect(true);
+            lyrionController().disconnect(true);
             return true;
         } else if (itemId == R.id.menu_item_stop_server) {
-            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_stop_server, requireService()::stopServer);
+            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_stop_server, lyrionController()::stopServer);
             return true;
         } else if (itemId == R.id.menu_item_restart_server) {
-            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_restart_server, requireService()::restartServer);
+            ConfirmDialog.show(getParentFragmentManager(), this, R.string.menu_item_restart_server, lyrionController()::restartServer);
             return true;
         } else if (itemId == R.id.menu_item_players) {
             PlayerListActivity.show(mActivity);
@@ -1043,23 +996,23 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     public void startVisibleConnection(boolean autoConnect) {
         Log.v(TAG, "startVisibleConnection");
 
-        // If were not connected to service or not attached to activity do nothing.
-        if (mService == null || !isAdded()) {
+        // If were not attached to activity do nothing.
+        if (!isAdded()) {
             return;
         }
 
-        Squeezer.getPreferences(preferences -> {
+        Squeezer.instance().preferences(preferences -> {
             if (!preferences.hasServerConfig()) {
                 // Set up a server connection, if it is not present
                 ConnectActivity.show(mActivity);
                 return;
             }
 
-            if (requireService().isConnectInProgress()) {
+            if (lyrionController().isConnectInProgress()) {
                 Log.v(TAG, "Connection is already in progress, connecting aborted");
                 return;
             }
-            requireService().startConnect(autoConnect);
+            lyrionController().startConnect(autoConnect);
         });
     }
 
@@ -1099,14 +1052,6 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
      }
 
     private void onHandshakeComplete() {
-        // Event might arrive before this fragment has connected to the service (e.g.,
-        // the activity connected before this fragment did).
-        // XXX: Verify that this is possible, since the fragment can't register for events
-        // until it's connected to the service.
-        if (mService == null) {
-            return;
-        }
-
         Log.d(TAG, "Handshake complete");
 
         dismissConnectingDialog();
@@ -1120,11 +1065,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
         updateUiFromPlayerState(playerState);
 
-        requestCallStateLauncher.trySetAction(Squeezer.getPreferences().getActionOnIncomingCall());
+        requestCallStateLauncher.trySetAction(Squeezer.instance().preferences().getActionOnIncomingCall());
     }
 
     private void onHomeMenuChange(HomeMenuEvent event) {
-        boolean myMusicSearch = Squeezer.getPreferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
+        boolean myMusicSearch = Squeezer.instance().preferences().getTopBarSearch() == Preferences.TopBarSearch.MY_MUSIC;
         String searchKey = myMusicSearch ? "myMusicSearch" : "globalSearch";
         topBarSearch = null;
         for (JiveItem menuItem : event.menuItems) if (menuItem.goAction != null) {

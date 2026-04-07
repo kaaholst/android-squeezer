@@ -14,24 +14,34 @@ import androidx.preference.PreferenceManager;
 
 import org.eclipse.jetty.util.ajax.JSON;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 // Trick to make the app context useful available everywhere.
 // See http://stackoverflow.com/questions/987072/using-application-context-everywhere
 
 public class Squeezer extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final String NOTIFICATION_CHANNEL_ID = "channel_squeezer_1";
+    public static final int DOWNLOAD_ERROR = 2;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
 
     private static Squeezer instance;
+
+    // Keep Android from complaining about disk access on main thread
+    // We initialize preferences in the background, but we still wait for it.
+    private CountDownLatch initialized;
     private SqueezerRepository repository;
+    private LyrionController lyrionController;
     private Preferences preferences;
 
-    public static Squeezer getInstance() {
+    public static Squeezer instance() {
         return instance;
     }
 
@@ -54,29 +64,52 @@ public class Squeezer extends Application implements SharedPreferences.OnSharedP
 
         instance = this;
         repository = new SqueezerRepository();
-        preferences = new Preferences(this, getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE));
-        AppCompatDelegate.setDefaultNightMode(preferences.getTheme().getNightMode());
-        preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        initialized = new CountDownLatch(1);
+        doInBackground(() -> {
+            preferences = new Preferences(this, getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE));
+            AppCompatDelegate.setDefaultNightMode(preferences.getTheme().getNightMode());
+            preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+            lyrionController = new LyrionController(this, preferences);
 
-        // Read the default shared preferences cause it's used in de.cketti.library.changelog.ChangeLog
-        doInBackground(() -> PreferenceManager.getDefaultSharedPreferences(Squeezer.this).getString("dummy", ""));
+            // Read the default shared preferences cause it's used in de.cketti.library.changelog.ChangeLog
+            PreferenceManager.getDefaultSharedPreferences(Squeezer.this).getString("dummy", "");
 
-        // Jetty JSON has a loader which has a static logger property which use disk read.
-        // We load the class off thread to avoid a StrictMode violation.
-        doInBackground(JSON::new);
+            // Jetty JSON has a loader which has a static logger property which use disk read.
+            // We load the class off thread to avoid a StrictMode violation.
+            new JSON();
 
-        // Instantiate the image fetcher off thread.
-        doInBackground(() -> ImageFetcher.getInstance(Squeezer.this));
+            // Instantiate the image fetcher off thread.
+            ImageFetcher.getInstance(Squeezer.this);
+
+            initialized.countDown();
+        });
 
         super.onCreate();
+    }
+
+    private void waitForInitialized() {
+        try {
+            initialized.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public SqueezerRepository repository() {
         return repository;
     }
 
+    public LyrionController lyrionController() {
+        waitForInitialized();
+        return lyrionController;
+    }
+
     public void doInBackground(Runnable task) {
         executor.execute(task);
+    }
+
+    public void postToMainThread(Runnable task) {
+        uiThreadHandler.post(task);
     }
 
     /**
@@ -87,16 +120,17 @@ public class Squeezer extends Application implements SharedPreferences.OnSharedP
      *
      * @param callback This will be called with the preferences.
      */
-    public static void getPreferences(final Consumer<Preferences> callback) {
+    public void preferences(final Consumer<Preferences> callback) {
         if (instance.uiThreadHandler.getLooper() == Looper.myLooper()) {
-            callback.accept(instance.preferences);
+            callback.accept(preferences());
         } else {
-            instance.uiThreadHandler.post(() -> callback.accept(instance.preferences));
+            instance.uiThreadHandler.post(() -> callback.accept(preferences()));
         }
     }
 
-    public static Preferences getPreferences() {
-        return instance.preferences;
+    public Preferences preferences() {
+        waitForInitialized();
+        return preferences;
     }
 
     @Override

@@ -35,7 +35,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerView extends PlayerBaseView {
     private final PlayerListActivity activity;
@@ -47,13 +46,7 @@ public class PlayerView extends PlayerBaseView {
         this.activity = activity;
 
         mute = view.findViewById(R.id.mute);
-        mute.setOnClickListener(v -> {
-            ISqueezeService service = activity.getService();
-            if (service == null) {
-                return;
-            }
-            service.toggleMute(item);
-        });
+        mute.setOnClickListener(v -> activity.lyrionController().toggleMute(item));
 
         volumeBar = view.findViewById(R.id.volume_slider);
         volumeBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
@@ -70,11 +63,7 @@ public class PlayerView extends PlayerBaseView {
         });
         volumeBar.addOnChangeListener((slider, value, fromUser) -> {
             if (fromUser) {
-                ISqueezeService service = activity.getService();
-                if (service == null) {
-                    return;
-                }
-                service.setVolumeTo(item, (int)value);
+                activity.lyrionController().setPlayerVolume(item, (int)value);
             }
         });
     }
@@ -142,12 +131,8 @@ public class PlayerView extends PlayerBaseView {
         }
 
         activity.setCurrentPlayer(selectedItem);
-        ISqueezeService service = activity.getService();
-        if (service == null) {
-            return true;
-        }
 
-        if (PlayerViewLogic.doPlayerAction(activity.getSupportFragmentManager(), service, menuItem, selectedItem)) {
+        if (PlayerViewLogic.doPlayerAction(activity.getSupportFragmentManager(), activity.lyrionController(), menuItem, selectedItem)) {
             return  true;
         }
 

@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
@@ -40,7 +39,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
@@ -97,8 +95,6 @@ public class PlayerListActivity extends BaseActivity implements
         ViewUtilities.setInsetsListener(requireView(R.id.toolbar), true, false, false);
         ViewUtilities.setInsetsListener(listView, false, true, false);
 
-        setHandleVolumeKeys(false);
-
         if (savedInstanceState != null) {
             currentPlayer = savedInstanceState.getParcelable(PlayerListActivity.CURRENT_PLAYER);
         }
@@ -106,8 +102,8 @@ public class PlayerListActivity extends BaseActivity implements
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, (HandshakeComplete event) -> updateAndExpandPlayerList());
         repository().observe(this, (PlayerStateChanged event) -> maybeUpdateAndExpandPlayerList());
         repository().observe(this, (PlayerVolume event) -> {
@@ -135,12 +131,7 @@ public class PlayerListActivity extends BaseActivity implements
     }
 
     public void playerRename(String newName) {
-        ISqueezeService service = getService();
-        if (service == null) {
-            return;
-        }
-
-        service.playerRename(currentPlayer, newName);
+        lyrionController().playerRename(currentPlayer, newName);
         this.currentPlayer.setName(newName);
         adapter.notifyItemChanged(currentPlayer);
     }
@@ -153,7 +144,7 @@ public class PlayerListActivity extends BaseActivity implements
      */
     @Override
     public void syncPlayerToPlayer(@NonNull LyrionPlayer slave, @NonNull String masterId) {
-        requireService().syncPlayerToPlayer(slave, masterId);
+        lyrionController().syncPlayerToPlayer(slave, masterId);
     }
 
     /**
@@ -163,7 +154,7 @@ public class PlayerListActivity extends BaseActivity implements
      */
     @Override
     public void unsyncPlayer(@NonNull LyrionPlayer player) {
-        requireService().unsyncPlayer(player);
+        lyrionController().unsyncPlayer(player);
     }
 
     @Override
@@ -173,7 +164,7 @@ public class PlayerListActivity extends BaseActivity implements
 
     @Override
     public void setPlayTrackAlbum(@NonNull String option) {
-        requireService().playerPref(currentPlayer, LyrionPlayer.Pref.PLAY_TRACK_ALBUM, option);
+        lyrionController().playerPref(currentPlayer, LyrionPlayer.Pref.PLAY_TRACK_ALBUM, option);
     }
 
     @Override
@@ -183,7 +174,7 @@ public class PlayerListActivity extends BaseActivity implements
 
     @Override
     public void setDefeatDestructiveTTP(@NonNull String option) {
-        requireService().playerPref(currentPlayer, LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
+        lyrionController().playerPref(currentPlayer, LyrionPlayer.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
     }
 
     @Override
@@ -194,7 +185,7 @@ public class PlayerListActivity extends BaseActivity implements
     @Override
     public void setSyncVolume(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            requireService().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_VOLUME, option);
+            lyrionController().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_VOLUME, option);
         }
     }
 
@@ -206,7 +197,7 @@ public class PlayerListActivity extends BaseActivity implements
     @Override
     public void setSyncPower(@NonNull String option) {
         for (int i = 0; i < currentSyncGroup.getItemCount(); i++) {
-            requireService().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_POWER, option);
+            lyrionController().playerPref(currentSyncGroup.getItem(i), LyrionPlayer.Pref.SYNC_POWER, option);
         }
     }
 
@@ -223,7 +214,7 @@ public class PlayerListActivity extends BaseActivity implements
      * expanded.
      */
     protected void updateAndExpandPlayerList() {
-        updateSyncGroups(requireService().getPlayers());
+        updateSyncGroups(lyrionController().getPlayers());
         adapter.setSyncGroups(mPlayerSyncGroups);
     }
 
@@ -250,7 +241,7 @@ public class PlayerListActivity extends BaseActivity implements
      *
      * @param players List of players.
      */
-    public void updateSyncGroups(List<LyrionPlayer> players) {
+    public void updateSyncGroups(Collection<LyrionPlayer> players) {
         mPlayerSyncGroups.clear();
 
         // Iterate over all the connected players to build the list of master players.
@@ -266,7 +257,7 @@ public class PlayerListActivity extends BaseActivity implements
             } else {
                 // Must be a slave. Add it under the master. This might have already
                 // happened (in the block above), but might not. For example, it's possible
-                // to have a player that's a syncslave of an player that is not connected.
+                // to have a player that's a syncslave of a player that is not connected.
                 addSyncSlave(syncMaster, player);
             }
         }

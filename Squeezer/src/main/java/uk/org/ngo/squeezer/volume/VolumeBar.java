@@ -12,7 +12,8 @@ import com.google.android.material.button.MaterialButton;
 import java.util.function.Supplier;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
+import uk.org.ngo.squeezer.service.VolumeInfo;
 
 public class VolumeBar implements VolumeUpdater {
     private final MaterialButton muteButton;
@@ -20,14 +21,14 @@ public class VolumeBar implements VolumeUpdater {
 
     private boolean trackingTouch;
 
-    public VolumeBar(View v, Supplier<ISqueezeService> serviceSupplier, Pair<Drawable, Runnable> volumeToggleListener) {
+    public VolumeBar(View v, Supplier<LyrionController> controllerSupplier, Pair<Drawable, Runnable> volumeToggleListener) {
         muteButton = v.findViewById(R.id.muteButton);
         volumeBar = v.findViewById(R.id.volume_slider);
 
         MaterialButton volumeToggleButton = v.findViewById(R.id.volumeToggleButton);
         TextView volumeLabel = v.findViewById(R.id.label);
 
-        muteButton.setOnClickListener(view -> serviceSupplier.get().toggleMute());
+        muteButton.setOnClickListener(view -> controllerSupplier.get().toggleMute());
         if (volumeToggleListener != null) {
             volumeToggleButton.setIcon(volumeToggleListener.first);
             volumeToggleButton.setOnClickListener(view -> volumeToggleListener.second.run());
@@ -53,17 +54,17 @@ public class VolumeBar implements VolumeUpdater {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     volumeLabel.setText(String.valueOf(progress));
-                    serviceSupplier.get().setVolumeTo(progress);
+                    controllerSupplier.get().setVolumeTo(progress);
                 }
             }
         });
     }
 
-    public void update(ISqueezeService.VolumeInfo volumeInfo) {
+    public void update(VolumeInfo volumeInfo) {
         if (!trackingTouch) {
-            muteButton.setIconResource(volumeInfo.muted ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
-            volumeBar.setEnabled(!volumeInfo.muted);
-            volumeBar.setProgress(volumeInfo.volume);
+            muteButton.setIconResource(volumeInfo.muted() ? R.drawable.ic_volume_off : R.drawable.ic_volume_down);
+            volumeBar.setEnabled(!volumeInfo.muted());
+            volumeBar.setProgress(volumeInfo.volume());
         }
     }
 }

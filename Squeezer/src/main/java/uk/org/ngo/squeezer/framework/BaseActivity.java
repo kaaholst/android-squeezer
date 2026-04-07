@@ -17,19 +17,13 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -68,15 +62,13 @@ import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.screensaver.Screensaver;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.DevicePlayers;
 import uk.org.ngo.squeezer.util.ThemeManager;
 import uk.org.ngo.squeezer.widget.UndoBarController;
-import uk.org.ngo.squeezer.volume.VolumeKeysDelegate;
 
 /**
  * Common base class for all activities in Squeezer.
@@ -88,64 +80,24 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-    @Nullable
-    private ISqueezeService mService = null;
-
     private final ThemeManager themeManager = new ThemeManager();
 
     /** Control device  players */
     private DevicePlayers devicePlayers;
-
-    /** Whether volume keys shall be handled. */
-    private boolean handleVolumeKeys = true;
-
-    /** True if bindService() completed. */
-    private boolean boundService = false;
 
     private Toast lastShownToast;
 
     /** Holds information to be retained across activity lifecycle */
     private StateHolder stateHolder;
 
-    /**
-     * @return The {@link ISqueezeService}, or null if not bound
-     */
     @Nullable
-    public ISqueezeService getService() {
-        return mService;
-    }
-
-    /**
-     * Return the {@link ISqueezeService} this activity is currently bound to.
-     *
-     * @throws IllegalStateException if service is not bound.
-     * @see #getService()
-     */
-    @NonNull
-    public final ISqueezeService requireService() {
-        ISqueezeService service = getService();
-        if (service == null) {
-            throw new IllegalStateException(this + " service is not bound");
-        }
-        return service;
+    public LyrionController lyrionController() {
+        return Squeezer.instance().lyrionController();
     }
 
     public int getThemeId() {
         return themeManager.getCurrentThemeId();
     }
-
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            mService = (ISqueezeService) binder;
-            BaseActivity.this.onServiceConnected(mService);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-        }
-    };
 
     @Override
     @CallSuper
@@ -157,27 +109,23 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
             getWindow().setNavigationBarContrastEnforced(false);
         }
 
-        boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
-                Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + getService());
-
         if (savedInstanceState != null) {
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
         }
 
-        Squeezer.getPreferences(preferences -> {
-            if (preferences.getScreensaverMode() != Preferences.ScreensaverMode.OFF) {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
-                    inactivityHandler = new Handler();
-                    inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
-                    setInactivityTimer();
-                }
+        Preferences preferences = Squeezer.instance().preferences();
+        if (preferences.getScreensaverMode() != Preferences.ScreensaverMode.OFF) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (preferences.getScreensaverMode() == Preferences.ScreensaverMode.CLOCK) {
+                inactivityHandler = new Handler();
+                inactivityAction = () -> startActivity(new Intent(this, Screensaver.class));
+                setInactivityTimer();
             }
-        });
+        }
 
         devicePlayers = new DevicePlayers(this);
         stateHolder = new ViewModelProvider(this).get(StateHolder.class);
+        registerObservers();
     }
 
     protected <T> T getRetainedValue(String key) {
@@ -216,14 +164,14 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         devicePlayers.onResume();
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
-        ImageFetcher.getInstance(this).setExitTasksEarly(false);
+        Squeezer.instance().doInBackground(() -> ImageFetcher.getInstance(this).setExitTasksEarly(false));
     }
 
     private void applyFullScreenPreference() {
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
 
-        if (Squeezer.getPreferences().getFullScreenMode() == Preferences.FullScreenMode.ON) {
+        if (Squeezer.instance().preferences().getFullScreenMode() == Preferences.FullScreenMode.ON) {
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             controller.hide(WindowInsetsCompat.Type.systemBars());
         } else {
@@ -271,32 +219,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @CallSuper
     public void onDestroy() {
         super.onDestroy();
-
-        // If we are not bound to the service, it's process is no longer
-        // running, so the callbacks are already cleaned up.
-        if (mService != null) {
-            mService.cancelItemListRequests(this);
-        }
-
-        if (boundService) {
-            unbindService(serviceConnection);
-        }
+        lyrionController().cancelClientRequests(this);
     }
 
     /**
-     * Performs any actions necessary after the service has been connected. Derived classes
-     * should call through to the base class.
+     * Derived classes should call through to the base class.
      * <ul>
      *     <li>Invalidates the options menu so that menu items can be adjusted based on
-     *     the state of the service connection.</li>
-     *     <li>Ensures that callbacks are registered.</li>
+     *     the state of the server connection.</li>
+     *     <li>Ensures that observers are registered.</li>
      * </ul>
-     *
-     * @param service The connection to the bound service.
      */
     @CallSuper
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        Log.d(TAG, "onServiceConnected");
+    protected void registerObservers() {
         supportInvalidateOptionsMenu();
         repository().observe(this, (AlertEvent event) -> {
             if (!event.isShown) AlertEventDialog.show(getSupportFragmentManager(), event.message.title, event.message.text);
@@ -346,24 +281,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         return v;
     }
 
-
-    @Override
-    @CallSuper
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, getService())) return true;
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    @CallSuper
-    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
-        if (handleVolumeKeys && VolumeKeysDelegate.onKeyUp(keyCode)) return true;
-        return super.onKeyUp(keyCode, event);
-    }
-
-    public void setHandleVolumeKeys(boolean handleVolumeKeys) {
-        this.handleVolumeKeys = handleVolumeKeys;
-    }
 
     private static final int INACTIVITY_TIME = 5 * 60 * 1000;
     Handler inactivityHandler;
@@ -435,26 +352,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     // Safe accessors
 
     public LyrionPlayer getActivePlayer() {
-        if (mService == null) {
-            return null;
-        }
-        return mService.getActivePlayer();
+        return lyrionController().getActivePlayer();
     }
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
-     * {@link ISqueezeService#action(JiveItem, Action)}
+     * {@link LyrionController#action(JiveItem, Action)}
      * <p>
      * Navigate to <code>nextWindow</code> if it exists in <code>action</code>. The
      * <code>alreadyPopped</code> parameter is used to modify nextWindow if any windows has already
      * been popped by the Android system.
      */
     public void action(JiveItem item, Action action, int alreadyPopped) {
-        if (mService == null) {
-            return;
-        }
-
-        mService.action(item, action);
+        lyrionController().action(item, action);
     }
 
     /**
@@ -466,24 +376,20 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
-     * {@link ISqueezeService#action(Action.JsonAction)}
+     * {@link LyrionController#action(Action.JsonAction)}
      */
     public void action(JiveItem item, Action.JsonAction action, int alreadyPopped) {
-        if (mService == null) {
-            return;
-        }
-
-        mService.action(action);
+        lyrionController().action(action);
     }
 
     /**
      * Initiate download of songs for the supplied item.
      *
      * @param item Song or item with songs to download
-     * @see ISqueezeService#downloadItem(JiveItem)
+     * @see LyrionController#downloadItem(JiveItem)
      */
     public void downloadItem(JiveItem item) {
-        if (Squeezer.getPreferences().isDownloadConfirmation()) {
+        if (Squeezer.instance().preferences().isDownloadConfirmation()) {
             DownloadDialog.show(item, this);
         } else {
             doDownload(item);
@@ -491,7 +397,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     public void randomPlayFolder(JiveItem item) {
-        if (!requireService().randomPlayFolder(item)) {
+        if (!lyrionController().randomPlayFolder(item)) {
             showDisplayMessage(R.string.RANDOM_PLAY_UNABLE);
         } else {
             showDisplayMessage(R.string.RANDOM_PLAY_STARTED);
@@ -500,12 +406,12 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
     @Override
     public void doDownload(JiveItem item) {
-        if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             currentDownloadItem = item;
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else
-            requireService().downloadItem(item);
+            lyrionController().downloadItem(item);
     }
 
     private JiveItem currentDownloadItem;
@@ -516,7 +422,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (currentDownloadItem != null) {
-                    requireService().downloadItem(currentDownloadItem);
+                    lyrionController().downloadItem(currentDownloadItem);
                     currentDownloadItem = null;
                 } else
                     Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();

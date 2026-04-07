@@ -10,8 +10,7 @@ import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.HomeMenuHandling;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
 
@@ -45,8 +44,8 @@ public class HomeMenuJiveItemView extends JiveItemView {
 
     private boolean setArchive(JiveItem item) {
         if (!item.getId().equals(JiveItem.ARCHIVE.getId())) {  // not the Archive node itself
-            ISqueezeService service = getActivity().requireService();
-            if (service.getHomeMenuHandling().isCustomShortcut(item)) {
+            LyrionController lyrionController = getActivity().lyrionController();
+            if (lyrionController.isCustomShortcut(item)) {
                 if (isShortcutsActive) {
                     removeShortcut(item);
                 }
@@ -64,7 +63,7 @@ public class HomeMenuJiveItemView extends JiveItemView {
 
                 @Override
                 public void onDone() {
-                    service.toggleArchiveItem(item);
+                    lyrionController.toggleArchiveItem(item);
                 }
             });
         } else {
@@ -74,8 +73,7 @@ public class HomeMenuJiveItemView extends JiveItemView {
     }
 
     private boolean setShortcut(JiveItem item) {
-        HomeMenuHandling homeMenuHandling = getActivity().requireService().getHomeMenuHandling();
-        if (homeMenuHandling.isCustomShortcut(item)) {
+        if (getActivity().lyrionController().isCustomShortcut(item)) {
             removeShortcut(item);
         }
         return true;
@@ -84,6 +82,6 @@ public class HomeMenuJiveItemView extends JiveItemView {
     private void removeShortcut(JiveItem item) {
         getActivity().getItemAdapter().removeItem(getBindingAdapterPosition());
         getActivity().showDisplayMessage(R.string.CUSTOM_SHORTCUT_REMOVED);
-        getActivity().requireService().removeCustomShortcut(item);
+        getActivity().lyrionController().removeCustomShortcut(item);
     }
 }

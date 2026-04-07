@@ -27,7 +27,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSleepDialog;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 public class PlayerViewLogic {
@@ -49,7 +49,7 @@ public class PlayerViewLogic {
     /**
      * If menu item is a known player action, perform it and return true.
      */
-    public static boolean doPlayerAction(FragmentManager fragmentManager, ISqueezeService service, MenuItem menuItem, LyrionPlayer selectedItem) {
+    public static boolean doPlayerAction(FragmentManager fragmentManager, LyrionController lyrionController, MenuItem menuItem, LyrionPlayer selectedItem) {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.sleep) {// This is the start of a context menu.
             // Just return, as we have set the current player.
@@ -60,32 +60,32 @@ public class PlayerViewLogic {
                 SongTimeChanged trackElapsed = selectedItem.getTrackElapsed();
                 int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
                 if (sleep >= 0)
-                    service.sleep(selectedItem, sleep);
+                    lyrionController.sleep(selectedItem, sleep);
             }
             return true;
         } else if (itemId == R.id.in_15_minutes) {
-            service.sleep(selectedItem, 15 * 60);
+            lyrionController.sleep(selectedItem, 15 * 60);
             return true;
         } else if (itemId == R.id.in_30_minutes) {
-            service.sleep(selectedItem, 30 * 60);
+            lyrionController.sleep(selectedItem, 30 * 60);
             return true;
         } else if (itemId == R.id.in_45_minutes) {
-            service.sleep(selectedItem, 45 * 60);
+            lyrionController.sleep(selectedItem, 45 * 60);
             return true;
         } else if (itemId == R.id.in_60_minutes) {
-            service.sleep(selectedItem, 60 * 60);
+            lyrionController.sleep(selectedItem, 60 * 60);
             return true;
         } else if (itemId == R.id.in_90_minutes) {
-            service.sleep(selectedItem, 90 * 60);
+            lyrionController.sleep(selectedItem, 90 * 60);
             return true;
         } else if (itemId == R.id.in_x_minutes) {
             new PlayerSleepDialog(selectedItem).show(fragmentManager, PlayerSleepDialog.class.getName());
             return true;
         } else if (itemId == R.id.cancel_sleep) {
-            service.sleep(selectedItem, 0);
+            lyrionController.sleep(selectedItem, 0);
             return true;
         } else if (itemId == R.id.toggle_power) {
-            service.togglePower(selectedItem);
+            lyrionController.togglePower(selectedItem);
             return true;
         }
 

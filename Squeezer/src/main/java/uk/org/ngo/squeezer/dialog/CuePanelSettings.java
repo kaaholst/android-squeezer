@@ -19,7 +19,7 @@ public class CuePanelSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         View view = requireActivity().getLayoutInflater().inflate(R.layout.cue_panel_settings, null);
         TextView backward = (TextView) view.findViewById(R.id.backward_jump);
         TextView forward = (TextView) view.findViewById(R.id.forward_jump);

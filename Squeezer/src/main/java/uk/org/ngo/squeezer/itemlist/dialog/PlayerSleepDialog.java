@@ -11,12 +11,11 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerSleepDialog extends BaseEditTextDialog {
 
     private BaseActivity activity;
-    private LyrionPlayer player;
+    private final LyrionPlayer player;
 
     public PlayerSleepDialog(LyrionPlayer player) {
         this.player = player;
@@ -31,21 +30,18 @@ public class PlayerSleepDialog extends BaseEditTextDialog {
         editTextLayout.setHint(R.string.set_sleep_timer);
         editTextLayout.setSuffixText(getString(R.string.minutes));
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editText.setText(String.valueOf(Squeezer.getPreferences().getSleepMinutes()));
+        editText.setText(String.valueOf(Squeezer.instance().preferences().getSleepMinutes()));
 
         return dialog;
     }
 
     @Override
     protected boolean commit(String sleep) {
-        ISqueezeService service = activity.getService();
-        if (service == null) return false;
-
         int minutes = (int) Util.parseDecimalInt(sleep, -1);
         if (minutes <= 0) return false;
 
-        service.sleep(player, minutes*60);
-        Squeezer.getPreferences().setSleepMinutes(minutes);
+        activity.lyrionController().sleep(player, minutes*60);
+        Squeezer.instance().preferences().setSleepMinutes(minutes);
         return true;
     }
 

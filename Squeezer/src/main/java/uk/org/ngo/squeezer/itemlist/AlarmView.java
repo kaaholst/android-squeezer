@@ -69,19 +69,19 @@ public class AlarmView extends ItemViewHolder<Alarm> {
         amPm.setVisibility(is24HourFormat ? View.GONE : View.VISIBLE);
         enabled = new CompoundButtonWrapper(view.findViewById(R.id.enabled));
         enabled.setOncheckedChangeListener((compoundButton, b) -> {
-            if (getActivity().getService() != null) {
+            if (getActivity().lyrionController() != null) {
                 item.setEnabled(b);
-                getActivity().getService().alarmEnable(item.getId(), b);
+                getActivity().lyrionController().alarmEnable(item.getId(), b);
             }
         });
 
         repeat = view.findViewById(R.id.repeat);
         repeat.setOnClickListener(v -> {
             boolean nowChecked = !repeat.isChecked();
-            if (getActivity().getService() != null) {
+            if (getActivity().lyrionController() != null) {
                 item.setRepeat(nowChecked);
                 repeat.setChecked(nowChecked);
-                getActivity().getService().alarmRepeat(item.getId(), nowChecked);
+                getActivity().lyrionController().alarmRepeat(item.getId(), nowChecked);
                 activity.getItemAdapter().notifyItemChanged(getBindingAdapterPosition());
             }
         });
@@ -94,14 +94,14 @@ public class AlarmView extends ItemViewHolder<Alarm> {
             dayTexts[day] = dowTexts[day].getText();
             final int finalDay = day;
             dowTexts[day].setOnClickListener(v -> {
-                if (getActivity().getService() != null) {
+                if (getActivity().lyrionController() != null) {
                     boolean wasChecked = item.isDayActive(finalDay);
                     if (wasChecked) {
                         item.clearDay(finalDay);
-                        getActivity().getService().alarmRemoveDay(item.getId(), finalDay);
+                        getActivity().lyrionController().alarmRemoveDay(item.getId(), finalDay);
                     } else {
                         item.setDay(finalDay);
-                        getActivity().getService().alarmAddDay(item.getId(), finalDay);
+                        getActivity().lyrionController().alarmAddDay(item.getId(), finalDay);
                     }
                     setDowText(finalDay);
                 }
@@ -162,7 +162,7 @@ public class AlarmView extends ItemViewHolder<Alarm> {
     }
 
     public static void showTimePicker(AlarmsActivity activity, Alarm alarm, int position, boolean is24HourFormat) {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         long tod = alarm.getTod();
         MaterialTimePicker picker = new MaterialTimePicker.Builder()
                 .setHour((int) (tod / 3600))
@@ -173,13 +173,13 @@ public class AlarmView extends ItemViewHolder<Alarm> {
                 .build();
         picker.addOnPositiveButtonClickListener(view -> {
             preferences.setTimeInputMode(picker.getInputMode());
-            if (activity.getService() != null) {
+            if (activity.lyrionController() != null) {
                 int time = (picker.getHour() * 60 + picker.getMinute()) * 60;
                 alarm.setTod(time);
-                activity.getService().alarmSetTime(alarm.getId(), time);
+                activity.lyrionController().alarmSetTime(alarm.getId(), time);
                 if (!alarm.isEnabled()) {
                     alarm.setEnabled(true);
-                    activity.getService().alarmEnable(alarm.getId(), true);
+                    activity.lyrionController().alarmEnable(alarm.getId(), true);
                 }
                 activity.getItemAdapter().notifyItemChanged(position);
             }
@@ -204,8 +204,8 @@ public class AlarmView extends ItemViewHolder<Alarm> {
 
         @Override
         public void onDone() {
-            if (getActivity().getService() != null) {
-                getActivity().getService().alarmDelete(alarm.getId());
+            if (getActivity().lyrionController() != null) {
+                getActivity().lyrionController().alarmDelete(alarm.getId());
             }
         }
     }

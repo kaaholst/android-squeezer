@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
-import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.PlayableItemAction;
 
@@ -27,7 +26,7 @@ public class JiveItemCallback extends ItemTouchHelper.Callback {
 
     public JiveItemCallback(@NonNull JiveItemListActivity activity) {
         this.activity = activity;
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         swipeRightAction = preferences.getSwipeRightAction();
         swipeLeftAction = preferences.getSwipeLeftAction();
         DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();

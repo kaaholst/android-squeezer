@@ -84,7 +84,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
                 if (adapter instanceof JiveItemAdapter jiveItemAdapter) {
                     final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
                     if (window != null && window.windowStyle != null) {
-                        jiveItemAdapter.setWindowStyle(Squeezer.getPreferences().getAlbumListLayout(), window.windowStyle);
+                        jiveItemAdapter.setWindowStyle(Squeezer.instance().preferences().getAlbumListLayout(), window.windowStyle);
                     }
                 }
                 parent.notifyItemChanged(position, SUBLIST_UPDATED);
@@ -135,7 +135,7 @@ class GroupAdapter extends ItemAdapter<ItemViewHolder<JiveItem>, JiveItem> {
             subList.setVisibility(childAdapterHolder.visible ? View.VISIBLE : View.GONE);
             if (childAdapterHolder.visible && !childAdapterHolder.ordered) {
                 childAdapterHolder.ordered = true;
-                adapter.setOrderer(pagePosition -> getActivity().requireService().pluginItems(pagePosition, item, item.goAction, adapter));
+                adapter.setOrderer(pagePosition -> getActivity().lyrionController().pluginItems(pagePosition, item, item.goAction, adapter));
                 adapter.maybeOrderPage(0);
             }
             text2.setVisibility(childAdapterHolder.ordered ? View.VISIBLE : View.GONE);

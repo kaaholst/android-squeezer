@@ -82,7 +82,7 @@ public class ThemeManager {
      */
     public void onCreate(Activity activity) {
         // Ensure the activity uses the correct theme.
-        currentThemeId = Squeezer.getPreferences().getTheme().themeId;
+        currentThemeId = Squeezer.instance().preferences().getTheme().themeId;
         activity.setTheme(currentThemeId);
     }
 
@@ -97,7 +97,7 @@ public class ThemeManager {
         // Themes can only be applied before views are instantiated.  If the current theme
         // changed while this activity was paused (e.g., because the user went to the
         // SettingsActivity and changed it) then restart this activity with the new theme.
-        if (currentThemeId != Squeezer.getPreferences().getTheme().themeId) {
+        if (currentThemeId != Squeezer.instance().preferences().getTheme().themeId) {
             activity.recreate();
         }
     }

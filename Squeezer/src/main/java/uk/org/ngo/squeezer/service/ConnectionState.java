@@ -213,7 +213,7 @@ public class ConnectionState {
         return getSyncGroup();
     }
 
-    public @NonNull ISqueezeService.VolumeInfo getVolume(boolean groupVolume) {
+    public @NonNull VolumeInfo getVolume(boolean groupVolume) {
         Set<LyrionPlayer> syncGroup = getVolumeSyncGroup(groupVolume);
         int lowestVolume = 100;
         int higestVolume = 0;
@@ -229,7 +229,7 @@ public class ConnectionState {
         }
 
         long volume = Math.round(lowestVolume / (100.0 - (higestVolume - lowestVolume)) * 100);
-        return new ISqueezeService.VolumeInfo(muted, (int) volume, TextUtils.join(", ", playerNames));
+        return new VolumeInfo(muted, (int) volume, TextUtils.join(", ", playerNames));
     }
 
     void setActivePlayer(LyrionPlayer player) {
@@ -312,7 +312,7 @@ public class ConnectionState {
             if (rescanned || (this.lastScan == 0)) {
                 Log.i(TAG, "Flush/rebuild client side caches: " + lastScan);
                 rescanned = false;
-                ImageFetcher.getInstance(Squeezer.getInstance()).clearCache();
+                ImageFetcher.getInstance(Squeezer.instance()).clearCache();
                 repository.post(new LastscanChanged(lastScan));
             }
             this.lastScan = savedScan = lastScan;
@@ -338,7 +338,7 @@ public class ConnectionState {
     }
 
     private String formatScanningProgress(String progressName, String progressDone, String progressTotal) {
-        if (progressName == null) return Squeezer.getInstance().getString(R.string.RESCANNING_SHORT);
+        if (progressName == null) return Squeezer.instance().getString(R.string.RESCANNING_SHORT);
         return progressName + (progressDone != null && progressTotal != null ? String.format(" %s/%s", progressDone, progressTotal) : "");
     }
 
