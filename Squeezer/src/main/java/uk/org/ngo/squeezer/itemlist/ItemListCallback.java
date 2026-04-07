@@ -16,8 +16,17 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import uk.org.ngo.squeezer.service.ServiceCallback;
-
-public interface IServiceItemListCallback<T> extends ItemReceiver<T>, ServiceCallback {
+/**
+ * Interface to enable automatic removal of callbacks without the need for the
+ * programmer to manually unregister the callback.
+ * <p>
+ * All callbacks must specify the context, usually Activity or Fragment, in which
+ * they run, so they can be unregistered via the Android life cycle methods.
+ */
+public interface ItemListCallback<T> extends ItemReceiver<T> {
+    /**
+     * @return The context in which the callback runs
+     */
+    Object getClient();
 }
 

@@ -95,23 +95,23 @@ public class NowPlayingActivity extends BaseActivity {
             finish();
             return true;
         } else if (itemId == R.id.menu_item_track_info) {
-            Squeezer.getPreferences().showTrackCount(!menuItemTrackCount.isChecked());
+            Squeezer.instance().preferences().showTrackCount(!menuItemTrackCount.isChecked());
             refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_technical_info) {
-            Squeezer.getPreferences().showTechnicalInfo(!menuItemTechnicalInfo.isChecked());
+            Squeezer.instance().preferences().showTechnicalInfo(!menuItemTechnicalInfo.isChecked());
             refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_composer_line) {
-            Squeezer.getPreferences().addComposerLine(!menuItemComposerLine.isChecked());
+            Squeezer.instance().preferences().addComposerLine(!menuItemComposerLine.isChecked());
             refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_conductor_line) {
-            Squeezer.getPreferences().addConductorLine(!menuItemConductorLine.isChecked());
+            Squeezer.instance().preferences().addConductorLine(!menuItemConductorLine.isChecked());
             refreshTrackInfo();
             return true;
         } else if (itemId == R.id.menu_item_classical_music_tags) {
-            Squeezer.getPreferences().displayClassicalMusicTags(!menuItemClassicalMusicTags.isChecked());
+            Squeezer.instance().preferences().displayClassicalMusicTags(!menuItemClassicalMusicTags.isChecked());
             refreshTrackInfo();
             return true;
         }
@@ -129,7 +129,7 @@ public class NowPlayingActivity extends BaseActivity {
 
     private void updateTrackInfoMenuItems() {
         if (menuItemComposerLine != null) {
-            Preferences preferences = Squeezer.getPreferences();
+            Preferences preferences = Squeezer.instance().preferences();
 
             menuItemTrackCount.setChecked(preferences.showTrackCount());
             menuItemTechnicalInfo.setChecked(preferences.showTechnicalInfo());

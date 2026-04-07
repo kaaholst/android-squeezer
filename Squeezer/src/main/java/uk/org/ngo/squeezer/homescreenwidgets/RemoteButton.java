@@ -11,7 +11,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.service.IRButton;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 
 public enum RemoteButton {
     OPEN((context, service, player) -> {
@@ -35,10 +35,10 @@ public enum RemoteButton {
                 Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
         handler.postDelayed(() -> CurrentPlaylistActivity.show(context), (long) (300 * animationDelay));
     }, R.string.remote_openCurrentPlaylist, R.drawable.ic_action_playlist),
-    POWER(ISqueezeService::togglePower, R.string.remote_powerDescription, R.drawable.ic_action_power_settings_new),
-    NEXT(ISqueezeService::nextTrack, R.string.remote_nextDescription, R.drawable.ic_action_next),
-    PREVIOUS(ISqueezeService::previousTrack, R.string.remote_previousDescription, R.drawable.ic_action_previous),
-    PLAY(ISqueezeService::togglePausePlay, R.string.remote_pausePlayDescription, R.drawable.ic_action_play),
+    POWER(LyrionController::togglePower, R.string.remote_powerDescription, R.drawable.ic_action_power_settings_new),
+    NEXT(LyrionController::nextTrack, R.string.remote_nextDescription, R.drawable.ic_action_next),
+    PREVIOUS(LyrionController::previousTrack, R.string.remote_previousDescription, R.drawable.ic_action_previous),
+    PLAY(LyrionController::togglePausePlay, R.string.remote_pausePlayDescription, R.drawable.ic_action_play),
     PRESET_1((context, service, player) -> service.button(player, IRButton.playPreset_1), R.string.remote_preset1Description, "1"),
     PRESET_2((context, service, player) -> service.button(player, IRButton.playPreset_2), R.string.remote_preset2Description, "2"),
     PRESET_3((context, service, player) -> service.button(player, IRButton.playPreset_3), R.string.remote_preset3Description, "3"),
@@ -53,12 +53,12 @@ public enum RemoteButton {
 
 
     public static final int UNKNOWN_IMAGE = -1;
-    private ContextServicePlayerHandler handler;
+    private final ContextServicePlayerHandler handler;
     private @DrawableRes
     int buttonImage = UNKNOWN_IMAGE;
 
     private @StringRes
-    int description;
+    final int description;
     private String buttonText;
 
     RemoteButton(ContextServicePlayerHandler handler, @StringRes int description) {

@@ -50,7 +50,7 @@ public class SqueezePlayer extends Handler {
     }
 
     public static SqueezePlayer startControllingSqueezePlayer(Context context) {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         Preferences.ServerAddress serverAddress = preferences.getServerAddress();
         return new SqueezePlayer(context, serverAddress);
     }

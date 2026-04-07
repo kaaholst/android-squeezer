@@ -39,13 +39,12 @@ import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.HomeMenuHandling;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
 
     private final Window.WindowStyle windowStyle;
 
-    Preferences mPreferences = Squeezer.getPreferences();
+    Preferences mPreferences = Squeezer.instance().preferences();
     final boolean isShortcutsActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
     final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
 
@@ -124,7 +123,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
             getActivity().showDisplayMessage(message);
         } else {
             if (isShortcutsActive) {
-                if (getActivity().requireService().addCustomShortcut(item, getActivity().parent, shortCutWeight)) {
+                if (getActivity().lyrionController().addCustomShortcut(item, getActivity().parent, shortCutWeight)) {
                     getActivity().showDisplayMessage(R.string.ITEM_PUT_AS_SHORTCUT_ON_HOME_MENU);
                 } else {
                     getActivity().showDisplayMessage(R.string.ITEM_IS_ALREADY_A_SHORTCUT);

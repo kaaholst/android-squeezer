@@ -45,7 +45,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.SyncPowerDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SyncVolumeDialog;
 import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerGroupViewHolder> {
     private static final int UPDATE_VOLUME = 1;
@@ -178,7 +177,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the sync master to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#updateSyncGroups(List)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(Collection)} for how this map is
      *     generated.
      */
     void setSyncGroups(Map<String, Collection<LyrionPlayer>> playerSyncGroups) {
@@ -272,13 +271,9 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
             volumeBar.addOnChangeListener((slider, value, fromUser) -> {
                 if (fromUser) {
-                    ISqueezeService service = activity.getService();
-                    if (service == null) {
-                        return;
-                    }
                     int groupVolume = (int)value;
                     for (int i = 0; i < item.getItemCount(); i++) {
-                        service.setVolumeTo(item.getItem(i), trimVolume(groupVolume + volumeOffsets[i]));
+                        activity.lyrionController().setPlayerVolume(item.getItem(i), trimVolume(groupVolume + volumeOffsets[i]));
                     }
                 }
             });

@@ -151,21 +151,6 @@
             android:theme="@style/Theme.MaterialComponents.NoActionBar">
         </activity>
 
-        <service android:exported="false" android:label="Squeezer Service"
-            android:foregroundServiceType="mediaPlayback"
-            android:name=".service.SqueezeService">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </service>
-
-        <receiver android:exported="false"
-            android:name="androidx.media.session.MediaButtonReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".download.CancelDownloadsActivity"
             android:theme="@android:style/Theme.Dialog"/>

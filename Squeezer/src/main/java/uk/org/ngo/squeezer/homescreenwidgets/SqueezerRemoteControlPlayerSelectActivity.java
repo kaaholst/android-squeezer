@@ -19,10 +19,11 @@ import java.util.Collections;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerBaseView;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
@@ -80,15 +81,16 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-        Log.d(TAG, "onServiceConnected: service.isConnected=" + service.isConnected());
+    protected void registerObservers() {
+        super.registerObservers();
+        LyrionController lyrionController = Squeezer.instance().lyrionController();
+        Log.d(TAG, "onServiceConnected: isConnected=" + lyrionController.isConnected());
 
         repository().observe(this, (HandshakeComplete event) -> updatePlayerList());
         repository().observe(this, (PlayerStateChanged event) -> updatePlayerList());
 
-        if (!service.isConnected()) {
-            service.startConnect(false);
+        if (!lyrionController.isConnected()) {
+            lyrionController.startConnect(false);
         }
     }
 
@@ -114,7 +116,7 @@ public class SqueezerRemoteControlPlayerSelectActivity extends BaseActivity {
     }
 
     protected void updatePlayerList() {
-        adapter.players = getService().getPlayers();
+        adapter.players = lyrionController().getPlayers().stream().toList();
         adapter.notifyDataSetChanged();
     }
 

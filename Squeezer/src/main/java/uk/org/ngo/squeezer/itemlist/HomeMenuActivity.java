@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,15 +35,14 @@ import uk.org.ngo.squeezer.framework.ItemViewHolder;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
 public class HomeMenuActivity extends JiveItemListActivity {
     protected List<JiveItem> homeMenu;
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, this::onHomeMenuEvent);
     }
 
@@ -65,12 +63,12 @@ public class HomeMenuActivity extends JiveItemListActivity {
 
     @Override
     public ArtworkListLayout getPreferredListLayout() {
-        return Squeezer.getPreferences().getHomeMenuLayout();
+        return Squeezer.instance().preferences().getHomeMenuLayout();
     }
 
     @Override
     protected void saveListLayout(ArtworkListLayout listLayout) {
-        Squeezer.getPreferences().setHomeMenuLayout(listLayout);
+        Squeezer.instance().preferences().setHomeMenuLayout(listLayout);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class HomeMenuActivity extends JiveItemListActivity {
                 // Turn off the home icon.
                 actionBar.setDisplayHomeAsUpEnabled(false);
             } else {
-                boolean inArchive = JiveItem.ARCHIVE.equals(parent) || requireService().isInArchive(parent);
+                boolean inArchive = JiveItem.ARCHIVE.equals(parent) || lyrionController().isInArchive(parent);
                 actionBar.setHomeAsUpIndicator(inArchive ? R.drawable.ic_action_archive : R.drawable.ic_action_home);
             }
         }

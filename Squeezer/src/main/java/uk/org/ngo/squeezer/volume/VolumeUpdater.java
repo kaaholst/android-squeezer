@@ -1,7 +1,7 @@
 package uk.org.ngo.squeezer.volume;
 
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.VolumeInfo;
 
 public interface VolumeUpdater {
-    void update(ISqueezeService.VolumeInfo volumeInfo);
+    void update(VolumeInfo volumeInfo);
 }

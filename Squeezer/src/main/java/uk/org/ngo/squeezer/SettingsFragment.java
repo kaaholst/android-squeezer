@@ -5,11 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -34,8 +32,7 @@ import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.model.PlayableItemAction;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.util.Scrobble;
 import uk.org.ngo.squeezer.util.SqueezeLite;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
@@ -48,27 +45,13 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
     private final String TAG = "SettingsFragment";
 
-    private ISqueezeService service = null;
+    private LyrionController lyrionController = null;
 
     private IntEditTextPreference fadeInPref;
 
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            SettingsFragment.this.service = (ISqueezeService) service;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            service = null;
-        }
-    };
-
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        getActivity().bindService(new Intent(getActivity(), SqueezeService.class), serviceConnection,
-                Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; service = " + service);
+        lyrionController = Squeezer.instance().lyrionController();
 
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         setPreferencesFromResource(R.xml.preferences, rootKey);
@@ -256,12 +239,6 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
         listPreference.setOnPreferenceChangeListener(this);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getActivity().unbindService(serviceConnection);
-    }
-
     private void updateFadeInSecondsSummary(int fadeInSeconds) {
         if (fadeInSeconds == 0) {
             fadeInPref.setSummary(R.string.disabled);
@@ -369,10 +346,10 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
             updateIncomingCallPreferences(preferences);
         }
 
-        if (service != null) {
-            service.preferenceChanged(preferences, key);
+        if (lyrionController != null) {
+            lyrionController.preferenceChanged(preferences, key);
         } else {
-            Log.v(TAG, "service is null!");
+            Log.w(TAG, "controller is null!");
         }
     }
 

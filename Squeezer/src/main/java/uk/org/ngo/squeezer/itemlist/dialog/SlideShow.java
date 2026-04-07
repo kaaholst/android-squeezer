@@ -35,14 +35,14 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.model.Image;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
-public class SlideShow extends DialogFragment implements IServiceItemListCallback<JiveItem> {
+public class SlideShow extends DialogFragment implements ItemListCallback<JiveItem> {
     private static final String TAG = SlideShow.class.getSimpleName();
     private static final int DELAY = 10_000;
     private ImageView artwork;
@@ -144,8 +144,8 @@ public class SlideShow extends DialogFragment implements IServiceItemListCallbac
             startSlideShow(getArguments().getInt("position"));
         } else {
             // FIXME Image wont get fetched (and thus not displayed) after orientation change
-            if (activity.getService() != null) {
-                activity.getService().pluginItems(action, this);
+            if (activity.lyrionController() != null) {
+                activity.lyrionController().pluginItems(action, this);
             }
         }
 
@@ -181,7 +181,7 @@ public class SlideShow extends DialogFragment implements IServiceItemListCallbac
     /**
      * Create a dialog to show artwork.
      * <p>
-     * We call {@link ISqueezeService#pluginItems(Action, IServiceItemListCallback)} with the
+     * We call {@link LyrionController#pluginItems(Action, ItemListCallback)} with the
      * supplied <code>action</code> to asynchronously order an artwork id or URL. When the response
      * arrives we load the artwork into the dialog.
      * <p>

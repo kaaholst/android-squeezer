@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
+import java.util.Collection;
 
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 
@@ -18,7 +18,7 @@ class PlayerDropdownAdapter extends ArrayAdapter<LyrionPlayer> {
     private final LyrionPlayer activePlayer;
     private boolean continuePlayback;
 
-    public PlayerDropdownAdapter(Context actionBarContext, List<LyrionPlayer> connectedPlayers, LyrionPlayer activePlayer) {
+    public PlayerDropdownAdapter(Context actionBarContext, Collection<LyrionPlayer> connectedPlayers, LyrionPlayer activePlayer) {
         super(actionBarContext, 0);
         add(null);
         addAll(connectedPlayers);

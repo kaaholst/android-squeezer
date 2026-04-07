@@ -15,13 +15,13 @@ public class DevicePlayers {
     }
 
     public void onCreate() {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         SqueezeLite squeezeLite = new SqueezeLite(context);
         if (preferences.controlSqueezelite() && squeezeLite.has()) squeezeLite.start();
     }
 
     public void onResume() {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         squeezePlayer = (preferences.controlSqueezePlayer() && SqueezePlayer.has(context)) ? SqueezePlayer.startControllingSqueezePlayer(context) : null;
     }
 

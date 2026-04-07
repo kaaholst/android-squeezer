@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -34,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
@@ -82,8 +80,8 @@ public class ConnectActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, this::onHandshakeComplete);
     }
 
@@ -172,7 +170,7 @@ public class ConnectActivity extends BaseActivity {
 
     private void onHandshakeComplete(HandshakeComplete event) {
         Log.d("ConnectActivity", "Handshake complete");
-        Squeezer.getPreferences().saveServer();
+        Squeezer.instance().preferences().saveServer();
         HomeActivity.show(this);
     }
 }

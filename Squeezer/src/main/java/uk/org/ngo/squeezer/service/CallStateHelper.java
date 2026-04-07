@@ -80,7 +80,7 @@ class CallStateHelper {
             : null;
 
     public void onCallStateChanged(int state) {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         Preferences.IncomingCallAction incomingCallAction = preferences.getActionOnIncomingCall();
         if (incomingCallAction != Preferences.IncomingCallAction.NONE) {
             PerformAction action = incomingCallAction.isPause() ? lyrionController::pause : lyrionController::mute;

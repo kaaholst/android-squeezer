@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.itemlist.ItemReceiver;
 import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.util.Reflection;
@@ -49,7 +49,7 @@ import uk.org.ngo.squeezer.util.Reflection;
  * @author Kurt Aaholst
  * @see ItemViewHolder
  */
-public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> extends RecyclerView.Adapter<VH> implements IServiceItemListCallback<T> {
+public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> extends RecyclerView.Adapter<VH> implements ItemListCallback<T> {
 
     /**
      * Activity which hosts this adapter
@@ -106,7 +106,7 @@ public abstract class ItemAdapter<VH extends ItemViewHolder<T>, T extends Item> 
 
     /**
      * Orders a page worth of data, starting at the specified position, if it has not already been
-     * ordered, and if the service is connected and the handshake has completed.
+     * ordered, and the handshake has completed.
      *
      * @param pagePosition position in the list to start the fetch.
      */

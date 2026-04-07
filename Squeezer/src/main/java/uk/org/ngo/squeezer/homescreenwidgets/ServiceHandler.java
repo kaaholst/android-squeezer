@@ -1,8 +1,8 @@
 package uk.org.ngo.squeezer.homescreenwidgets;
 
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 
 @FunctionalInterface
-interface ServiceHandler {
-    void run(ISqueezeService service) throws Exception;
+public interface ServiceHandler {
+    void run(LyrionController lyrionController) throws Exception;
 }

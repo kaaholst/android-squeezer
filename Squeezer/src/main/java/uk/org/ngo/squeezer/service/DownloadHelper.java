@@ -14,7 +14,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.SlimCommand;
@@ -33,16 +33,16 @@ class DownloadHelper {
     public void downloadItem(JiveItem item) {
         Log.i(TAG, "downloadItem(" + item + ")");
         SlimCommand command = item.downloadCommand();
-        IServiceItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;
+        ItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;
         lyrionController.requestAllItems(callback).params(command.params).cmd(command.cmd()).exec();
     }
 
 
     /** A download request will be passed to the download manager for each song called back to this */
-    private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<>() {
+    private final ItemListCallback<Song> songDownloadCallback = new ItemListCallback<>() {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
-            final Preferences preferences = Squeezer.getPreferences();
+            final Preferences preferences = Squeezer.instance().preferences();
             for (Song song : items) {
                 Log.i(TAG, "downloadSong(" + song + ")");
                 Uri downloadUrl = Util.getDownloadUrl(lyrionController.getUrlPrefix(), song.id);
@@ -68,7 +68,7 @@ class DownloadHelper {
      * If it is a folder: recursive lookup items in the folder
      * If is is a track: Enqueue a download request to the download manager
      */
-    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<>() {
+    private final ItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new ItemListCallback<>() {
 
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {

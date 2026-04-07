@@ -30,7 +30,6 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 class CurrentPlaylistItemView extends JiveItemView {
 
@@ -89,9 +88,6 @@ class CurrentPlaylistItemView extends JiveItemView {
      */
     @Override
     public void onItemSelected() {
-        ISqueezeService service = getActivity().getService();
-        if (service != null) {
-            getActivity().getService().playlistIndex(getBindingAdapterPosition());
-        }
+        getActivity().lyrionController().playlistIndex(getBindingAdapterPosition());
     }
 }

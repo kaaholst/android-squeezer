@@ -23,9 +23,9 @@ public class CallStatePermissionLauncher {
         requestPermissionLauncher =
                 fragment.registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                        Squeezer.getPreferences().setActionOnIncomingCall(requestedAction);
+                        Squeezer.instance().preferences().setActionOnIncomingCall(requestedAction);
                     } else {
-                        Squeezer.getPreferences().setActionOnIncomingCall(Preferences.IncomingCallAction.NONE);
+                        Squeezer.instance().preferences().setActionOnIncomingCall(Preferences.IncomingCallAction.NONE);
                     }
                 });
         this.fragment = fragment;
@@ -38,8 +38,7 @@ public class CallStatePermissionLauncher {
             this.requestedAction = requestedAction;
             new CallStateDialog().show(fragment.getChildFragmentManager(), "CallStatePermissionLauncher");
         } else
-            Squeezer.getPreferences().setActionOnIncomingCall(requestedAction);
-
+            Squeezer.instance().preferences().setActionOnIncomingCall(requestedAction);
     }
 
     public void requestCallStatePermission() {

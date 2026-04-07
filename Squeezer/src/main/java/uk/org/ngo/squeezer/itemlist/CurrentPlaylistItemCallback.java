@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.JiveItem;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback {
@@ -60,9 +59,8 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
                 }
             }
             case ItemTouchHelper.ACTION_STATE_IDLE -> {
-                ISqueezeService service = activity.getService();
-                if (viewPosition != itemPosition && service != null) {
-                    service.playlistMove(itemPosition, viewPosition);
+                if (viewPosition != itemPosition) {
+                    activity.lyrionController().playlistMove(itemPosition, viewPosition);
                     activity.skipPlaylistChanged();
                 }
                 itemPosition = viewPosition = -1;
@@ -85,11 +83,8 @@ public class CurrentPlaylistItemCallback extends ItemTouchHelper.SimpleCallback 
 
             @Override
             public void onDone() {
-                ISqueezeService service = activity.getService();
-                if (service != null) {
-                    service.playlistRemove(position);
-                    activity.skipPlaylistChanged();
-                }
+                activity.lyrionController().playlistRemove(position);
+                activity.skipPlaylistChanged();
             }
         });
     }

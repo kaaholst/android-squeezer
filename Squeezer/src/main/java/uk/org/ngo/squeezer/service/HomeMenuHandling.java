@@ -15,7 +15,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
-public class HomeMenuHandling {
+class HomeMenuHandling {
     private static final List<JiveItem> SPECIAL_NODES = List.of(JiveItem.EXTRAS, JiveItem.ARCHIVE, JiveItem.SHORTCUTS, JiveItem.SETTINGS, JiveItem.ADVANCED_SETTINGS);
 
     /**

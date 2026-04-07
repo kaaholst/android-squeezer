@@ -24,7 +24,7 @@ import java.util.Stack;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewPending;
@@ -32,7 +32,7 @@ import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
-public class ContextMenu extends BottomSheetDialogFragmentWithService implements IServiceItemListCallback<JiveItem> {
+public class ContextMenu extends SqueezerBottomSheetDialogFragment implements ItemListCallback<JiveItem> {
     public static final String TAG = ContextMenu.class.getSimpleName();
 
     private Stack<Pair<JiveItem, Action>> contextStack;
@@ -63,9 +63,9 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
     }
 
     @Override
-    protected void onServiceConnected() {
-        super.onServiceConnected();
-        Squeezer.getInstance().repository().observe(this, (HandshakeComplete event) -> orderPage(0));
+    protected void registerObservers() {
+        super.registerObservers();
+        Squeezer.instance().repository().observe(this, (HandshakeComplete event) -> orderPage(0));
     }
 
     public void show(JiveItem item, Action action) {
@@ -168,7 +168,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         JiveItem item = contextStack.peek().first;
         activity().runOnUiThread(() -> {
             progress.setVisibility(View.GONE);
@@ -193,7 +193,7 @@ public class ContextMenu extends BottomSheetDialogFragmentWithService implements
         if (pair.second != null) {
             divider.setVisibility(View.GONE);
             progress.setVisibility(View.VISIBLE);
-            service.pluginItems(pagePosition, pair.first, pair.second, this);
+            lyrionController.pluginItems(pagePosition, pair.first, pair.second, this);
         } else {
             JiveItem item = pair.first;
             activity().runOnUiThread(() -> {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.ItemListCallback;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 
@@ -69,7 +69,7 @@ public class RandomPlay {
         this.activeFolderID = folderID;
     }
 
-    class RandomPlayCallback implements IServiceItemListCallback<MusicFolderItem> {
+    class RandomPlayCallback implements ItemListCallback<MusicFolderItem> {
 
         String folderID;
         Set<String> played;
@@ -138,7 +138,7 @@ public class RandomPlay {
                     .param("play_index", "1").param("track_id", first).exec();
             this.played.add(first);
             RandomPlay.this.firstFound = true;
-            Squeezer.getPreferences().saveRandomPlayed(folderID, played);
+            Squeezer.instance().preferences().saveRandomPlayed(folderID, played);
             Log.i(TAG, String.format("Saved first Random Play track to preferences for %s on %s", folderID, player.getName()));
         }
     }

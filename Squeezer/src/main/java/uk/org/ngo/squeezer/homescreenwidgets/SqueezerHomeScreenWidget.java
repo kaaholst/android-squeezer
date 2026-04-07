@@ -1,12 +1,8 @@
 package uk.org.ngo.squeezer.homescreenwidgets;
 
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,8 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class SqueezerHomeScreenWidget extends AppWidgetProvider {
@@ -25,7 +20,6 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     public static final String PLAYER_ID = "playerId";
 
     private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
-    private boolean isBound = false;
 
     /**
      * Returns number of cells needed for given size of the widget.
@@ -42,42 +36,23 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     }
 
     protected void runOnService(final Context context, final ServiceHandler handler) {
-        boolean bound = context.getApplicationContext().bindService(new Intent(context, SqueezeService.class), new ServiceConnection() {
-            public void onServiceConnected(ComponentName name, IBinder service1) {
-                isBound = true;
-                final ServiceConnection serviceConnection = this;
+        LyrionController lyrionController = Squeezer.instance().lyrionController();
 
-                if (name != null && service1 instanceof ISqueezeService squeezeService) {
-                    Log.i(SqueezerHomeScreenWidget.TAG, "onServiceConnected connected to ISqueezeService");
+        // Wait for the PlayersChanged event
+        Squeezer.instance().repository().observeForever((PlayersChanged event) -> {
+            Log.i(SqueezerHomeScreenWidget.TAG, "Players ready, perform action");
+            uiThreadHandler.post(() -> {
+                showToastExceptionIfExists(context, runHandlerAndCatchException(handler, lyrionController));
+                // Handler was called successfully; service no longer needed
+                // TODO remove observer
+            });
+        });
 
-                    // Wait for the PlayersChanged event
-                    Squeezer.getInstance().repository().observeForever((PlayersChanged event) -> {
-                        Log.i(SqueezerHomeScreenWidget.TAG, "Players ready, perform action");
-                        uiThreadHandler.post(() -> {
-                            showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
-                            // Handler was called successfully; service no longer needed
-                            if (isBound) context.unbindService(serviceConnection);
-                            isBound = false;
-                            // TODO remove observer
-                        });
-                    });
-
-                    // Auto connect if necessary
-                    if (!squeezeService.isConnected()) {
-                        Log.i(SqueezerHomeScreenWidget.TAG, "SqueezeService wasn't connected, connecting...");
-                        squeezeService.startConnect(false);
-                    }
-                }
-            }
-
-            public void onServiceDisconnected(ComponentName name) {
-                Log.i(SqueezerHomeScreenWidget.TAG, "service disconnected");
-                isBound = false;
-            }
-        }, Context.BIND_AUTO_CREATE);
-
-        if (!bound)
-            Log.e(SqueezerHomeScreenWidget.TAG, "Squeezer service not bound");
+        // Auto connect if necessary
+        if (!lyrionController.isConnected()) {
+            Log.i(SqueezerHomeScreenWidget.TAG, "SqueezeService wasn't connected, connecting...");
+            lyrionController.startConnect(false);
+        }
     }
 
     protected void showToastExceptionIfExists(Context context, @Nullable Exception possibleException) {
@@ -87,9 +62,9 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     }
 
     private @Nullable
-    Exception runHandlerAndCatchException(ServiceHandler handler, ISqueezeService squeezeService) {
+    Exception runHandlerAndCatchException(ServiceHandler handler, LyrionController lyrionController) {
         try {
-            handler.run(squeezeService);
+            handler.run(lyrionController);
             return null;
         } catch (Exception ex) {
             Log.e(SqueezerHomeScreenWidget.TAG, "Exception while handling serviceHandler", ex);

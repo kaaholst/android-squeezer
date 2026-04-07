@@ -8,7 +8,6 @@ import android.text.InputType;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistSaveDialog extends BaseEditTextDialog {
 
@@ -35,12 +34,7 @@ public class PlaylistSaveDialog extends BaseEditTextDialog {
 
     @Override
     protected boolean commit(String name) {
-        ISqueezeService service = activity.getService();
-        if (service == null) {
-            return false;
-        }
-
-        service.playlistSave(name);
+        activity.lyrionController().playlistSave(name);
         return true;
     }
 

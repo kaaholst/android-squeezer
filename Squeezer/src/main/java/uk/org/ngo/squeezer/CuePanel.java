@@ -33,7 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import uk.org.ngo.squeezer.dialog.CuePanelSettings;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 
 
 /**
@@ -51,19 +51,19 @@ public class CuePanel extends Handler {
     private final View parent;
     private final Dialog dialog;
 
-    public CuePanel(FragmentActivity activity, @NonNull View parent, @NonNull ISqueezeService service) {
+    public CuePanel(FragmentActivity activity, @NonNull View parent, @NonNull LyrionController lyrionController) {
         super(Looper.getMainLooper());
         this.parent = parent;
         this.activity = activity;
-        Preferences preferences = Squeezer.getPreferences();
+        Preferences preferences = Squeezer.instance().preferences();
         int backwardSeconds = preferences.getBackwardSeconds();
         int forwardSeconds = preferences.getForwardSeconds();
 
         final View view = View.inflate(parent.getContext(), R.layout.cue_panel, null);
         ((Button)view.findViewById(R.id.backward)).setText(activity.getString(R.string.backward, backwardSeconds));
-        view.findViewById(R.id.backward).setOnClickListener(view1 -> adjustSecondsElapsed(service, -backwardSeconds));
+        view.findViewById(R.id.backward).setOnClickListener(view1 -> adjustSecondsElapsed(lyrionController, -backwardSeconds));
         ((Button)view.findViewById(R.id.forward)).setText(activity.getString(R.string.forward, forwardSeconds));
-        view.findViewById(R.id.forward).setOnClickListener(view1 -> adjustSecondsElapsed(service, forwardSeconds));
+        view.findViewById(R.id.forward).setOnClickListener(view1 -> adjustSecondsElapsed(lyrionController, forwardSeconds));
         view.findViewById(R.id.settings).setOnClickListener(view1 -> new CuePanelSettings().show(activity.getSupportFragmentManager(), CuePanelSettings.class.getName()));
         view.findViewById(R.id.volume).setVisibility(preferences.isLargeArtwork() ? View.VISIBLE : View.INVISIBLE);
         view.findViewById(R.id.volume).setOnClickListener(v -> {
@@ -97,8 +97,8 @@ public class CuePanel extends Handler {
         resetTimeout();
     }
 
-    private void adjustSecondsElapsed(@NonNull ISqueezeService service, int seconds) {
-        service.adjustSecondsElapsed(seconds);
+    private void adjustSecondsElapsed(@NonNull LyrionController lyrionController, int seconds) {
+        lyrionController.adjustSecondsElapsed(seconds);
         resetTimeout();
     }
 

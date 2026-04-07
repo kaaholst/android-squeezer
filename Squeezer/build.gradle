@@ -23,7 +23,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.activity:activity:1.13.0'
     implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.media:media:1.7.1'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'

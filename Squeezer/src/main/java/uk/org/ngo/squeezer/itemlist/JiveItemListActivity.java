@@ -38,7 +38,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
 import androidx.core.view.MenuCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -74,7 +73,6 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.RefreshWindow;
 import uk.org.ngo.squeezer.model.Window;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.util.AfterTextChangedLister;
 import uk.org.ngo.squeezer.util.ThemeManager;
@@ -203,8 +201,8 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
+    protected void registerObservers() {
+        super.registerObservers();
         repository().observe(this, (ActivePlayerChanged event) -> {
             if (action != null && !forActivePlayer(action)) {
                 finish();
@@ -342,7 +340,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
 
 
     private void clearAndReOrderItems(String inputString) {
-        if (getService() != null && !TextUtils.isEmpty(inputString)) {
+        if (lyrionController() != null && !TextUtils.isEmpty(inputString)) {
             parent.inputValue = inputString;
             clearAndReOrderItems();
         }
@@ -360,12 +358,12 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             } else if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
             } else
-                requireService().pluginItems(start, parent, action, this);
+                lyrionController().pluginItems(start, parent, action, this);
         }
     }
 
     protected boolean forActivePlayer(Action action) {
-        LyrionPlayer activePlayer = requireService().getActivePlayer();
+        LyrionPlayer activePlayer = lyrionController().getActivePlayer();
         String playerId = (activePlayer != null ? activePlayer.getId() : null);
         return !action.isPlayerSpecific() || Arrays.asList(action.action.players).contains(playerId);
     }
@@ -397,14 +395,8 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         // value is an error message suitable for displaying to the user.
         if (parameters.containsKey("networkerror")) {
             Resources resources = getResources();
-            ISqueezeService service = getService();
-            String playerName;
 
-            if (service == null) {
-                playerName = "Unknown";
-            } else {
-                playerName = service.getActivePlayer().getName();
-            }
+            String playerName = lyrionController().getActivePlayer().getName();
 
             String errorMsg = Util.getString(parameters, "networkerror");
 
@@ -423,12 +415,12 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
 
     @Override
     public void action(JiveItem item, Action action, int alreadyPopped) {
-        if (getService() == null) {
+        if (lyrionController() == null) {
             return;
         }
 
         if (action != null) {
-            getService().action(item, action);
+            lyrionController().action(item, action);
         }
 
         Action.JsonAction jAction = (action != null && action.action != null) ? action.action : null;
@@ -439,11 +431,11 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
 
     @Override
     public void action(JiveItem item, Action.JsonAction action, int alreadyPopped) {
-        if (getService() == null) {
+        if (lyrionController() == null) {
             return;
         }
 
-        getService().action(action);
+        lyrionController().action(action);
         setRefreshWindow(item.onClick);
         nextWindow(action.nextWindow, alreadyPopped);
     }
@@ -533,7 +525,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
      */
     private void setTheme(ThemeManager.Theme theme) {
         if (getThemeId() != theme.themeId) {
-            Squeezer.getPreferences().setTheme(theme);
+            Squeezer.instance().preferences().setTheme(theme);
             recreate();
         }
     }
@@ -549,7 +541,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     protected void saveListLayout(ArtworkListLayout listLayout) {
-        Squeezer.getPreferences().setAlbumListLayout(listLayout);
+        Squeezer.instance().preferences().setAlbumListLayout(listLayout);
     }
 
     public int getSelectedIndex() {
@@ -618,7 +610,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
             setMaxLines(0);
             return true;
         } else if (itemId == R.id.menu_item_flat_icons) {
-            Squeezer.getPreferences().useFlatIcons(!menuItemFlatIcons.isChecked());
+            Squeezer.instance().preferences().useFlatIcons(!menuItemFlatIcons.isChecked());
             getItemAdapter().notifyItemRangeChanged(0, getItemAdapter().getItemCount());
             return true;
         }
@@ -626,14 +618,14 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
     }
 
     private void setMaxLines(int maxLines) {
-        Squeezer.getPreferences().setMaxLines(getListLayout(), maxLines);
+        Squeezer.instance().preferences().setMaxLines(getListLayout(), maxLines);
         updateViewMenuItems(getListLayout(), window.windowStyle);
         getListView().setAdapter(getListView().getAdapter());
     }
 
     protected void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
         if (menuItemList != null) {
-            Preferences preferences = Squeezer.getPreferences();
+            Preferences preferences = Squeezer.instance().preferences();
 
             (getThemeId() ==  R.style.AppTheme ? menuItemDark : menuItemLight).setChecked(true);
 
@@ -659,7 +651,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
      * If the action requires input, we initially get the input.
      * <p>
      * When input is ready or the action does not require input, items are ordered asynchronously
-     * via {@link ISqueezeService#pluginItems(int, JiveItem, Action, IServiceItemListCallback)}
+     * via {@link uk.org.ngo.squeezer.service.LyrionController#pluginItems(int, JiveItem, Action, ItemListCallback)}
      *
      * @see #orderPage(int)
      */
@@ -667,7 +659,7 @@ public class JiveItemListActivity extends ItemListActivity<ItemViewHolder<JiveIt
         if (activity instanceof JiveItemListActivity jiveItemListActivity) {
             Action parentAction = jiveItemListActivity.action;
             if (parentAction != null && parentAction.isPlayerSpecific() && !action.isPlayerSpecific()) {
-                LyrionPlayer player = jiveItemListActivity.requireService().getActivePlayer();
+                LyrionPlayer player = jiveItemListActivity.lyrionController().getActivePlayer();
                 action.action.players = (player != null ? new String[]{player.getId()} : parentAction.action.players);
             }
         }

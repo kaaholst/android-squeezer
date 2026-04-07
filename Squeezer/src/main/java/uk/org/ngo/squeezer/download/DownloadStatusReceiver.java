@@ -44,8 +44,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Intents;
 
 
@@ -222,7 +222,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                         new Intent(),  //Dummy Intent do nothing
                         Intents.immutablePendingIntent());
 
-                final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SqueezeService.NOTIFICATION_CHANNEL_ID);
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, Squeezer.NOTIFICATION_CHANNEL_ID);
                 builder.setContentIntent(emptyPendingIntent);
                 builder.setOngoing(false);
                 builder.setOnlyAlertOnce(true);
@@ -233,7 +233,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 builder.setContentText(context.getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
 
                 final NotificationManagerCompat nm = NotificationManagerCompat.from(context);
-                nm.notify(SqueezeService.DOWNLOAD_ERROR, builder.build());
+                nm.notify(Squeezer.DOWNLOAD_ERROR, builder.build());
             }
         }
     }

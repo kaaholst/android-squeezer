@@ -17,15 +17,15 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.LyrionController;
 
 public class VolumeSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BaseActivity activity = (BaseActivity)requireActivity();
-        ISqueezeService service = activity.getService();
-        Preferences preferences = Squeezer.getPreferences();
+        LyrionController lyrionController = activity.lyrionController();
+        Preferences preferences = Squeezer.instance().preferences();
 
         View view = requireActivity().getLayoutInflater().inflate(R.layout.volume_settings, null);
 
@@ -37,7 +37,7 @@ public class VolumeSettings extends DialogFragment {
         Slider volumeIncrements = view.findViewById(R.id.volume_increments);
         volumeIncrements.setValue(preferences.getVolumeIncrements());
 
-        boolean canAdjustVolumeForSyncGroup = service.canAdjustVolumeForSyncGroup();
+        boolean canAdjustVolumeForSyncGroup = lyrionController.canAdjustVolumeForSyncGroup();
         SwitchMaterial groupVolume = view.findViewById(R.id.group_volume);
         TextView groupVolumeHint = view.findViewById(R.id.group_volume_hint);
         view.findViewById(R.id.group_volume_title).setVisibility(canAdjustVolumeForSyncGroup ? View.VISIBLE : View.GONE);
@@ -46,7 +46,7 @@ public class VolumeSettings extends DialogFragment {
         groupVolume.setOnCheckedChangeListener((buttonView, isChecked) -> groupVolumeHint.setText(isChecked ? R.string.player_group_volume_on : R.string.player_group_volume_off));
         groupVolume.setChecked(preferences.isGroupVolume());
 
-        String digitalVolumeControl = service.getActivePlayerState().prefs.get(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL);
+        String digitalVolumeControl = lyrionController.getActivePlayerState().prefs.get(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL);
         boolean canFixedVolume = digitalVolumeControl != null; // TODO check for hasDigitalOut
         SwitchMaterial fixedVolume = view.findViewById(R.id.fixed_volume);
         TextView fixedVolumeHint = view.findViewById(R.id.fixed_volume_hint);
@@ -63,8 +63,8 @@ public class VolumeSettings extends DialogFragment {
                     preferences.setBackgroundVolume(backgroundVolume.isChecked());
                     preferences.setVolumeIncrements((int) volumeIncrements.getValue());
                     preferences.setGroupVolume(groupVolume.isChecked());
-                    service.preferenceChanged(preferences, null);
-                    service.playerPref(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
+                    lyrionController.preferenceChanged(preferences, null);
+                    lyrionController.playerPref(LyrionPlayer.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
                 })
                 .setNegativeButton(android.R.string.cancel, null);
         return builder.create();
