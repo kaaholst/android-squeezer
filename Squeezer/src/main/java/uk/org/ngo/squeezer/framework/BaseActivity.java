@@ -17,11 +17,15 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -36,7 +40,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
@@ -63,6 +66,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.screensaver.Screensaver;
 import uk.org.ngo.squeezer.service.LyrionController;
+import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -78,8 +82,6 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 public abstract class BaseActivity extends AppCompatActivity implements DownloadDialog.DownloadDialogListener {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
-    private static final String TAG = BaseActivity.class.getSimpleName();
-
     private final ThemeManager themeManager = new ThemeManager();
 
     /** Control device  players */
@@ -90,7 +92,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     /** Holds information to be retained across activity lifecycle */
     private StateHolder stateHolder;
 
-    @Nullable
     public LyrionController lyrionController() {
         return Squeezer.instance().lyrionController();
     }
@@ -98,6 +99,19 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     public int getThemeId() {
         return themeManager.getCurrentThemeId();
     }
+
+    private IBinder serviceBinder;
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            serviceBinder = binder;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBinder = null;
+        }
+    };
 
     @Override
     @CallSuper
@@ -108,6 +122,8 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setNavigationBarContrastEnforced(false);
         }
+
+        bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
         if (savedInstanceState != null) {
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
@@ -220,6 +236,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     public void onDestroy() {
         super.onDestroy();
         lyrionController().cancelClientRequests(this);
+        if (serviceBinder != null) {
+            unbindService(serviceConnection);
+        }
     }
 
     /**
@@ -246,7 +265,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     }
 
     public SqueezerRepository repository() {
-        return ((Squeezer)getApplicationContext()).repository();
+        return ((Squeezer)getApplication()).repository();
     }
 
     @Override
