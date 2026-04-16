@@ -2,6 +2,19 @@
 
 <changelog>
     <release
+        version="2.4.1"
+        versioncode="158">
+
+        <change>Optional fullscreen mode</change>
+
+        <change>Show the currently playing track on the screensaver</change>
+
+        <change>Enable the app to be a Launcher so a device can boot directly into it</change>
+
+        <change>Swipe gestures for standard LMS actions. By default, swipe right for play-next, and left for add-to-end</change>
+    </release>
+
+    <release
         version="2.4.0"
         versioncode="154">
 

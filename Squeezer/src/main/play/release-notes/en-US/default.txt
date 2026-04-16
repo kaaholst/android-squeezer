@@ -1,7 +1,7 @@
-&bull; Home screen optionally organized with a horizontal list for each item.
+&bull; Optional fullscreen mode
 
-&bull; Fix issue where lists are not filled after scrolling
+&bull; Show the currently playing track on the screensaver
 
-&bull; Target Android 16
+&bull; Enable the app to be a Launcher so a device can boot directly into it
 
-&bull; Do not attempt pending commands to LMS after disconnect
+&bull; Swipe gestures for standard LMS actions. By default, swipe right for play-next, and left for add-to-end

@@ -3,6 +3,19 @@ description: Changelog
 permalink: /changelog/
 ---
 
+2.4.1
+=====
+
+*   Optional fullscreen mode
+
+*   Show the currently playing track on the screensaver
+
+*   Enable the app to be a Launcher so a device can boot directly into it
+
+*   Swipe gestures for standard LMS actions. By default, swipe right for
+    play-next, and left for add-to-end
+
+
 2.4.0
 =====
 
