@@ -18,6 +18,7 @@
     <string name="undo">Rückgängig</string>
     <string name="disabled">Deaktiviert</string>
     <string name="mute">Lautlos</string>
+    <string name="no_action">Nichts tun</string>
     <string name="menu_item_players">Abspielgeräte</string>
     <string name="menu_item_settings_label">Einstellungen</string>
     <string name="menu_item_about_label">Info</string>
@@ -61,7 +62,6 @@
         von 0 deaktivert das Einblenden.
     </string>
     <string name="settings_action_on_incoming_call_title">Verhalten bei Telefonanruf</string>
-    <string name="settings_no_action_on_incoming_call">Nichts tun</string>
 
     <string name="settings_scrobble_title">Scrobbeln nach Last.fm</string>
     <string name="settings_scrobble_on">Lied-Informationen werden an Last.fm gesendet.</string>

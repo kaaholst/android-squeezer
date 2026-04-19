@@ -38,6 +38,7 @@
   <string name="menu_item_power_on">Aç</string>
   <!--Dialog buttons-->
   <string name="dialog_license">Lisans</string>
+  <string name="no_action">Yok</string>
     <string name="PLAY_NOW">Oynat</string>
   <string name="ADD_TO_END">Çalma listesine ekle</string>
   <string name="DOWNLOAD">İndir</string>

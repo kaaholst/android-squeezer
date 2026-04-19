@@ -46,6 +46,7 @@
     <string name="undo">Cofnij</string>
     <string name="disabled">Wyłączone</string>
     <string name="mute">Wycisz</string>
+    <string name="no_action">Brak akcji</string>
     <string name="pause_active">Zatrzymaj wybrany odtwarzacz</string>
     <string name="pause_all">Zatrzymaj wszystkie odtwarzacze</string>
     <string name="mute_active">Wycisz wybrany odtwarzacz</string>
@@ -197,7 +198,6 @@
     <string name="settings_volume_increment_title">Kroki zmiany poziomu głośności</string>
     <string name="settings_volume_increment_summary">Ustaw wielkość kroku dla guzików glośności telefonu</string>
     <string name="settings_action_on_incoming_call_title">Zachowanie gdy otrzymasz lub wykonujesz połączenie telefoniczne</string>
-    <string name="settings_no_action_on_incoming_call">Brak akcji</string>
     <string name="request_permission">Poproś o przyznanie uprawnienia</string>
     <string name="settings_scrobble_title">Zapisuj do Last.fm</string>
     <string name="settings_scrobble_on">Informacje o odtwarzanych utworach wysyłane są do Last.fm</string>

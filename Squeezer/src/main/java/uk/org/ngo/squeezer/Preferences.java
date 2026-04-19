@@ -912,7 +912,7 @@ public final class Preferences {
     }
 
     public enum IncomingCallAction implements EnumWithText {
-        NONE(R.string.settings_no_action_on_incoming_call),
+        NONE(R.string.no_action),
         PAUSE(R.string.pause_active),
         PAUSE_ALL(R.string.pause_all),
         MUTE(R.string.mute_active),

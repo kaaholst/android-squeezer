@@ -18,6 +18,7 @@
 
 <resources>
     <string name="disabled">Disabled</string>
+    <string name="no_action">Geen</string>
     <string name="menu_item_players">Spelers</string>
     <string name="menu_item_settings_label">Instellingen</string>
     <string name="menu_item_about_label">Over</string>

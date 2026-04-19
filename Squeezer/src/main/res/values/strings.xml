@@ -20,6 +20,7 @@
     <string name="undo">Undo</string>
     <string name="disabled">Disabled</string>
     <string name="mute">Mute</string>
+    <string name="no_action">No action</string>
     <string name="pause_active">Pause selected player</string>
     <string name="pause_all">Pause all players</string>
     <string name="mute_active">Mute selected player</string>
@@ -82,7 +83,6 @@
         unpausing, in seconds. Enter 0 to disable fade in.
     </string>
     <string name="settings_action_on_incoming_call_title">Action when you receive or make a call</string>
-    <string name="settings_no_action_on_incoming_call">No action</string>
     <string name="settings_restore_after_call">Automatically return to music after a phone call</string>
     <string name="call_state_permission_title">Call state permission required</string>
     <string name="call_state_permission_message">Squeezer can pause music when you receive or make a call.
