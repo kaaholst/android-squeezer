@@ -40,10 +40,12 @@ public class JiveItemCallback extends ItemTouchHelper.Callback {
 
     @Override
     public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-        JiveItem item = ((JiveItemView) viewHolder).getItem();
         int swipeFlags = 0;
-        if (activity.getListLayout() == ArtworkListLayout.list && swipeRightAction.action(item) != null) swipeFlags |= ItemTouchHelper.RIGHT;
-        if (activity.getListLayout() == ArtworkListLayout.list && swipeLeftAction.action(item) != null) swipeFlags |= ItemTouchHelper.LEFT;
+        if (viewHolder instanceof JiveItemView jiveItemView) {
+            JiveItem item = jiveItemView.getItem();
+            if (activity.getListLayout() == ArtworkListLayout.list && swipeRightAction.action(item) != null) swipeFlags |= ItemTouchHelper.RIGHT;
+            if (activity.getListLayout() == ArtworkListLayout.list && swipeLeftAction.action(item) != null) swipeFlags |= ItemTouchHelper.LEFT;
+        }
         return makeMovementFlags(0, swipeFlags);
     }
 
