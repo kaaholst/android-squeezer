@@ -38,24 +38,28 @@
         android:layout_height="@dimen/album_art_icon_size"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/trackname"
+        app:layout_constraintEnd_toStartOf="@id/trackinfo"
         tools:src="@drawable/pending"/>
 
-    <TextView
-        android:id="@+id/trackname"
+    <LinearLayout
+        android:id="@+id/trackinfo"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/progressbar"
-        app:layout_constraintBottom_toTopOf="@id/artistalbumname"
-        app:layout_constraintStart_toEndOf="@id/album"
-        app:layout_constraintEnd_toStartOf="@id/prev"
-        style="@style/SqueezerWidget.NowPlayingMini.SongName"/>
-
-    <TextView
-        android:id="@+id/artistalbumname"
-        app:layout_constraintTop_toBottomOf="@id/trackname"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/trackname"
-        app:layout_constraintEnd_toStartOf="@id/prev"
-        style="@style/SqueezerWidget.NowPlayingMini.ArtistAlbumName"/>
+        app:layout_constraintStart_toEndOf="@id/album"
+        app:layout_constraintEnd_toStartOf="@id/prev">
+        <TextView
+            android:id="@+id/trackname"
+            android:layout_width="match_parent"
+            style="@style/SqueezerWidget.NowPlayingMini.SongName"/>
+
+        <TextView
+            android:id="@+id/artistalbumname"
+            android:layout_width="match_parent"
+            style="@style/SqueezerWidget.NowPlayingMini.ArtistAlbumName"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/prev"

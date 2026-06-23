@@ -48,21 +48,11 @@
                     style="@style/SqueezerWidget.NowPlaying.ComposerName"
                     tools:text="Composer" />
 
-                <!-- The trackname TextView needs to be wrapped in a LinearLayout.
-                     If you do not do this then changing the contents of any other item in the layout
-                     will cause the layout to reflow, which causes the scrolling marquee text to
-                     reset.  Wrapping the trackname TextView in a LinearLayout means that the TextView
-                     will not change size when then the layout is recalculated, and the text continues
-                     to scroll. -->
-                <FrameLayout
+                <TextView
+                    android:id="@+id/trackname"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/trackname"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/SqueezerWidget.NowPlaying.SongName"/>
-                </FrameLayout>
+                    android:layout_height="wrap_content"
+                    style="@style/SqueezerWidget.NowPlaying.SongName"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/item"

@@ -97,6 +97,7 @@
 
     <style name="SqueezerWidget.Marquee" parent="SqueezerWidget.SingleLine">
         <item name="android:ellipsize">marquee</item>
+        <item name="android:marqueeRepeatLimit">marquee_forever</item>
         <item name="android:focusable">true</item>
         <item name="android:focusableInTouchMode">true</item>
     </style>
@@ -143,7 +144,6 @@
 
     <style name="SqueezerWidget.NowPlayingMini.SongName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_track</item>
-        <item name="android:marqueeRepeatLimit">marquee_forever</item>
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.SongName</item>
     </style>
 

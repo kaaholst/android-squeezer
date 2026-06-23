@@ -295,6 +295,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             showRemainingTime = preferences.isShowRemainingTime();
             slider = v.findViewById(R.id.seekbar);
 
+            // Set the text view selected for the marquee effect to work.
+            artistText.setSelected(true);
+            albumText.setSelected(true);
+
             if (largeArtwork) {
                 albumArt = v.findViewById(R.id.album);
                 v.findViewById(R.id.icon).setVisibility(View.GONE);
@@ -333,6 +337,9 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             albumArt = v.findViewById(R.id.album);
             mProgressBar = v.findViewById(R.id.progressbar);
             artistAlbumText = v.findViewById(R.id.artistalbumname);
+
+            // Set the text view selected for the marquee effect to work.
+            artistAlbumText.setSelected(true);
         }
 
         trackText = v.findViewById(R.id.trackname);
@@ -341,8 +348,8 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         nextButton = v.findViewById(R.id.next);
         prevButton = v.findViewById(R.id.prev);
 
-        // Marquee effect on TextViews only works if they're focused.
-        trackText.requestFocus();
+        // Set the text view selected for the marquee effect to work.
+        trackText.setSelected(true);
 
         playPauseButton.setOnClickListener(view -> requireService().togglePausePlay());
 
