@@ -657,8 +657,7 @@ public class JiveItem extends Item {
 
     private SlimCommand extractDownloadAction(Map<String, Object> record) {
         if ("local".equals(getString(record, "trackType")) && (goAction != null || moreAction != null)) {
-            Action action = (moreAction != null ? moreAction : goAction);
-            String trackId = getStringOrEmpty(action.action.params, "track_id");
+            String trackId = getStringOrEmpty((moreAction != null ? moreAction : goAction).action.params, "track_id");
             return new SlimCommand()
                     .cmd("titles")
                     .param("tags", SONG_TAGS)
@@ -676,10 +675,12 @@ public class JiveItem extends Item {
                         .param("tags", SONG_TAGS)
                         .param("playlist_id", playAction.action.params.get("playlist_id"));
             } else {
+                // When a single track is selected, play-action may, depending on the server settings, contain an index instead of a track_id, so
+                // take parameters from  more-action if it is available
                 return new SlimCommand()
                         .cmd("titles")
                         .param("tags", SONG_TAGS)
-                        .params(getTitlesParams(playAction.action));
+                        .params(getTitlesParams((moreAction != null ? moreAction : playAction).action));
             }
         }
         return null;
