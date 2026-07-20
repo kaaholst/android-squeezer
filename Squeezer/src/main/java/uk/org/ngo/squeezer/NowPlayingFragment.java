@@ -75,6 +75,7 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
+import uk.org.ngo.squeezer.itemlist.PresetsActivity;
 import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Input;
 import uk.org.ngo.squeezer.model.JiveItem;
@@ -154,6 +155,8 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     private MenuItem menuItemCancelSleep;
 
     private MenuItem menuItemAlarm;
+
+    private MenuItem menuItemPresets;
 
     private MaterialButton playPauseButton;
 
@@ -946,6 +949,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
         menuItemPlayers = menu.findItem(R.id.menu_item_players);
         menuItemAlarm = menu.findItem(R.id.menu_item_alarm);
+        menuItemPresets = menu.findItem(R.id.menu_item_presets);
     }
 
     /**
@@ -972,6 +976,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             menuItemPlaylist.setVisible(haveConnectedPlayers);
             menuItemPlayers.setVisible(haveConnectedPlayers);
             menuItemAlarm.setVisible(haveConnectedPlayers);
+            menuItemPresets.setVisible(haveConnectedPlayers);
             menuItemSleep.setVisible(haveConnectedPlayers);
 
             // Don't show the item to go to current playlist if in CurrentPlaylistActivity.
@@ -987,6 +992,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             // Don't show the item to go to alarms if in AlarmsActivity.
             if (mActivity instanceof AlarmsActivity) {
                 menuItemAlarm.setVisible(false);
+            }
+
+            // Don't show the item to go to presets if in PresetsActivity.
+            if (mActivity instanceof PresetsActivity) {
+                menuItemPresets.setVisible(false);
             }
         }
 
@@ -1026,6 +1036,9 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             return true;
         } else if (itemId == R.id.menu_item_alarm) {
             AlarmsActivity.show(mActivity);
+            return true;
+        } else if (itemId == R.id.menu_item_presets) {
+            PresetsActivity.show(mActivity);
             return true;
         } else if (itemId == R.id.menu_item_about) {
             new AboutDialog().show(getParentFragmentManager(), "AboutDialog");

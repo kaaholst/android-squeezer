@@ -48,6 +48,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='ALARM_SHORT_DAY_3'>Śr</string>
   <string name='ALARM_SHORT_DAY_0'>Ni</string>
   <string name='ALARM_SHORT_DAY_1'>Po</string>
+  <string name='PRESETS_NOT_DEFINED'>Ustawienie domyślne #%s nie zdefiniowane.</string>
   <string name='SETUP_PLAYTRACKALBUM_0'>Odtwórz tylko zaznaczony utwór</string>
   <string name='MORE'>Więcej</string>
   <string name='SLEEP_AT_END_OF_SONG'>Włącz uśpienie po zakończeniu utworu</string>

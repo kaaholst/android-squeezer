@@ -20,7 +20,9 @@ import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -33,6 +35,7 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.CurrentTrack;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Preset;
 import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -113,6 +116,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(tokenMap, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
+        boolean changedPresets = parsePresets(playerState, tokenMap);
         boolean changedPlayStatus = updatePlayStatus(playerState, Util.getStringOrEmpty(tokenMap, "mode"));
 
         // Playing status
@@ -127,7 +131,7 @@ abstract class BaseClient implements SlimClient {
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
                 || changedSong || changedSongDuration || changedSongTime
-                || changedSyncMaster || changedSyncSlaves) {
+                || changedSyncMaster || changedSyncSlaves || changedPresets) {
             postPlayerStateChanged(player);
         }
 
@@ -179,6 +183,24 @@ abstract class BaseClient implements SlimClient {
 
     protected void postPlayerStateChanged(Player player) {
         repository.post(new PlayerStateChanged(player));
+    }
+
+    /**
+     * Parse the "preset_data" field of the status response, present because we request status
+     * with the "menu:menu" parameter. An unassigned preset slot is an empty record.
+     */
+    @SuppressWarnings("unchecked")
+    private boolean parsePresets(PlayerState playerState, Map<String, Object> tokenMap) {
+        Object[] presetData = (Object[]) tokenMap.get("preset_data");
+        if (presetData == null) {
+            return false;
+        }
+
+        List<Preset> presets = new ArrayList<>(presetData.length);
+        for (Object record : presetData) {
+            presets.add(new Preset((Map<String, Object>) record));
+        }
+        return playerState.setPresets(presets);
     }
 
     private boolean updatePlayStatus(PlayerState playerState, String playStatus) {
