@@ -97,6 +97,7 @@ public class ItemIconUtils {
         result.put("hm_opmlmyapps", R.drawable.apps);
         result.put("hm_opmlappgallery", R.drawable.apps_settings);
         result.put("hm_settingsAlarm", R.drawable.alarm_clock);
+        result.put("hm_settingsPresets", R.drawable.favorites);
         result.put("hm_appletCustomizeHome", R.drawable.settings_home);
         result.put("hm_settingsPlayerNameChange", R.drawable.rename);
         result.put("hm_advancedSettings", R.drawable.settings_advanced);
