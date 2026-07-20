@@ -27,6 +27,7 @@
     <string name="mute_all">Mute all players</string>
     <string name="minutes">minutes</string>
     <string name="menu_item_players">Players</string>
+    <string name="menu_item_presets">Presets</string>
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="menu_item_view">View</string>

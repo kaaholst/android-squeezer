@@ -487,6 +487,24 @@ public class LyrionController {
         return true;
     }
 
+    /**
+     * Assign an item to a preset button of the supplied player.
+     *
+     * @param player The player to set the preset for.
+     * @param key The preset slot (1-based).
+     * @param playlist The item to assign to the preset slot.
+     */
+    public void setPreset(LyrionPlayer player, int key, AlarmPlaylist playlist) {
+        if (!isConnected()) return;
+        // The web interface presets editor stores all items with type "audio", so mirror that.
+        command(player).cmd("jivefavorites", "set_preset")
+                .param("key", key)
+                .param("favorites_url", playlist.getId())
+                .param("favorites_title", playlist.getName())
+                .param("favorites_type", "audio")
+                .exec();
+    }
+
 
     public boolean isManualDisconnect() {
         return getConnectionState().isManualDisconnect();
