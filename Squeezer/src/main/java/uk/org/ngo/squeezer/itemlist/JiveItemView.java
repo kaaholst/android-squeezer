@@ -169,6 +169,11 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     }
 
     public void onItemSelected() {
+        if (JiveItem.SETTINGS_PRESETS.getId().equals(item.getId())) {
+            PresetsActivity.show(getActivity());
+            return;
+        }
+
         Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
         Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
         if (item.checkbox != null) {

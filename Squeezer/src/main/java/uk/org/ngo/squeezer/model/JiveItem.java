@@ -50,6 +50,7 @@ public class JiveItem extends Item {
     public static final JiveItem EXTRAS = new JiveItem(record("extras", "home", Squeezer.getInstance().getString(R.string.EXTRAS), 50), Window.WindowStyle.HOME_MENU);
     public static final JiveItem SETTINGS = new JiveItem(record("settings", "home", Squeezer.getInstance().getString(R.string.SETTINGS), 1005), Window.WindowStyle.HOME_MENU);
     public static final JiveItem ADVANCED_SETTINGS = new JiveItem(record("advancedSettings", "settings", Squeezer.getInstance().getString(R.string.ADVANCED_SETTINGS), 105), Window.WindowStyle.TEXT_ONLY);
+    public static final JiveItem SETTINGS_PRESETS = new JiveItem(record("settingsPresets", "settings", Squeezer.getInstance().getString(R.string.menu_item_presets), 35), Window.WindowStyle.TEXT_ONLY);
     public static final JiveItem ARCHIVE = new JiveItem(record("archiveNode", "home", Squeezer.getInstance().getString(R.string.ARCHIVE_NODE), 1100), Window.WindowStyle.HOME_MENU);
     public static final JiveItem SHORTCUTS = new JiveItem(record("shortcuts", "home", Squeezer.getInstance().getString(R.string.SHORTCUTS), 10), Window.WindowStyle.HOME_MENU);
     public static final JiveItem DOWNLOAD = new JiveItem(record("downloadItem", R.string.DOWNLOAD));
