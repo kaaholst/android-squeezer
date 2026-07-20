@@ -159,6 +159,7 @@ slimstrings {
             'ALARM_DELETE',
             'ALARM_DELETING',
             'ALARM_ALL_ALARMS',
+            'PRESETS_NOT_DEFINED',
             'MORE',
             'SETTINGS',
             'SCREEN_SETTINGS',

@@ -63,6 +63,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Preset;
 import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
@@ -487,6 +488,7 @@ class CometClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(messageData, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(messageData, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Arrays.stream(Util.getStringOrEmpty(messageData, "sync_slaves").split(",")).filter(it -> !it.isEmpty()).collect(Collectors.toList()));
+        boolean changedPresets = parsePresets(playerState, messageData);
         boolean changedPlayStatus = updatePlayStatus(playerState, Util.getStringOrEmpty(messageData, "mode"));
 
         // Playing status
@@ -501,7 +503,7 @@ class CometClient implements SlimClient {
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
                 || changedSong || changedSongDuration || changedSongTime
-                || changedSyncMaster || changedSyncSlaves) {
+                || changedSyncMaster || changedSyncSlaves || changedPresets) {
             postPlayerStateChanged(player);
         }
 
@@ -595,6 +597,24 @@ class CometClient implements SlimClient {
 
     private void postPlayerStateChanged(LyrionPlayer player) {
         repository.post(new PlayerStateChanged(player));
+    }
+
+    /**
+     * Parse the "preset_data" field of the status response, present because we request status
+     * with the "menu:menu" parameter. An unassigned preset slot is an empty record.
+     */
+    @SuppressWarnings("unchecked")
+    private boolean parsePresets(PlayerState playerState, Map<String, Object> tokenMap) {
+        Object[] presetData = (Object[]) tokenMap.get("preset_data");
+        if (presetData == null) {
+            return false;
+        }
+
+        List<Preset> presets = new ArrayList<>(presetData.length);
+        for (Object record : presetData) {
+            presets.add(new Preset((Map<String, Object>) record));
+        }
+        return playerState.setPresets(presets);
     }
 
     private void parseDisplayStatus(ClientSessionChannel channel, Message message) {
