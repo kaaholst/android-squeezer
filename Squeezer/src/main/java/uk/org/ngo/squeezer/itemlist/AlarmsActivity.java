@@ -101,7 +101,7 @@ public class AlarmsActivity extends ItemListActivity<AlarmView, Alarm> implement
 
     void selectAlarmPlaylist(int position) {
         currentAlarm = position;
-        AlarmPlaylistActivity.show(this, getItemAdapter().getItem(position), getAlarmPlaylists());
+        AlarmPlaylistActivity.show(this, getItemAdapter().getItem(position).getPlayListId(), getAlarmPlaylists());
     }
 
     @Override
