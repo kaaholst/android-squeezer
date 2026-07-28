@@ -53,6 +53,7 @@ import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.PlayableItemAction;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
+import uk.org.ngo.squeezer.util.UrlUtils;
 
 public final class Preferences {
     private static final String TAG = Preferences.class.getSimpleName();
@@ -80,7 +81,7 @@ public final class Preferences {
     // Optional Squeezebox Server password
     private static final String KEY_PASSWORD = "squeezer.password";
 
-    // Optional Squeezebox Server password
+    // Wake On Lan flag
     private static final String KEY_WOL = "squeezer.wol";
 
     // Optional Squeezebox Server password
@@ -283,10 +284,18 @@ public final class Preferences {
 
     private String getStringPreference(String preference) {
         final String pref = sharedPreferences.getString(preference, null);
-        if (pref == null || pref.length() == 0) {
+        if (pref == null || pref.isEmpty()) {
             return null;
         }
         return pref;
+    }
+
+    private void updateStringPreference(SharedPreferences.Editor editor, String preference, String value) {
+        if (TextUtils.isEmpty(value)) {
+            editor.remove(preference);
+        } else {
+            editor.putString(preference, value);
+        }
     }
 
     public boolean hasServerConfig() {
@@ -348,7 +357,7 @@ public final class Preferences {
     }
 
     private String prefix(ServerAddress serverAddress) {
-        return (serverAddress.bssId != null ? serverAddress.bssId + "_ " : "") + serverAddress.localAddress() + "_";
+        return (serverAddress.bssId != null ? serverAddress.bssId + "_ " : "") + serverAddress.hostport() + "_";
     }
 
     public List<String> getServerHistory() {
@@ -357,7 +366,7 @@ public final class Preferences {
     }
 
     public void saveServer() {
-        String address = getServerAddress().localAddress();
+        String address = getServerAddress().address();
         Set<String> serverHistory = new HashSet<>(getServerHistory());
         serverHistory.add(address);
         sharedPreferences.edit().putString(KEY_SERVER_HISTORY, String.join("\t", serverHistory)).apply();
@@ -383,8 +392,6 @@ public final class Preferences {
     public static class ServerAddress {
         private final String bssId;
         private String address; // <host name or ip>:<port>
-        private String host;
-        private int port;
         private final int defaultPort;
 
         private String serverName;
@@ -410,87 +417,30 @@ public final class Preferences {
         }
 
         public String address() {
-            return host() + ":" + port();
-        }
-
-        public String localAddress() {
-            if (address == null) {
-                return null;
-            }
-
-            return host + ":" + port;
-        }
-
-        public String host() {
-            return host;
-        }
-
-        public String localHost() {
-            return host;
-        }
-
-        public int port() {
-            return port;
+            return address;
         }
 
         public String serverName() {
-            return serverName != null ? serverName : host;
+            return serverName != null ? serverName : address;
         }
 
-        private void setAddress(String hostPort, int defaultPort) {
-            // Common mistakes, based on crash reports...
-            if (hostPort != null) {
-                if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
-                    hostPort = hostPort.substring(7);
-                }
-
-                // Ending in whitespace?  From LatinIME, probably?
-                while (hostPort.endsWith(" ")) {
-                    hostPort = hostPort.substring(0, hostPort.length() - 1);
-                }
-            }
-
-            address = hostPort;
-            host = parseHost();
-            port = parsePort(defaultPort);
+        private void setAddress(String address, int defaultPort) {
+            this.address = UrlUtils.addDefaults(address, defaultPort);
         }
 
-        private String parseHost() {
-            if (address == null) {
-                return "";
-            }
-            int colonPos = address.indexOf(":");
-            if (colonPos == -1) {
-                return address;
-            }
-            return address.substring(0, colonPos);
-        }
-
-        private int parsePort(int defaultPort) {
-            if (address == null) {
-                return defaultPort;
-            }
-            int colonPos = address.indexOf(":");
-            if (colonPos == -1) {
-                return defaultPort;
-            }
-            try {
-                return Integer.parseInt(address.substring(colonPos + 1));
-            } catch (NumberFormatException unused) {
-                Log.d(TAG, "Can't parse port out of " + address);
-                return defaultPort;
-            }
+        private String hostport() {
+            return address.startsWith("http://") ? address.substring(7) : address;
         }
     }
 
     public void saveServerAddress(ServerAddress serverAddress) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(prefixed(serverAddress.bssId, KEY_SERVER_ADDRESS), serverAddress.address);
-        editor.putString(prefix(serverAddress) + KEY_SERVER_NAME, serverAddress.serverName);
-        editor.putString(prefix(serverAddress) + KEY_USERNAME, serverAddress.userName);
-        editor.putString(prefix(serverAddress) + KEY_PASSWORD, serverAddress.password);
+        updateStringPreference(editor, prefix(serverAddress) + KEY_SERVER_NAME, serverAddress.serverName);
+        updateStringPreference(editor, prefix(serverAddress) + KEY_USERNAME, serverAddress.userName);
+        updateStringPreference(editor, prefix(serverAddress) + KEY_PASSWORD, serverAddress.password);
         editor.putBoolean(prefix(serverAddress) + KEY_WOL, serverAddress.wakeOnLan);
-        editor.putString(prefix(serverAddress) + KEY_MAC, Util.formatMac(serverAddress.mac));
+        updateStringPreference(editor, prefix(serverAddress) + KEY_MAC, Util.formatMac(serverAddress.mac));
         editor.apply();
     }
 

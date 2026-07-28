@@ -90,10 +90,10 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             Squeezer.instance().preferences(prefs -> {
                 preferences = prefs;
                 serverAddress = preferences.getServerAddress();
-                if (serverAddress.localAddress() == null) {
+                if (serverAddress.address() == null) {
                     Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
-                    if (cliServerAddress.localAddress() != null) {
-                        serverAddress.setAddress(cliServerAddress.localHost());
+                    if (cliServerAddress.address() != null) {
+                        serverAddress.setAddress(cliServerAddress.address());
                     }
                 }
 
@@ -136,7 +136,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                 serversSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item));
 
                 setEditServerAddressAvailability();
-                setServerAddress(serverAddress.localAddress());
+                setServerAddress(serverAddress.address());
 
                 startNetworkScan();
                 startNetWorkScan = v -> startNetworkScan();
@@ -227,11 +227,11 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
 
         // If that fails, look for the stored server address in the list of found servers
         if (position < 0) {
-            position = getServerPosition(serverAddress.localAddress());
+            position = getServerPosition(serverAddress.address());
         }
 
         // This shouldn't happen, but crash reports say that it does
-        if (keys.size() > 0) {
+        if (!keys.isEmpty()) {
             serversSpinner.setText(keys.get(position < 0 ? keys.size() - 1 : position), false);
         }
         isManual = (position < 0);
@@ -248,7 +248,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private void setServerAddress(String address) {
         serverAddress = preferences.getServerAddress(address);
 
-        serverAddressEditText.setText(serverAddress.localAddress());
+        serverAddressEditText.setText(serverAddress.address());
         userNameEditText.setText(serverAddress.userName);
         passwordEditText.setText(serverAddress.password);
         wakeOnLan.setChecked(serverAddress.wakeOnLan);

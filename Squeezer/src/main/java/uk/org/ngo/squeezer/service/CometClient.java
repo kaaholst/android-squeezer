@@ -30,14 +30,11 @@ import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.transport.ClientTransport;
-import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,6 +81,7 @@ import uk.org.ngo.squeezer.service.event.SleepTimeChanged;
 import uk.org.ngo.squeezer.util.FluentHashMap;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.util.SendWakeOnLan;
+import uk.org.ngo.squeezer.util.UrlUtils;
 
 class CometClient implements SlimClient {
     private static final String TAG = CometClient.class.getSimpleName();
@@ -269,31 +267,12 @@ class CometClient implements SlimClient {
             }
             Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
 
-            final HttpClient httpClient = new HttpClient();
-            try {
-                httpClient.start();
-            } catch (Exception e) {
-                mConnectionState.setConnectionError(ConnectionError.START_CLIENT_ERROR);
-                return;
-            }
-
             CometClient.this.username.set(username);
             CometClient.this.password.set(password);
 
-            mUrlPrefix = "http://" + serverAddress.address();
+            mUrlPrefix = serverAddress.address();
             final String url = mUrlPrefix + "/cometd";
-            try {
-                // Neither URLUtil.isValidUrl nor Patterns.WEB_URL works as expected
-                // Not even create of URL and URI throws reliably so we add some extra checks
-                URI uri = new URL(url).toURI();
-                if (!(
-                        TextUtils.equals(uri.getHost(), serverAddress.host())
-                                && uri.getPort() == serverAddress.port()
-                                && TextUtils.equals(uri.getPath(), "/cometd")
-                )) {
-                    throw new IllegalArgumentException("Invalid url: " + url);
-                }
-            } catch (Exception e) {
+            if (!UrlUtils.isValid(url)) {
                 mConnectionState.setConnectionError(ConnectionError.INVALID_URL);
                 return;
             }
@@ -307,15 +286,21 @@ class CometClient implements SlimClient {
                 }
             });
 
-            ClientTransport clientTransport = new HttpStreamingTransport(url, null, httpClient) {
-                @Override
-                protected void customize(org.eclipse.jetty.client.api.Request request) {
-                    if (username != null && password != null) {
-                        String authorization = B64Code.encode(username + ":" + password);
-                        request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
+            final ClientTransport clientTransport;
+            try {
+                clientTransport = new HttpStreamingTransport(url, null) {
+                    @Override
+                    protected void customize(org.eclipse.jetty.client.api.Request request) {
+                        if (username != null && password != null) {
+                            String authorization = B64Code.encode(username + ":" + password);
+                            request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
+                        }
                     }
-                }
-            };
+                };
+            } catch (Exception e) {
+                mConnectionState.setConnectionError(ConnectionError.START_CLIENT_ERROR);
+                return;
+            }
 
             mBayeuxClient = new SqueezerBayeuxClient(mConnectionState, url, clientTransport);
             mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
