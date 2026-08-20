@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -168,6 +169,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     private MaterialButton repeatButton;
 
     private ImageView albumArt;
+    private ImageView albumLarge;
+    private ImageView albumSmall;
+    private View volumeBarView;
+    private View volumeControllerView;
 
     /** In full-screen mode, shows the current progress through the track. */
     private Slider slider;
@@ -281,7 +286,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         boolean largeArtwork = preferences.isLargeArtwork();
 
         if (mFullHeightLayout) {
-            v = inflater.inflate(largeArtwork ? R.layout.now_playing_fragment_full_large_artwork : R.layout.now_playing_fragment_full, container, false);
+            v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
 
             artistText = v.findViewById(R.id.artistname);
             composerText = v.findViewById(R.id.composer);
@@ -299,28 +304,26 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             artistText.setSelected(true);
             albumText.setSelected(true);
 
-            if (largeArtwork) {
-                albumArt = v.findViewById(R.id.album);
-                v.findViewById(R.id.icon).setVisibility(View.GONE);
-                if (preferences.nowPlayingVolume()) {
-                    volumeBar = new VolumeBar(v.findViewById(R.id.volume_bar), mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
-                        preferences.setLargeArtwork(false);
-                        mActivity.recreate();
-                    }));
-                } else {
-                    v.findViewById(R.id.volume_bar).setVisibility(View.GONE);
+            albumLarge = v.findViewById(R.id.album);
+            albumSmall = v.findViewById(R.id.icon);
+            volumeBarView = v.findViewById(R.id.volume_bar);
+            volumeControllerView = v.findViewById(R.id.volume_controller);
+
+            volumeBar = new VolumeBar(volumeBarView, mActivity::requireService, new Pair<>(AppCompatResources.getDrawable(mActivity, R.drawable.ic_keyboard_arrow_up), () -> {
+                preferences.setLargeArtwork(false);
+                updateArtworkAndVolumeMode(false);
+            }));
+
+            volumeWheel = new VolumeWheel(volumeControllerView, mActivity::requireService, () -> {
+                preferences.setLargeArtwork(true);
+                updateArtworkAndVolumeMode(true);
+            }, () -> {
+                if (requireService().getActivePlayer() != null) {
+                    new VolumeSettings().show(getParentFragmentManager(), VolumeSettings.class.getName());
                 }
-            } else {
-                albumArt = v.findViewById(R.id.icon);
-                volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
-                    preferences.setLargeArtwork(true);
-                    mActivity.recreate();
-                }, () -> {
-                    if (requireService().getActivePlayer() != null) {
-                        new VolumeSettings().show(getParentFragmentManager(), VolumeSettings.class.getName());
-                    }
-                });
-            }
+            });
+
+            updateArtworkAndVolumeMode(largeArtwork);
 
             final ViewParamItemView<JiveItem> viewHolder = new ViewParamItemView<>(mActivity, v);
             viewHolder.contextMenuButton.setOnClickListener(view -> {
@@ -398,12 +401,16 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
                 @Override
                 public boolean onSingleTapUp(MotionEvent e) {
-                    View cueParent = (largeArtwork ? albumArt : v);
-                    if (mService != null) new CuePanel(requireActivity(), cueParent, mService);
+                    View cueParent = (Squeezer.getPreferences().isLargeArtwork() ? albumLarge : v);
+                    if (mService != null) new CuePanel(requireActivity(), cueParent, mService, () -> {
+                        preferences.setLargeArtwork(false);
+                        updateArtworkAndVolumeMode(false);
+                    });
                     return true;
                 }
             });
-            albumArt.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
+            albumLarge.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
+            albumSmall.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
 
             shuffleButton.setOnClickListener(view -> requireService().toggleShuffle());
             repeatButton.setOnClickListener(view -> requireService().toggleRepeat());
@@ -837,10 +844,41 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         }
 
         if (!song.useIcon()) {
-            albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
+            Drawable iconDrawable = song.getIconDrawable(mActivity, R.drawable.icon_album);
+            if (mFullHeightLayout) {
+                albumLarge.setImageDrawable(iconDrawable);
+                albumSmall.setImageDrawable(iconDrawable);
+            } else {
+                albumArt.setImageDrawable(iconDrawable);
+            }
         } else {
-            ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
+            if (mFullHeightLayout) {
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumLarge);
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumSmall);
+            } else {
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
+            }
         }
+    }
+
+    private void updateArtworkAndVolumeMode(boolean largeArtwork) {
+        if (!mFullHeightLayout) return;
+
+        Preferences preferences = Squeezer.getPreferences();
+        if (largeArtwork) {
+            albumArt = albumLarge;
+            albumLarge.setVisibility(View.VISIBLE);
+            volumeBarView.setVisibility(preferences.nowPlayingVolume() ? View.VISIBLE : View.GONE);
+            volumeControllerView.setVisibility(View.GONE);
+            albumSmall.setVisibility(View.GONE);
+        } else {
+            albumArt = albumSmall;
+            albumLarge.setVisibility(View.GONE);
+            volumeBarView.setVisibility(View.GONE);
+            volumeControllerView.setVisibility(View.VISIBLE);
+            albumSmall.setVisibility(View.VISIBLE);
+        }
+        updateVolumeInfo();
     }
 
     private static String formatTrackInfo(Preferences preferences, PlayerState playerState, CurrentTrack song) {
@@ -858,10 +896,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
     private void updateVolumeInfo() {
-        if (mFullHeightLayout) {
+        if (mFullHeightLayout && mService != null) {
             Preferences preferences = Squeezer.getPreferences();
             VolumeUpdater updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar : null : volumeWheel;
-            if (updater != null) updater.update(requireService().getVolume());
+            if (updater != null) updater.update(mService.getVolume());
         }
     }
 

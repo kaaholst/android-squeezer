@@ -51,7 +51,7 @@ public class CuePanel extends Handler {
     private final View parent;
     private final Dialog dialog;
 
-    public CuePanel(FragmentActivity activity, @NonNull View parent, @NonNull ISqueezeService service) {
+    public CuePanel(FragmentActivity activity, @NonNull View parent, @NonNull ISqueezeService service, Runnable volumeToggleListener) {
         super(Looper.getMainLooper());
         this.parent = parent;
         this.activity = activity;
@@ -68,8 +68,12 @@ public class CuePanel extends Handler {
         view.findViewById(R.id.volume).setVisibility(preferences.isLargeArtwork() ? View.VISIBLE : View.INVISIBLE);
         view.findViewById(R.id.volume).setOnClickListener(v -> {
             dismiss();
-            preferences.setLargeArtwork(false);
-            activity.recreate();
+            if (volumeToggleListener != null) {
+                volumeToggleListener.run();
+            } else {
+                preferences.setLargeArtwork(false);
+                activity.recreate();
+            }
         });
         view.setOnClickListener(v -> dismiss());
 
