@@ -78,6 +78,9 @@
     <string name="settings_background_volume_on">Allow changing player volume even when the app is not visible.</string>
     <string name="settings_volume_increment_title">Volume up/down increments</string>
     <string name="settings_volume_increment_summary">Set the increments for the phone volume buttons</string>
+    <string name="settings_double_tap_volume_skip_title">Double-tap volume to skip</string>
+    <string name="settings_double_tap_volume_skip_off">Press volume buttons to change volume only.</string>
+    <string name="settings_double_tap_volume_skip_on">Double-tap volume up or down quickly to skip to next track.</string>
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when
         unpausing, in seconds. Enter 0 to disable fade in.
@@ -172,6 +175,9 @@
     <string name="settings_classical_music_tags_off">Normal behavior</string>
     <string name="settings_classical_music_tags_on">Adapted to classical music, including description of conductor and soloists</string>
     <string name="settings_classical_music_tags_title">Appearance of track information</string>
+    <string name="settings_volume_dial_timeout_title">Volume dial auto-timeout</string>
+    <string name="settings_volume_dial_timeout_on">Automatically return to album art after inactivity</string>
+    <string name="settings_volume_dial_timeout_off">Volume dial stays open until closed manually</string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>

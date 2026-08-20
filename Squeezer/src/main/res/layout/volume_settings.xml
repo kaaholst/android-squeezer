@@ -81,11 +81,38 @@
             android:stepSize="1" />
 
         <TextView
+            android:id="@+id/double_tap_volume_skip_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/volume_increments"
+            app:layout_constraintEnd_toStartOf="@id/double_tap_volume_skip"
+            style="@style/SqueezerTextAppearance.Preference.Title"
+            android:text="@string/settings_double_tap_volume_skip_title"/>
+        <TextView
+            android:id="@+id/double_tap_volume_skip_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/double_tap_volume_skip_title"
+            app:layout_constraintEnd_toStartOf="@id/double_tap_volume_skip"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
+            android:text="@string/settings_double_tap_volume_skip_off"/>
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/double_tap_volume_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/double_tap_volume_skip_title"
+            app:layout_constraintBottom_toBottomOf="@id/double_tap_volume_skip_hint" />
+
+        <TextView
             android:id="@+id/group_volume_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/volume_increments"
+            app:layout_constraintTop_toBottomOf="@id/double_tap_volume_skip_hint"
             app:layout_constraintEnd_toStartOf="@id/group_volume"
             android:layout_marginTop="16dp"
             style="@style/SqueezerTextAppearance.Preference.Title"
@@ -133,5 +160,32 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/fixed_volume_title"
             app:layout_constraintBottom_toBottomOf="@id/fixed_volume_hint" />
+
+        <TextView
+            android:id="@+id/dial_timeout_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fixed_volume_hint"
+            app:layout_constraintEnd_toStartOf="@id/dial_timeout"
+            style="@style/SqueezerTextAppearance.Preference.Title"
+            android:text="@string/settings_volume_dial_timeout_title"/>
+        <TextView
+            android:id="@+id/dial_timeout_hint"
+            style="@style/SqueezerTextAppearance.Preference.Subtext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/dial_timeout_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/dial_timeout"
+            android:text="@string/settings_volume_dial_timeout_on" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/dial_timeout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/dial_timeout_title"
+            app:layout_constraintBottom_toBottomOf="@id/dial_timeout_hint"
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

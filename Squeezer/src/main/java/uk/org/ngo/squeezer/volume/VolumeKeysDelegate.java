@@ -33,7 +33,7 @@ public class VolumeKeysDelegate {
         if (service == null) {
             return false;
         }
-        service.adjustVolume(direction);
+        service.onVolumeAdjustKeyPress(direction);
         return true;
     }
 

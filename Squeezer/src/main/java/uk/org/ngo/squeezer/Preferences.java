@@ -131,6 +131,10 @@ public final class Preferences {
     // Volume up/down increments
     private static final String KEY_VOLUME_INCREMENTS = "squeezer.volumeIncrements";
 
+    // Double tap volume to skip track
+    public static final String KEY_DOUBLE_TAP_VOLUME_SKIP = "squeezer.double_tap_volume_skip";
+    public static final String KEY_DOUBLE_TAP_VOLUME_TIMEOUT = "squeezer.double_tap_volume_timeout";
+
     // Adjust volume for sync group when applicable
     private static final String KEY_GROUP_VOLUME = "squeezer.groupVolume";
 
@@ -166,6 +170,10 @@ public final class Preferences {
 
     // Show volume control on now playing screen
     public static final String KEY_NOW_PLAYING_VOLUME = "squeezer.now_playing_volume";
+
+    // Timeout to close volume dial and return to large artwork
+    public static final String KEY_VOLUME_DIAL_TIMEOUT = "squeezer.volume_dial_timeout";
+    public static final String KEY_VOLUME_DIAL_TIMEOUT_SECONDS = "squeezer.volume_dial_timeout_seconds";
 
     // Show current track and queue length on now playing screen
     public static final String KEY_TRACK_COUNT = "squeezer.show_track_count";
@@ -569,6 +577,22 @@ public final class Preferences {
         sharedPreferences.edit().putBoolean(Preferences.KEY_GROUP_VOLUME, groupVolume).apply();
     }
 
+    public boolean isDoubleTapVolumeSkip() {
+        return sharedPreferences.getBoolean(KEY_DOUBLE_TAP_VOLUME_SKIP, false);
+    }
+
+    public void setDoubleTapVolumeSkip(boolean doubleTapVolumeSkip) {
+        sharedPreferences.edit().putBoolean(KEY_DOUBLE_TAP_VOLUME_SKIP, doubleTapVolumeSkip).apply();
+    }
+
+    public int getDoubleTapVolumeTimeout() {
+        return sharedPreferences.getInt(KEY_DOUBLE_TAP_VOLUME_TIMEOUT, 400);
+    }
+
+    public void setDoubleTapVolumeTimeout(int timeoutMs) {
+        sharedPreferences.edit().putInt(KEY_DOUBLE_TAP_VOLUME_TIMEOUT, timeoutMs).apply();
+    }
+
     public int getFadeInSecs() {
         return sharedPreferences.getInt(KEY_FADE_IN_SECS, 0);
     }
@@ -704,6 +728,22 @@ public final class Preferences {
 
     public void nowPlayingVolume(boolean b) {
         sharedPreferences.edit().putBoolean(Preferences.KEY_NOW_PLAYING_VOLUME, b).apply();
+    }
+
+    public boolean isVolumeDialTimeout() {
+        return sharedPreferences.getBoolean(KEY_VOLUME_DIAL_TIMEOUT, true);
+    }
+
+    public void setVolumeDialTimeout(boolean volumeDialTimeout) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_VOLUME_DIAL_TIMEOUT, volumeDialTimeout).apply();
+    }
+
+    public int getVolumeDialTimeoutSeconds() {
+        return sharedPreferences.getInt(KEY_VOLUME_DIAL_TIMEOUT_SECONDS, 5);
+    }
+
+    public void setVolumeDialTimeoutSeconds(int seconds) {
+        sharedPreferences.edit().putInt(Preferences.KEY_VOLUME_DIAL_TIMEOUT_SECONDS, seconds).apply();
     }
 
     public boolean showTrackCount() {

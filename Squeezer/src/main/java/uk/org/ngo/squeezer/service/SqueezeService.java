@@ -59,6 +59,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import uk.org.ngo.squeezer.volume.DoubleTapVolumeController;
 import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
@@ -150,6 +152,7 @@ public class SqueezeService extends Service {
     private static final String ACTION_DISCONNECT = "disconnect";
 
     private SqueezerVolumeProvider mVolumeProvider;
+    private DoubleTapVolumeController mDoubleTapVolumeController;
 
     @Override
     public void onCreate() {
@@ -163,6 +166,23 @@ public class SqueezeService extends Service {
         mDelegate = new SlimDelegate(repository);
         homeMenuHandling = mDelegate.getHomeMenuHandling();
         randomPlayDelegate = new RandomPlayDelegate(mDelegate);
+
+        mDoubleTapVolumeController = new DoubleTapVolumeController(new DoubleTapVolumeController.Callback() {
+            @Override
+            public void adjustVolume(int direction) {
+                squeezeService.adjustVolume(direction);
+            }
+
+            @Override
+            public void nextTrack() {
+                squeezeService.nextTrack();
+            }
+
+            @Override
+            public boolean isPlaying() {
+                return SqueezeService.this.isPlaying();
+            }
+        });
 
         Squeezer.getPreferences(preferences -> {
             cachePreferences(preferences);
@@ -211,6 +231,10 @@ public class SqueezeService extends Service {
         mFadeInSecs = preferences.getFadeInSecs();
         mGroupVolume = preferences.isGroupVolume();
         mVolumeProvider = new SqueezerVolumeProvider(preferences.getVolumeIncrements());
+        if (mDoubleTapVolumeController != null) {
+            mDoubleTapVolumeController.setEnabled(preferences.isDoubleTapVolumeSkip());
+            mDoubleTapVolumeController.setTimeoutMs(preferences.getDoubleTapVolumeTimeout());
+        }
         if (squeezeService.isConnected()) {
             if (preferences.isBackgroundVolume()) {
                 mediaSession.setPlaybackToRemote(mVolumeProvider);
@@ -934,6 +958,11 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void onVolumeAdjustKeyPress(int direction) {
+            mDoubleTapVolumeController.onAdjustVolume(direction);
+        }
+
+        @Override
         public void adjustVolume(int direction) {
             Set<Player> syncGroup = mDelegate.getVolumeSyncGroup(mGroupVolume);
             int adjust = direction * mVolumeProvider.step;
@@ -1564,7 +1593,7 @@ public class SqueezeService extends Service {
 
         @Override
         public void onAdjustVolume(int direction) {
-            squeezeService.adjustVolume(direction);
+            mDoubleTapVolumeController.onAdjustVolume(direction);
         }
 
         @Override
