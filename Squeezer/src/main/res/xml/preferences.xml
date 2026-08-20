@@ -66,6 +66,11 @@
             android:summaryOff="@string/settings_volume_dial_timeout_off"
             android:summaryOn="@string/settings_volume_dial_timeout_on"
             android:title="@string/settings_volume_dial_timeout_title"/>
+        <SwitchPreferenceCompat
+            android:key="squeezer.double_tap_volume_skip"
+            android:summaryOff="@string/settings_double_tap_volume_skip_off"
+            android:summaryOn="@string/settings_double_tap_volume_skip_on"
+            android:title="@string/settings_double_tap_volume_skip_title"/>
 
         <SwitchPreferenceCompat
             android:key="squeezer.show_track_count"

@@ -30,7 +30,16 @@ public class CurrentTrack extends JiveItem {
     public CurrentTrack(Map<String, Object> record) {
         super(record);
         songInfo = new Song(record);
-        songInfo.title = getStringOrEmpty(record, "track");
+        if (record.containsKey("track")) {
+            songInfo.title = getStringOrEmpty(record, "track");
+        }
+    }
+
+    @NonNull
+    @Override
+    public String getName() {
+        String name = super.getName();
+        return !name.isEmpty() ? name : songInfo.title;
     }
 
     public static final Creator<CurrentTrack> CREATOR = new Creator<CurrentTrack>() {

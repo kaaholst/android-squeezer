@@ -131,6 +131,10 @@ public final class Preferences {
     // Volume up/down increments
     private static final String KEY_VOLUME_INCREMENTS = "squeezer.volumeIncrements";
 
+    // Double tap volume to skip track
+    public static final String KEY_DOUBLE_TAP_VOLUME_SKIP = "squeezer.double_tap_volume_skip";
+    public static final String KEY_DOUBLE_TAP_VOLUME_TIMEOUT = "squeezer.double_tap_volume_timeout";
+
     // Adjust volume for sync group when applicable
     private static final String KEY_GROUP_VOLUME = "squeezer.groupVolume";
 
@@ -571,6 +575,22 @@ public final class Preferences {
 
     public void setGroupVolume(boolean groupVolume) {
         sharedPreferences.edit().putBoolean(Preferences.KEY_GROUP_VOLUME, groupVolume).apply();
+    }
+
+    public boolean isDoubleTapVolumeSkip() {
+        return sharedPreferences.getBoolean(KEY_DOUBLE_TAP_VOLUME_SKIP, false);
+    }
+
+    public void setDoubleTapVolumeSkip(boolean doubleTapVolumeSkip) {
+        sharedPreferences.edit().putBoolean(KEY_DOUBLE_TAP_VOLUME_SKIP, doubleTapVolumeSkip).apply();
+    }
+
+    public int getDoubleTapVolumeTimeout() {
+        return sharedPreferences.getInt(KEY_DOUBLE_TAP_VOLUME_TIMEOUT, 400);
+    }
+
+    public void setDoubleTapVolumeTimeout(int timeoutMs) {
+        sharedPreferences.edit().putInt(KEY_DOUBLE_TAP_VOLUME_TIMEOUT, timeoutMs).apply();
     }
 
     public int getFadeInSecs() {

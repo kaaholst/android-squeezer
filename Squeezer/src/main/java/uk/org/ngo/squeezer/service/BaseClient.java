@@ -99,11 +99,19 @@ abstract class BaseClient implements SlimClient {
         boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
         boolean changedPlaylist = playerState.setCurrentPlaylistTimestamp(Util.getLong(tokenMap, "playlist_timestamp"));
         playerState.setCurrentPlaylistTracksNum(Util.getInt(tokenMap, "playlist_tracks"));
-        playerState.setCurrentPlaylistIndex(Util.getInt(tokenMap, "playlist_cur_index"));
+        boolean changedPlaylistIndex = playerState.setCurrentPlaylistIndex(Util.getInt(tokenMap, "playlist_cur_index"));
         playerState.setCurrentPlaylist(Util.getString(tokenMap, "playlist_name"));
         boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
-        if (currentSong == null) currentSong = new CurrentTrack(tokenMap);
+        if (currentSong == null) {
+            if (playerState.getCurrentPlaylistTracksNum() == 0) {
+                currentSong = new CurrentTrack(tokenMap);
+            } else if (!changedPlaylistIndex && playerState.getCurrentTrack() != null && !playerState.getCurrentTrack().getName().isEmpty()) {
+                currentSong = playerState.getCurrentTrack();
+            } else {
+                currentSong = new CurrentTrack(tokenMap);
+            }
+        }
         boolean changedSong = playerState.setCurrentSong(currentSong);
         playerState.setRemote(Util.getInt(tokenMap, "remote") == 1);
         playerState.waitingToPlay = Util.getInt(tokenMap, "waitingToPlay") == 1;

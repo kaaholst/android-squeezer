@@ -277,8 +277,12 @@ public class PlayerState implements Parcelable {
         currentPlaylistTracksNum = value;
     }
 
-    public void setCurrentPlaylistIndex(int value) {
+    public boolean setCurrentPlaylistIndex(int value) {
+        if (value == currentPlaylistIndex)
+            return false;
+
         currentPlaylistIndex = value;
+        return true;
     }
 
     public boolean isRemote() {
