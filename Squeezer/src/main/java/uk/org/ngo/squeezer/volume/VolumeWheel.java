@@ -15,7 +15,16 @@ public class VolumeWheel implements VolumeUpdater{
     private int currentProgress = 0;
     private boolean trackingTouch;
 
+    public interface InteractionListener {
+        void onInteraction();
+        void onTrackingTouchChanged(boolean trackingTouch);
+    }
+
     public VolumeWheel(View v, Supplier<ISqueezeService> serviceSupplier, Runnable volumeToggleListener, Runnable settingsListener) {
+        this(v, serviceSupplier, volumeToggleListener, settingsListener, null);
+    }
+
+    public VolumeWheel(View v, Supplier<ISqueezeService> serviceSupplier, Runnable volumeToggleListener, Runnable settingsListener, InteractionListener interactionListener) {
         volumeWheel = v.findViewById(R.id.level);
         muteToggle = v.findViewById(R.id.muteToggle);
 
@@ -26,24 +35,48 @@ public class VolumeWheel implements VolumeUpdater{
                     currentProgress = progress;
                     volumeWheel.setLabel(String.valueOf(progress));
                     serviceSupplier.get().setVolumeTo(progress);
+                    if (interactionListener != null) {
+                        interactionListener.onInteraction();
+                    }
                 }
             }
 
             @Override
             public void onStartTrackingTouch(RadialSeekBar seekBar) {
                 trackingTouch = true;
+                if (interactionListener != null) {
+                    interactionListener.onTrackingTouchChanged(true);
+                }
             }
 
             @Override
             public void onStopTrackingTouch(RadialSeekBar seekBar) {
                 trackingTouch = false;
+                if (interactionListener != null) {
+                    interactionListener.onTrackingTouchChanged(false);
+                }
             }
         });
-        muteToggle.setOnClickListener(view -> serviceSupplier.get().toggleMute());
+        muteToggle.setOnClickListener(view -> {
+            serviceSupplier.get().toggleMute();
+            if (interactionListener != null) {
+                interactionListener.onInteraction();
+            }
+        });
         v.findViewById(R.id.down).setOnClickListener(view -> volumeToggleListener.run());
         v.findViewById(R.id.settings).setOnClickListener(view -> settingsListener.run());
-        v.findViewById(R.id.volume_down).setOnClickListener(view -> serviceSupplier.get().adjustVolume(-1));
-        v.findViewById(R.id.volume_up).setOnClickListener(view -> serviceSupplier.get().adjustVolume(1));
+        v.findViewById(R.id.volume_down).setOnClickListener(view -> {
+            serviceSupplier.get().adjustVolume(-1);
+            if (interactionListener != null) {
+                interactionListener.onInteraction();
+            }
+        });
+        v.findViewById(R.id.volume_up).setOnClickListener(view -> {
+            serviceSupplier.get().adjustVolume(1);
+            if (interactionListener != null) {
+                interactionListener.onInteraction();
+            }
+        });
     }
 
     public void update(ISqueezeService.VolumeInfo volumeInfo) {

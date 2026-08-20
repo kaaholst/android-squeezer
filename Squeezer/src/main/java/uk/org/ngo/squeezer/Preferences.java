@@ -167,6 +167,10 @@ public final class Preferences {
     // Show volume control on now playing screen
     public static final String KEY_NOW_PLAYING_VOLUME = "squeezer.now_playing_volume";
 
+    // Timeout to close volume dial and return to large artwork
+    public static final String KEY_VOLUME_DIAL_TIMEOUT = "squeezer.volume_dial_timeout";
+    public static final String KEY_VOLUME_DIAL_TIMEOUT_SECONDS = "squeezer.volume_dial_timeout_seconds";
+
     // Show current track and queue length on now playing screen
     public static final String KEY_TRACK_COUNT = "squeezer.show_track_count";
 
@@ -704,6 +708,22 @@ public final class Preferences {
 
     public void nowPlayingVolume(boolean b) {
         sharedPreferences.edit().putBoolean(Preferences.KEY_NOW_PLAYING_VOLUME, b).apply();
+    }
+
+    public boolean isVolumeDialTimeout() {
+        return sharedPreferences.getBoolean(KEY_VOLUME_DIAL_TIMEOUT, true);
+    }
+
+    public void setVolumeDialTimeout(boolean volumeDialTimeout) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_VOLUME_DIAL_TIMEOUT, volumeDialTimeout).apply();
+    }
+
+    public int getVolumeDialTimeoutSeconds() {
+        return sharedPreferences.getInt(KEY_VOLUME_DIAL_TIMEOUT_SECONDS, 5);
+    }
+
+    public void setVolumeDialTimeoutSeconds(int seconds) {
+        sharedPreferences.edit().putInt(Preferences.KEY_VOLUME_DIAL_TIMEOUT_SECONDS, seconds).apply();
     }
 
     public boolean showTrackCount() {

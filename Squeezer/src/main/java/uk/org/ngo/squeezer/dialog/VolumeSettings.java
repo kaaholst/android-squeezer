@@ -1,6 +1,7 @@
 package uk.org.ngo.squeezer.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -56,6 +57,11 @@ public class VolumeSettings extends DialogFragment {
         fixedVolume.setOnCheckedChangeListener((buttonView, isChecked) -> fixedVolumeHint.setText(isChecked ? R.string.SETUP_DIGITALVOLUMECONTROL_ON : R.string.SETUP_DIGITALVOLUMECONTROL_OFF));
         fixedVolume.setChecked("1".equals(digitalVolumeControl));
 
+        SwitchMaterial dialTimeout = view.findViewById(R.id.dial_timeout);
+        TextView dialTimeoutHint = view.findViewById(R.id.dial_timeout_hint);
+        dialTimeout.setOnCheckedChangeListener((buttonView, isChecked) -> dialTimeoutHint.setText(isChecked ? R.string.settings_volume_dial_timeout_on : R.string.settings_volume_dial_timeout_off));
+        dialTimeout.setChecked(preferences.isVolumeDialTimeout());
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setTitle(R.string.settings_volume_title)
                 .setView(view)
@@ -63,10 +69,17 @@ public class VolumeSettings extends DialogFragment {
                     preferences.setBackgroundVolume(backgroundVolume.isChecked());
                     preferences.setVolumeIncrements((int) volumeIncrements.getValue());
                     preferences.setGroupVolume(groupVolume.isChecked());
+                    preferences.setVolumeDialTimeout(dialTimeout.isChecked());
                     service.preferenceChanged(preferences, null);
                     service.playerPref(Player.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");
                 })
                 .setNegativeButton(android.R.string.cancel, null);
         return builder.create();
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        getParentFragmentManager().setFragmentResult(VolumeSettings.class.getName(), new Bundle());
     }
 }

@@ -28,7 +28,9 @@ import android.content.res.ColorStateList;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -98,6 +100,7 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.volume.VolumeBar;
+import uk.org.ngo.squeezer.volume.VolumeDialTimeoutController;
 import uk.org.ngo.squeezer.volume.VolumeUpdater;
 import uk.org.ngo.squeezer.volume.VolumeWheel;
 import uk.org.ngo.squeezer.widget.CallStatePermissionLauncher;
@@ -183,6 +186,25 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
 
     // For the small artwork layout
     private VolumeWheel volumeWheel;
+
+    // Timeout controller for closing volume dial and returning to large artwork
+    private final Handler mVolumeDialTimeoutHandler = new Handler(Looper.getMainLooper());
+    private final VolumeDialTimeoutController mVolumeDialTimeoutController = new VolumeDialTimeoutController(
+            mVolumeDialTimeoutHandler::postDelayed,
+            mVolumeDialTimeoutHandler::removeCallbacks,
+            () -> {
+                if (!isAdded() || mActivity == null || mActivity.isFinishing()) {
+                    return;
+                }
+                Preferences preferences = Squeezer.getPreferences();
+                if (!preferences.isLargeArtwork()) {
+                    preferences.setLargeArtwork(true);
+                    mActivity.recreate();
+                }
+            },
+            () -> Squeezer.getPreferences().isVolumeDialTimeout(),
+            () -> Squeezer.getPreferences().getVolumeDialTimeoutSeconds() * 1000L
+    );
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -313,13 +335,35 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             } else {
                 albumArt = v.findViewById(R.id.icon);
                 volumeWheel = new VolumeWheel(v.findViewById(R.id.volume_controller), mActivity::requireService, () -> {
+                    cancelVolumeDialTimeout();
                     preferences.setLargeArtwork(true);
                     mActivity.recreate();
                 }, () -> {
+                    cancelVolumeDialTimeout();
                     if (requireService().getActivePlayer() != null) {
                         new VolumeSettings().show(getParentFragmentManager(), VolumeSettings.class.getName());
                     }
+                }, new VolumeWheel.InteractionListener() {
+                    @Override
+                    public void onInteraction() {
+                        resetVolumeDialTimeout();
+                    }
+
+                    @Override
+                    public void onTrackingTouchChanged(boolean trackingTouch) {
+                        if (trackingTouch) {
+                            cancelVolumeDialTimeout();
+                        } else {
+                            resetVolumeDialTimeout();
+                        }
+                    }
                 });
+                getParentFragmentManager().setFragmentResultListener(VolumeSettings.class.getName(), getViewLifecycleOwner(), (requestKey, result) -> {
+                    if (!Squeezer.getPreferences().isLargeArtwork()) {
+                        resetVolumeDialTimeout();
+                    }
+                });
+                resetVolumeDialTimeout();
             }
 
             final ViewParamItemView<JiveItem> viewHolder = new ViewParamItemView<>(mActivity, v);
@@ -656,6 +700,9 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         super.onResume();
         Log.d(TAG, "onResume...");
         mActivity.registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (mFullHeightLayout && !Squeezer.getPreferences().isLargeArtwork()) {
+            resetVolumeDialTimeout();
+        }
     }
 
     @UiThread
@@ -861,8 +908,24 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         if (mFullHeightLayout) {
             Preferences preferences = Squeezer.getPreferences();
             VolumeUpdater updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar : null : volumeWheel;
-            if (updater != null) updater.update(requireService().getVolume());
+            if (updater != null) {
+                updater.update(requireService().getVolume());
+                if (!preferences.isLargeArtwork()) {
+                    resetVolumeDialTimeout();
+                }
+            }
         }
+    }
+
+    private void resetVolumeDialTimeout() {
+        Preferences preferences = Squeezer.getPreferences();
+        if (mFullHeightLayout && !preferences.isLargeArtwork()) {
+            mVolumeDialTimeoutController.reset();
+        }
+    }
+
+    private void cancelVolumeDialTimeout() {
+        mVolumeDialTimeoutController.cancel();
     }
 
     private JiveItem findBrowseAction(List<JiveItem> items, String ... idParams) {
@@ -905,6 +968,7 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     public void onPause() {
         Log.d(TAG, "onPause...");
 
+        cancelVolumeDialTimeout();
         dismissConnectingDialog();
 
         mActivity.unregisterReceiver(broadcastReceiver);
@@ -913,7 +977,14 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
     }
 
     @Override
+    public void onDestroyView() {
+        cancelVolumeDialTimeout();
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
+        cancelVolumeDialTimeout();
         super.onDestroy();
         if (mService != null) {
             mActivity.unbindService(serviceConnection);

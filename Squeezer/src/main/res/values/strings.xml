@@ -172,6 +172,9 @@
     <string name="settings_classical_music_tags_off">Normal behavior</string>
     <string name="settings_classical_music_tags_on">Adapted to classical music, including description of conductor and soloists</string>
     <string name="settings_classical_music_tags_title">Appearance of track information</string>
+    <string name="settings_volume_dial_timeout_title">Volume dial auto-timeout</string>
+    <string name="settings_volume_dial_timeout_on">Automatically return to album art after inactivity</string>
+    <string name="settings_volume_dial_timeout_off">Volume dial stays open until closed manually</string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>

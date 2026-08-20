@@ -61,6 +61,13 @@
             android:title="@string/volume"/>
 
         <SwitchPreferenceCompat
+            android:key="squeezer.volume_dial_timeout"
+            android:defaultValue="true"
+            android:summaryOff="@string/settings_volume_dial_timeout_off"
+            android:summaryOn="@string/settings_volume_dial_timeout_on"
+            android:title="@string/settings_volume_dial_timeout_title"/>
+
+        <SwitchPreferenceCompat
             android:key="squeezer.show_track_count"
             android:summaryOff="@string/settings_show_track_number_off"
             android:summaryOn="@string/settings_show_track_number_on"
