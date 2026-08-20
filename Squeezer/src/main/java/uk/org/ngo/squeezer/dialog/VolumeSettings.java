@@ -37,6 +37,11 @@ public class VolumeSettings extends DialogFragment {
         Slider volumeIncrements = view.findViewById(R.id.volume_increments);
         volumeIncrements.setValue(preferences.getVolumeIncrements());
 
+        SwitchMaterial doubleTapVolumeSkip = view.findViewById(R.id.double_tap_volume_skip);
+        TextView doubleTapVolumeSkipHint = view.findViewById(R.id.double_tap_volume_skip_hint);
+        doubleTapVolumeSkip.setOnCheckedChangeListener((buttonView, isChecked) -> doubleTapVolumeSkipHint.setText(isChecked ? R.string.settings_double_tap_volume_skip_on : R.string.settings_double_tap_volume_skip_off));
+        doubleTapVolumeSkip.setChecked(preferences.isDoubleTapVolumeSkip());
+
         boolean canAdjustVolumeForSyncGroup = service.canAdjustVolumeForSyncGroup();
         SwitchMaterial groupVolume = view.findViewById(R.id.group_volume);
         TextView groupVolumeHint = view.findViewById(R.id.group_volume_hint);
@@ -62,6 +67,7 @@ public class VolumeSettings extends DialogFragment {
                 .setPositiveButton(android.R.string.ok, (dialog, id) -> {
                     preferences.setBackgroundVolume(backgroundVolume.isChecked());
                     preferences.setVolumeIncrements((int) volumeIncrements.getValue());
+                    preferences.setDoubleTapVolumeSkip(doubleTapVolumeSkip.isChecked());
                     preferences.setGroupVolume(groupVolume.isChecked());
                     service.preferenceChanged(preferences, null);
                     service.playerPref(Player.Pref.DIGITAL_VOLUME_CONTROL, fixedVolume.isChecked() ? "1" : "0");

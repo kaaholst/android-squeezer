@@ -128,6 +128,7 @@ public interface ISqueezeService {
     void toggleMute(Player player);
     void setVolumeTo(int newVolume);
     void adjustVolume(int direction);
+    void onVolumeAdjustKeyPress(int direction);
 
     /**
      * @return  whether the active player is in a sync group where the player's volumes are not synced by LMS

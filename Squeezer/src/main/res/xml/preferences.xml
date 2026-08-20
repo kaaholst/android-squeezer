@@ -61,6 +61,12 @@
             android:title="@string/volume"/>
 
         <SwitchPreferenceCompat
+            android:key="squeezer.double_tap_volume_skip"
+            android:summaryOff="@string/settings_double_tap_volume_skip_off"
+            android:summaryOn="@string/settings_double_tap_volume_skip_on"
+            android:title="@string/settings_double_tap_volume_skip_title"/>
+
+        <SwitchPreferenceCompat
             android:key="squeezer.show_track_count"
             android:summaryOff="@string/settings_show_track_number_off"
             android:summaryOn="@string/settings_show_track_number_on"

@@ -198,6 +198,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
     private void fillNowPlayingPreferences(Preferences preferences) {
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_NOW_PLAYING_VOLUME).setChecked(preferences.nowPlayingVolume());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_DOUBLE_TAP_VOLUME_SKIP).setChecked(preferences.isDoubleTapVolumeSkip());
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_TRACK_COUNT).setChecked(preferences.showTrackCount());
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_TECHNICAL_INFO).setChecked(preferences.showTechnicalInfo());
         this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_COMPOSER_LINE).setChecked(preferences.addComposerLine());
