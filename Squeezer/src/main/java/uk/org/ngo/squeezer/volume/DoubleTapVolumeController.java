@@ -7,7 +7,7 @@ import android.util.Log;
  * Handles double-tap volume button gestures with optimistic volume adjustment and reversal.
  * On the first volume tap, the volume is adjusted immediately for zero-latency response.
  *
- * If the SAME volume key is tapped again within the timeout window (e.g. 400ms), the first
+ * If the SAME volume key is tapped again within the timeout window (e.g. 320ms), the first
  * volume change is reverted and a track skip is triggered.
  *
  * Rapid key-repeats (such as from holding down the volume button) are ignored to prevent
@@ -43,7 +43,7 @@ public class DoubleTapVolumeController {
     private final int cooldownMs;
 
     private boolean enabled;
-    private int timeoutMs = 400;
+    private int timeoutMs = 320;
 
     private int lastDirection = 0;
     private long lastTapTime = 0;
