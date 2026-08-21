@@ -20,6 +20,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 
 import java.util.Map;
+import java.util.Objects;
 
 import uk.org.ngo.squeezer.Util;
 
@@ -73,6 +74,20 @@ public class CurrentTrack extends JiveItem {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(songInfo, flags);
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        CurrentTrack that = (CurrentTrack) o;
+        return Objects.equals(songInfo, that.songInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), songInfo);
     }
 
     @Override

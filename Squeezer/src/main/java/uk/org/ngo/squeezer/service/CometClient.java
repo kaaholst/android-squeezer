@@ -295,10 +295,14 @@ class CometClient extends BaseClient {
     }
 
     private void cleanupBayeuxClient() {
+        mBackgroundHandler.removeMessages(MSG_PUBLISH_TIMEOUT);
         mPendingRequests.clear();
         mPendingBrowseRequests.clear();
         mCommandQueue.clear();
         mCurrentCommand = false;
+        for (Player player : mConnectionState.getPlayers().values()) {
+            player.getPlayerState().setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
+        }
         if (mBayeuxClient != null) {
             for (ClientSessionChannel channel: mBayeuxClient.getChannels().values()) {
                 for (ClientSessionChannel.ClientSessionChannelListener listener : channel.getListeners()) channel.removeListener(listener);
@@ -313,6 +317,11 @@ class CometClient extends BaseClient {
         Log.i(TAG, "Connected, start learning server capabilities");
 
         mConnectionState.setState(ConnectionState.State.CONNECTION_COMPLETED);
+
+        // Reset player subscription types so new session registers subscriptions
+        for (Player player : mConnectionState.getPlayers().values()) {
+            player.getPlayerState().setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
+        }
 
         // Set a timeout for the handshake
         if (mConnectionState.getServerVersion() == null) {
@@ -431,7 +440,7 @@ class CometClient extends BaseClient {
     @Override
     protected void handleChangedSong(Player player) {
         mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
-        mBackgroundHandler.sendEmptyMessageDelayed(MSG_MUSIC_CHANGED, 100);
+        mBackgroundHandler.sendEmptyMessageDelayed(MSG_MUSIC_CHANGED, 600);
 
         String[] cmd = new String[]{"status"};
         Map<String, Object> params = new FluentHashMap<String, Object>().with("tags", JiveItem.SONG_TAGS);
@@ -439,7 +448,9 @@ class CometClient extends BaseClient {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
                 if (!items.isEmpty()) {
-                    player.getPlayerState().getCurrentTrack().songInfo = items.get(0);
+                    if (player.getPlayerState().getCurrentTrack() != null) {
+                        player.getPlayerState().getCurrentTrack().songInfo = items.get(0);
+                    }
                     mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
                     repository.post(new MusicChanged(player, player.getPlayerState()));
                 }
@@ -688,6 +699,8 @@ class CometClient extends BaseClient {
     private void _publishMessage(Request request, String channel, String responseChannel, PublishListener publishListener) {
         if (!mCurrentCommand) {
             mCurrentCommand = true;
+            mBackgroundHandler.removeMessages(MSG_PUBLISH_TIMEOUT);
+            mBackgroundHandler.sendEmptyMessageDelayed(MSG_PUBLISH_TIMEOUT, PUBLISH_TIMEOUT_MS);
             Map<String, Object> data = new HashMap<>();
             if (request != null) {
                 data.put("request", request.slimRequest());
@@ -789,6 +802,9 @@ class CometClient extends BaseClient {
     private static final int MSG_SLEEP_UPDATE = 7;
     private static final int MSG_MUSIC_CHANGED = 8;
     private static final int MSG_REFRESH_SERVER_STATUS = 9;
+    private static final int MSG_PUBLISH_TIMEOUT = 10;
+    private static final long PUBLISH_TIMEOUT_MS = 5000;
+
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -817,6 +833,15 @@ class CometClient extends BaseClient {
                     if (mConnectionState.getState().isConnected()) mBayeuxClient.rehandshake();
                     break;
                 case MSG_PUBLISH_RESPONSE_RECIEVED: {
+                    mBackgroundHandler.removeMessages(MSG_PUBLISH_TIMEOUT);
+                    mCurrentCommand = false;
+                    PublishMessage message = mCommandQueue.poll();
+                    if (message != null)
+                        _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                    break;
+                }
+                case MSG_PUBLISH_TIMEOUT: {
+                    Log.w(TAG, "Publish timeout waiting for response, unblocking command queue");
                     mCurrentCommand = false;
                     PublishMessage message = mCommandQueue.poll();
                     if (message != null)

@@ -167,6 +167,10 @@ public class SqueezeService extends Service {
         homeMenuHandling = mDelegate.getHomeMenuHandling();
         randomPlayDelegate = new RandomPlayDelegate(mDelegate);
 
+        mediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setCallback(new SqueezerMediaSessionCallback());
+
         mDoubleTapVolumeController = new DoubleTapVolumeController(new DoubleTapVolumeController.Callback() {
             @Override
             public void adjustVolume(int direction) {
@@ -191,8 +195,6 @@ public class SqueezeService extends Service {
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
-
-        mediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
 
         repository.observeForever(this::onConnectionChanged);
         repository.observeForever(this::onPlayerVolume);
@@ -231,11 +233,14 @@ public class SqueezeService extends Service {
         mFadeInSecs = preferences.getFadeInSecs();
         mGroupVolume = preferences.isGroupVolume();
         mVolumeProvider = new SqueezerVolumeProvider(preferences.getVolumeIncrements());
+        if (mDelegate.getActivePlayer() != null) {
+            mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
+        }
         if (mDoubleTapVolumeController != null) {
             mDoubleTapVolumeController.setEnabled(preferences.isDoubleTapVolumeSkip());
             mDoubleTapVolumeController.setTimeoutMs(preferences.getDoubleTapVolumeTimeout());
         }
-        if (squeezeService.isConnected()) {
+        if (mediaSession != null) {
             if (preferences.isBackgroundVolume()) {
                 mediaSession.setPlaybackToRemote(mVolumeProvider);
             } else {
@@ -420,7 +425,14 @@ public class SqueezeService extends Service {
             mediaSession.setMetadata(metaBuilder.build());
         }
 
-        int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
+        if (mVolumeProvider != null && Squeezer.getPreferences().isBackgroundVolume()) {
+            mediaSession.setPlaybackToRemote(mVolumeProvider);
+            mediaSession.setActive(true);
+        }
+
+        String playStatus = player.getPlayerState().getPlayStatus();
+        int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING :
+                (PlayerState.PLAY_STATE_PAUSE.equals(playStatus) ? PlaybackStateCompat.STATE_PAUSED : PlaybackStateCompat.STATE_STOPPED);
         PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
                 .setState(playState, player.getPlayerState().getPosition(), isPlaying() ? 1.0f : 0)
                 .setActions(
@@ -543,6 +555,9 @@ public class SqueezeService extends Service {
             }
 
             mediaSession.setCallback(new SqueezerMediaSessionCallback());
+            if (mVolumeProvider == null) {
+                mVolumeProvider = new SqueezerVolumeProvider(Squeezer.getPreferences().getVolumeIncrements());
+            }
             if (Squeezer.getPreferences().isBackgroundVolume()) {
                 mediaSession.setPlaybackToRemote(mVolumeProvider);
             }
@@ -681,7 +696,7 @@ public class SqueezeService extends Service {
     }
 
     private void onPlayerVolume(PlayerVolume event) {
-        if (event.player == mDelegate.getActivePlayer()) {
+        if (event.player == mDelegate.getActivePlayer() && mVolumeProvider != null) {
             mVolumeProvider.setCurrentVolume(mDelegate.getVolume(mGroupVolume).volume / mVolumeProvider.step);
         }
     }
@@ -1042,6 +1057,20 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void requestPlayerStatus(@NonNull Player player) {
+            mDelegate.requestPlayerStatus(player);
+        }
+
+        @Override
+        public void refreshActivePlayer() {
+            Player activePlayer = getActivePlayer();
+            if (activePlayer != null) {
+                mDelegate.requestPlayerStatus(activePlayer);
+            }
+            mDelegate.requestServerStatus();
+        }
+
+        @Override
         public void togglePower(Player player) {
             mDelegate.command(player).cmd("power").exec();
         }
@@ -1187,6 +1216,9 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.command(player).cmd("button", "jump_fwd").exec();
+            if (player != null) {
+                mDelegate.requestPlayerStatus(player);
+            }
             return true;
         }
 
@@ -1201,6 +1233,9 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.command(player).cmd("button", "jump_rew").exec();
+            if (player != null) {
+                mDelegate.requestPlayerStatus(player);
+            }
             return true;
         }
 
@@ -1593,11 +1628,13 @@ public class SqueezeService extends Service {
 
         @Override
         public void onAdjustVolume(int direction) {
+            Log.d(TAG, "SqueezerVolumeProvider.onAdjustVolume: direction=" + direction);
             mDoubleTapVolumeController.onAdjustVolume(direction);
         }
 
         @Override
         public void onSetVolumeTo(int volume) {
+            Log.d(TAG, "SqueezerVolumeProvider.onSetVolumeTo: volume=" + volume);
             squeezeService.setVolumeTo(volume * step);
         }
     }

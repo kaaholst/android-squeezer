@@ -187,7 +187,7 @@ public class Song  implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Song song = (Song) o;
-        return trackNum == song.trackNum && duration == song.duration && Objects.equals(id, song.id) && title.equals(song.title) && Arrays.equals(artists, song.artists) && album.equals(song.album) && Arrays.equals(composers, song.composers) && Arrays.equals(conductors, song.conductors) && Arrays.equals(bands, song.bands) && Arrays.equals(albumArtists, song.albumArtists) && bitRate.equals(song.bitRate) && sampleRate.equals(song.sampleRate) && url.equals(song.url);
+        return trackNum == song.trackNum && duration == song.duration && Objects.equals(id, song.id) && Objects.equals(title, song.title) && Arrays.equals(artists, song.artists) && Objects.equals(album, song.album) && Arrays.equals(composers, song.composers) && Arrays.equals(conductors, song.conductors) && Arrays.equals(bands, song.bands) && Arrays.equals(albumArtists, song.albumArtists) && Objects.equals(bitRate, song.bitRate) && Objects.equals(sampleRate, song.sampleRate) && Objects.equals(url, song.url);
     }
 
     @Override

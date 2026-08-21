@@ -98,6 +98,9 @@ android {
             proguardFile "proguard-squeezer.cfg"
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     lint {
         lintConfig file('lint.xml')
     }

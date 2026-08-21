@@ -711,7 +711,12 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         Log.d(TAG, "onResume...");
         mActivity.registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         if (mFullHeightLayout && !Squeezer.getPreferences().isLargeArtwork()) {
-            resetVolumeDialTimeout();
+            cancelVolumeDialTimeout();
+            Squeezer.getPreferences().setLargeArtwork(true);
+            updateArtworkAndVolumeMode(true);
+        }
+        if (mService != null && mService.isConnected()) {
+            mService.refreshActivePlayer();
         }
     }
 

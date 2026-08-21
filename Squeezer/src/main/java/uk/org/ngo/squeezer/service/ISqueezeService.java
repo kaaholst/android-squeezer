@@ -45,6 +45,12 @@ public interface ISqueezeService {
     /** Request a manual (i.e. besides the subscription) status about the server */
     void requestServerStatus();
 
+    /** Request a manual status about the specified player */
+    void requestPlayerStatus(@NonNull Player player);
+
+    /** Refresh status for the active player and server */
+    void refreshActivePlayer();
+
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(Preferences preferences, String key);
 

@@ -45,13 +45,18 @@ import uk.org.ngo.squeezer.util.FluentHashMap;
 
 
 public class JiveItem extends Item {
-    public static final JiveItem HOME = new JiveItem(record("home", null, Squeezer.getInstance().getString(R.string.HOME), 1), Window.WindowStyle.HOME_MENU);
-    public static final JiveItem CURRENT_PLAYLIST = new JiveItem(record("status", null, Squeezer.getInstance().getString(R.string.menu_item_playlist), 1), Window.WindowStyle.PLAY_LIST);
-    public static final JiveItem EXTRAS = new JiveItem(record("extras", "home", Squeezer.getInstance().getString(R.string.EXTRAS), 50), Window.WindowStyle.HOME_MENU);
-    public static final JiveItem SETTINGS = new JiveItem(record("settings", "home", Squeezer.getInstance().getString(R.string.SETTINGS), 1005), Window.WindowStyle.HOME_MENU);
-    public static final JiveItem ADVANCED_SETTINGS = new JiveItem(record("advancedSettings", "settings", Squeezer.getInstance().getString(R.string.ADVANCED_SETTINGS), 105), Window.WindowStyle.TEXT_ONLY);
-    public static final JiveItem ARCHIVE = new JiveItem(record("archiveNode", "home", Squeezer.getInstance().getString(R.string.ARCHIVE_NODE), 1100), Window.WindowStyle.HOME_MENU);
-    public static final JiveItem SHORTCUTS = new JiveItem(record("shortcuts", "home", Squeezer.getInstance().getString(R.string.SHORTCUTS), 10), Window.WindowStyle.HOME_MENU);
+    private static String getString(@StringRes int resId) {
+        Squeezer instance = Squeezer.getInstance();
+        return instance != null ? instance.getString(resId) : "";
+    }
+
+    public static final JiveItem HOME = new JiveItem(record("home", null, getString(R.string.HOME), 1), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem CURRENT_PLAYLIST = new JiveItem(record("status", null, getString(R.string.menu_item_playlist), 1), Window.WindowStyle.PLAY_LIST);
+    public static final JiveItem EXTRAS = new JiveItem(record("extras", "home", getString(R.string.EXTRAS), 50), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem SETTINGS = new JiveItem(record("settings", "home", getString(R.string.SETTINGS), 1005), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem ADVANCED_SETTINGS = new JiveItem(record("advancedSettings", "settings", getString(R.string.ADVANCED_SETTINGS), 105), Window.WindowStyle.TEXT_ONLY);
+    public static final JiveItem ARCHIVE = new JiveItem(record("archiveNode", "home", getString(R.string.ARCHIVE_NODE), 1100), Window.WindowStyle.HOME_MENU);
+    public static final JiveItem SHORTCUTS = new JiveItem(record("shortcuts", "home", getString(R.string.SHORTCUTS), 10), Window.WindowStyle.HOME_MENU);
     public static final JiveItem DOWNLOAD = new JiveItem(record("downloadItem", R.string.DOWNLOAD));
     public static final JiveItem RANDOM_PLAY = new JiveItem(record("randomPlay",  R.string.PLAY_RANDOM_FOLDER));
     public static final JiveItem PLAY_NOW = new JiveItem(record("playNow",  R.string.PLAY_NOW));
@@ -104,7 +109,7 @@ public class JiveItem extends Item {
         return new FluentHashMap<String, Object>()
                 .with("id", id)
                 .with("node", id)
-                .with("name", Squeezer.getInstance().getString(text));
+                .with("name", getString(text));
     }
 
     private static Map<String, Object> record(String id, String node, String text, int weight) {
@@ -492,7 +497,7 @@ public class JiveItem extends Item {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         JiveItem jiveItem = (JiveItem) o;
-        return name.equals(jiveItem.name) && Objects.equals(text2, jiveItem.text2) && icon.equals(jiveItem.icon);
+        return Objects.equals(name, jiveItem.name) && Objects.equals(text2, jiveItem.text2) && Objects.equals(icon, jiveItem.icon);
     }
 
     private void splitItemText(String text) {

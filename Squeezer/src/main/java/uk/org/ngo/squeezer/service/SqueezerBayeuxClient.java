@@ -78,7 +78,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 Log.v(TAG, "FAIL: " + message.getJSON(), failure);
             }
         }
-        if (failure instanceof IOException && connectionState.getState().isConnected()) {
+        if (connectionState.getState().isConnected()) {
             rehandshake();
         }
     }

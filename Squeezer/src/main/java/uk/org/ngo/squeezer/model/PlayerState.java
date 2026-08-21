@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -233,7 +234,7 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setCurrentSong(CurrentTrack song) {
-        if (song.equals(currentTrack))
+        if (Objects.equals(song, currentTrack))
             return false;
 
         currentTrack = song;

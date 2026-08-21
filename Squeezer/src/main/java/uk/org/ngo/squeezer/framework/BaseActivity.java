@@ -217,6 +217,11 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
+
+        ISqueezeService service = getService();
+        if (service != null && service.isConnected()) {
+            service.refreshActivePlayer();
+        }
     }
 
     private void applyFullScreenPreference() {
