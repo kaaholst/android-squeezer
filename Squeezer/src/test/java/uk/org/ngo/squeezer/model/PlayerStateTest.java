@@ -67,4 +67,21 @@ public class PlayerStateTest {
         playerState.setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
         assertEquals(PlayerState.PlayerSubscriptionType.NOTIFY_NONE, playerState.getSubscriptionType());
     }
+
+    @Test
+    public void testShuffleStatus() {
+        PlayerState playerState = new PlayerState();
+        playerState.setShuffleStatus(PlayerState.ShuffleStatus.SHUFFLE_OFF);
+        assertEquals(PlayerState.ShuffleStatus.SHUFFLE_OFF, playerState.getShuffleStatus());
+
+        playerState.setShuffleStatus(PlayerState.ShuffleStatus.SHUFFLE_SONG);
+        assertEquals(PlayerState.ShuffleStatus.SHUFFLE_SONG, playerState.getShuffleStatus());
+
+        playerState.setShuffleStatus(PlayerState.ShuffleStatus.SHUFFLE_ALBUM);
+        assertEquals(PlayerState.ShuffleStatus.SHUFFLE_ALBUM, playerState.getShuffleStatus());
+
+        assertEquals(0, PlayerState.ShuffleStatus.SHUFFLE_OFF.getId());
+        assertEquals(1, PlayerState.ShuffleStatus.SHUFFLE_SONG.getId());
+        assertEquals(2, PlayerState.ShuffleStatus.SHUFFLE_ALBUM.getId());
+    }
 }

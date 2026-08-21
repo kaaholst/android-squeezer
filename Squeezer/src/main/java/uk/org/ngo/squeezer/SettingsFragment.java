@@ -216,6 +216,7 @@ public class SettingsFragment  extends PreferenceFragmentCompat implements
 
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_HOME_MENU_MODE), Preferences.CustomizeHomeMenuMode.class, preferences.getCustomizeHomeMenuMode());
         fillEnumPreference(requirePreference(Preferences.KEY_CUSTOMIZE_SHORTCUT_MODE), Preferences.CustomizeShortcutsMode.class, preferences.getCustomizeShortcutsMode());
+        this.<SwitchPreferenceCompat>requirePreference(Preferences.KEY_LONG_PRESS_TO_PLAY).setChecked(preferences.isLongPressToPlay());
 
         fillEnumPreference(requirePreference(Preferences.KEY_ON_SWIPE_RIGHT_ACTION), PlayableItemAction.class, preferences.getSwipeRightAction());
         fillEnumPreference(requirePreference(Preferences.KEY_ON_SWIPE_LEFT_ACTION), PlayableItemAction.class, preferences.getSwipeLeftAction());

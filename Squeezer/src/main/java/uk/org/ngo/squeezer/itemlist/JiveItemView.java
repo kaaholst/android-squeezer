@@ -38,8 +38,10 @@ import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.model.CustomJiveItemHandling;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.service.HomeMenuHandling;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class JiveItemView extends ViewParamItemView<JiveItem> {
 
@@ -48,6 +50,7 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
     Preferences mPreferences = Squeezer.getPreferences();
     final boolean isShortcutsActive = mPreferences.getCustomizeShortcutsMode() == Preferences.CustomizeShortcutsMode.ENABLED;
     final boolean isArchiveActive = mPreferences.getCustomizeHomeMenuMode() == Preferences.CustomizeHomeMenuMode.ARCHIVE;
+    final boolean isLongPressToPlay = mPreferences.isLongPressToPlay();
 
     JiveItemView(@NonNull JiveItemListActivity activity, Window.WindowStyle windowStyle, ArtworkListLayout listLayout, @NonNull View view) {
         super(activity, view);
@@ -92,7 +95,16 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
         text2.setAlpha(getAlpha());
         itemView.setOnClickListener(view -> onItemSelected());
 
-        if ( isShortcutsActive || isArchiveActive ) {
+        if (isLongPressToPlay) {
+            Action playAction = getPlayAction(item);
+            if (playAction != null) {
+                itemView.setOnLongClickListener(view -> playItemUnshuffled(item, playAction));
+            } else if (isShortcutsActive || isArchiveActive) {
+                itemView.setOnLongClickListener(view -> putItemAsShortcut());
+            } else {
+                itemView.setOnLongClickListener(null);
+            }
+        } else if (isShortcutsActive || isArchiveActive) {
             itemView.setOnLongClickListener(view -> putItemAsShortcut());
         } else {
             itemView.setOnLongClickListener(null);
@@ -110,6 +122,22 @@ public class JiveItemView extends ViewParamItemView<JiveItem> {
                 contextMenuRadio.setChecked(item.radio);
             }
         }
+    }
+
+    private Action getPlayAction(JiveItem item) {
+        if (item == null) return null;
+        if (item.playAction != null) return item.playAction;
+        if (item.doAction && item.goAction != null) return item.goAction;
+        return null;
+    }
+
+    private boolean playItemUnshuffled(JiveItem item, Action playAction) {
+        ISqueezeService service = getActivity().getService();
+        if (service != null) {
+            service.setShuffle(PlayerState.ShuffleStatus.SHUFFLE_OFF);
+        }
+        getActivity().action(item, playAction);
+        return true;
     }
 
     /**

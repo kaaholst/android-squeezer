@@ -251,6 +251,9 @@ public final class Preferences {
     // Custom shortcut mode
     public static final String KEY_CUSTOMIZE_SHORTCUT_MODE = "squeezer.customize_shortcut.mode";
 
+    // Long press on album or favorite plays it unshuffled
+    public static final String KEY_LONG_PRESS_TO_PLAY = "squeezer.long_press_to_play";
+
     // Map JiveItems to archive
     private static final String KEY_PLAYER_ARCHIVED_ITEMS_FORMAT = "squeezer.archived_menu_items.%s";
 
@@ -802,6 +805,14 @@ public final class Preferences {
     public CustomizeShortcutsMode getCustomizeShortcutsMode() {
         String string = sharedPreferences.getString(KEY_CUSTOMIZE_SHORTCUT_MODE, null);
         return string == null ? CustomizeShortcutsMode.ENABLED : CustomizeShortcutsMode.valueOf(string);
+    }
+
+    public boolean isLongPressToPlay() {
+        return sharedPreferences.getBoolean(KEY_LONG_PRESS_TO_PLAY, false);
+    }
+
+    public void setLongPressToPlay(boolean enabled) {
+        sharedPreferences.edit().putBoolean(KEY_LONG_PRESS_TO_PLAY, enabled).apply();
     }
 
     @NonNull

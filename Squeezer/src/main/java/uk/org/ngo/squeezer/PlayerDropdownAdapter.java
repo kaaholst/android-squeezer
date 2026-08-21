@@ -15,6 +15,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.model.Player;
 
 class PlayerDropdownAdapter extends ArrayAdapter<Player> {
+    public static final Player POWER_OFF_ALL = new Player(java.util.Map.of("playerid", "POWER_OFF_ALL", "name", "POWER_OFF_ALL"));
     private final Player activePlayer;
     private boolean continuePlayback;
 
@@ -22,6 +23,7 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
         super(actionBarContext, 0);
         add(null);
         addAll(connectedPlayers);
+        add(POWER_OFF_ALL);
         this.activePlayer = activePlayer;
     }
 
@@ -35,6 +37,8 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
                 view.<CheckBox>findViewById(R.id.checkbox).setChecked(continuePlayback);
             });
             return view;
+        } else if (item == POWER_OFF_ALL) {
+            return LayoutInflater.from(getContext()).inflate(R.layout.dropdown_power_off_all, parent, false);
         } else {
             TextView view = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.dropdown_item, parent, false);
             view.setText(item.getName());
@@ -45,7 +49,13 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
     @Override
     public boolean isEnabled(int position) {
         Player item = getItem(position);
-        return !(item == null || item.equals(activePlayer));
+        if (item == null) {
+            return false;
+        }
+        if (item == POWER_OFF_ALL) {
+            return true;
+        }
+        return !item.equals(activePlayer);
     }
 
     public boolean continuePlayback() {

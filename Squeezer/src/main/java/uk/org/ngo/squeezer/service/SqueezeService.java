@@ -1076,6 +1076,16 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void powerOffAllPlayers() {
+            if (!isConnected()) {
+                return;
+            }
+            for (Player player : getPlayers()) {
+                mDelegate.command(player).cmd("power", "0").exec();
+            }
+        }
+
+        @Override
         public void playerRename(Player player, String newName) {
             mDelegate.command(player).cmd("name", newName).exec();
         }
@@ -1245,6 +1255,20 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.activePlayerCommand().cmd("button", "shuffle").exec();
+            return true;
+        }
+
+        @Override
+        public boolean setShuffle(PlayerState.ShuffleStatus status) {
+            return setShuffle(getActivePlayer(), status);
+        }
+
+        @Override
+        public boolean setShuffle(Player player, PlayerState.ShuffleStatus status) {
+            if (!isConnected() || player == null || status == null) {
+                return false;
+            }
+            mDelegate.command(player).cmd("playlist", "shuffle", String.valueOf(status.getId())).exec();
             return true;
         }
 

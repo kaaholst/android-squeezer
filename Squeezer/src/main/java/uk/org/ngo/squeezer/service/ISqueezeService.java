@@ -80,6 +80,7 @@ public interface ISqueezeService {
 
     // Player control
     void togglePower(Player player);
+    void powerOffAllPlayers();
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
     void playerPref(Player.Pref playerPref, String value);
@@ -115,6 +116,8 @@ public interface ISqueezeService {
     boolean previousTrack();
     boolean previousTrack(Player player);
     boolean toggleShuffle();
+    boolean setShuffle(PlayerState.ShuffleStatus status);
+    boolean setShuffle(Player player, PlayerState.ShuffleStatus status);
     boolean toggleRepeat();
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);

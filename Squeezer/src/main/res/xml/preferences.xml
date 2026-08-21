@@ -134,6 +134,13 @@
             android:dialogTitle="@string/settings_customize_customShortcut_info"
             android:summary="%s"/>
 
+        <SwitchPreferenceCompat
+            android:key="squeezer.long_press_to_play"
+            android:defaultValue="false"
+            android:summaryOff="@string/settings_long_press_to_play_summary_off"
+            android:summaryOn="@string/settings_long_press_to_play_summary_on"
+            android:title="@string/settings_long_press_to_play_title"/>
+
         <ListPreference
             android:key="squeezer.action.onswipe.right"
             android:title="@string/settings_swipe_right_action"

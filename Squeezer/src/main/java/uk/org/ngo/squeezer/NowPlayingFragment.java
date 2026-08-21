@@ -614,6 +614,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
             spinner.setOnItemClickListener((adapterView, parent, position, id) -> {
                 Player selectedItem = playerAdapter.getItem(position);
+                if (selectedItem == PlayerDropdownAdapter.POWER_OFF_ALL) {
+                    spinner.setText((activePlayer != null) ? activePlayer.getName() : "", false);
+                    requireService().powerOffAllPlayers();
+                    return;
+                }
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem, playerAdapter.continuePlayback());

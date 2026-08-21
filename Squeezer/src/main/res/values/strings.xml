@@ -215,6 +215,7 @@
 
     <string name="menu_item_power_off">Turn off</string>
     <string name="menu_item_power_on">Turn on</string>
+    <string name="turn_off_all_players">Turn off all players</string>
     <string name="set_sleep_timer">Set sleep timer</string>
 
     <!-- Dialog buttons -->
@@ -302,6 +303,9 @@
     <string name="settings_custom_shortcut_locked">Disabled, but show existing shortcuts.</string>
     <string name="settings_customize_customShortcut_mode">Shortcuts</string>
     <string name="settings_customize_customShortcut_info">Long press puts shortcuts in home menu.</string>
+    <string name="settings_long_press_to_play_title">Long press to play</string>
+    <string name="settings_long_press_to_play_summary_on">Starts album or favorite unshuffled on selected player</string>
+    <string name="settings_long_press_to_play_summary_off">Adds shortcut to home menu (default)</string>
     <string name="ITEM_CANNOT_BE_SHORTCUT">Item can not be shortcut!</string>
     <string name="PLAY_RANDOM_FOLDER">Play random</string>
     <string name="backward" translatable="false">⏪ %d</string>
