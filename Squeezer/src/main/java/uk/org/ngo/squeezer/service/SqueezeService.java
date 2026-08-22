@@ -1534,11 +1534,17 @@ public class SqueezeService extends Service {
         /* Start an asynchronous fetch of the slimserver generic menu items */
         @Override
         public void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem>  callback) {
+            if (!isConnected() || action == null || action.action == null) {
+                return;
+            }
             mDelegate.requestItems(getActivePlayer(), start, callback).cmd(action.action.cmd).params(action.action.params(item.inputValue)).exec();
         }
 
         @Override
         public void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) {
+            if (!isConnected() || action == null || action.action == null) {
+                return;
+            }
             // We cant use paging for context menu items as LMS does some "magic"
             // See XMLBrowser.pm ("xmlBrowseInterimCM" and  "# Cannot do this if we might screw up paging")
             mDelegate.requestItems(getActivePlayer(), callback).cmd(action.action.cmd).params(action.action.params).exec();
@@ -1546,7 +1552,7 @@ public class SqueezeService extends Service {
 
         @Override
         public void action(JiveItem item, Action action) {
-            if (!isConnected()) {
+            if (!isConnected() || action == null || action.action == null) {
                 return;
             }
             mDelegate.command(getActivePlayer()).cmd(action.action.cmd).params(action.action.params(item.inputValue)).exec();
@@ -1554,7 +1560,7 @@ public class SqueezeService extends Service {
 
         @Override
         public void action(Action.JsonAction action) {
-            if (!isConnected()) {
+            if (!isConnected() || action == null) {
                 return;
             }
             mDelegate.command(getActivePlayer()).cmd(action.cmd).params(action.params).exec();

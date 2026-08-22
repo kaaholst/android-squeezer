@@ -869,20 +869,26 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                 trackInfo.setText(trackInfoText);
                 trackInfo.setVisibility(!TextUtils.isEmpty(trackInfoText) ? View.VISIBLE : View.GONE);
 
-                requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
-                    @Override
-                    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
-                        albumItem = findBrowseAction(items, "album_id");
-                        artistItem = findBrowseAction(items, "artist_ids", "artist_id");
-                        composerItem = findBrowseAction(items, "composer_ids");
-                        conductorItem = findBrowseAction(items, "conductor_ids");
-                    }
+                albumItem = null;
+                artistItem = null;
+                composerItem = null;
+                conductorItem = null;
+                if (song.moreAction != null && song.moreAction.action != null) {
+                    requireService().pluginItems(song.moreAction, new IServiceItemListCallback<>() {
+                        @Override
+                        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
+                            albumItem = findBrowseAction(items, "album_id");
+                            artistItem = findBrowseAction(items, "artist_ids", "artist_id");
+                            composerItem = findBrowseAction(items, "composer_ids");
+                            conductorItem = findBrowseAction(items, "conductor_ids");
+                        }
 
-                    @Override
-                    public Object getClient() {
-                        return mActivity;
-                    }
-                });
+                        @Override
+                        public Object getClient() {
+                            return mActivity;
+                        }
+                    });
+                }
             } else {
                 if (addConductorLine) {
                     artistAlbumText.setText(Util.joinSkipEmpty(" - ", song.songInfo.getArtist(), song.songInfo.getBand(),song.songInfo.getConductor()));
