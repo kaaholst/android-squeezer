@@ -33,6 +33,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1388,14 +1389,35 @@ public class SqueezeService extends Service {
         @Override
         public void setSecondsElapsed(int seconds) {
             if (isConnected() && seconds >= 0) {
+                Player activePlayer = getActivePlayer();
+                if (activePlayer != null) {
+                    PlayerState state = activePlayer.getPlayerState();
+                    state.setCurrentTimeSecond(seconds);
+                    state.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
+                    repository.post(activePlayer.getTrackElapsed());
+                }
                 mDelegate.activePlayerCommand().cmd("time", String.valueOf(seconds)).exec();
+                if (activePlayer != null) {
+                    mDelegate.requestPlayerStatus(activePlayer);
+                }
             }
         }
 
         @Override
         public void adjustSecondsElapsed(int seconds) {
             if (isConnected()) {
+                Player activePlayer = getActivePlayer();
+                if (activePlayer != null) {
+                    PlayerState state = activePlayer.getPlayerState();
+                    int newTime = Math.max(0, state.getTrackElapsed() + seconds);
+                    state.setCurrentTimeSecond(newTime);
+                    state.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
+                    repository.post(activePlayer.getTrackElapsed());
+                }
                 mDelegate.activePlayerCommand().cmd("time", (seconds > 0 ? "+" : "") + seconds).exec();
+                if (activePlayer != null) {
+                    mDelegate.requestPlayerStatus(activePlayer);
+                }
             }
         }
 
