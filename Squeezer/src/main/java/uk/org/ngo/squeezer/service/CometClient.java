@@ -425,8 +425,15 @@ class CometClient extends BaseClient {
 
         Map<String, Object> messageData = message.getDataAsMap();
         CurrentTrack currentSong = null;
+        Object[] playlist_data = (Object[]) messageData.get("playlist_loop");
         Object[] item_data = (Object[]) messageData.get("item_loop");
-        if (item_data != null && item_data.length > 0) {
+        if (playlist_data != null && playlist_data.length > 0) {
+            Map<String, Object> record = (Map<String, Object>) playlist_data[0];
+            patchUrlPrefix(record);
+            record.put("base", messageData.get("base"));
+            currentSong = new CurrentTrack(record);
+            record.remove("base");
+        } else if (item_data != null && item_data.length == 1) {
             Map<String, Object> record = (Map<String, Object>) item_data[0];
 
             patchUrlPrefix(record);
@@ -467,7 +474,14 @@ class CometClient extends BaseClient {
     @Override
     protected void postSongTimeChanged(Player player) {
         super.postSongTimeChanged(player);
-        if (player.getPlayerState().isPlaying()) {
+        PlayerState state = player.getPlayerState();
+        if (state.isPlaying()) {
+            int duration = state.getCurrentTrackDuration();
+            if (duration > 0 && state.getTrackElapsed() >= duration) {
+                if (state.getTrackElapsed() == duration || (state.getTrackElapsed() > duration && (state.getTrackElapsed() - duration) % 2 == 0)) {
+                    requestPlayerStatus(player);
+                }
+            }
             mBackgroundHandler.removeMessages(MSG_TIME_UPDATE);
             mBackgroundHandler.sendEmptyMessageDelayed(MSG_TIME_UPDATE, 1000);
         }
@@ -886,6 +900,7 @@ class CometClient extends BaseClient {
     private Request statusRequest(Player player) {
         return request(player, "status")
                 .currentSong()
+                .param("tags", JiveItem.SONG_TAGS)
                 .param("menu", "menu")
                 .param("useContextMenu", "1");
     }

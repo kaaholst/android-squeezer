@@ -316,7 +316,11 @@ public class PlayerState implements Parcelable {
         if (isPlaying()) {
             double now = SystemClock.elapsedRealtime() / 1000.0;
             double trackCorrection = rate * (now - statusSeen);
-            return trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection;
+            double pos = trackCorrection <= 0 ? currentTimeSecond : currentTimeSecond + trackCorrection;
+            if (currentTrackDuration > 0 && pos > currentTrackDuration) {
+                return currentTrackDuration;
+            }
+            return pos;
         } else {
             return currentTimeSecond;
         }

@@ -148,8 +148,8 @@ public class ConnectionState {
     }
 
     private void updateState(State newState) {
-        // Clear data if we were previously connected
-        if (state.isConnected() && !newState.isConnected()) {
+        // Clear data if we were previously connected and now disconnecting/failed
+        if (state.isConnected() && (newState == State.DISCONNECTED || newState == State.MANUAL_DISCONNECT || newState == State.CONNECTION_FAILED)) {
             repository.removeEvents();
             setServerVersion(null);
             mPlayers.clear();

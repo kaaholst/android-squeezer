@@ -132,6 +132,13 @@ public abstract class ImageWorker {
         // devices running (at least) API 7. An OnPreDrawListener appears to work, and will
         // be called after measurement is complete.
         if (width == 0 || height == 0) {
+            // Set loading placeholder so recycled view doesn't show previous item's image while waiting for pre-draw.
+            if (mLoadingBitmap != null) {
+                imageView.setImageDrawable(new BitmapDrawable(mResources, mLoadingBitmap));
+            } else {
+                imageView.setImageDrawable(null);
+            }
+
             // Store the URL in the imageView's tag, in case the URL assigned to is changed.
             imageView.setTag(data);
 
