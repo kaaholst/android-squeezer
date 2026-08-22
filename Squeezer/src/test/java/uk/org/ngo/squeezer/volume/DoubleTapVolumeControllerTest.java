@@ -49,7 +49,7 @@ public class DoubleTapVolumeControllerTest extends TestCase {
     protected void setUp() {
         clock = new TestClock();
         callback = new TestCallback();
-        controller = new DoubleTapVolumeController(callback, clock, 60, 250);
+        controller = new DoubleTapVolumeController(callback, clock, 60, 600);
         controller.setEnabled(true);
         controller.setTimeoutMs(400);
     }
@@ -190,21 +190,40 @@ public class DoubleTapVolumeControllerTest extends TestCase {
         assertEquals(0, callback.nextTrackCalls);
     }
 
-    public void testCooldownAfterSkip() {
-        // Double tap
+    public void testContinuousHoldingOnlyTriggersOneSkip() {
+        // First tap from holding button
         controller.onAdjustVolume(1);
+        assertEquals(1, callback.volumeAdjustments.size());
+
+        // Initial repeat event at 200ms -> triggers single skip and enters hold lockout
+        clock.advance(200);
+        controller.onAdjustVolume(1);
+        assertEquals(1, callback.nextTrackCalls);
+        assertEquals(2, callback.volumeAdjustments.size());
+
+        // Continuous stream of key-repeat events while button remains held down
+        clock.advance(150);
+        controller.onAdjustVolume(1); // ignored, extends lockout
+        clock.advance(150);
+        controller.onAdjustVolume(1); // ignored, extends lockout
+        clock.advance(150);
+        controller.onAdjustVolume(1); // ignored, extends lockout
+
+        // Still only 1 skip and no extra volume adjustments
+        assertEquals(1, callback.nextTrackCalls);
+        assertEquals(2, callback.volumeAdjustments.size());
+
+        // User releases button and waits for lockout to clear (> 600ms of silence)
+        clock.advance(700);
+
+        // New distinct tap after release
+        controller.onAdjustVolume(1);
+        assertEquals(3, callback.volumeAdjustments.size());
         clock.advance(200);
         controller.onAdjustVolume(1);
 
-        assertEquals(1, callback.nextTrackCalls);
-        assertEquals(2, callback.volumeAdjustments.size());
-
-        // Accidental 3rd tap at 100ms after skip (< 250ms cooldown)
-        clock.advance(100);
-        controller.onAdjustVolume(1);
-
-        // Ignored during cooldown
-        assertEquals(1, callback.nextTrackCalls);
-        assertEquals(2, callback.volumeAdjustments.size());
+        // Second skip successfully triggers
+        assertEquals(2, callback.nextTrackCalls);
+        assertEquals(4, callback.volumeAdjustments.size());
     }
 }

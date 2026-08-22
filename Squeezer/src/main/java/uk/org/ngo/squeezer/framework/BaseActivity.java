@@ -355,7 +355,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     @Override
     @CallSuper
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, getService())) return true;
+        if (handleVolumeKeys && VolumeKeysDelegate.onKeyDown(keyCode, event, getService())) return true;
         return super.onKeyDown(keyCode, event);
     }
 

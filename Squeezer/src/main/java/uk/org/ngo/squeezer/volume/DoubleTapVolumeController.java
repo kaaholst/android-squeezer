@@ -7,11 +7,11 @@ import android.util.Log;
  * Handles double-tap volume button gestures with optimistic volume adjustment and reversal.
  * On the first volume tap, the volume is adjusted immediately for zero-latency response.
  *
- * If the SAME volume key is tapped again within the timeout window (e.g. 320ms), the first
+ * If the SAME volume key is tapped again within the timeout window (e.g. 400ms), the first
  * volume change is reverted and a track skip is triggered.
  *
- * Rapid key-repeats (such as from holding down the volume button) are ignored to prevent
- * accidental triggers.
+ * Continuous key holding (long-press) is suppressed using hold lockout so holding the button
+ * never causes runaway track skips.
  */
 public class DoubleTapVolumeController {
 
@@ -35,29 +35,29 @@ public class DoubleTapVolumeController {
         }
     };
     private static final int DEFAULT_MIN_REPEAT_INTERVAL_MS = 60;
-    private static final int DEFAULT_COOLDOWN_MS = 250;
+    private static final int DEFAULT_HOLD_LOCKOUT_MS = 600;
 
     private final Callback callback;
     private final Clock clock;
     private final int minRepeatIntervalMs;
-    private final int cooldownMs;
+    private final int holdLockoutMs;
 
     private boolean enabled;
-    private int timeoutMs = 320;
+    private int timeoutMs = 400;
 
     private int lastDirection = 0;
     private long lastTapTime = 0;
-    private long inCooldownUntil = 0;
+    private long holdLockoutUntil = 0;
 
     public DoubleTapVolumeController(Callback callback) {
-        this(callback, SYSTEM_CLOCK, DEFAULT_MIN_REPEAT_INTERVAL_MS, DEFAULT_COOLDOWN_MS);
+        this(callback, SYSTEM_CLOCK, DEFAULT_MIN_REPEAT_INTERVAL_MS, DEFAULT_HOLD_LOCKOUT_MS);
     }
 
-    public DoubleTapVolumeController(Callback callback, Clock clock, int minRepeatIntervalMs, int cooldownMs) {
+    public DoubleTapVolumeController(Callback callback, Clock clock, int minRepeatIntervalMs, int holdLockoutMs) {
         this.callback = callback;
         this.clock = clock;
         this.minRepeatIntervalMs = minRepeatIntervalMs;
-        this.cooldownMs = cooldownMs;
+        this.holdLockoutMs = holdLockoutMs;
     }
 
     private static void logD(String msg) {
@@ -98,7 +98,7 @@ public class DoubleTapVolumeController {
     public synchronized void reset() {
         lastDirection = 0;
         lastTapTime = 0;
-        inCooldownUntil = 0;
+        holdLockoutUntil = 0;
     }
 
     /**
@@ -120,9 +120,10 @@ public class DoubleTapVolumeController {
 
         long now = clock.elapsedRealtime();
 
-        // Ignore events during post-skip cooldown window
-        if (now < inCooldownUntil) {
-            logD("Ignoring event during post-skip cooldown (remaining: " + (inCooldownUntil - now) + "ms)");
+        // If in hold lockout, extend the lockout window as long as events continue arriving
+        if (now < holdLockoutUntil) {
+            holdLockoutUntil = now + holdLockoutMs;
+            logD("Ignoring event during hold lockout (extended lockout to " + holdLockoutMs + "ms)");
             return;
         }
 
@@ -146,10 +147,10 @@ public class DoubleTapVolumeController {
                 logI("Double-tap detected while stopped/paused! elapsed=" + elapsed + "ms, direction=" + direction + ". Reverted volume (undone, no track skip).");
             }
 
-            // Reset and enter cooldown
+            // Reset and enter hold lockout so continuous holding does not trigger runaway skips
             lastDirection = 0;
             lastTapTime = 0;
-            inCooldownUntil = now + cooldownMs;
+            holdLockoutUntil = now + holdLockoutMs;
             return;
         }
 
