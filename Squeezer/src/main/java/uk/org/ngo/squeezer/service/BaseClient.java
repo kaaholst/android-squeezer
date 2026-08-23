@@ -90,6 +90,10 @@ abstract class BaseClient implements SlimClient {
         return mUrlPrefix;
     }
 
+    @Override
+    public void verifyConnectionHealth() {
+    }
+
     void parseStatus(final Player player, CurrentTrack currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
         playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;

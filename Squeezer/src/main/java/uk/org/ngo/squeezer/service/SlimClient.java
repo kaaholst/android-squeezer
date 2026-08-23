@@ -44,6 +44,7 @@ interface SlimClient {
     String getUsername();
     String getPassword();
     String getUrlPrefix();
+    void verifyConnectionHealth();
 
     /**
      * Execute the supplied command.

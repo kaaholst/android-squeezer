@@ -49,6 +49,10 @@ class SlimDelegate {
     }
 
 
+    void verifyConnectionHealth() {
+        mClient.verifyConnectionHealth();
+    }
+
     void requestServerStatus() {
         mClient.requestServerStatus();
     }

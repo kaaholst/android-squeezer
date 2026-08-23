@@ -1072,6 +1072,7 @@ public class SqueezeService extends Service {
 
         @Override
         public void refreshActivePlayer() {
+            mDelegate.verifyConnectionHealth();
             Player activePlayer = getActivePlayer();
             if (activePlayer != null) {
                 mDelegate.requestPlayerStatus(activePlayer);

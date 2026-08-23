@@ -60,8 +60,15 @@ class SqueezerBayeuxClient extends BayeuxClient {
         }
     }
 
+    private volatile long mLastMessageReceivedTime = android.os.SystemClock.elapsedRealtime();
+
+    public long getLastMessageReceivedTime() {
+        return mLastMessageReceivedTime;
+    }
+
     @Override
     public void onMessages(List<Message.Mutable> messages) {
+        mLastMessageReceivedTime = android.os.SystemClock.elapsedRealtime();
         super.onMessages(messages);
         for (Message message : messages) {
             if (BuildConfig.DEBUG) {

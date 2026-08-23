@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.service;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -785,6 +786,17 @@ class CometClient extends BaseClient {
     }
 
     @Override
+    public void verifyConnectionHealth() {
+        if (mBayeuxClient != null && mConnectionState.getState().isConnected()) {
+            long idleTime = SystemClock.elapsedRealtime() - mBayeuxClient.getLastMessageReceivedTime();
+            if (idleTime > SERVER_STATUS_TIMEOUT) {
+                Log.w(TAG, "Connection idle for " + idleTime + "ms (longer than timeout), triggering proactive rehandshake");
+                mBayeuxClient.rehandshake();
+            }
+        }
+    }
+
+    @Override
     public void requestServerStatus() {
         publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, mBayeuxClient.getId()), null);
     }
@@ -893,6 +905,13 @@ class CometClient extends BaseClient {
                 case MSG_PUBLISH_TIMEOUT: {
                     Log.w(TAG, "Publish timeout waiting for response, unblocking command queue");
                     mCurrentCommand = false;
+                    if (mBayeuxClient != null && mConnectionState.getState().isConnected()) {
+                        long idleTime = SystemClock.elapsedRealtime() - mBayeuxClient.getLastMessageReceivedTime();
+                        if (idleTime > SERVER_STATUS_TIMEOUT) {
+                            Log.w(TAG, "Publish timed out while connection idle for " + idleTime + "ms, triggering rehandshake");
+                            mBayeuxClient.rehandshake();
+                        }
+                    }
                     PublishMessage message = mCommandQueue.poll();
                     if (message != null)
                         _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
