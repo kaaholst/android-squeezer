@@ -696,6 +696,13 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         if (mService != null && mService.canAutoConnect()) {
             startVisibleConnection(true);
         }
+        if (mService != null && mService.isConnected()) {
+            Player activePlayer = mService.getActivePlayer();
+            if (activePlayer != null) {
+                updateUiFromPlayerState(activePlayer.getPlayerState());
+            }
+            mService.refreshActivePlayer();
+        }
     }
 
     /**
@@ -722,6 +729,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             updateArtworkAndVolumeMode(true);
         }
         if (mService != null && mService.isConnected()) {
+            Player activePlayer = mService.getActivePlayer();
+            if (activePlayer != null) {
+                updateUiFromPlayerState(activePlayer.getPlayerState());
+            }
             mService.refreshActivePlayer();
         }
     }

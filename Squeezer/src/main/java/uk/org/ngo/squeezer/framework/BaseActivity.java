@@ -303,6 +303,9 @@ public abstract class BaseActivity extends AppCompatActivity implements Download
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         Log.d(TAG, "onServiceConnected");
         supportInvalidateOptionsMenu();
+        if (service.isConnected()) {
+            service.refreshActivePlayer();
+        }
         repository().observe(this, (AlertEvent event) -> {
             if (!event.isShown) AlertEventDialog.show(getSupportFragmentManager(), event.message.title, event.message.text);
             event.isShown = true;
