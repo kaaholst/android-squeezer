@@ -111,6 +111,8 @@ abstract class BaseClient implements SlimClient {
             } else {
                 currentSong = new CurrentTrack(tokenMap);
             }
+        } else if (!changedPlaylistIndex && playerState.getCurrentTrack() != null && playerState.getCurrentTrack().isSameSong(currentSong)) {
+            currentSong = playerState.getCurrentTrack();
         }
         boolean changedSong = playerState.setCurrentSong(currentSong);
         playerState.setRemote(Util.getInt(tokenMap, "remote") == 1);

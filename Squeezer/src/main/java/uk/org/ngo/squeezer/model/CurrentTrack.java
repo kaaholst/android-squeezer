@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -74,6 +75,23 @@ public class CurrentTrack extends JiveItem {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(songInfo, flags);
 
+    }
+
+    public boolean isSameSong(@Nullable CurrentTrack other) {
+        if (this == other) return true;
+        if (other == null) return false;
+        if (getId() != null && !getId().isEmpty() && other.getId() != null && !other.getId().isEmpty()) {
+            return getId().equals(other.getId());
+        }
+        if (songInfo.id != null && !songInfo.id.isEmpty() && other.songInfo.id != null && !other.songInfo.id.isEmpty()) {
+            return songInfo.id.equals(other.songInfo.id);
+        }
+        if (songInfo.url != null && !songInfo.url.toString().isEmpty() && songInfo.url.equals(other.songInfo.url)) {
+            return Objects.equals(getName(), other.getName());
+        }
+        return !getName().isEmpty() && Objects.equals(getName(), other.getName())
+                && Objects.equals(songInfo.album, other.songInfo.album)
+                && Objects.equals(songInfo.getArtist(), other.songInfo.getArtist());
     }
 
     @Override

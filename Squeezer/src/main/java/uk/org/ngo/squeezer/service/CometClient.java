@@ -383,20 +383,30 @@ class CometClient extends BaseClient {
         mConnectionState.setMediaDirs(Util.getStringArray(data, ConnectionState.MEDIA_DIRS));
         mConnectionState.setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
+        Map<String, Player> currentPlayers = mConnectionState.getPlayers();
         final HashMap<String, Player> players = new HashMap<>();
         if (item_data != null) {
             for (Object item_d : item_data) {
                 Map<String, Object> record = (Map<String, Object>) item_d;
-                if (!record.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()) &&
-                        data.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())) {
-                    record.put(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName(), data.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()));
+                if (record != null) {
+                    if (!record.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()) &&
+                            data.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName())) {
+                        record.put(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName(), data.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP.prefName()));
+                    }
+                    String playerId = Util.getString(record, "playerid");
+                    Player existingPlayer = currentPlayers.get(playerId);
+                    Player player;
+                    if (existingPlayer != null) {
+                        player = existingPlayer;
+                        player.update(record);
+                    } else {
+                        player = new Player(record);
+                    }
+                    players.put(player.getId(), player);
                 }
-                Player player = new Player(record);
-                players.put(player.getId(), player);
             }
         }
 
-        Map<String, Player> currentPlayers = mConnectionState.getPlayers();
         boolean anyPlayerUnsubscribed = currentPlayers.values().stream()
                 .anyMatch(p -> p.getPlayerState().getSubscriptionType() == PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
         if (firstTimePlayersReceived || !players.equals(currentPlayers) || anyPlayerUnsubscribed) {

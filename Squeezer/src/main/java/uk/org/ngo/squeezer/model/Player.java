@@ -86,6 +86,17 @@ public class Player extends Item implements Comparable<Player> {
         }
     }
 
+    public void update(Map<String, Object> record) {
+        mName = getString(record, "name");
+        mConnected = getInt(record, "connected") == 1;
+
+        for (Player.Pref pref : Player.Pref.values()) {
+            if (record.containsKey(pref.prefName)) {
+                mPlayerState.prefs.put(pref, Util.getString(record, pref.prefName));
+            }
+        }
+    }
+
     private Player(Parcel source) {
         setId(source.readString());
         mIp = source.readString();

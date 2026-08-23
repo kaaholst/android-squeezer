@@ -74,4 +74,26 @@ public class CurrentTrackTest {
 
         assertNotEquals(track1, track2);
     }
+
+    @Test
+    public void testIsSameSongWithEnrichedSongInfo() {
+        Map<String, Object> basicStatusRecord = new HashMap<>();
+        basicStatusRecord.put("id", "123");
+        basicStatusRecord.put("title", "Song A");
+
+        CurrentTrack basicTrack = new CurrentTrack(basicStatusRecord);
+
+        // Enriched track
+        Map<String, Object> enrichedTagRecord = new HashMap<>();
+        enrichedTagRecord.put("id", "123");
+        enrichedTagRecord.put("title", "Song A");
+        enrichedTagRecord.put("album", "Newly Resolved Album");
+        enrichedTagRecord.put("artist", "Newly Resolved Artist");
+        enrichedTagRecord.put("composer", "Mozart");
+        CurrentTrack enrichedTrack = new CurrentTrack(basicStatusRecord);
+        enrichedTrack.songInfo = new Song(enrichedTagRecord);
+
+        org.junit.Assert.assertTrue(enrichedTrack.isSameSong(basicTrack));
+        org.junit.Assert.assertTrue(basicTrack.isSameSong(enrichedTrack));
+    }
 }
