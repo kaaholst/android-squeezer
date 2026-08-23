@@ -1180,6 +1180,9 @@ public class SqueezeService extends Service {
                 case PlayerState.PLAY_STATE_PAUSE ->
                         mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
             }
+            if (player != null) {
+                mDelegate.requestPlayerStatus(player);
+            }
 
             return true;
         }
@@ -1197,6 +1200,7 @@ public class SqueezeService extends Service {
                         .command(player)
                         .cmd(PlayerState.PLAY_STATE_PAUSE.equals(playStatus) ? List.of("pause", "0") : List.of("play"))
                         .cmd(fadeInSecs()).exec();
+                mDelegate.requestPlayerStatus(player);
             }
 
             return true;
@@ -1214,6 +1218,9 @@ public class SqueezeService extends Service {
         @Override
         public void pause(Player player, boolean pause) {
             mDelegate.command(player).cmd("pause", pause ? "1" : "0", fadeInSecs()).exec();
+            if (player != null) {
+                mDelegate.requestPlayerStatus(player);
+            }
         }
 
         @Override
@@ -1222,6 +1229,10 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.activePlayerCommand().cmd("stop").exec();
+            Player activePlayer = getActivePlayer();
+            if (activePlayer != null) {
+                mDelegate.requestPlayerStatus(activePlayer);
+            }
             return true;
         }
 
