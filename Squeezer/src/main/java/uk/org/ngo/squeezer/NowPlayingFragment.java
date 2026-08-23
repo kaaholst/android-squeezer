@@ -910,32 +910,19 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
             }
         }
 
-        Object targetArtwork = !song.useIcon() ? song.getIconDrawable(mActivity, R.drawable.icon_album) : song.getIcon();
         if (mFullHeightLayout) {
-            if (!Objects.equals(targetArtwork, albumLarge.getTag())) {
-                albumLarge.setTag(targetArtwork);
-                if (!song.useIcon()) {
-                    albumLarge.setImageDrawable((Drawable) targetArtwork);
-                } else {
-                    ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumLarge);
-                }
-            }
-            if (!Objects.equals(targetArtwork, albumSmall.getTag())) {
-                albumSmall.setTag(targetArtwork);
-                if (!song.useIcon()) {
-                    albumSmall.setImageDrawable((Drawable) targetArtwork);
-                } else {
-                    ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumSmall);
-                }
+            if (!song.useIcon()) {
+                albumLarge.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
+                albumSmall.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
+            } else {
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumLarge);
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumSmall);
             }
         } else {
-            if (!Objects.equals(targetArtwork, albumArt.getTag())) {
-                albumArt.setTag(targetArtwork);
-                if (!song.useIcon()) {
-                    albumArt.setImageDrawable((Drawable) targetArtwork);
-                } else {
-                    ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
-                }
+            if (!song.useIcon()) {
+                albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album));
+            } else {
+                ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
             }
         }
     }
