@@ -85,6 +85,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.LastscanChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -205,6 +206,7 @@ public class SqueezeService extends Service {
         repository.observeForever(this::onActivePlayerChanged);
         repository.observeForever(this::onPlayersChanged);
         repository.observeForever(this::onLastscanChanged);
+        repository.observeForever(this::onHandshakeComplete);
         // TODO clean up observers in CometClient (also look for observeForever)
     }
 
@@ -271,6 +273,7 @@ public class SqueezeService extends Service {
         repository.removeObserver(this::onActivePlayerChanged);
         repository.removeObserver(this::onPlayersChanged);
         repository.removeObserver(this::onLastscanChanged);
+        repository.removeObserver(this::onHandshakeComplete);
         mediaSession.release();
         super.onDestroy();
     }
@@ -797,6 +800,11 @@ public class SqueezeService extends Service {
             updateAllPlayerSubscriptionStates();
             requestPlayerData();
         }
+    }
+
+    private void onHandshakeComplete(HandshakeComplete event) {
+        updateAllPlayerSubscriptionStates();
+        requestPlayerData();
     }
 
     private void onLastscanChanged(LastscanChanged event) {

@@ -148,16 +148,17 @@ public class ConnectionState {
     }
 
     private void updateState(State newState) {
-        // Clear data if we were previously connected and now disconnecting/failed
-        if (state.isConnected() && (newState == State.DISCONNECTED || newState == State.MANUAL_DISCONNECT || newState == State.CONNECTION_FAILED)) {
+        // Clear data if we were previously connected and now disconnecting/failed or starting a new connection
+        if (state.isConnected() && (newState == State.DISCONNECTED || newState == State.MANUAL_DISCONNECT || newState == State.CONNECTION_FAILED || newState == State.CONNECTION_STARTED)) {
             repository.removeEvents();
             setServerVersion(null);
             mPlayers.clear();
             setActivePlayer(null);
         }
 
-        // Start timer for rehandshake
+        // Start timer for rehandshake and ensure serverVersion is reset for fresh handshake
         if (newState == State.REHANDSHAKING) {
+            setServerVersion(null);
             rehandshake = SystemClock.elapsedRealtime();
         }
 

@@ -300,6 +300,7 @@ class CometClient extends BaseClient {
         mPendingBrowseRequests.clear();
         mCommandQueue.clear();
         mCurrentCommand = false;
+        mConnectionState.setServerVersion(null);
         for (Player player : mConnectionState.getPlayers().values()) {
             player.getPlayerState().setSubscriptionType(PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
         }
@@ -396,7 +397,9 @@ class CometClient extends BaseClient {
         }
 
         Map<String, Player> currentPlayers = mConnectionState.getPlayers();
-        if (firstTimePlayersReceived || !players.equals(currentPlayers)) {
+        boolean anyPlayerUnsubscribed = currentPlayers.values().stream()
+                .anyMatch(p -> p.getPlayerState().getSubscriptionType() == PlayerState.PlayerSubscriptionType.NOTIFY_NONE);
+        if (firstTimePlayersReceived || !players.equals(currentPlayers) || anyPlayerUnsubscribed) {
             mConnectionState.setPlayers(players);
         } else {
             for (Player player : players.values()) {
