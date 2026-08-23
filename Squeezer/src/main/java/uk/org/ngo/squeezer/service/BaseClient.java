@@ -104,6 +104,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
         if (currentSong == null) {
+            tokenMap.put("urlPrefix", mUrlPrefix);
             if (playerState.getCurrentPlaylistTracksNum() == 0) {
                 currentSong = new CurrentTrack(tokenMap);
             } else if (!changedPlaylistIndex && playerState.getCurrentTrack() != null && !playerState.getCurrentTrack().getName().isEmpty()) {

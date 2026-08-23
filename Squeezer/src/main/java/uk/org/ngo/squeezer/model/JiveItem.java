@@ -252,7 +252,12 @@ public class JiveItem extends Item {
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
         splitItemText(getStringOrEmpty(record, record.containsKey("name") ? "name" : "text"));
         textkey = getStringOrEmpty(record, "textkey");
-        icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
+        String iconField = record.containsKey("icon-id") ? "icon-id" :
+                record.containsKey("icon") ? "icon" :
+                record.containsKey("artwork_url") ? "artwork_url" :
+                record.containsKey("coverid") ? "coverid" :
+                record.containsKey("artwork_track_id") ? "artwork_track_id" : "icon";
+        icon = getImageUrl(record, iconField);
         iconStyle = getString(record, "iconStyle");
         extid = getString(record, "extid");
         node = originalNode = getString(record, "node");

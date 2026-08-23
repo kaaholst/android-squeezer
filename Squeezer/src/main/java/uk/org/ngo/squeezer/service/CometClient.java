@@ -441,7 +441,21 @@ class CometClient extends BaseClient {
         Object[] playlist_data = (Object[]) messageData.get("playlist_loop");
         Object[] item_data = (Object[]) messageData.get("item_loop");
         if (playlist_data != null && playlist_data.length > 0) {
-            Map<String, Object> record = (Map<String, Object>) playlist_data[0];
+            int curIndex = Util.getInt(messageData, "playlist_cur_index");
+            Map<String, Object> record = null;
+            for (Object item : playlist_data) {
+                Map<String, Object> itemMap = (Map<String, Object>) item;
+                if (itemMap.containsKey("playlist index") && Util.getInt(itemMap, "playlist index") == curIndex) {
+                    record = itemMap;
+                    break;
+                } else if (itemMap.containsKey("playlist_index") && Util.getInt(itemMap, "playlist_index") == curIndex) {
+                    record = itemMap;
+                    break;
+                }
+            }
+            if (record == null) {
+                record = (Map<String, Object>) playlist_data[0];
+            }
             patchUrlPrefix(record);
             record.put("base", messageData.get("base"));
             currentSong = new CurrentTrack(record);
@@ -468,7 +482,16 @@ class CometClient extends BaseClient {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
                 if (!items.isEmpty()) {
-                    if (player.getPlayerState().getCurrentTrack() != null) {
+                    Object[] playlist_data = (Object[]) parameters.get("playlist_loop");
+                    if (playlist_data != null && playlist_data.length > 0) {
+                        Map<String, Object> record = (Map<String, Object>) playlist_data[0];
+                        patchUrlPrefix(record);
+                        record.put("base", parameters.get("base"));
+                        CurrentTrack track = new CurrentTrack(record);
+                        record.remove("base");
+                        track.songInfo = items.get(0);
+                        player.getPlayerState().setCurrentSong(track);
+                    } else if (player.getPlayerState().getCurrentTrack() != null) {
                         player.getPlayerState().getCurrentTrack().songInfo = items.get(0);
                     }
                     mBackgroundHandler.removeMessages(MSG_MUSIC_CHANGED);
