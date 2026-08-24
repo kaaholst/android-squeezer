@@ -906,11 +906,8 @@ class CometClient extends BaseClient {
                     Log.w(TAG, "Publish timeout waiting for response, unblocking command queue");
                     mCurrentCommand = false;
                     if (mBayeuxClient != null && mConnectionState.getState().isConnected()) {
-                        long idleTime = SystemClock.elapsedRealtime() - mBayeuxClient.getLastMessageReceivedTime();
-                        if (idleTime > SERVER_STATUS_TIMEOUT) {
-                            Log.w(TAG, "Publish timed out while connection idle for " + idleTime + "ms, triggering rehandshake");
-                            mBayeuxClient.rehandshake();
-                        }
+                        Log.w(TAG, "Publish timed out after " + PUBLISH_TIMEOUT_MS + "ms, triggering rehandshake to recover connection");
+                        mBayeuxClient.rehandshake();
                     }
                     PublishMessage message = mCommandQueue.poll();
                     if (message != null)
