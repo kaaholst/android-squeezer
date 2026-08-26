@@ -1163,23 +1163,14 @@ public class SqueezeService extends Service {
             PlayerState activePlayerState = player.getPlayerState();
             @PlayerState.PlayState String playStatus = activePlayerState.getPlayStatus();
 
-            // May be null -- race condition when connecting to a server that
-            // has a player. Squeezer knows the player exists, but has not yet
-            // determined its state.
-            if (playStatus == null)
-                return false;
-
-            switch (playStatus) {
-                case PlayerState.PLAY_STATE_PLAY ->
-                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
-                    // because then we'd get confused when they came back in to us, not being
-                    // able to differentiate ours coming back on the listen channel vs. those
-                    // of those idiots at the dinner party messing around.
-                        mDelegate.command(player).cmd("pause", "1").exec();
-                case PlayerState.PLAY_STATE_STOP ->
-                        mDelegate.command(player).cmd("play", fadeInSecs()).exec();
-                case PlayerState.PLAY_STATE_PAUSE ->
-                        mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
+            if (PlayerState.PLAY_STATE_PLAY.equals(playStatus)) {
+                mDelegate.command(player).cmd("pause", "1").exec();
+            } else if (PlayerState.PLAY_STATE_PAUSE.equals(playStatus)) {
+                mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
+            } else {
+                // When playStatus is STOP, null, or out-of-sync, send LMS native "pause" toggle
+                // so LMS toggles pause/play on the server side without restarting playback from 0:00
+                mDelegate.command(player).cmd("pause", fadeInSecs()).exec();
             }
             if (player != null) {
                 mDelegate.requestPlayerStatus(player);

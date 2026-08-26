@@ -36,6 +36,10 @@ class SlimDelegate {
         mClient = new CometClient(repository);
     }
 
+    SlimDelegate(@NonNull SlimClient client) {
+        mClient = client;
+    }
+
     void startConnect(SqueezeService service, boolean autoConnect) {
         mClient.startConnect(service, autoConnect);
     }

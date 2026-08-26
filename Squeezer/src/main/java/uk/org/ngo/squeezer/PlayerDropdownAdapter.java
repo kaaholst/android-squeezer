@@ -42,6 +42,11 @@ class PlayerDropdownAdapter extends ArrayAdapter<Player> {
         } else {
             TextView view = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.dropdown_item, parent, false);
             view.setText(item.getName());
+            if (!item.getPlayerState().isPoweredOn()) {
+                view.setAlpha(0.5f);
+            } else {
+                view.setAlpha(1.0f);
+            }
             return view;
         }
     }
