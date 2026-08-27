@@ -54,73 +54,42 @@ for technical details.
 
 ## How to contribute code
 
-This guide assumes you have already downloaded and installed the Android
-SDK, in to a directory referred to as $SDK.
-
 ### Fetch the code
 
 Follow [GitHub's instructions](https://help.github.com/articles/fork-a-repo)
 for forking the repository.
 
-### Checkout the code
+### Development cycle
 
-We (roughly) follow the branching model laid out in the
-[A successful Git branching model](http://nvie.com/posts/a-successful-git-branching-model/)
-blog post.
+We roughly follow this cycle for new features and bug fixes.
 
-Specifically:
+1. Create a feature branch for your feature/bug fix
+2. Commit
+3. Push
+4. Create pull request from feature to develop branches
+5. Rebase feature from develop
+6. Review
+7. Merge feature branch to develop branch using the "fast-forward only"
+   merging strategy.
 
-*   The `develop` branch is for small bug fixes or other cleanups that need
-    no more than a single commit to complete. Work is merged onto `develop` by
-    the central maintainer. So, if you contribute please generate a pull request
-    from your own `new-branch-name` (see below) to the maintainer's `develop`.
+When working on a feature, regularly repeat step 2, 3 and 5. It's ok to force
+push to your personal feature branch, as long as you understand the 
+implications, and coordinate with your fellow developers.
 
-*   All other work happens on separate branches, branched from `develop`.
-    Collaborative contributions to separate branches are made analogous:
-    You generate a pull request from your personal branch to the according
-    sub-branch of the maintainer.
+If possible prefer small incremental commits, this makes it easier to review.
+A single pull request may consist of multiple incremental commits.
 
-*   When those branches are complete and ready for release they are merged on
-    `develop` (by the central maintainer).
+- A series of commits should tell a story, For example, if you are 
+  implementing a feature, which requires a new version of a library, you can
+  make a commit to upgrade the library. And then make a commit to use the 
+  new feature in the library.
+- Commits should generally not undo the work of previous commits in the same
+  pull request.
+- If you are not comfortable makeing incremental commits, it's okay to begin
+  contributing without them.
 
-*   New releases are prepared by creating a release branch from `develop` and
-    working there, before merging changes from the release back to `develop`
-    and `master`.
-
-### Starting work
-
-Suppose you want to start work on contributing a new feature. After fetching
-the repository checkout a new local branch from develop with:
-
-    git checkout -b new-branch-name develop
-
-Then work on `new-branch-name`, pushing it up to GitHub as appropriate. Feel
-free to have discussions on the mailing list as you're working.
-
-### Keeping up to date with `develop`
-
-As you're working other changes may be happening on the origin `develop`
-branch. Please use `git rebase` to pull in changes from `develop` to ensure
-your branch is up to date and that the future merge back in to `develop` is
-straightforward. To do that (assuming you have no open changes on your
-current branch):
-
-```
-git checkout develop  # Checkout the develop branch
-git pull              # Fetch the most recent code
-git checkout -        # Checkout the previous branch
-git rebase develop    # Rebase current branch from develop
-```
-
-### Android Studio configuration
-
-*   Run Android Studio
-
-*   If you have no projects open then choose "Import project" from the dialog
-    that appears.
-
-    If you already have a project open then choose File > Import Project...
-
-*   In the "Select File or Directory to Import" dialog that appears, navigate
-    to the directory that you fetched the Squeezer source code in ("android-squeezer").
-
+If you plan a feature, it is important to start the review process early. 
+Initially agree on a strategy with the reviewer. Continuously adjust the strategy
+together with the reviewer.
+Just sending a large bunch of changes in a PR review, does not provide much value,
+and often it is too late to do anything about it.
