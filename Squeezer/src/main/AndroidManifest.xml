@@ -132,6 +132,11 @@
         </activity>
 
         <activity android:exported="true"
+            android:name=".itemlist.PresetsActivity"
+            android:parentActivityName=".itemlist.HomeActivity">
+        </activity>
+
+        <activity android:exported="true"
             android:name=".itemlist.CurrentPlaylistActivity"
             android:parentActivityName=".NowPlayingActivity">
         </activity>

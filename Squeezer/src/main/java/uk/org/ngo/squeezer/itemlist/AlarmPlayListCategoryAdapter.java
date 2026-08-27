@@ -18,7 +18,6 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.ItemViewHolder;
-import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Item;
 
@@ -27,7 +26,7 @@ public class AlarmPlayListCategoryAdapter extends RecyclerView.Adapter<AlarmPlay
     private final List<ChildAdapterHolder> childAdapterHolders = new ArrayList<>();
     private final List<PlayListCategory> categories;
 
-    public AlarmPlayListCategoryAdapter(BaseActivity activity, Alarm alarm, List<AlarmPlaylist> alarmPlaylists) {
+    public AlarmPlayListCategoryAdapter(BaseActivity activity, String currentUrl, List<AlarmPlaylist> alarmPlaylists) {
         this.activity = activity;
         PlayListCategory currentCategory = null;
         categories = new ArrayList<>();
@@ -35,10 +34,10 @@ public class AlarmPlayListCategoryAdapter extends RecyclerView.Adapter<AlarmPlay
             AlarmPlaylist alarmPlaylist = alarmPlaylists.get(position);
             if (currentCategory == null || !alarmPlaylist.getCategory().equals(currentCategory.category)) {
                 categories.add(currentCategory = new PlayListCategory(alarmPlaylist.getCategory()));
-                childAdapterHolders.add(new ChildAdapterHolder(activity, alarm));
+                childAdapterHolders.add(new ChildAdapterHolder(activity, currentUrl));
             }
             currentCategory.playlists.add(alarmPlaylist);
-            if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(alarm.getPlayListId())) {
+            if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(currentUrl)) {
                 childAdapterHolders.get(childAdapterHolders.size()-1).visible = true;
             }
         }
@@ -105,8 +104,8 @@ public class AlarmPlayListCategoryAdapter extends RecyclerView.Adapter<AlarmPlay
         boolean visible = false;
         private final AlarmPlaylistAdapter adapter;
 
-        public ChildAdapterHolder(BaseActivity activity, Alarm alarm) {
-            adapter = new AlarmPlaylistAdapter(activity, alarm);
+        public ChildAdapterHolder(BaseActivity activity, String currentUrl) {
+            adapter = new AlarmPlaylistAdapter(activity, currentUrl);
         }
     }
 

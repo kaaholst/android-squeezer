@@ -159,6 +159,24 @@ public class PlayerState implements Parcelable {
     @NonNull
     public Map<Player.Pref, String> prefs = new HashMap<>();
 
+    /** The presets of the player, from the "preset_data" field of the status response. */
+    @NonNull
+    private List<Preset> presets = Collections.emptyList();
+
+    @NonNull
+    public List<Preset> getPresets() {
+        return presets;
+    }
+
+    public boolean setPresets(@NonNull List<Preset> presets) {
+        if (presets.equals(this.presets)) {
+            return false;
+        }
+
+        this.presets = presets;
+        return true;
+    }
+
     public boolean isPlaying() {
         return PLAY_STATE_PLAY.equals(playStatus);
     }

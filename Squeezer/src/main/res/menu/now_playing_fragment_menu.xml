@@ -44,6 +44,10 @@
         android:icon="@drawable/alarm_clock"/>
 
     <item
+        android:id="@+id/menu_item_presets"
+        android:title="@string/menu_item_presets"/>
+
+    <item
         android:id="@+id/menu_item_disconnect"
         android:icon="@drawable/ic_action_disconnect"
         android:title="@string/menu_item_disconnect"/>

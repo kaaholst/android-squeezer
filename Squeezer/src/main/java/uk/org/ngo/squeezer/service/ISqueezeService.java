@@ -117,6 +117,15 @@ public interface ISqueezeService {
     boolean playlistSave(String name);
     boolean button(Player player, IRButton button);
 
+    /**
+     * Assign an item to a preset button of the supplied player.
+     *
+     * @param player The player to set the preset for.
+     * @param key The preset slot (1-based).
+     * @param playlist The item to assign to the preset slot.
+     */
+    void setPreset(Player player, int key, AlarmPlaylist playlist);
+
     void setSecondsElapsed(int seconds);
     void adjustSecondsElapsed(int seconds);
 

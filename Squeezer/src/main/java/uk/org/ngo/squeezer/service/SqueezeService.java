@@ -1253,6 +1253,20 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void setPreset(Player player, int key, AlarmPlaylist playlist) {
+            if (!isConnected()) {
+                return;
+            }
+            // The web interface presets editor stores all items with type "audio", so mirror that.
+            mDelegate.command(player).cmd("jivefavorites", "set_preset")
+                    .param("key", key)
+                    .param("favorites_url", playlist.getId())
+                    .param("favorites_title", playlist.getName())
+                    .param("favorites_type", "audio")
+                    .exec();
+        }
+
+        @Override
         public void setActivePlayer(@Nullable final Player newActivePlayer, boolean continuePlaying) {
             changeActivePlayer(newActivePlayer, continuePlaying);
         }

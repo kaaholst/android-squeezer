@@ -140,6 +140,7 @@ public class HomeMenuHandling {
         homeMenu.clear();
         homeMenu.addAll(items);
         homeMenu.addAll(customShortcuts);
+        homeMenu.add(JiveItem.SETTINGS_PRESETS);
         customizeHomeMenu();
     }
 

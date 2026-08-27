@@ -13,24 +13,23 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.widget.ViewUtilities;
 
 public class AlarmPlaylistActivity extends BaseActivity {
     static final int GET_ALARM_PLAYLIST = 1;
     static final String ALARM_PLAYLIST = "ALARM_PLAYLIST";
-    private static final String ALARM = "alarm";
+    private static final String CURRENT_URL = "currentUrl";
     private static final String PLAYLISTS = "playlists";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Alarm alarm = getIntent().getParcelableExtra(ALARM);
+        String currentUrl = getIntent().getStringExtra(CURRENT_URL);
         List<AlarmPlaylist> alarmPlaylists = getIntent().getParcelableArrayListExtra(PLAYLISTS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_activity_layout);
 
-        AlarmPlayListCategoryAdapter adapter = new AlarmPlayListCategoryAdapter(this, alarm, alarmPlaylists);
+        AlarmPlayListCategoryAdapter adapter = new AlarmPlayListCategoryAdapter(this, currentUrl, alarmPlaylists);
         RecyclerView listView = requireView(R.id.item_list);
         listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(this));
@@ -45,9 +44,9 @@ public class AlarmPlaylistActivity extends BaseActivity {
         }
     }
 
-    public static void show(Activity context, Alarm alarm, List<AlarmPlaylist> alarmPlaylists) {
+    public static void show(Activity context, String currentUrl, List<AlarmPlaylist> alarmPlaylists) {
         Intent intent = new Intent(context, AlarmPlaylistActivity.class);
-        intent.putExtra(ALARM, alarm);
+        intent.putExtra(CURRENT_URL, currentUrl);
         intent.putParcelableArrayListExtra(PLAYLISTS, new ArrayList<>(alarmPlaylists));
         context.startActivityForResult(intent, GET_ALARM_PLAYLIST);
     }
