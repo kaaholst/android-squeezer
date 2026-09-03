@@ -33,6 +33,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -375,6 +376,10 @@ public class SqueezeService extends Service {
             return;
         }
 
+        if (player.getPlayerState().getPlayStatus() == null) {
+            return;
+        }
+
         // Update scrobble state, if either we're currently scrobbling, or we
         // were (to catch the case where we started scrobbling a song, and the
         // user went in to settings to disable scrobbling).
@@ -398,7 +403,7 @@ public class SqueezeService extends Service {
 
         int playState = isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_STOPPED;
         PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder()
-                .setState(playState, player.getPlayerState().getPosition(), isPlaying() ? 1.0f : 0)
+                .setState(playState, player.getPlayerState().getPosition(), isPlaying() ? 1.0f : 0, SystemClock.elapsedRealtime())
                 .setActions(
                         PlaybackStateCompat.ACTION_PLAY |
                                 PlaybackStateCompat.ACTION_PAUSE |

@@ -861,6 +861,11 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
         if (mFullHeightLayout) {
             Preferences preferences = Squeezer.getPreferences();
             VolumeUpdater updater = preferences.isLargeArtwork() ? preferences.nowPlayingVolume() ? volumeBar : null : volumeWheel;
+
+            if (requireService().getActivePlayer() != null && requireService().getActivePlayer().getPlayerState().getPlayStatus() == null) {
+                return;
+            }
+
             if (updater != null) updater.update(requireService().getVolume());
         }
     }
