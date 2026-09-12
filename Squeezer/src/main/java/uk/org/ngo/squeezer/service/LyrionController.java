@@ -123,11 +123,11 @@ public class LyrionController {
 
     private void onPlayersChanged(PlayersChanged event) {
         LyrionPlayer activePlayer = getActivePlayer();
+        if (activePlayer != null) activePlayer = getPlayer(activePlayer.getId());
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
             changeActivePlayer(getPreferredPlayer(getPlayers()), false);
         } else {
-            activePlayer = getPlayer(activePlayer.getId());
             setActivePlayer(activePlayer);
             updateAllPlayerSubscriptionStates();
             requestPlayerData();
