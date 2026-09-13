@@ -626,6 +626,10 @@ public class NowPlayingFragment extends Fragment  implements CallStateDialog.Cal
                     requireService().powerOffAllPlayers();
                     return;
                 }
+                if (!selectedItem.getPlayerState().isPoweredOn()) {
+                    requireService().powerOn(selectedItem);
+                }
+
                 spinner.setText(selectedItem.getName(), false);
                 if (getActivePlayer() != selectedItem) {
                     requireService().setActivePlayer(selectedItem, playerAdapter.continuePlayback());

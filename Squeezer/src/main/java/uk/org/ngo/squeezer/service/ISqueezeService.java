@@ -80,6 +80,7 @@ public interface ISqueezeService {
 
     // Player control
     void togglePower(Player player);
+    void powerOn(Player player);
     void powerOffAllPlayers();
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
