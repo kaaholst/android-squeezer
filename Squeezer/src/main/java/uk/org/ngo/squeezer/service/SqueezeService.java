@@ -188,8 +188,9 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
         }
     }
 
+    @OptIn(markerClass = {UnstableApi.class})
     private void onActivePlayerChanged(ActivePlayerChanged event) {
-        updateMediaSession(null);
+        mediaPlayer.updateMediaSession();
     }
 
     private void onMusicChanged(MusicChanged event) {

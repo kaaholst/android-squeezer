@@ -460,12 +460,15 @@ class CometClient implements SlimClient {
         String playerId = channelParts[channelParts.length - 1];
         LyrionPlayer player = mConnectionState.getPlayer(playerId);
 
-        // XXX: Can we ever see a status for a player we don't know about?
-        // XXX: Maybe the better thing to do is to add it.
-        if (player == null)
-            return;
+
+        // This can happen if this message comes after the serverstatus message (with the updated player list)
+        if (player == null) return;
 
         Map<String, Object> messageData = message.getDataAsMap();
+
+        // The player this subscription query referred to no longer exists.
+        if (messageData.containsKey("error")) return;
+
         CurrentTrack currentSong = null;
         Object[] item_data = (Object[]) messageData.get("item_loop");
         if (item_data != null && item_data.length > 0) {

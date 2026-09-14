@@ -122,11 +122,12 @@ public class LyrionController {
     }
 
     private void onPlayersChanged(PlayersChanged event) {
+        Log.i(TAG, "onPlayersChanged()");
         LyrionPlayer activePlayer = getActivePlayer();
         if (activePlayer != null) activePlayer = getPlayer(activePlayer.getId());
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
-            changeActivePlayer(getPreferredPlayer(getPlayers()), false);
+            changeActivePlayer(getPreferredPlayer(getPlayers()), null, false);
         } else {
             setActivePlayer(activePlayer);
             updateAllPlayerSubscriptionStates();
@@ -713,7 +714,7 @@ public class LyrionController {
     }
 
     public void setActivePlayer(@Nullable final LyrionPlayer newActivePlayer, boolean continuePlaying) {
-        changeActivePlayer(newActivePlayer, continuePlaying);
+        changeActivePlayer(newActivePlayer, getActivePlayer(), continuePlaying);
     }
 
     /**
@@ -722,9 +723,7 @@ public class LyrionController {
      * @param newActivePlayer The new active player. May be null, in which case no players are controlled.
      * @param continuePlaying Continue playback on the supplied player
      */
-    private void changeActivePlayer(@Nullable final LyrionPlayer newActivePlayer, boolean continuePlaying) {
-        LyrionPlayer prevActivePlayer = getActivePlayer();
-
+    private void changeActivePlayer(@Nullable final LyrionPlayer newActivePlayer, @Nullable final LyrionPlayer prevActivePlayer, boolean continuePlaying) {
         // Do nothing if the player hasn't actually changed.
         if (prevActivePlayer == newActivePlayer) {
             return;
