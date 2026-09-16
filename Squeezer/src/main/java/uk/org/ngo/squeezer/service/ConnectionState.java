@@ -112,6 +112,15 @@ public class ConnectionState {
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<LyrionPlayer> mActivePlayer = new AtomicReference<>();
 
+    /** The remembered preferred player if it was not present when player list was received. */
+    private final AtomicReference<String> preferredPlayer = new AtomicReference<>();
+
+    /** Timestamp of @{link {@link #setPreferredPlayer(String)}} */
+    private volatile long preferredPlayerTime;
+
+    /** If the {@link #preferredPlayer} reemerges within this interval then automatically select it */
+    private static final long AUTO_SELECT_INTERVAL = 15_000;
+
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
@@ -235,6 +244,15 @@ public class ConnectionState {
     void setActivePlayer(LyrionPlayer player) {
         mActivePlayer.set(player);
         repository.post(new ActivePlayerChanged(player));
+    }
+
+    String getPreferredPlayer() {
+        return (SystemClock.elapsedRealtime() - preferredPlayerTime <= AUTO_SELECT_INTERVAL) ? preferredPlayer.get() : null;
+    }
+
+    void setPreferredPlayer(String playerId) {
+        preferredPlayerTime = SystemClock.elapsedRealtime();
+        preferredPlayer.set(playerId);
     }
 
     void setServerVersion(String version) {
