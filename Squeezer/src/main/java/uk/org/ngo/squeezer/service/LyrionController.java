@@ -125,10 +125,18 @@ public class LyrionController {
         Log.i(TAG, "onPlayersChanged()");
         LyrionPlayer activePlayer = getActivePlayer();
         if (activePlayer != null) activePlayer = getPlayer(activePlayer.getId());
+
+        LyrionPlayer preferredPlayer = getPlayer(slimClient.getConnectionState().getPreferredPlayer());
+        if (preferredPlayer != null) activePlayer = preferredPlayer;
+        slimClient.getConnectionState().setPreferredPlayer(null);
+
         if (activePlayer == null) {
             // Figure out the new active player, let everyone know.
             changeActivePlayer(getPreferredPlayer(getPlayers()), null, false);
         } else {
+            if (preferredPlayer != null) {
+                Squeezer.instance().preferences().setLastPlayer(preferredPlayer);
+            }
             setActivePlayer(activePlayer);
             updateAllPlayerSubscriptionStates();
             requestPlayerData();
@@ -154,6 +162,8 @@ public class LyrionController {
                 return player;
             }
         }
+
+        slimClient.getConnectionState().setPreferredPlayer(lastConnectedPlayer);
         return !players.isEmpty() ? players.iterator().next() : null;
     }
 
