@@ -58,7 +58,7 @@ public class LyrionController {
     private final Squeezer appContext;
     private final SlimClient slimClient;
     private final SqueezerRepository repository;
-    private final CallStateHelper callStateHelper;
+    private CallStateHelper callStateHelper;
     private final DownloadHelper downloadHelper;
     private final RandomPlayDelegate randomPlayDelegate;
 
@@ -71,7 +71,6 @@ public class LyrionController {
         this.appContext = appContext;
         repository = appContext.repository();
         slimClient = new CometClient(repository);
-        callStateHelper = new CallStateHelper(this);
         downloadHelper = new DownloadHelper(Squeezer.instance(), this);
         randomPlayDelegate = new RandomPlayDelegate(this);
 
@@ -79,6 +78,7 @@ public class LyrionController {
         homeMenuHandling().setCustomShortcuts(preferences.homeGroups(), preferences.getCustomShortcuts());
 
         appContext.postToMainThread(() -> {
+            callStateHelper = new CallStateHelper(this);
             repository.observeForever(this::onConnectionChanged);
             repository.observeForever(this::onMusicChanged);
             repository.observeForever(this::onPlayStatusChanged);
