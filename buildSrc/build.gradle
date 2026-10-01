@@ -1,11 +1,11 @@
 apply plugin: 'groovy'
-
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
+
 dependencies {
-    implementation group: 'org.jdom', name: 'jdom2', version: '2.0.6'
+    implementation 'org.jdom:jdom2:2.0.6'
     implementation gradleApi()
     implementation localGroovy()
 }

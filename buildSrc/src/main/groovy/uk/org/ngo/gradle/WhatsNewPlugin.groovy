@@ -16,6 +16,7 @@
 
 package uk.org.ngo.gradle;
 
+import groovy.xml.XmlSlurper
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 
