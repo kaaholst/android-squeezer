@@ -5,7 +5,7 @@ repositories {
 
 
 dependencies {
-    implementation 'org.jdom:jdom2:2.0.6'
+    implementation 'org.jdom:jdom2:2.0.6.1'
     implementation gradleApi()
     implementation localGroovy()
 }
