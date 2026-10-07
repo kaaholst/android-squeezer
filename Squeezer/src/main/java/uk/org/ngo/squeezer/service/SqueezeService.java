@@ -21,8 +21,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.CommandButton;
 import androidx.media3.session.MediaSession;
@@ -45,6 +47,7 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.SqueezerRepository;
 import uk.org.ngo.squeezer.model.LyrionPlayer;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -103,10 +106,13 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
                 .build();
         addSession(mediaSession);
 
+        setShowNotificationForIdlePlayer(SHOW_NOTIFICATION_FOR_IDLE_PLAYER_ALWAYS);
+
         repository.observeForever(this::onMusicChanged);
         repository.observeForever(this::onPlayStatusChanged);
         repository.observeForever(this::onPlayerStateChanged);
         repository.observeForever(this::onActivePlayerChanged);
+        repository.observeForever(this::onConnectionChanged);
         // TODO clean up observers in CometClient (also look for observeForever)
     }
 
@@ -118,13 +124,13 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(TAG, "::onBind(" + intent + ")");
+        Log.v(TAG, "::onBind(" + intent + ")");
         return super.onBind(intent);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "::onUnbind(" + intent + ")");
+        Log.v(TAG, "::onUnbind(" + intent + ")");
         return super.onUnbind(intent);
     }
 
@@ -135,6 +141,7 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
         repository.removeObserver(this::onPlayStatusChanged);
         repository.removeObserver(this::onPlayerStateChanged);
         repository.removeObserver(this::onActivePlayerChanged);
+        repository.removeObserver(this::onConnectionChanged);
         mediaPlayer.release();
         mediaSession.release();
         super.onDestroy();
@@ -142,7 +149,7 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
 
     @Override
     public MediaSession onGetSession(MediaSession.@NotNull ControllerInfo controllerInfo) {
-        Log.i(TAG, "::onGetSession(" + controllerInfo + ")");
+        Log.v(TAG, "::onGetSession(" + controllerInfo + ")");
         return mediaSession;
     }
 
@@ -179,6 +186,20 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
             default -> SessionResult.RESULT_ERROR_NOT_SUPPORTED;
         };
         return Futures.immediateFuture(new SessionResult(sessionResult));
+    }
+
+    @NonNull
+    @Override
+    @OptIn(markerClass = {UnstableApi.class})
+    public ListenableFuture<@NullableType Void> onUpdateNotificationAsync(@NonNull MediaSession session, boolean startInForegroundRequired) {
+        boolean isConnected = lyrionController != null && lyrionController.isConnected();
+        Log.v(TAG, "::onUpdateNotificationAsync(" + startInForegroundRequired + ", isConnected=" + isConnected + ")");
+        return super.onUpdateNotificationAsync(session, startInForegroundRequired || isConnected);
+    }
+
+    @OptIn(markerClass = {UnstableApi.class})
+    private void onConnectionChanged(ConnectionChanged event) {
+        triggerNotificationUpdate();
     }
 
     @OptIn(markerClass = {UnstableApi.class})
