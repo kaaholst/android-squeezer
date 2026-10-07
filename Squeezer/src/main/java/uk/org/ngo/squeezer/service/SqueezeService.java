@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media3.common.util.NullableType;
@@ -145,6 +146,12 @@ public class SqueezeService extends MediaSessionService implements MediaSession.
         mediaPlayer.release();
         mediaSession.release();
         super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(@Nullable Intent rootIntent) {
+        lyrionController.disconnect(true);
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override
