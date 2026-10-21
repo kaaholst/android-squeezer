@@ -268,14 +268,10 @@ public final class Preferences {
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
-    private final int defaultCliPort;
-    private final int defaultHttpPort;
 
     public Preferences(Context context, SharedPreferences sharedPreferences) {
         this.context = context;
         this.sharedPreferences = sharedPreferences;
-        defaultCliPort = context.getResources().getInteger(R.integer.DefaultCliPort);
-        defaultHttpPort = context.getResources().getInteger(R.integer.DefaultHttpPort);
     }
 
     public SharedPreferences getSharedPreferences() {
@@ -300,42 +296,38 @@ public final class Preferences {
 
     public boolean hasServerConfig() {
         String bssId = getBssId();
-        return (sharedPreferences.contains(prefixed(bssId, KEY_SERVER_ADDRESS)) ||
+        return (sharedPreferences.contains(prefixed(bssId)) ||
                 sharedPreferences.contains(KEY_SERVER_ADDRESS));
     }
 
     public ServerAddress getServerAddress() {
-        return getSelectedServerAddress(KEY_SERVER_ADDRESS, defaultHttpPort);
+        return getSelectedServerAddress();
     }
 
-    public ServerAddress getCliServerAddress() {
-        return getSelectedServerAddress(KEY_CLI_SERVER_ADDRESS, defaultCliPort);
-    }
-
-    private ServerAddress getSelectedServerAddress(String setting, int defaultPort) {
-        ServerAddress serverAddress = new ServerAddress(getBssId(), defaultPort);
+    private ServerAddress getSelectedServerAddress() {
+        ServerAddress serverAddress = new ServerAddress(getBssId());
 
         String address = null;
         if (serverAddress.bssId != null) {
-            address = getStringPreference(setting + "_" + serverAddress.bssId);
+            address = getStringPreference(KEY_SERVER_ADDRESS + "_" + serverAddress.bssId);
         }
         if (address == null) {
-            address = getStringPreference(setting);
+            address = getStringPreference(KEY_SERVER_ADDRESS);
         }
 
-        readServerAddress(serverAddress, address, defaultPort);
+        readServerAddress(serverAddress, address);
         return serverAddress;
     }
 
     public ServerAddress getServerAddress(String address) {
-        ServerAddress serverAddress = new ServerAddress(getBssId(), defaultHttpPort);
+        ServerAddress serverAddress = new ServerAddress(getBssId());
         serverAddress.setAddress(address);
-        readServerAddress(serverAddress, address, defaultHttpPort);
+        readServerAddress(serverAddress, address);
         return serverAddress;
     }
 
-    private void readServerAddress(ServerAddress serverAddress, String address, int defaultPort) {
-        serverAddress.setAddress(address, defaultPort);
+    private void readServerAddress(ServerAddress serverAddress, String address) {
+        serverAddress.setAddress(address);
 
         serverAddress.serverName = getStringPreference(prefix(serverAddress) + KEY_SERVER_NAME);
         serverAddress.userName = getStringPreference(prefix(serverAddress) + KEY_USERNAME);
@@ -352,8 +344,8 @@ public final class Preferences {
         return  (connectionInfo != null ? connectionInfo.getBSSID() : null);
     }
 
-    private String prefixed(String bssId, String setting) {
-        return (bssId != null ? setting + "_" + bssId : setting);
+    private String prefixed(String bssId) {
+        return (bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS);
     }
 
     private String prefix(ServerAddress serverAddress) {
@@ -392,7 +384,6 @@ public final class Preferences {
     public static class ServerAddress {
         private final String bssId;
         private String address; // <host name or ip>:<port>
-        private final int defaultPort;
 
         private String serverName;
         public String userName;
@@ -403,13 +394,8 @@ public final class Preferences {
 
         public long lastScan;
 
-        private ServerAddress(String bssId, int defaultPort) {
-            this.defaultPort = defaultPort;
+        private ServerAddress(String bssId) {
             this.bssId = bssId;
-        }
-
-        public void setAddress(String hostPort) {
-            setAddress(hostPort, defaultPort);
         }
 
         public void setServerName(String serverName) {
@@ -424,8 +410,8 @@ public final class Preferences {
             return serverName != null ? serverName : address;
         }
 
-        private void setAddress(String address, int defaultPort) {
-            this.address = UrlUtils.addDefaults(address, defaultPort);
+        public void setAddress(String address) {
+            this.address = UrlUtils.addDefaults(address);
         }
 
         private String hostport() {
@@ -435,7 +421,7 @@ public final class Preferences {
 
     public void saveServerAddress(ServerAddress serverAddress) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(prefixed(serverAddress.bssId, KEY_SERVER_ADDRESS), serverAddress.address);
+        editor.putString(prefixed(serverAddress.bssId), serverAddress.address);
         updateStringPreference(editor, prefix(serverAddress) + KEY_SERVER_NAME, serverAddress.serverName);
         updateStringPreference(editor, prefix(serverAddress) + KEY_USERNAME, serverAddress.userName);
         updateStringPreference(editor, prefix(serverAddress) + KEY_PASSWORD, serverAddress.password);

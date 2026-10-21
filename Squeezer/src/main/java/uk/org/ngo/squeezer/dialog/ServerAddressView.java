@@ -90,12 +90,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             Squeezer.instance().preferences(prefs -> {
                 preferences = prefs;
                 serverAddress = preferences.getServerAddress();
-                if (serverAddress.address() == null) {
-                    Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
-                    if (cliServerAddress.address() != null) {
-                        serverAddress.setAddress(cliServerAddress.address());
-                    }
-                }
 
                 serverAddressEditText = findViewById(R.id.server_address);
                 serverAddressEditText.setAdapter(new ArrayAdapter<>(getContext(), R.layout.dropdown_item, preferences.getServerHistory()));
@@ -188,7 +182,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         serversSpinner_til.setStartIconDrawable(android.R.color.transparent);
         serversSpinner_til.setStartIconOnClickListener(null);
         serversSpinner.setText(R.string.settings_server_scan_progress);
-        scanNetworkTask = new ScanNetworkTask(getContext(), this);
+        scanNetworkTask = new ScanNetworkTask(this);
         new Thread(scanNetworkTask).start();
 
         scanProgress.setProgress(0);

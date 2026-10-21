@@ -26,23 +26,28 @@ public class UrlUtilsTest extends TestCase {
     }
 
     public void testAddDefaults() {
-        assertNull(UrlUtils.addDefaults(null, 80));
-        assertEquals("", UrlUtils.addDefaults("", 80));
+        assertNull(UrlUtils.addDefaults(null));
+        assertEquals("", UrlUtils.addDefaults(""));
 
-        assertEquals("http://host:80", UrlUtils.addDefaults("host", 80));
-        assertEquals("http://host:9000", UrlUtils.addDefaults("host:9000", 80));
-        assertEquals("http://host/cometd", UrlUtils.addDefaults("host/cometd", 80));
-        assertEquals("http://host:9000/cometd", UrlUtils.addDefaults("host:9000/cometd", 80));
+        assertEquals("http://host:9000", UrlUtils.addDefaults("host"));
+        assertEquals("http://host:80", UrlUtils.addDefaults("host:80"));
+        assertEquals("http://host:9000", UrlUtils.addDefaults("host:9000"));
+        assertEquals("http://host/cometd", UrlUtils.addDefaults("host/cometd"));
+        assertEquals("http://host:80/cometd", UrlUtils.addDefaults("host:80/cometd"));
+        assertEquals("http://host:9000/cometd", UrlUtils.addDefaults("host:9000/cometd"));
 
-        assertEquals("//host:80", UrlUtils.addDefaults("//host", 80));
-        assertEquals("//host:9000", UrlUtils.addDefaults("//host:9000", 80));
-        assertEquals("//host/cometd", UrlUtils.addDefaults("//host/cometd", 80));
-        assertEquals("//host:9000/cometd", UrlUtils.addDefaults("//host:9000/cometd", 80));
+        assertEquals("//host:9000", UrlUtils.addDefaults("//host"));
+        assertEquals("//host:80", UrlUtils.addDefaults("//host:80"));
+        assertEquals("//host/cometd", UrlUtils.addDefaults("//host/cometd"));
+        assertEquals("//host:80/cometd", UrlUtils.addDefaults("//host:80/cometd"));
+        assertEquals("//host:9000/cometd", UrlUtils.addDefaults("//host:9000/cometd"));
 
-        assertEquals("http://host:80", UrlUtils.addDefaults("http://host", 80));
-        assertEquals("http://host:9000", UrlUtils.addDefaults("http://host:9000", 80));
-        assertEquals("http://host/cometd", UrlUtils.addDefaults("http://host/cometd", 80));
-        assertEquals("http://host:9000/cometd", UrlUtils.addDefaults("http://host:9000/cometd", 80));
+        assertEquals("http://host:9000", UrlUtils.addDefaults("http://host"));
+        assertEquals("http://host:80", UrlUtils.addDefaults("http://host:80"));
+        assertEquals("http://host:9000", UrlUtils.addDefaults("http://host:9000"));
+        assertEquals("http://host/cometd", UrlUtils.addDefaults("http://host/cometd"));
+        assertEquals("http://host:80/cometd", UrlUtils.addDefaults("http://host:80/cometd"));
+        assertEquals("http://host:9000/cometd", UrlUtils.addDefaults("http://host:9000/cometd"));
     }
 
 }

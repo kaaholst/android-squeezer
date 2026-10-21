@@ -1,7 +1,5 @@
 package uk.org.ngo.squeezer.util;
 
-import androidx.core.util.Pair;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -27,7 +25,7 @@ public class UrlUtils {
         }
     }
 
-    public static String addDefaults(String originalUrl, int defaultPort) {
+    public static String addDefaults(String originalUrl) {
         if (isEmpty(originalUrl)) return originalUrl;
 
         String url = originalUrl;
@@ -39,7 +37,10 @@ public class UrlUtils {
             if (authorityPosition < 0) url = "http://" + url;
             StringBuilder modifiedUrl = new StringBuilder(url);
             URI uri = new URI(modifiedUrl.toString());
-            if (port < 0 && isEmpty(uri.getPath()) && isEmpty(uri.getQuery())) modifiedUrl.append(':').append(defaultPort);
+            if (port < 0 && isEmpty(uri.getPath()) && isEmpty(uri.getQuery())) {
+                int defaultPort = "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 9000;
+                modifiedUrl.append(':').append(defaultPort);
+            }
             return modifiedUrl.toString();
         } catch (URISyntaxException e) {
             return originalUrl;

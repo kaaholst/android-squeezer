@@ -1,7 +1,5 @@
 package uk.org.ngo.squeezer.util;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 
 import android.os.Handler;
@@ -18,8 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import uk.org.ngo.squeezer.R;
-
 /**
  * Scans the local network for servers.
  */
@@ -27,7 +23,6 @@ public class ScanNetworkTask implements Runnable {
     private static final String TAG = ScanNetworkTask.class.getSimpleName();
 
     private final ScanNetworkCallback callback;
-    private final int defaultHttpPort;
     private volatile boolean cancelled;
 
     /**
@@ -40,9 +35,8 @@ public class ScanNetworkTask implements Runnable {
      */
     public static final int DISCOVERY_ATTEMPT_TIMEOUT = 1400;
 
-    public ScanNetworkTask(Context context, ScanNetworkCallback callback) {
+    public ScanNetworkTask(ScanNetworkCallback callback) {
         this.callback = callback;
-        defaultHttpPort = context.getResources().getInteger(R.integer.DefaultHttpPort);
     }
 
     /**
@@ -107,8 +101,8 @@ public class ScanNetworkTask implements Runnable {
                         String name = discover.get("NAME");
                         if (name != null) {
                             String host = responsePacket.getAddress().getHostAddress();
-                            String port = discover.containsKey("JSON") ? discover.get("JSON") : String.valueOf(defaultHttpPort);
-                            serverMap.put(name, host + ':' + port);
+                            String port = discover.get("JSON");
+                            serverMap.put(name, port == null ? host : host + ':' + port);
                         }
                     }
                 } catch (IOException e) {
