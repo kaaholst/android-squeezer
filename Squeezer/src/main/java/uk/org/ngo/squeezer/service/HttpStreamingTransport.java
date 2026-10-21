@@ -18,6 +18,7 @@ import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.EOFException;
 import java.net.URI;
@@ -57,7 +58,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     public HttpStreamingTransport(String url, Map<String, Object> options) throws Exception {
         super(NAME, url, options);
 
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient(new SslContextFactory());
         _httpClient.start();
 
         _delegate = new Delegate();
