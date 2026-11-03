@@ -411,7 +411,7 @@ public final class Preferences {
         }
 
         public void setAddress(String address) {
-            this.address = UrlUtils.addDefaults(address);
+            this.address = address == null ? "" : UrlUtils.addDefaults(address);
         }
 
         private String hostport() {
